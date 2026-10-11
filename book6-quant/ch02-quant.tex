@@ -310,6 +310,38 @@ combination $z_t=y_t-2x_t$ is stationary (ADF $-5.37$).}
 \label{fig:coint}
 \end{figure}
 
+\begin{example}[Trend-stationary or difference-stationary?]\label{ex:trendvsdiff}
+\textbf{Strategy.} Two candidate fixes compete for trending series:
+subtract a fitted line, or difference. Run ADF on both candidates
+and let the data vote.
+
+\textbf{Solution.} \texttt{trend\_vs\_diff.py} detrends the log BTC
+price linearly, runs ADF on the residuals, and compares with ADF on
+the returns:
+\begin{verbatim}
+detrended log-price ADF stat -2.846  (crit5% -1.941)
+differenced (returns) ADF stat -18.542  (crit5% -1.941)
+trend slope -18.7% per yr, R2 of trend fit = 0.297
+verdict: returns stationary, detrended price NOT -- unit root, not trend
+\end{verbatim}
+Returns reject the unit root at $-18.5$ --- decisively. The
+detrended residuals reject only \emph{marginally} ($-2.85$ vs
+$-1.94$ critical): barely inside the 5\% band, and the verdict is
+fragile to lag choice and window. Meanwhile the trend explains
+only $R^2=0.30$: a real ink-on-the-chart slope that is statistically
+thin, because a random walk's ``trend'' is an accumulation of luck,
+not a deterministic schedule.
+
+\textbf{Significance.} This is the concrete form of
+\S\ref{sec:trend}'s distinction, on real data, with the honest
+wrinkle: borderline ADF rejections on detrended levels are
+\emph{weak} evidence of trend-stationarity, not proof. When the
+detrended answer is marginal and the differenced answer is
+decisive, difference. \emph{Estimated} drift and a unit root
+coexist happily --- never let an $R^2$ of 0.30 talk you into a
+deterministic trend.
+\end{example}
+
 \section*{Summary sheet}
 \addcontentsline{toc}{section}{Summary sheet}
 \begin{table}[ht]\centering
@@ -359,6 +391,14 @@ the level they revert to, not the decay shape.
 \item \textbf{Trading ``cointegration'' on correlation alone.}
 Correlated non-stationary legs can diverge forever; the ADF-passing
 residual is the object that reverts.
+\item \textbf{Detrending a unit root.} A fitted line through a
+random walk produces residuals that still fail ADF
+(Example~\ref{ex:trendvsdiff}) and \emph{fake} mean reversion ---
+the residuals oscillate around the line because the walk wanders.
+Difference first, model the level never.
+\item \textbf{Reading ADF as ``the test''.} ADF has three regression
+variants (no constant, constant, trend) and lag selection changes
+the verdict. State both, or the number is not reproducible.
 \end{itemize}
 
 \section*{Exercises}\addcontentsline{toc}{section}{Exercises}
@@ -509,6 +549,40 @@ Implementation exercise; the fit is $\operatorname{sd}\propto k^H$
 with $H\approx0.5$ for near-independent increments --- expect $H$
 close to but not exactly $0.5$, and say what the deviation could
 mean (mild serial structure vs heavy tails inflating the sd).
+\end{solution}
+
+\begin{exercise}[easy]
+In Example~\ref{ex:trendvsdiff}, which ADF statistic is the
+stronger evidence of stationarity, and why is the $-18.5$ not a
+surprise?
+\end{exercise}
+\begin{solution}
+$-18.5$ on returns --- returns of a unit-root series are white-ish
+noise by construction, so decisive rejection is expected; the
+detrended level rejects only marginally ($-2.85$ vs $-1.94$), which
+is thin and fragile evidence for trend-stationarity.
+\end{solution}
+\begin{exercise}[medium]
+Your ADF on a trending series gives stat $=-1.5$ (fail) with the
+\texttt{"c"} variant but $-3.5$ (pass) with \texttt{"ct"}.
+Write one sentence a reviewer could not attack.
+\end{exercise}
+\begin{solution}
+``With a trend term the series is trend-stationary at 5\%, without
+it it carries a unit root --- the two variants test different nulls,
+so I report both and difference regardless''.
+\end{solution}
+\begin{exercise}[hard]
+Show that if $y_t$ follows a pure random walk, the OLS $R^2$ of a
+time-trend regression tends to a nondegenerate random variable, not
+to $0$ --- i.e. trending R-squared values mean nothing. Simulate it
+on 500-step walks to see the distribution.
+\end{exercise}
+\begin{solution}
+A spurious-regression result (Granger--Newbold): the $t$-statistic
+and $R^2$ both diverge/level off at random values because the
+walk's low-frequency content mimics any trend. Simulation shows
+$R^2$ spread over $[0.1, 0.9]$ with no point mass at 0.
 \end{solution}
 
 \section*{Notes}\addcontentsline{toc}{section}{Notes}

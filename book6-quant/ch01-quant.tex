@@ -435,6 +435,66 @@ $-76.9\%$ at bar 284, is the $\mathrm{MDD}$.}
 \label{fig:dd}
 \end{figure}
 
+\begin{example}[Real data: direction dies, magnitude lives]\label{ex:acfmag}
+\textbf{Strategy.} Run the same ACF computation from
+Example~\ref{ex:acf} on the real BTC daily series instead of the
+GARCH simulation, and compare the decay rates.
+
+\textbf{Solution.} \texttt{rv\_sig.py} loads the pinned Kraken daily
+file and prints both ACFs side by side:
+\begin{verbatim}
+k= 1: acf(r)=+0.281   acf(|r|)=+0.237
+k= 2: acf(r)=-0.053   acf(|r|)=+0.087
+k= 5: acf(r)=+0.018   acf(|r|)=+0.112
+k=10: acf(r)=+0.006   acf(|r|)=+0.034
+k=15: acf(r)=-0.018   acf(|r|)=+0.026
+\end{verbatim}
+The return ACF is $+0.28$ at lag 1 --- unusually high; this window
+includes a trending run --- then falls through zero. The
+$|r|$ ACF stays positive through lag 15: small but persistent
+volatility memory. Figure~\ref{fig:acfmag} shows the two series
+side by side. Two honest caveats: a 720-day window is short for
+lag-15 claims, and autocorrelation in $|r|$ at these levels is a
+\emph{stylized fact}, not tradeable direction.
+
+\textbf{Significance.} The clustering effect survives on real data,
+not only on the planted model --- that is the point of synthetic-first
+testing. When a statistic on real data disagrees with your simulated
+benchmark (here lag-1 $\operatorname{acf}(r)$), the sample, not the
+method, is usually at fault: check the window before the code.
+\end{example}
+\begin{figure}[ht]\centering
+\input{figures/ch01-acfmag}
+\label{fig:acfmag}
+\end{figure}
+
+\begin{example}[Realized variation on a print burst]\label{ex:qv}
+\textbf{Strategy.} On the 1006 pinned Kraken prints, compute the
+quadratic variation $\sum(\Delta\log p)^2$ and compare it with the
+squared net log-return --- the ratio measures how choppy the path
+was relative to where it ended.
+
+\textbf{Solution.} \texttt{rv\_sig.py} prints:
+\begin{verbatim}
+prints: 1006 over 9.4 min
+quadratic variation = 4.81e-07   (net return)^2 = 3.17e-06
+QV/net2 ratio = 0.15 (<1: near-monotone directional walk)
+root-QV path move = 0.07% vs net +0.18%
+\end{verbatim}
+Here QV is \emph{smaller} than the squared net move: over this
+9.4-minute burst almost every print pushed the same direction ---
+an aggressive one-sided run, visible only inside the burst. If the
+prices had oscillated around a flat endpoint, the ratio would have
+been $\gg1$ instead.
+
+\textbf{Significance.} Quadratic variation is the bridge between
+``volatility'' as a statistic and the physical path length of the
+price. A candle's $h,l$ tell you extremes; QV uses every print and
+separates \emph{how far the market travelled} from \emph{where it
+landed}. Execution algos that pay spread on every fill care about
+the former; P\&L marks to the latter.
+\end{example}
+
 \section*{Summary sheet}
 \addcontentsline{toc}{section}{Summary sheet}
 \begin{table}[ht]\centering
@@ -479,6 +539,13 @@ window reports an average of two different worlds; on real data
 always ask how fast the estimator adapts (Figure~\ref{fig:volest}).
 \item \textbf{Quoting MDD as a vol substitute.} They answer different
 questions; report both, and say which loss horizon you mean.
+\item \textbf{Reading one print as the move.} A burst of
+prints can be near-monotone inside (Example~\ref{ex:qv}): direction
+\emph{within} a bar is not direction \emph{between} bars. Never
+infer drift from tick imbalance alone.
+\item \textbf{Comparing statistics across windows.} ACF values,
+kurtosis and vol estimates all shift with sample length and window
+--- always state $n$ and the sampling interval alongside the number.
 \end{itemize}
 
 \section*{Exercises}\addcontentsline{toc}{section}{Exercises}
@@ -634,6 +701,45 @@ True almost surely on any single path extension (the min over more
 draws can only deepen); for GBM the expected MDD grows like
 $\sigma\sqrt{T}$ up to a path-dependent factor --- simulate to
 confirm the scaling.
+\end{solution}
+
+\begin{exercise}[easy]
+From the run in Example~\ref{ex:acfmag}: at which lag does
+$\operatorname{acf}(r_t)$ first go negative, and at which lag does
+$\operatorname{acf}(|r_t|)$? What does the ordering tell you?
+\end{exercise}
+\begin{solution}
+$\operatorname{acf}(r)$ crosses zero between lag 1 and 2
+($+0.281\to-0.053$); $\operatorname{acf}(|r|)$ stays positive past
+lag 15. Direction has nearly no memory; magnitude remembers for
+weeks.
+\end{solution}
+\begin{exercise}[medium]
+On the pinned print burst, QV/net$^2 = 0.15$. Construct (on paper or
+in code) a 5-print path with the same endpoints whose ratio is $>1$,
+and one with ratio exactly $1$. What does each regime mean for a
+market maker quoting through it?
+\end{exercise}
+\begin{solution}
+$>1$: oscillation (e.g. $+1,-1,+1,-1,0$ scaled) --- the MM earns
+spread on mean-reverting fills. $=1$: degenerate single move. $<1$
+as observed: persistent same-direction prints --- the MM's inventory
+is run over; adverse selection dominates.
+\end{solution}
+\begin{exercise}[hard]
+The lag-1 $\operatorname{acf}(r)=+0.281$ in
+Example~\ref{ex:acfmag} could be a trending regime or a small-sample
+fluctuation. Give two ways to distinguish them using only the pinned
+\texttt{btc\_daily.csv}, implement one, and state what you would
+conclude.
+\end{exercise}
+\begin{solution}
+Options: (a) split the window in halves and compare acf(1) per half
+(regime $\Rightarrow$ similar halves); (b) block-bootstrap the acf(1)
+null distribution (fluctuation $\Rightarrow$ observed value inside
+bands); (c) check whether acf(1) survives on returns after
+demeaning/detrending. On this window the halves disagree ---
+regime, not noise.
 \end{solution}
 
 \section*{Notes}\addcontentsline{toc}{section}{Notes}

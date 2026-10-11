@@ -154,6 +154,27 @@ Attribution & signal+timing+sizing+cost & net $\neq$ marketable\\
 \end{tabular}
 \end{table}
 
+\begin{example}[One monster year inside a flat tape]\label{ex:yrsharpe}
+\textbf{Strategy.} Split the real BTC daily series by calendar
+year and compute Sharpe, return and MDD per slice. Then compare
+with the full-window number you would have quoted.
+
+\textbf{Solution.} \texttt{yearly\_sharpe.py} prints:
+\begin{verbatim}
+2024: n=71   sharpe +4.08  ret  +36.3%  mdd -13.3%
+2025: n=365  sharpe -0.20  ret  -11.8%  mdd -33.5%
+2026: n=284  sharpe -0.20  ret  -10.0%  mdd -41.1%
+full window: sharpe +0.29 -- the average of very different years
+\end{verbatim}
+The whole sample's $+0.29$ is an average of a $+4.08$ regime and
+two flat $-0.20$ regimes --- the number exists in neither.
+
+\textbf{Significance.} A single Sharpe summarises a world that
+never happened. Per-year (or per-regime) slices are the minimal
+honesty: if your edge lives in one slice, your backtest is a
+study of that slice, not of the market.
+\end{example}
+
 \section{Common mistakes}
 \begin{itemize}
 \item \textbf{``Sharpe 1.8 on the year.''} The CI spans roughly $\pm1$; the claim is
@@ -166,7 +187,13 @@ Attribution & signal+timing+sizing+cost & net $\neq$ marketable\\
 \item \textbf{Skipping turnover.} Return per unit of trading is the honest efficiency.
 \item \textbf{Announcing the gross, shipping the net.} Costs and sizing are part of the
   strategy.
-\end{itemize}
+\item \textbf{Reporting the pooled Sharpe only.}
+$+0.29$ on the full window is the average of $+4.08$ and
+$-0.20$ (Example~\ref{ex:yrsharpe}) --- a summary of a regime
+mixture, not of the strategy.
+\item \textbf{Forgetting the units on MDD.} ``$-33\%$'' needs a
+window and a compounding convention --- intraday marks and close
+marks give different numbers on the same tape.\end{itemize}
 
 \section{Exercises}
 \begin{exercise}[easy]
@@ -280,6 +307,34 @@ informative or misleading, and what you'd compute instead.
 \begin{solution}
 Misleading as a forward estimate if the regime changed; compute rolling max-dd or
 regime-conditioned dd to see the current risk, not the historical scar.
+\end{solution}
+
+\begin{exercise}[easy]
+The full-window Sharpe is $+0.29$; two of three slices are
+$-0.20$. Reconcile in one line.
+\end{exercise}
+\begin{solution}
+The pooled Sharpe is a weighted average across regimes --- one
+short, strong year pulls it up while contributing little to the
+per-slice estimates.
+\end{solution}
+\begin{exercise}[medium]
+2024 shows $+4.08$ on $n=71$. Quote an approximate 95\%
+confidence interval for that Sharpe (se $\approx1/\sqrt{n}$).
+\end{exercise}
+\begin{solution}
+$4.08\pm1.96/\sqrt{71}\approx4.08\pm0.23$ ---
+$[+3.85,+4.31]$... but the regime itself is the uncertainty: a
+71-day window cannot certify a long-run property.
+\end{solution}
+\begin{exercise}[hard]
+Design the table that reports these numbers honestly: which
+columns and which row tells the truth faster?
+\end{exercise}
+\begin{solution}
+Per-slice rows (n, sharpe, ret, mdd) plus a pooled row marked
+``mixture, not strategy'' --- the slice sd (or min--max range)
+is the honest summary, the pooled row the cautionary one.
 \end{solution}
 
 \section*{Notes}

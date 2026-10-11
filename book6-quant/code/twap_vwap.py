@@ -21,7 +21,7 @@ c_twap=cost(twap); c_vwap=cost(vwap)
 print(f"slices {T}  volume U-shaped (open/close heavy)")
 print(f"IS TWAP: {c_twap*1e4/mid0:+7.2f}bp   IS VWAP: {c_vwap*1e4/mid0:+7.2f}bp")
 print("vwap wins on U-volume: schedules weight to where liquidity is")
-with open("/tmp/VOL.tex","w") as fh:
+with open("../figures/data/VOL.tex","w") as fh:
     for t in range(T): fh.write(f"{t} {vol[t]*100:.2f}\n")
-with open("/tmp/PX.tex","w") as fh:
+with open("../figures/data/PX.tex","w") as fh:
     for t in range(T): fh.write(f"{t} {px[t]:.3f}\n")

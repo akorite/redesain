@@ -226,6 +226,34 @@ gauge that needs no price model at all.
 \end{itemize}
 \end{checkpoint}
 
+\begin{example}[What the window actually costs]\label{ex:carrycost}
+\textbf{Strategy.} Take the pinned 500-hour BTC funding tape and
+bill it like a broker would: multiply the summed rate by notional,
+then ask how unevenly the cost arrives.
+
+\textbf{Solution.} \texttt{carry\_cost.py} prints:
+\begin{verbatim}
+window: 500h of BTC funding on Hyperliquid
+mean funding = 0.113 bp/h  (9.88% per yr if sustained)
+mean premium = -0.965 bp/h
+median funding = 0.125 bp/h  at-floor hours 85%
+carry on $100k long over 500h = $563.83 = 56.4 bp
+worst 8h funding stretch = 1.00 bp  best = -0.34 bp
+\end{verbatim}
+A $\$100$k long held the whole window pays $\$563.83$ ---
+$56.4$bp, or an annualised $9.9\%$ if this rate sustained. Yet
+85\% of hours sat at the $0.125$bp interest floor: the carry is a
+\emph{fixed toll}, not compensation for a real premium (mean
+premium $-0.97$bp --- the perp actually traded \emph{below} index
+most of the window).
+
+\textbf{Significance.} Funding is rarely ``the carry trade's
+yield'' --- on this venue it is mostly the rate floor. The worst
+8h stretch ($1.0$bp) is five times the mean: sizing a position
+by average funding understates the crowded-window cost by the
+same factor.
+\end{example}
+
 \section{Recap: perp math end-to-end}\label{sec:perprecap}
 
 The chapter's toolkit is deliberately small. A perp position is fully described by
@@ -269,6 +297,14 @@ Mark vs last & PnL on mark, trades on last & liquidations trigger off mark\\
   \emph{already} crowded; it is a positioning measure, not a forecast.
 \item \textbf{Annualising from one epoch.} $f_t$ is noisy at hourly scale; annualise the
   \emph{mean} over a window, not a single hot print.
+\item \textbf{Annualising the floor.} $0.125$bp/h $\times
+24\times365 = 10.95\%$/yr --- but that is the \emph{floor}, not a
+signal: 85\% of the window printed exactly it. Quote the floor and
+the premium separately.
+\item \textbf{Budgeting carry by the mean.} The worst 8h stretch
+cost $5\times$ the hourly mean (Example~\ref{ex:carrycost}). A
+position sized to ``average funding'' is sized wrong precisely
+when it matters most.
 \end{itemize}
 
 \section{Exercises}
@@ -419,6 +455,39 @@ Positive predictability (high funding predicting mean-reversion/squeezes) is exa
 keeps the mechanism at its resting point: if a simple rule printed money, crowding into the
 rule would move the premium and the funding equilibrium. The variable is a thermometer, and
 trading the thermometer moves the temperature.
+\end{solution}
+
+\begin{exercise}[easy]
+On the pinned window a $\$100$k long pays $\$563.83$ over 500h.
+What would a $\$100$k \emph{short} have received, and why is the
+answer not exactly $-\$563.83$?
+\end{exercise}
+\begin{solution}
+The same magnitude --- funding is symmetric in sign. It is not
+exactly $-\$563.83$ only because the rate floor makes some hours
+structurally nonzero regardless of premium sign.
+\end{solution}
+\begin{exercise}[medium]
+The mean premium was $-0.97$bp/h while mean funding was
+$+0.113$bp/h. Reconcile the signs in one sentence.
+\end{exercise}
+\begin{solution}
+Premium negative means perp $<$ index; the rate floor still
+charges longs the default interest component, so sign(funding)
+$\neq$ sign(premium) whenever the premium is small.
+\end{solution}
+\begin{exercise}[hard]
+Your strategy shorts perps to ``collect funding''. Using the pinned
+window, estimate P\&L per $\$100$k short including the premium drift
+you'd also earn/pay, and state the assumption that breaks the
+trade.
+\end{exercise}
+\begin{solution}
+Collect $+\$563.83$ funding but pay the negative premium drift
+($-0.97$bp/h $\times$ 500h $\times \$100$k $= -\$485$): net
+$\approx +\$79$. The break: any window where premium reverts
+positive flips the drift against you --- you are short the perp
+basis, not long a coupon.
 \end{solution}
 
 \section*{Notes}

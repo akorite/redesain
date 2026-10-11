@@ -228,6 +228,35 @@ visible.}
 \label{fig:bounce}
 \end{figure}
 
+\begin{example}[Measuring signed impact on real prints]\label{ex:signimpact}
+\textbf{Strategy.} With no quotes pinned, proxy the half-spread by
+how far the price moves after a buy vs after a sell. On the pinned
+burst, split consecutive price changes by the sign of the
+\emph{previous} print.
+
+\textbf{Solution.} \texttt{signed\_impact.py} prints:
+\begin{verbatim}
+prints 1006: buys 748 sells 258
+zero-move prints: 54% of consecutive moves are 0
+avg next-print dp after a buy  = +0.3760
+avg next-print dp after a sell = -0.5101
+signed impact (spread/2 proxy) = 0.4431 per print
+avg |dp| = 0.655 = 6.55 ticks
+\end{verbatim}
+Buys push the next print up on average, sells push it down --- that
+is signed price impact, mechanically identical to the adverse
+selection the MM felt in Example~\ref{ex:mmgame}. The proxy
+half-spread $\approx 0.44$ per print ($\approx 4.4$ ticks) is far
+tighter than a naive ``last price'' read because 54\% of moves are
+zero --- most prints re-mark at the same level.
+
+\textbf{Significance.} You just estimated a transaction-cost number
+from raw trades alone: when quotes are missing, signed impact is
+the cheapest workable spread proxy. It is biased downward (it sees
+only \emph{realised} moves, not the queue), which is why real TCA
+keeps the book snapshots.
+\end{example}
+
 \section{A 60-line exchange simulator}\label{sec:sim}
 \index{simulator}
 \texttt{code/lob.py} is a working exchange in one file: price-level
@@ -278,6 +307,14 @@ the print stream is the record --- rebuild and compare
 \item \textbf{Quoting without a flow model.} A static spread earns
 $+0.10$ from noise traders and loses it back to informed flow
 (Example~\ref{ex:mmgame}).
+\item \textbf{Trusting ``last price'' as value.} 54\% of
+consecutive prints in the pinned burst mark no move
+(Example~\ref{ex:signimpact}) --- the last traded price is stale the
+moment it prints. Mid or microprice is the honest mark.
+\item \textbf{Forgetting impact has a sign.} Buys push up, sells
+push down, \emph{by construction}. A backtest that fills at last
+price assumes you moved the market $0.44$ ticks per trade in your
+favour --- it gives you the rebate you never earned.
 \end{itemize}
 
 \section*{Exercises}\addcontentsline{toc}{section}{Exercises}
@@ -426,6 +463,40 @@ splits adverse selection from liquidity cost.
 Effective $=2|\bar p-m_0|$; realized $=2\,\mathrm{sign}\cdot
 (\bar p-m_{t+60})$ --- the part that stays after the mark-out window
 is real cost, the part that reverts was informed-flow noise.
+\end{solution}
+
+\begin{exercise}[easy]
+In Example~\ref{ex:signimpact} the signed-impact proxy is
+$0.44$/print. Is that the spread, the half-spread, or neither?
+Justify in one line.
+\end{exercise}
+\begin{solution}
+A half-spread proxy: it measures one-sided impact per print
+(buy-vs-sell gap divided by two), i.e.\ what one side of the
+round trip costs --- not the full bid-ask width.
+\end{solution}
+\begin{exercise}[medium]
+In the burst, buys outnumber sells 748 to 258 yet price still finds
+sellers. Propose two mechanisms a live book provides that the print
+file hides.
+\end{exercise}
+\begin{solution}
+(a) Resting limit sells absorb buy aggression without printing
+``sell'' --- the tape shows the taker's side only; (b) market
+makers re-quote continuously, so the ask refills between prints.
+Print counts measure taker aggression, not liquidity.
+\end{solution}
+\begin{exercise}[hard]
+Design an estimator of the \emph{effective} spread using only the
+print file and a proxy mid built from a smoothed (e.g.\ 5-print
+median) price. What biases does the smoothed mid introduce vs a
+true quote mid?
+\end{exercise}
+\begin{solution}
+Eff.\ spread $= 2\cdot E[\,s_t(p_t - \tilde m_t)\,]$ with
+$\tilde m$ the smoothed mid. Bias: the smoothed mid lags fast moves
+so buy/sell classifications get noisier --- it understates the
+spread in trends, overstates in chop.
 \end{solution}
 
 \section*{Notes}\addcontentsline{toc}{section}{Notes}

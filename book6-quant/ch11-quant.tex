@@ -166,6 +166,32 @@ Folds & report the sequence & worst fold is the honest number\\
 \end{tabular}
 \end{table}
 
+\begin{example}[How many folds is enough?]\label{ex:foldcount}
+\textbf{Strategy.} The same walk-forward protocol, sliced into
+2, 3, 4 and 6 test folds on identical data. Watch what happens to
+the OOS mean and its spread as the count grows.
+
+\textbf{Solution.} \texttt{fold\_count.py} prints:
+\begin{verbatim}
+2 folds: mean +0.68  sd 0.15     OOS: +0.53 +0.83
+3 folds: mean -0.37  sd 0.69     OOS: +0.46 -1.23 -0.33
+4 folds: mean +0.43  sd 0.60     OOS: +0.55 -0.52 +1.15 +0.52
+6 folds: mean +0.21  sd 0.85
+   OOS: +0.88 -0.08 -0.57 +1.65 -0.83 +0.18
+more folds -> the estimate fragments; the mean is not the spread
+\end{verbatim}
+The \emph{same} strategy, the \emph{same} data, and the OOS mean
+runs $+0.68 \to -0.37 \to +0.43 \to +0.21$ purely as a function
+of how you cut it. Each fold's sd grows with count --- finer
+slices give more, noisier, estimates.
+
+\textbf{Significance.} There is no ``correct'' fold count: the
+right question is whether the \emph{conclusion} survives across
+cuts. Report OOS as mean \emph{and} sd, and re-run at several
+counts --- a result that only exists at one slicing is a slicing
+artifact.
+\end{example}
+
 \section{Common mistakes}
 \begin{itemize}
 \item \textbf{Shuffled K-fold on time series.} Destroys the arrow of time; the test is
@@ -176,7 +202,13 @@ Folds & report the sequence & worst fold is the honest number\\
 \item \textbf{Tuning on the outer fold.} Rebuilds the leak at meta level.
 \item \textbf{Anchored on a non-stationary world.} The training set remembers a dead regime.
 \item \textbf{Averaging away the worst fold.} The dispersion \emph{is} the result.
-\end{itemize}
+\item \textbf{Picking the fold count after looking.} OOS
+mean runs $+0.68 \to -0.37$ as folds go $2\to3$
+(Example~\ref{ex:foldcount}) --- choosing the count that tells
+your favourite story is just a subtler leak.
+\item \textbf{Averaging without the spread.} Mean OOS Sharpe
+$+0.43$ with sd $0.60$ is a coin toss; the sd \emph{is} the
+answer, not a footnote.\end{itemize}
 
 \section{Exercises}
 \begin{exercise}[easy]
@@ -296,6 +328,38 @@ what is the binding constraint?
 Only $\sim$60 labels exist and each is 30-bar-correlated; folds shrink to the point where
 per-fold estimates are noise---the binding constraint is effective sample size, not
 compute.
+\end{solution}
+
+\begin{exercise}[easy]
+Why does the OOS mean flip sign between 2 and 3 folds on the same
+data?
+\end{exercise}
+\begin{solution}
+Each fold re-weights the regimes: the 3-fold cut puts the quiet
+and volatile regimes into separate test windows, so the OOS mean
+moves with the composition of the slices --- not with the
+strategy.
+\end{solution}
+\begin{exercise}[medium]
+Your walk-forward gives mean OOS $+0.43$, sd $0.60$ at 4 folds.
+Compute an approximate 95\% interval for the mean and state what
+conclusion it supports.
+\end{exercise}
+\begin{solution}
+$\pm 1.96\cdot0.60/\sqrt4 \approx \pm0.59$: interval
+$[-0.16, +1.02]$ includes zero --- the evidence is weak; report
+the spread before the point.
+\end{solution}
+\begin{exercise}[hard]
+Argue for or against: ``more folds is always better.'' Use the
+bias-variance trade-off on the printed numbers.
+\end{exercise}
+\begin{solution}
+Against. More folds give more estimates (variance of the
+\emph{mean} falls like $1/\sqrt{k}$) but each estimate sees a
+thinner window and drifts from the regime mix --- at 6 folds the
+sd is $0.85$, the largest printed. Fold count trades
+\emph{granularity} for \emph{reliability}.
 \end{solution}
 
 \section*{Notes}

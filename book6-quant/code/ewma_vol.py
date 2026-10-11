@@ -17,7 +17,7 @@ r_annual=[x*math.sqrt(365)*100 for x in roll]
 print(f"EWMA vol now {e_annual[-1]:.1f}%   60d rolling {r_annual[-1]:.1f}%")
 print(f"EWMA range [{min(e_annual):.0f},{max(e_annual):.0f}]%   rolling range [{min(r_annual):.0f},{max(r_annual):.0f}]%")
 print("EWMA reacts faster to shocks; rolling is smoother and staler")
-with open("/tmp/EWMA.tex","w") as fh:
+with open("../figures/data/EWMA.tex","w") as fh:
     for i in range(0,len(r),5): fh.write(f"{i} {e_annual[i]:.1f}\n")
-with open("/tmp/ROLL.tex","w") as fh:
+with open("../figures/data/ROLL.tex","w") as fh:
     for i in range(0,len(r),5): fh.write(f"{i} {r_annual[i]:.1f}\n")

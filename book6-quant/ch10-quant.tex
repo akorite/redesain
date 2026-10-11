@@ -174,6 +174,32 @@ IS & impact + drift + spread + fees & tempo re-mixes, doesn't delete\\
 \end{tabular}
 \end{table}
 
+\begin{example}[The execution frontier]\label{ex:frontier}
+\textbf{Strategy.} You must move 10\% of ADV. Faster trading pays
+more impact but finishes sooner; slower pays less but carries
+timing risk. Compute both legs across a participation grid under
+the chapter's $\sqrt{\cdot}$ model.
+
+\textbf{Solution.} \texttt{part\_curve.py} prints:
+\begin{verbatim}
+part   2%: impact  29.7bp  duration  5.0d  1-sigma risk 670.8bp
+part   5%: impact  47.0bp  duration  2.0d  1-sigma risk 424.3bp
+part  10%: impact  66.4bp  duration  1.0d  1-sigma risk 300.0bp
+part  20%: impact  93.9bp  duration  0.5d  1-sigma risk 212.1bp
+part  40%: impact 132.8bp  duration  0.2d  1-sigma risk 150.0bp
+impact falls with slower trading, risk grows -- the execution frontier
+\end{verbatim}
+Each leg answers a different prayer: slow trading halves the
+impact ($132\to30$bp) but doubles the timing risk
+($150\to670$bp). There is no free lunch --- only a frontier.
+
+\textbf{Significance.} This is why ``just TWAP it'' is a decision,
+not a default: the schedule chooses where on the frontier you sit.
+The desk's risk aversion picks the point, and the CIO's mandate
+picks the risk aversion --- execution policy is portfolio choice
+in miniature.
+\end{example}
+
 \section{Common mistakes}
 \begin{itemize}
 \item \textbf{``Impact is linear.''} It is concave; big prints cost disproportionately.
@@ -185,6 +211,13 @@ IS & impact + drift + spread + fees & tempo re-mixes, doesn't delete\\
   flow is the other side.
 \item \textbf{Capacity confusion.} ``The strategy does 15\%'' is meaningless without the
   footprint in ADV.
+\item \textbf{Minimising impact alone.} Slower trading
+always lowers impact but multiplies timing risk
+(Example~\ref{ex:frontier}) --- optimising one leg maximises the
+other.
+\item \textbf{Treating TWAP as neutral.} A uniform schedule is
+still a bet: you hold market risk for the whole window and pay
+the average, not the best, price.
 \end{itemize}
 
 \section{Exercises}
@@ -305,6 +338,37 @@ schedule vs a cost-only model?
 \begin{solution}
 Drift is a variance with mean zero---a cost-only optimizer slices minimally (zero risk),
 a mean-variance one trades mean impact against drift variance; optimal tempo is finite.
+\end{solution}
+
+\begin{exercise}[easy]
+From the frontier: what is the impact saving from 40\% down to
+2\% participation, and what does it cost?
+\end{exercise}
+\begin{solution}
+$132.8-29.7\approx103$bp saved; duration goes $0.2$d $\to 5$d so
+1$\sigma$ timing risk grows $150\to671$bp --- the saving is
+never free.
+\end{solution}
+\begin{exercise}[medium]
+A PM insists ``trade everything today, alpha decays.'' Which
+frontier point does that choose, and is it optimal if alpha is
+flat?
+\end{exercise}
+\begin{solution}
+The fast end ($\ge40\%$): optimal only when the decay cost of
+waiting exceeds the impact premium --- with flat alpha it is
+the worst point on the curve.
+\end{solution}
+\begin{exercise}[hard]
+Formalise the trade-off as impact $+ \lambda\cdot$risk and locate
+the optimum participation on the printed grid at $\lambda=1$.
+What changes at $\lambda=0.1$ vs $\lambda=10$?
+\end{exercise}
+\begin{solution}
+At $\lambda=1$ the minimum of impact$+$risk sits near 5--10\%
+($47+424$ vs $66+300$ --- 10\% wins at $366$bp). $\lambda=0.1$
+pushes slower (risk cheap, impact dominates); $\lambda=10$
+pushes faster.
 \end{solution}
 
 \section*{Notes}

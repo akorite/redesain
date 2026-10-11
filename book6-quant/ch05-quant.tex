@@ -203,6 +203,32 @@ with a proper rule, and diagnose with calibration. Everything in later chapters-
 signal evaluation, sizing---reuses this loop: markets emit probabilities; proper scores tell
 you whether the emitter was any good.
 
+\begin{example}[The guarantee that costs \$1.03]\label{ex:lock}
+\textbf{Strategy.} YES$+$NO $=\$1$ at settlement, so buying one of
+each is a riskless \$1. Price that portfolio on every live book in
+the Polymarket snapshot, using the ask side only (you must lift,
+not rest).
+
+\textbf{Solution.} \texttt{book\_width.py} prints:
+\begin{verbatim}
+markets with a live two-sided book: 40/100
+bid-ask width: median 3.0c mean 12.5c
+tightest 0.1c widest 94.0c
+YES+NO bought at ask: median $1.030  <$0.99: 0  >$1.01: 30
+cheapest lock cost $1.001 -> guaranteed $-0.001 per $1
+\end{verbatim}
+Only 40 of 100 markets even quote both sides. On those, the
+riskless bundle costs a median $\$1.03$ for a guaranteed \$1 ---
+the spread \emph{is} the venue's edge, and no market lets you lock
+a profit. Even the tightest book leaves you $-0.1$c down.
+
+\textbf{Significance.} Mid-price arithmetic says YES$+$NO $=1$
+everywhere; the \emph{actionable} price says it costs $\ge1.001$.
+Every PM ``arbitrage'' you scan in outcomes data is the spread
+wearing a disguise. This is the same lesson as the LOB chapter,
+one market microstructure up.
+\end{example}
+
 \section{Common mistakes}
 \begin{itemize}
 \item \textbf{Reading price as certainty.} $p=0.9$ is a probability, not a promise; one in ten
@@ -217,6 +243,13 @@ you whether the emitter was any good.
   oracle event---read the market's rules, not the headline.
 \item \textbf{Forgetting frictions at the tails.} A 1c misprice is a 100x edge on paper and
   usually untradeable at size.
+\item \textbf{Arbing the mid.} YES$+$NO sums to \$1 by
+construction at the mid. At the \emph{ask} it costs a median
+\$1.03 on live books (Example~\ref{ex:lock}) --- an arb that only
+exists on the wrong side of the quote.
+\item \textbf{Assuming every market quotes.} 60 of 100 snapshot
+markets have no live two-sided book at all. ``The price'' of an
+unquoted market is a stale print, not a level you can trade.
 \end{itemize}
 
 \section{Exercises}
@@ -347,6 +380,37 @@ A: Brier $(0.01+0.04+0.49)/3=0.18$, log $(\log.9+\log.8+\log.3)/3\approx-0.527$;
 B: Brier $(0.09+0.09+0.49)/3=0.223$, log $3\log.7/3=-0.357$. A wins Brier (better resolution)
 but loses log (the confident wrong 0.7 costs dearly)---the log rule punishes false confidence
 harsher.
+\end{solution}
+
+\begin{exercise}[easy]
+The cheapest YES$+$NO bundle costs $\$1.001$ at the ask. Compute
+the guaranteed P\&L per \$1000 deployed.
+\end{exercise}
+\begin{solution}
+$-\$1$: you pay $\$1001$ to receive a certain $\$1000$ --- a
+riskless $-0.1\%$.
+\end{solution}
+\begin{exercise}[medium]
+Why is the mid-price YES$+$NO sum exactly 1 on every market, yet
+the ask-side bundle is not? Describe in terms of who wrote the
+two quotes.
+\end{exercise}
+\begin{solution}
+Outcome prices are complementary by construction (YES$=1-$NO at
+mid). At the ask you are lifting \emph{two different makers'}
+quotes --- the YES-ask sits above YES-mid and the NO-ask above
+NO-mid, so the sum exceeds 1 by half of each spread.
+\end{solution}
+\begin{exercise}[hard]
+You find a market where YES-ask $=0.48$ and NO-ask $=0.50$ ---
+a lock costing $0.98$. List three ways this trade still loses or
+fails, ordered by likelihood.
+\end{exercise}
+\begin{solution}
+(a) The quotes are stale/unfillable at size (the 60\%-unquoted
+majority); (b) resolution risk --- UMA dispute or ambiguous
+wording can price YES$+$NO off \$1; (c) settlement delay ties up
+collateral against a $2\%$ certain gain that may take months.
 \end{solution}
 
 \section*{Notes}

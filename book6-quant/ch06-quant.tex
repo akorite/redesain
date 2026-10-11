@@ -211,6 +211,32 @@ Breakeven & fee$\times$volume $>$ IL & volume must persist\\
 \end{tabular}
 \end{table}
 
+\begin{example}[The arb that restores the price]\label{ex:arb}
+\textbf{Strategy.} External venue prices the token at 55 while the
+pool sits at 50. Compute the exact trade that moves the pool to 55,
+its cost, and the residual profit --- the ``free money'' behind
+every AMM price.
+
+\textbf{Solution.} On $x=1000,y=50000$ ($k=5\cdot10^7$),
+\texttt{arb\_restore.py} prints:
+\begin{verbatim}
+buy 46.5374 token for 2440.44 quote
+arb revenue 2559.56 cost 2440.44 profit 119.12
+new spot 55.0000 (restored to external)
+with 0.3% fee: cost 2447.79 profit 111.77 (fee shaves 7.34)
+\end{verbatim}
+The restoring trade buys $46.54$ tokens at an average of $52.44$ ---
+cheaper than the 55 they resell for --- netting $\$119$ gross,
+$\$111.8$ after the 0.3\% fee.
+
+\textbf{Significance.} The AMM's price \emph{is} this arb: the pool
+moves to fair value only because someone is paid to move it, and the
+fee is skimmed off their profit, not yours. Notice the arb spent
+$\$2447$ to extract $\$112$ --- a $4.6\%$ return on the flow, which
+is why on thin pools the restoring arb is small and the misprice
+can sit for blocks.
+\end{example}
+
 \section{Common mistakes}
 \begin{itemize}
 \item \textbf{``IL is only on downside.''} It is symmetric: $r=2$ and $r=0.5$ both cost
@@ -225,7 +251,14 @@ Breakeven & fee$\times$volume $>$ IL & volume must persist\\
   is profitable after gas and latency---in thin moments it lags.
 \item \textbf{Ignoring that impact is convex.} The same pool that gives 0.4\% on a small
   trade gives 33\% on a large one; quote impact, not fee.
-\end{itemize}
+\item \textbf{Thinking the pool ``discovers'' price.}
+Nothing in the contract watches the outside world: an arbitrageur
+moves the pool to fair value for a profit
+(Example~\ref{ex:arb}). Your IL is their fee for the service.
+\item \textbf{Ignoring the fee in arb math.} The 0.3\% skim
+($\$7.34$ on the example) is small per trade but decides whether a
+marginal misprice gets closed at all --- it sets the dead band
+around fair value.\end{itemize}
 
 \section{Exercises}
 \begin{exercise}[easy]
@@ -353,6 +386,37 @@ LP-vs-HODL is positive. Report the number.
 \begin{solution}
 Sweep \texttt{fee\_daily\_turnover} across seeds; the median crossing is the answer
 (typical runs: $\sim$4--6\% daily at these vols).
+\end{solution}
+
+\begin{exercise}[easy]
+External price jumps to 55 while the pool sits at 50. Who trades
+first: the LP trying to exit, or the arb? Why?
+\end{exercise}
+\begin{solution}
+The arb --- the LP's exit does not move the pool's price (it
+withdraws both sides proportionally), while the arb's buy
+\emph{is} the price-restoring mechanism and pays a guaranteed
+profit.
+\end{solution}
+\begin{exercise}[medium]
+On the example pool, show the arb's average entry ($52.44$) sits
+between the old spot ($50$) and the new ($55$). Why must it?
+\end{exercise}
+\begin{solution}
+Each infinitesimal buy moves the spot up the curve; the average
+price paid is the integral from 50 to 55 along it --- strictly
+inside the interval, hence between the endpoints.
+\end{solution}
+\begin{exercise}[hard]
+After the 0.3\% fee the arb nets $\$111.77$ on $\$2447.79$.
+Compute the dead band: the external-price gap below which the arb
+loses money, assuming the pool's spot is 50.
+\end{exercise}
+\begin{solution}
+Profit $= m(x_0-x_1) - (y_1-y_0)/(1-f)$ vanishes when the external
+price barely exceeds spot: near zero-gap the fee dominates, so the
+band is $\approx$ one fee-tier around spot ($\sim$0.3\%--0.6\%).
+Inside it, misprices persist unexploited.
 \end{solution}
 
 \section*{Notes}

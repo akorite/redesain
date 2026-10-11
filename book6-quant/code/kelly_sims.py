@@ -13,5 +13,5 @@ print(f"growth at f* {G[np.argmax(G)]:+.4f}/toss   at 2f* {G[np.argmin(np.abs(fs
 for f in (fb, fb/2, 2*fb):
     w=np.cumprod(1+f*np.where(rng.random(2000)<p, b, -1.0))
     print(f"f={f:.2f}: final {w[-1]:9.1f}   median path dd {((np.maximum.accumulate(w)-w)/np.maximum.accumulate(w)).max():.1%}")
-with open("/tmp/KG.tex","w") as fh:
+with open("../figures/data/KG.tex","w") as fh:
     for i,f in enumerate(fs): fh.write(f"{f:.3f} {G[i]:+.4f}\n")
