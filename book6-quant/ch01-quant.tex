@@ -1,0 +1,702 @@
+\chapter{Prices, returns and risk}\label{ch:returns}
+\index{returns}\index{volatility}\index{risk}
+
+Everything in this book is built out of one object: a sequence of
+numbers $\{P_t\}$, the prices of something tradable sampled at times
+$t=1,\dots,T$. This chapter gives that object a precise definition,
+derives the two ways to turn prices into returns (and when the
+difference matters), builds three estimators of volatility and races
+them against each other on a data set where the true answer is
+planted, and ends by turning ``risk'' into numbers you can compute.
+Nothing here is advice about any real trade --- it is the measurement
+toolkit the rest of the book uses.
+
+\section{What a price series is}\label{sec:prices}
+\index{price series}\index{bar}\index{candle}
+A venue emits \emph{ticks}: individual quotes or trades, stamped in
+milliseconds or microseconds. Nobody backtests on raw ticks by
+default, so the first operation in the whole pipeline is
+\emph{sampling into bars}: chop time into equal intervals (1~minute,
+1~hour, 1~day) and summarise each interval by four numbers, the
+\emph{open} $o_t$, \emph{high} $h_t$, \emph{low} $l_t$ and
+\emph{close} $c_t$ (Figure~\ref{fig:candle}).\footnote{Lowercase
+letters throughout for OHLC, so capital $L$ stays free for
+likelihoods; note also that $l_t$ (the low) and $\ell$ (a
+log-likelihood or loss, used later) are different glyphs on purpose.}
+
+\begin{figure}[ht]\centering
+\input{figures/ch01-candle}
+\caption{Anatomy of one bar. The candle records four prices, not a
+path: two different intraday paths (up-then-down, or down-then-up)
+produce the same $(o_t,h_t,l_t,c_t)$.}
+\label{fig:candle}
+\end{figure}
+
+The sampling choice is a modelling decision, and it is worth being
+explicit about what a bar hides. Inside one interval you know the
+extremes were touched, but not \emph{when}, and not in which order: a
+bar whose high and low both sit far from the close could have spiked
+up first or crashed first, and those are different stories for any
+strategy that uses intrabar triggers. When it matters, you drop to
+finer bars; when it does not, the four numbers suffice and give a
+series you can compute with.
+
+\begin{principle}[The decision convention]\index{look-ahead}
+A decision made at time $t$ may use only data with timestamps
+$\le t$. This sentence is the load-bearing rule of the entire book:
+every backtest in Part~III is a formalisation of it, and every
+``look-ahead bias'' we will hunt down is a quiet violation of it.
+\end{principle}
+
+Prices are what the venue prints; everything else is derived. The
+first and most important derivation is the return.
+
+\section{Simple returns and log returns}\label{sec:returns}
+\index{simple return}\index{log return}
+Two standard definitions:
+\begin{align}
+R_t &\;=\; \frac{P_t}{P_{t-1}} - 1
+&&\text{simple net return,} \label{eq:simple}\\
+r_t &\;=\; \log\!\left(\frac{P_t}{P_{t-1}}\right) \;=\; \log(1+R_t)
+&&\text{log return.} \label{eq:logret}
+\end{align}
+($\log$ is the natural logarithm throughout this book.) For small
+moves they agree closely: $\log(1+R) = R - R^2/2 + R^3/3 - \cdots$, so
+$r_t \approx R_t$ when $|R_t|\ll 1$. The difference matters at daily
+moves of a few percent and dominates at crypto-sized moves.
+
+The reason we use log returns as the default is the \emph{telescoping
+identity}: log returns add across time,
+\begin{equation}\label{eq:telescope}
+\sum_{t=1}^{T} r_t \;=\; \log\!\left(\prod_{t=1}^{T}\frac{P_t}{P_{t-1}}\right)
+\;=\; \log\frac{P_T}{P_0},
+\end{equation}
+so a year's worth of daily log returns is literally the log of the
+year's price ratio --- means, variances and regressions on log returns
+translate back to multiplicative price moves by exponentiation. Simple
+returns do not add; they compound: $1 + R_{0:T} = \prod_{t=1}^{T}(1+R_t)$.
+Statistical modelling works on log returns; PnL accounting works on
+simple returns. Confusing the two is the first common mistake of the
+book.
+
+\begin{figure}[ht]\centering
+\input{figures/ch01-level-returns}
+\caption{Level to returns. Top: a synthetic price path $P_t$ (the GBM
+of Example~\ref{ex:gbm}). Bottom: its daily log returns $r_t$ in
+percent. The returns look like stationary noise around zero; the level
+does not --- that asymmetry is the reason returns, not prices, are the
+modelling object.}
+\label{fig:levelret}
+\end{figure}
+
+\begin{lstlisting}[language=Python,caption={\texttt{code/returns.py} ---
+the two definitions and the telescoping check.},label={lst:returns}]
+def simple_returns(p):
+    return np.diff(p) / p[:-1]
+
+def log_returns(p):
+    return np.diff(np.log(p))
+
+# telescoping: sum of log returns = log of the ratio
+assert np.isclose(log_returns(p).sum(), np.log(p[-1] / p[0]))
+\end{lstlisting}
+
+Output of a real run on \texttt{p = [100, 102, 101, 105]}:
+\begin{lstlisting}[numbers=none]
+P     = [100.0, 102.0, 101.0, 105.0]
+R     = [ 0.02     -0.009804  0.039604]
+r     = [ 0.019803 -0.009852  0.03884 ]
+sum(r)      = 0.04879
+log(P4/P1)  = 0.04879
+prod(1+R)-1 = 0.05
+\end{lstlisting}
+
+\begin{checkpoint}[Predict, then verify]
+On \texttt{p=[50,55,49.5,54.45]}, predict $\sum r_t$ without running
+code, using only $P_T/P_0$. (Answer: $\log(54.45/50)=\log 1.089
+\approx 0.0853$; the intermediate prices cancel out.)
+\end{checkpoint}
+
+\begin{example}[Simple vs log on a planted GBM]\label{ex:gbm}
+\index{geometric Brownian motion}
+Generate one year of daily bars from a geometric Brownian motion with
+planted drift $\mu=8\%$/yr and volatility $\sigma=60\%$/yr
+(\texttt{code/gbm\_demo.py}, seed 7), and compare the two return
+families on the same path.
+
+\textbf{Strategy.} Plant the truth first: the generator emits log
+returns $r_t = (\mu-\sigma^2/2)\,dt + \sigma\sqrt{dt}\,\varepsilon_t$
+with $\varepsilon_t\sim\mathcal N(0,1)$, then exponentiates to get
+prices. Recompute $R_t$ and $r_t$ from the prices, not from the
+generator's internals --- the point is that the identity holds on
+observed data.
+
+\textbf{Solution.} Real output:
+\begin{lstlisting}[numbers=none]
+final price      = 29.47
+mean R per bar   = -0.002928
+mean r per bar   = -0.003347
+sd   r per bar   = 0.028858
+max|R-r| (bp)    = 50.67
+sum(r)           = -1.22179
+log(P_T/P_0)     = -1.22179
+planted sigma    = 0.6 -> annualised est = 0.551
+\end{lstlisting}
+Three readings. (1) $R_t$ and $r_t$ agree to under a basis point on
+typical bars; the worst gap is $50.67$~bp on the $-10.2\%$ bar ---
+the difference is quadratic in the move (Figure~\ref{fig:simplelog}).
+(2) $\sum r_t = \log(P_T/P_0)$ holds to every printed digit; nothing
+similar exists for $R_t$. (3) The path lost $70\%$ despite a positive
+planted drift: one year of $60\%$ volatility swamps an $8\%$ drift
+($\mu/\sigma \approx 0.13$ signal-to-noise per year). That last fact
+is not a bug in the example --- it is the single most important
+empirical fact about return series, and \S\ref{sec:estimators} puts
+numbers on it.
+\end{example}
+
+\begin{figure}[ht]\centering
+\input{figures/ch01-simplelog}
+\caption{$R_t - r_t$ in basis points on the GBM path. The gap is
+$\approx R_t^2/2$: invisible on normal bars, $50$~bp on the
+$-10\%$ day. Use log returns for modelling and the discrepancy never
+bites; mix them mid-calculation and it does.}
+\label{fig:simplelog}
+\end{figure}
+
+\begin{example}[The volatility drag]\label{ex:drag}
+\index{volatility drag}
+Two investors each hold an asset one year. A earns $+30\%$ then
+$-30\%$; B earns $+5\%$ then $-5\%$. Same mean simple return
+($0\%$ each year) --- who ends richer?
+
+\textbf{Strategy.} Compute wealth, not average return: growth is
+multiplicative, so compare $\prod(1+R_t)$.
+
+\textbf{Solution.} A: $(1.30)(0.70)=0.91$, down $9\%$. B:
+$(1.05)(0.95)=0.9975$, down $0.25\%$. In log terms A's path is
+$\log1.3+\log0.7 = -0.0947$ while B's is $-0.0025$: the arithmetic
+mean of simple returns said ``equal'', the log returns said the truth.
+Formally, $\mathbb E[r_t] = \mathbb E[\log(1+R_t)] \le
+\log(1+\mathbb E[R_t])$ by Jensen's inequality, with equality only for
+zero variance. The gap $\mathbb E[R]-\mathbb E[r]\approx
+\tfrac12\sigma^2$ is the \emph{volatility drag}: at fixed mean simple
+return, more variance means less compounded growth. This is why
+Kelly-style sizing (ch13) maximises expected \emph{log} growth,
+never expected return.
+\end{example}
+
+\section{Volatility and its estimators}\label{sec:estimators}
+\index{volatility!estimators}\index{Parkinson estimator}\index{EWMA}
+$\sigma$ is the per-bar standard deviation of returns; estimating it
+is the first real inference problem of the book because nothing about
+it is directly observable --- you only see returns, and the
+``true'' $\sigma$ of a real series probably was not constant over the
+sample anyway. Three estimators cover the design space:
+
+\begin{itemize}
+\item \textbf{Close-to-close.} $\hat\sigma^2 = \frac1{n-1}\sum
+(r_{t}-\bar r)^2$ over a rolling window of $n$ bars --- the sample sd.
+Unbiased for i.i.d.\ data, blind to what happened inside each bar.
+\item \textbf{Parkinson (range).} $\hat\sigma^2_P =
+\frac{1}{4n\log 2}\sum \log^2(h_t/l_t)$. Uses the intrabar range; on a
+true GBM it is about $5\times$ more efficient than close-to-close
+per bar --- but it pays for efficiency with model assumptions (no
+jumps, no gaps between close and next open).
+\item \textbf{EWMA.} $\hat\sigma_t^2 = \alpha r_t^2 +
+(1-\alpha)\hat\sigma_{t-1}^2$ with smoothing weight $\alpha$ (the
+RiskMetrics choice $\alpha=0.06$ gives effective memory $\approx
+1/\alpha\approx 17$ bars). Answers the question the other two cannot:
+\emph{what is volatility right now?}
+\end{itemize}
+
+Annualisation always states its factor: for daily crypto bars
+(365/yr), $\hat\sigma_{\mathrm{yr}} = \hat\sigma_{\mathrm{d}}\sqrt{365}$;
+for minute bars, $\hat\sigma\sqrt{1440\cdot 365}$. The $\sqrt{n}$ rule
+itself assumes independent increments --- it is a model, and
+\S\ref{sec:dependence} shows where it bends.
+
+\begin{example}[Which estimator recovers a switch fastest?]
+\label{ex:volrace}
+Plant a two-regime volatility path --- $\sigma=30\%$/yr for 120 bars,
+then $90\%$/yr for 120 --- generate synthetic OHLC, and race the three
+estimators (\texttt{code/vol\_estimators.py}, Figure~\ref{fig:volest}).
+
+\textbf{Strategy.} Compute each estimate over the same bars (rolling
+30 for the windowed two), then measure ``bars-to-$0.60$'': how many
+bars after the jump until the estimate first exceeds $0.60$.
+
+\textbf{Solution.} Real output:
+\begin{lstlisting}[numbers=none]
+close-close  mean pre-switch=0.269 post-30d=0.925 bars-to-0.60=23
+Parkinson    mean pre-switch=0.389 post-30d=1.131 bars-to-0.60=7
+EWMA a=0.06  mean pre-switch=0.276 post-30d=0.863 bars-to-0.60=19
+truth: 0.30 for 120 bars, then 0.90
+\end{lstlisting}
+The Parkinson estimate reads $0.389$ pre-switch against a true
+$0.30$ --- biased high because our synthetic highs/lows paint wider
+ranges than a GBM produces (we generate them with extra random steps,
+not a Brownian microstructure). That bias is itself the lesson: the
+estimator's efficiency gain is bought with model assumptions. But the
+\emph{race} is unambiguous: Parkinson crosses $0.60$ in 7 bars, EWMA
+in 19, close-to-close in 23. Extra information per bar
+($h_t,l_t$, not just $c_t$) buys reaction speed; a short memory buys
+adaptivity; a long rolling window buys neither.
+\end{example}
+
+\begin{figure}[ht]\centering
+\input{figures/ch01-volest}
+\caption{The estimator race on a planted regime switch (bar 120:
+$\sigma$ jumps $0.30\to0.90$). The dashed line is the truth --- this
+is the book's method: synthetic data where the answer is known, so an
+estimator's error is measurable rather than argued about.}
+\label{fig:volest}
+\end{figure}
+
+\begin{checkpoint}[Predict the ordering]
+If the same experiment used $\alpha=0.15$ for EWMA instead of
+$0.06$, predict whether its bars-to-$0.60$ moves toward or away from
+Parkinson's 7. (Shorter memory $\Rightarrow$ faster reaction --- but
+noisier steady state. The trade-off is one knob, $\alpha$, not a
+winner.)
+\end{checkpoint}
+
+\section{The shape of returns}\label{sec:shape}
+\index{moments}\index{heavy tails}\index{QQ plot}
+If $r_t$ were i.i.d.\ normal, two numbers --- $\mu,\sigma$ --- would
+describe everything. They do not. The discipline here is to look at
+the shape before trusting the model, and the two instruments are the
+\emph{moments} and the \emph{QQ plot}.
+
+Sample moments on $n$ returns: mean $\bar r$, variance
+$s^2=\frac{1}{n-1}\sum(r_t-\bar r)^2$, skewness (asymmetry, $0$ for a
+symmetric distribution) and \emph{excess} kurtosis (tail weight;
+normal $=0$, positive means fatter tails than normal). The QQ plot is
+the visual version: sort the standardised returns $z_t=(r_t-\bar
+r)/s$, plot them against the theoretical normal quantiles at the same
+ranks --- points on the diagonal mean normal; the ends curling away
+mean tails fatter (or thinner) than normal.
+
+\begin{example}[Real data: BTC daily returns]\label{ex:btc}
+Fetch the real series --- Kraken's public OHLC endpoint, no key
+(\texttt{code/kraken\_daily.py}; endpoint verified live
+2026-10-11, re-check before relying on it --- see
+\texttt{docs/unverified.md}) --- and run the shape diagnostics.
+
+\textbf{Strategy.} Same computations as the synthetic chapters, just
+on 721 real bars; the fetch is 15 lines, the statistics are the four
+lines at the bottom.
+
+\textbf{Solution.} Real output:
+\begin{lstlisting}[numbers=none]
+                     time       o       h       l       c         r
+2024-10-21 00:00:00+00:00 69010.5 69447.8 66838.6 67385.1       NaN
+2024-10-22 00:00:00+00:00 67385.1 67750.0 66564.4 67387.6  0.000037
+2024-10-23 00:00:00+00:00 67384.2 67407.5 65199.0 66633.4 -0.011255
+bars: 721 | returns: 720
+mean r = +0.00030  sd = 0.02324  ann sd = 0.444
+skew   = +0.037   excess kurtosis = +4.556  (normal = 0)
+|z|>3: 0.0125  (normal ~ 0.0027)
+sample 1%/50%/99% quantiles of z: [-2.489 -0.015  2.818]
+\end{lstlisting}
+Excess kurtosis $+4.56$: days beyond three standard deviations happen
+$1.25\%$ of the time against the normal guess of $0.27\%$ --- roughly
+$5\times$ too often. The QQ plot (Figure~\ref{fig:qq}) says the same
+thing visually: both ends curl away from the diagonal. Skew is
+essentially zero, so the tails are roughly symmetric --- fat on both
+sides, not just crash-prone.
+\end{example}
+
+\begin{figure}[ht]\centering
+\input{figures/ch01-qq}
+\caption{QQ plot of the 720 real BTC daily log returns against a
+normal model. A normal series would sit on the dashed line; instead
+the leftmost point is a $-6.5\sigma$ day (normal theory says a
+$-3.2\sigma$ day should be the extreme) and the right end bends up to
+$+4.9\sigma$.}
+\label{fig:qq}
+\end{figure}
+
+\begin{remark}\label{rem:stylized}
+This is one of the oldest and most replicated empirical facts in
+finance --- returns have heavier tails than the Gaussian that the
+textbook math prefers (the ``stylised facts'' literature goes back to
+Mandelbrot 1963; see Further reading). Every model in this book is
+either a way to generate that shape or a way to survive it.
+\end{remark}
+
+\begin{checkpoint}[Predict the sign]
+Before running \texttt{kraken\_daily.py} on your own machine, predict
+the sign of the excess kurtosis for (a) daily returns, (b)
+\emph{weekly} returns aggregated from the same series. (Both positive;
+(b) is smaller --- temporal aggregation moves the distribution toward
+normal by the CLT, and that is exactly why tail risk is worse at short
+horizons than annualised numbers suggest.)
+\end{checkpoint}
+
+\section{Dependence: returns vs their magnitudes}\label{sec:dependence}
+\index{autocorrelation}\index{volatility clustering}
+``Random walk'' does not mean ``no structure''. Split the question:
+do past returns predict the next \emph{return} (direction), and do
+they predict the next \emph{magnitude} (volatility)? For liquid
+markets the honest answers are very different: direction is nearly
+unpredictable, magnitude is strongly predictable. The measuring
+instrument is the autocorrelation function
+$\operatorname{ACF}(x_t)_k = \operatorname{corr}(x_t,x_{t-k})$.
+
+\begin{example}[The ACF signature of volatility clustering]
+\label{ex:acf}
+On a synthetic GARCH path with planted clustering
+(\texttt{code/acf\_panel.py}: $r_t=\sigma_t\varepsilon_t$,
+$\sigma_t^2 = 2{\cdot}10^{-6} + 0.08\,r_{t-1}^2 + 0.90\,\sigma_{t-1}^2$),
+compute $\operatorname{ACF}(r_t)$ and $\operatorname{ACF}(|r_t|)$ to
+lag 15.
+
+\textbf{Strategy.} The construction makes returns directionless by
+design ($\varepsilon_t$ i.i.d., zero conditional mean) but their
+squares persistent by design ($0.08+0.90$ persistence). Both ACFs on
+the same 2000 draws.
+
+\textbf{Solution.} Real output (first five lags):
+\begin{lstlisting}[numbers=none]
+lag :   ACF(r)   ACF(|r|)
+  1 : +0.0399  +0.1451
+  2 : -0.0957  +0.1376
+  3 : +0.0210  +0.1245
+  4 : +0.0305  +0.1229
+  5 : -0.0439  +0.1218
+\end{lstlisting}
+$\operatorname{ACF}(r)$ wiggles around zero inside the
+$\pm1.96/\sqrt{2000}\approx\pm0.044$ noise band (lag 2 pokes out at
+$-0.096$ --- 2000 draws still produce one wiggle that size about as
+often as not); $\operatorname{ACF}(|r|)$ sits at $+0.08$ to $+0.14$
+\emph{for every lag} (Figure~\ref{fig:acf}). Direction carries no
+information; magnitude carries plenty. That is volatility
+clustering, and the asymmetry is the stylised fact that motivates the
+volatility models of \S\ref{sec:estimators} and the regime language
+of later chapters.
+\end{example}
+
+\begin{figure}[ht]\centering
+\input{figures/ch01-acf}
+\caption{$\operatorname{ACF}(r_t)$ vs $\operatorname{ACF}(|r_t|)$ on a
+synthetic GARCH path. Left: direction is noise (dashed bands are the
+$\pm1.96/\sqrt n$ guideline). Right: magnitude persists for 15+ lags
+--- today's big day predicts a big \emph{size} tomorrow, in either
+direction.}
+\label{fig:acf}
+\end{figure}
+
+\section{Risk as a number}\label{sec:risk}
+\index{drawdown}\index{VaR}\index{expected shortfall}
+``Risky'' needs a number before it can be reasoned about. The book's
+three candidates:
+
+\begin{itemize}
+\item \textbf{Volatility} $\sigma$ --- dispersion of returns.
+Ubiquitous, symmetric (treats a good surprise like a bad one), and the
+input every later formula takes.
+\item \textbf{Maximum drawdown.} With $W_t$ the account equity and
+$W_t^{\max}=\max_{s\le t}W_s$ the running peak,
+$D_t = W_t/W_t^{\max}-1$ and $\mathrm{MDD}=\min_t D_t$. Path-shaped:
+a $-77\%$ drawdown is a different life than a $-10\%$ one even at
+identical $\sigma$.
+\item \textbf{Tail quantiles} --- VaR and ES, defined and computed
+properly in ch14: $\mathrm{VaR}_\alpha$ is the loss level exceeded
+with probability $\alpha$; $\mathrm{ES}_\alpha$ is the mean loss
+\emph{given} you are past that level. Preview here only to say they
+exist and where they land.
+\end{itemize}
+
+\begin{example}[Drawdown from the planted path]\label{ex:dd}
+The GBM of Example~\ref{ex:gbm} ended at $29.47$. How bad was the
+trip? (\texttt{code/drawdown\_demo.py}.)
+
+\textbf{Strategy.} Compute the running max, subtract, take the min.
+
+\textbf{Solution.} Real output:
+\begin{lstlisting}[numbers=none]
+final equity  = 29.47
+max equity    = 100.89
+MDD           = -0.7689  at bar 284
+recovery bars = 81  after the trough
+\end{lstlisting}
+$\mathrm{MDD}=-76.9\%$: at the trough, the account needed a $+332\%$
+run just to break even (Figure~\ref{fig:dd}). Notice what $\sigma$
+\emph{didn't} say: the annualised vol estimate ($55\%$) describes
+typical daily moves and says nothing about the worst accumulated
+path. Different question, different number --- report both.
+\end{example}
+
+\begin{figure}[ht]\centering
+\input{figures/ch01-drawdown}
+\caption{Equity $W_t$ vs its running maximum on the GBM path; the
+shaded band is the drawdown $D_t$. The deepest excursion,
+$-76.9\%$ at bar 284, is the $\mathrm{MDD}$.}
+\label{fig:dd}
+\end{figure}
+
+\section*{Summary sheet}
+\addcontentsline{toc}{section}{Summary sheet}
+\begin{table}[ht]\centering
+\begin{tabularx}{\linewidth}{@{}lYY@{}}
+\toprule
+\tablehead\thead{Object} & \thead{Definition} & \thead{When to use}\\
+\midrule
+Simple return $R_t$ & $P_t/P_{t-1}-1$ & PnL accounting, single-bar moves\\
+Log return $r_t$ & $\log(P_t/P_{t-1})$ & modelling: it telescopes,
+$\sum r_t=\log(P_T/P_0)$\\
+Close-to-close $\hat\sigma$ & rolling sample sd of $r_t$ & unbiased,
+simple, blind to intrabar\\
+Parkinson $\hat\sigma_P$ & $\frac1{4\log2}\overline{\log^2(h/l)}$ &
+more info per bar; assumes GBM-like ranges\\
+EWMA $\hat\sigma_t$ & $\alpha r_t^2+(1-\alpha)\hat\sigma_{t-1}^2$ &
+``vol now''; reacts in $\approx1/\alpha$ bars\\
+ACF of $|r_t|$ & corr of magnitudes & detects volatility clustering
+direction-ACF cannot\\
+$\mathrm{MDD}$ & $\min_t(W_t/W_t^{\max}-1)$ & worst-case path pain;
+what $\sigma$ hides\\
+\bottomrule
+\end{tabularx}
+\caption{Chapter 1 toolkit.}
+\end{table}
+
+\section{Common mistakes}\index{common mistakes}
+\begin{itemize}
+\item \textbf{Adding simple returns across bars.} Returns compound:
+$1+R_{0:T}=\prod(1+R_t)$. Sum \emph{log} returns, or compound simple
+ones --- never sum simple ones over more than a couple of percent.
+\item \textbf{Annualising without a factor.} ``Vol is $2.3\%$'' means
+nothing until the bar size and the factor ($\sqrt{365}$ for daily
+crypto) are stated. Always write both.
+\item \textbf{Treating the candle as the path.} $h_t$ and $l_t$ record
+that extremes were touched, not when. Intrabar triggers need finer
+data.
+\item \textbf{Concluding ``no predictability'' from
+$\operatorname{ACF}(r)\approx0$.} Look at $\operatorname{ACF}(|r|)$
+first --- magnitude predictability is the norm, not the exception.
+\item \textbf{Trusting $\hat\sigma$ across a regime switch.} A rolling
+window reports an average of two different worlds; on real data
+always ask how fast the estimator adapts (Figure~\ref{fig:volest}).
+\item \textbf{Quoting MDD as a vol substitute.} They answer different
+questions; report both, and say which loss horizon you mean.
+\end{itemize}
+
+\section*{Exercises}\addcontentsline{toc}{section}{Exercises}
+\begin{exercise}[easy]
+Prove the telescoping identity \eqref{eq:telescope} for any price
+path $P_0,\dots,P_T>0$, and show by counterexample that $\sum R_t$
+has no such closed form.
+\end{exercise}
+\begin{solution}
+$\sum_t\log(P_t/P_{t-1})=\log\prod_t(P_t/P_{t-1})=\log(P_T/P_0)$ by
+telescoping the product. Counterexample: $P=(100,110,99)$ gives
+$\sum R_t=0.10-0.10=0$ but $P_2/P_0-1=-0.01$.
+\end{solution}
+\begin{exercise}[easy]
+State the annualisation factor for (a) hourly bars, (b) 5-minute
+bars, (c) minute bars on a 24/7 venue, each time naming the unit the
+result is in.
+\end{exercise}
+\begin{solution}
+(a) $\sqrt{24\cdot365}$, (b) $\sqrt{288\cdot365}$, (c)
+$\sqrt{1440\cdot365}$ --- all converting per-bar sd to per-year sd
+under i.i.d.\ increments.
+\end{solution}
+\begin{exercise}[easy]
+On \texttt{p=[80,84,80,88]}, compute $R_t$ and $r_t$ by hand to 4
+decimals, then verify $\sum r_t=\log(P_3/P_0)$.
+\end{exercise}
+\begin{solution}
+$R=(0.05,-0.0476,0.10)$; $r=(0.0488,-0.0488,0.0953)$;
+$\sum r=0.0953=\log(88/80)=\log 1.1$.
+\end{solution}
+\begin{exercise}[easy]
+Without running it, predict the sign of $R_t-r_t$ on every bar.
+\end{exercise}
+\begin{solution}
+Always $\ge0$: $\log(1+R)\le R$ with equality only at $R=0$, so
+$R-r=R-\log(1+R)\ge0$.
+\end{solution}
+\begin{exercise}[easy]
+Kraken's OHLC endpoint is used unauthenticated in
+\texttt{kraken\_daily.py}. Name two ways a fetch can silently degrade
+rather than fail, and what the code does about each.
+\end{exercise}
+\begin{solution}
+Empty/truncated payload (checked by \texttt{j["error"]} assert and
+the \texttt{last} key handling) and stale or partial last bar
+(the reader should verify the final timestamp against wall time;
+the file prints bar count so a short read is visible).
+\end{solution}
+\begin{exercise}[medium]
+Show $\mathbb E[r_t]\le\log(1+\mathbb E[R_t])$ and give the
+first-order gap: $\mathbb E[R]-\mathbb E[r]\approx\tfrac12\sigma^2$.
+Which direction does ``volatility drag'' point?
+\end{exercise}
+\begin{solution}
+Jensen on the concave $\log$; expanding
+$\log(1+R)\approx R-R^2/2$ gives
+$\mathbb E r\approx\mathbb E R-\mathbb E[R^2]/2\approx\mathbb E R
+-\sigma^2/2$ for small mean. Drag is \emph{negative}: variance eats
+growth at fixed mean return.
+\end{solution}
+\begin{exercise}[medium]
+Implement the Parkinson estimator in six lines from OHLC arrays
+\texttt{h,l} and check it against \texttt{vol\_estimators.py} on the
+planted data.
+\end{exercise}
+\begin{solution}
+\texttt{np.sqrt(np.mean(np.log(h/l)**2)/(4*np.log(2)))} per window,
+then $\times\sqrt{365}$ to annualise.
+\end{solution}
+\begin{exercise}[medium]
+EWMA with weight $\alpha$: derive the half-life $t_{1/2}$ in bars ---
+the lag at which an old observation's weight has halved. Evaluate at
+$\alpha=0.06$.
+\end{exercise}
+\begin{solution}
+Weight of a return $k$ bars old is $\propto(1-\alpha)^k$; half-life
+$=\log(1/2)/\log(1-\alpha)\approx0.693/\alpha$ for small $\alpha$,
+$\approx11.2$ bars at $\alpha=0.06$.
+\end{solution}
+\begin{exercise}[medium]
+A bar reads $(o,h,l,c)=(100,104,98,103)$. List two distinct intrabar
+price paths consistent with it and one path that is not. What extra
+data would distinguish them?
+\end{exercise}
+\begin{solution}
+Up-then-down ($100\to104\to98\to103$) and down-then-up
+($100\to98\to104\to103$) both fit; a path that never visits 98 does
+not. Trade ticks or finer bars decide which happened.
+\end{solution}
+\begin{exercise}[medium]
+Equity path $(100,110,95,120,90,100)$: compute the drawdown series
+and $\mathrm{MDD}$.
+\end{exercise}
+\begin{solution}
+Peaks $(100,110,110,120,120,120)$; $D=(0,-13.6\%,-13.6\%,0,-25\%,
+-16.7\%)$; $\mathrm{MDD}=-25\%$ at index 4.
+\end{solution}
+\begin{exercise}[hard]
+Estimate the EWMA lag bias: simulate a planted $\sigma$ ramp
+($0.2\to0.8$ over 60 bars), fit $\alpha\in\{0.03,0.06,0.15\}$, and
+report the delay in bars at which each estimate crosses the true
+curve's midpoint. What does the plot say about the speed--noise
+trade-off?
+\end{exercise}
+\begin{solution}
+Implementation exercise; the expected ordering is monotone: smaller
+$\alpha$ lags more and jitters less (the EWMA is a low-pass filter on
+$r_t^2$; its group delay is $\approx(1-\alpha)/\alpha$ bars).
+\end{solution}
+\begin{exercise}[hard]
+Show that if $r_t$ has positive autocorrelation $\rho_1>0$, the
+two-bar variance is $\operatorname{Var}[r_t+r_{t+1}]
+=2\sigma^2(1+\rho_1)$, and conclude the $\sqrt n$ annualisation rule
+misstates when returns are autocorrelated. Which direction does it
+err?
+\end{exercise}
+\begin{solution}
+Expand the variance: $\sigma^2+\sigma^2+2\operatorname{Cov}=2\sigma^2
+(1+\rho_1)$. At $\rho_1>0$ the rule underestimates true multi-bar
+vol; at $\rho_1<0$ it overestimates (mean-reverting series shrink
+slower than $\sqrt t$).
+\end{solution}
+\begin{exercise}[hard]
+On the BTC fetch, compute a \emph{weekly}-aggregated return series
+(group bars by ISO week) and compare excess kurtosis with the daily
+$+4.56$. Explain the direction using the CLT.
+\end{exercise}
+\begin{solution}
+Implementation exercise; weekly kurtosis should drop (typically into
+the $1$--$3$ range) because each weekly return sums $\sim7$ daily
+increments, which is exactly the averaging that drives the
+distribution toward normal.
+\end{solution}
+\begin{exercise}[hard]
+Modify \texttt{acf\_panel.py} to a GARCH with $a+b=0.70$ and
+$a+b=0.99$. Report $\operatorname{ACF}(|r|)_1$ and the decay rate for
+each, and state the persistence--memory relation you observe.
+\end{exercise}
+\begin{solution}
+Implementation exercise; $\operatorname{ACF}(|r|)$ should start
+lower and decay faster for $0.70$ vs slow, high plateau for $0.99$
+--- the closer $a+b$ to 1, the longer the clustering memory.
+\end{solution}
+\begin{exercise}[hard]
+Prove or refute: $\mathrm{MDD}$ is a non-decreasing function of
+sample length $T$ for a fixed distribution of returns. If true in
+expectation, estimate its growth rate on GBM paths of increasing
+$T$.
+\end{exercise}
+\begin{solution}
+True almost surely on any single path extension (the min over more
+draws can only deepen); for GBM the expected MDD grows like
+$\sigma\sqrt{T}$ up to a path-dependent factor --- simulate to
+confirm the scaling.
+\end{solution}
+
+\section*{Notes}\addcontentsline{toc}{section}{Notes}
+\textbf{Data provenance.} The BTC series comes from Kraken's public
+OHLC endpoint, fetched unauthenticated on 2026-10-11
+(\texttt{code/kraken\_daily.py}); availability and the returned bar
+count are date-stamped claims --- re-verify before reuse
+(\texttt{docs/unverified.md}). Venue and endpoint availability from
+Indonesia is \textbf{[unverified]}.
+\textbf{Standing disclaimer.} This book teaches research methods and
+market mechanics; nothing here is investment, legal or tax advice.
+\textbf{Notation guard.} $\log$ is natural throughout; $R_t$ vs
+$r_t$ is the one distinction you cannot afford to blur
+(Example~\ref{ex:gbm}).
+\textbf{Where this leads.} Ch2 asks whether the series you just
+built is even a legal input to statistical tests (stationarity);
+the harness in ch8 enforces \S\ref{sec:prices}'s decision
+convention mechanically.
+
+\section*{Further reading}\addcontentsline{toc}{section}{Further reading}
+\begin{itemize}
+\item R.~Hyndman \& G.~Athanasopoulos, \emph{Forecasting: Principles
+and Practice}, 3rd ed. --- free online; the time-series treatment
+this book mirrors with its own data:
+
+\url{https://otexts.com/fpp3/}
+\item W.~McKinney, \emph{Python for Data Analysis}, 3rd ed. ---
+open-access; the pandas time-series vocabulary used in every
+listing:
+
+\url{https://wesmckinney.com/book/}
+\item J.~Hull, \emph{Options, Futures and Other Derivatives}, 11th
+ed. --- publisher page; ch23 (volatility estimation) is the
+classical treatment behind \S\ref{sec:estimators}:
+
+\url{https://www.pearson.com/en-gb/subject-catalog/p/options-futures-and-other-derivatives-global-edition/P200000004519/9781292410654}
+\item M.~L\'opez de Prado, lecture library --- free slides; the
+empirical-facts and backtesting lectures that set the tone of Parts
+I and III:
+
+\url{https://www.quantresearch.org/Lectures.htm}
+\item E.~Chan, \emph{Quantitative Trading} blog --- practitioner
+cautions on data and estimation that inspired the Common mistakes:
+
+\url{https://epchan.blogspot.com/}
+\item Kraken REST API documentation --- the endpoint this chapter
+fetches, for re-verification at reading time (docs, accessed
+2026-10-11):
+
+\url{https://docs.kraken.com/api-reference/market-data/get-ohlc-data}
+\end{itemize}
+
+\begin{rulebox}[Watch instead]
+\begin{itemize}
+\item \textbf{MIT OpenCourseWare --- ``Introduction, Financial Terms
+and Concepts''} (MIT 18.S096, Lecture 1), 1:00:30 --- the course this
+chapter's vocabulary is drawn from; covers $\S$\ref{sec:prices} and
+\S\ref{sec:returns} with a mathematician's care. (Verified
+2026-10-11.)
+\url{https://www.youtube.com/watch?v=wvXDB9dMdEo}
+\item \textbf{MIT OpenCourseWare --- ``Lecture 12: Time Series
+Analysis''} (same course), 1:20:32 --- the time-series/statistics
+continuation that carries into ch2. (Verified 2026-10-11.)
+\url{https://www.youtube.com/watch?v=qlytPllimpQ}
+\end{itemize}
+\end{rulebox}

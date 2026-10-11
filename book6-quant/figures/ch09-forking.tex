@@ -1,0 +1,9 @@
+\begin{tikzpicture}[font=\scriptsize,every node/.style={align=center}]
+  \node[draw=ink,fill=goodbg,rounded corners=1pt] (data) at (0,2) {one dataset};
+  \foreach \x/\l in {-3.5/MA pair, -1.4/RSI $n$, 0.7/stop rule, 2.8/fee model, 5.0/universe}{
+    \node[draw=slate,fill=white,rounded corners=1pt] at (\x,0.7) {\l};
+    \draw[->,slate] (data.south) -- (\x,0.95);}
+  \node[draw=red,fill=white,rounded corners=1pt] (best) at (0.7,-0.5) {report only\\ the best branch};
+  \draw[->,red,thick] (0.7,0.4) -- (best.north);
+  \node[text=slate] at (-2.2,-0.5) {$\binom{\text{choices}}{}$ paths, one shown};
+\end{tikzpicture}

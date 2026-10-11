@@ -1,0 +1,12 @@
+\begin{tikzpicture}[font=\scriptsize,every node/.style={align=center}]
+  \node[draw=slate,fill=white,rounded corners=1pt,minimum width=3cm] (pool) at (0,0)
+    {pool price\\ $y/x=45$};
+  \node[draw=slate,fill=white,rounded corners=1pt,minimum width=3cm] (mkt) at (4.5,0)
+    {market price\\ $50$};
+  \node[draw=good,fill=goodbg,rounded corners=1pt,minimum width=3cm] (arb) at (2.25,1.7)
+    {bot buys from pool,\\ sells on market};
+  \draw[<->,ink,thick] (pool) -- (mkt);
+  \draw[->,ink] (pool) -- (arb);
+  \draw[->,ink] (mkt) -- (arb);
+  \node[text=slate] at (2.25,-0.9) {trade continues until pool price $\approx$ market};
+\end{tikzpicture}

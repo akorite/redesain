@@ -1,0 +1,331 @@
+\chapter{Walk-forward validation}\label{ch:walkfwd}
+
+\noindent A single holdout split answers ``did it work once?'' Walk-forward validation
+answers the harder question: ``does it keep working as the world moves?'' Done naively
+it leaks---the label windows at every fold boundary overlap, so the test set remembers
+the training set. This chapter is the procedure and its two failure modes.
+
+\section{Anchored vs rolling}\label{sec:wftypes}
+
+Two window conventions. \emph{Anchored}: train on everything up to $t$, test on the next
+block, grow the training set each fold. \emph{Rolling}: train on a fixed-width window
+that slides with $t$. \texttt{wf\_demo.py} on a three-regime series (trend, quiet,
+volatile):
+\begin{lstlisting}[numbers=none]
+anchored walk-forward:
+  train 0:200  test 200:400  IS +2.35  OOS +1.86
+  train 0:400  test 400:600  IS +2.11  OOS +0.55
+  train 0:600  test 600:800  IS +1.51  OOS -0.52
+  train 0:800  test 800:1000  IS +1.16  OOS +1.15
+rolling (400-bar) walk-forward:
+  train 0:400  test 400:600  IS +2.11  OOS +0.55
+  train 200:600  test 600:800  IS +1.01  OOS -0.52
+  train 400:800  test 800:1000  IS -0.53  OOS +1.15
+  train 600:1000  test 1000:1200  IS -0.88  OOS +0.52
+\end{lstlisting}
+
+\begin{example}\label{ex:wf}
+\textbf{Reading the fold table.} The same momentum rule: IS decays $2.35\to1.16$ as the
+training window dilutes the trending regime; the rolling IS flips sign entirely
+($-0.88$) once the trend is out of window.
+\begin{solution}
+Anchored windows average over history---good when the process is stable, bad when regimes
+switch. Rolling windows stay local---good when relationships decay, bad when the window
+is too short to estimate anything. The choice is a belief about the data's memory, made
+before the data is touched.
+\end{solution}
+\end{example}
+
+\begin{figure}[htbp]\centering
+\input{figures/ch11-wf}
+\caption{Anchored walk-forward: the train window grows; each fold's test block is fresh.}
+\label{fig:wf}
+\end{figure}
+
+\begin{figure}[htbp]\centering
+\input{figures/ch11-regime}
+\caption{Why window choice matters: the process itself changes regime (trend, quiet,
+volatile). A fixed training span estimates the wrong world in at least one regime.}
+\label{fig:regime}
+\end{figure}
+
+\section{The boundary leak: purge and embargo}\label{sec:purge}
+
+K-fold CV assumes exchangeability. Financial labels violate it twice: the label is a
+\emph{window} (e.g.\ the next-30-bar return), and windows straddling a fold boundary see
+both sides. \texttt{purged\_kfold.py} counts the leak honestly:
+\begin{lstlisting}[numbers=none]
+label window W=30  adjacent-label corr 0.983
+boundary 118: 29 train labels reach into test fold
+boundary 236: 29 train labels reach into test fold
+boundary 354: 29 train labels reach into test fold
+boundary 472: 29 train labels reach into test fold
+contiguous CV shares 116 overlapping labels across 4 boundaries
+purge them + embargo W on each side, or the test is not a test
+\end{lstlisting}
+
+\begin{example}\label{ex:purge}
+\textbf{What the embargo buys.} A 30-bar label makes adjacent labels $0.98$-correlated;
+116 train labels literally extend into the test folds.
+\begin{solution}
+Purging removes every train row whose label window overlaps the test block; the embargo
+adds a margin so features computed over windows do not straddle either. Without both,
+``out-of-sample'' scores include a neighbour's answer---the leak is not in the model,
+it is in the labelling.
+\end{solution}
+\end{example}
+
+\begin{figure}[htbp]\centering
+\input{figures/ch11-overlap}
+\caption{A 30-bar forward label: consecutive labels share 29 of 30 windows
+($\mathrm{corr}=0.983$).}
+\label{fig:overlap}
+\end{figure}
+
+\begin{figure}[htbp]\centering
+\input{figures/ch11-purge}
+\caption{Contiguous K-fold leaks at the boundary; purged+embargoed folds excise the
+overlapping margin.}
+\label{fig:purge}
+\end{figure}
+
+\section{Per-fold reporting}\label{sec:folds}
+
+The deliverable of walk-forward is not one number---it is the sequence of fold scores and
+its dispersion. A strategy that posts $+1.9,+0.6,-0.5,+1.2$ has a different claim than
+one posting $+0.9$ four times, even at the same mean.
+
+\begin{figure}[htbp]\centering
+\input{figures/ch11-folds}
+\caption{IS vs OOS per fold: points below the diagonal paid the regime tax.}
+\label{fig:folds}
+\end{figure}
+
+\begin{example}\label{ex:foldread}
+\textbf{The fold-reading heuristic.} Fold 3 OOS is $-0.52$ while IS is $+1.51$; fold 4
+OOS recovers to $+1.15$.
+\begin{solution}
+The $-0.52$ fold is the regime break (the quiet stretch)---the strategy still works in
+trending and volatile regimes but not in the quiet one. That is information, not failure:
+a strategy that is honest about \emph{where} it fails can be gated on regime; a single
+pooled number hides exactly the fact you need to size it.
+\end{solution}
+\end{example}
+
+\section{Putting it together}\label{sec:wfprotocol}
+
+The protocol: pick the window family (anchored if the world is stable, rolling if it
+decays); purge label overlaps and embargo $W$ bars on each side of every boundary;
+score each fold; report the sequence, the mean, and the worst fold---the worst fold is
+the number the risk model should believe.
+
+\begin{figure}[htbp]\centering
+\input{figures/ch11-protocol2}
+\caption{The walk-forward protocol.}
+\label{fig:wfproto}
+\end{figure}
+
+\begin{example}\label{ex:nested}
+\textbf{Where hyperparameter search fits.} If you tune on the test folds you rebuild
+the leak at a higher level.
+\begin{solution}
+Nest it: inside each walk-forward fold, tune on the train block only (its own inner CV),
+freeze, then score once on the test block. The outer fold sequence is then an honest
+measure of the \emph{procedure}---signal plus tuner---not of a lucky parameter.
+\end{solution}
+\end{example}
+
+\begin{checkpoint}[Validation audit]
+\begin{itemize}
+\item What does the embargo remove that the purge misses? (Feature windows straddling the
+boundary, not just label windows.)
+\item Which window family suits a decaying relationship? (Rolling.)
+\item Why report the worst fold? (It is the number the risk model should believe.)
+\end{itemize}
+\end{checkpoint}
+
+\section{Recap}\label{sec:wfrecap}
+
+Walk-forward is CV for a world that moves. The boundary leak is mechanical---labels are
+windows, windows overlap---and the fix is equally mechanical: purge the overlap, embargo
+the margin, and score the sequence. A strategy is the set of its folds, not the average
+of them.
+
+\begin{table}[htbp]\centering\small
+\caption{Chapter toolbox.}
+\begin{tabular}{@{}lll@{}}
+\toprule
+Concept & Rule & Gotcha\\
+\midrule
+Anchored & stable worlds & dilutes regime change\\
+Rolling & decaying memory & window too short to estimate\\
+Purge & remove overlapping labels & labels are windows\\
+Embargo & margin $W$ each side & features straddle too\\
+Folds & report the sequence & worst fold is the honest number\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\section{Common mistakes}
+\begin{itemize}
+\item \textbf{Shuffled K-fold on time series.} Destroys the arrow of time; the test is
+  not a test.
+\item \textbf{Purging labels but not features.} A 20-day moving average still crosses
+  the boundary.
+\item \textbf{One-fold verdicts.} ``It worked on the 2019 split'' is a sample of one.
+\item \textbf{Tuning on the outer fold.} Rebuilds the leak at meta level.
+\item \textbf{Anchored on a non-stationary world.} The training set remembers a dead regime.
+\item \textbf{Averaging away the worst fold.} The dispersion \emph{is} the result.
+\end{itemize}
+
+\section{Exercises}
+\begin{exercise}[easy]
+Why does shuffled K-fold fail on time series?
+\end{exercise}
+\begin{solution}
+It leaks the future into training and destroys the causal structure the test is meant
+to measure.
+\end{solution}
+
+\begin{exercise}[easy]
+With a 30-bar label, how many train labels overlap each fold boundary?
+\end{exercise}
+\begin{solution}
+$W-1=29$ per side of the boundary.
+\end{solution}
+
+\begin{exercise}[easy]
+Anchored vs rolling: which assumes stable relationships?
+\end{exercise}
+\begin{solution}
+Anchored---it weights all history equally; rolling assumes memory decays.
+\end{solution}
+
+\begin{exercise}[easy]
+What does the embargo remove beyond the purge?
+\end{exercise}
+\begin{solution}
+Train rows whose \emph{feature} windows (not just label windows) cross the boundary.
+\end{solution}
+
+\begin{exercise}[easy]
+Which fold's score should the risk model trust most, and why?
+\end{exercise}
+\begin{solution}
+The worst fold---it is the realized bad-regime outcome, not an average that hides it.
+\end{solution}
+
+\begin{exercise}
+A 5-fold walk-forward on 600 rows with $W{=}30$: how many purged rows total?
+\end{exercise}
+\begin{solution}
+$4\times(2\times 29)\approx 232$---the boundaries dominate a small dataset.
+\end{solution}
+
+\begin{exercise}
+Design nested walk-forward for a two-parameter momentum strategy.
+\end{exercise}
+\begin{solution}
+Inside each outer fold's train block, run an inner walk-forward to pick $(f,s)$; freeze
+and score once on the outer test block.
+\end{solution}
+
+\begin{exercise}
+Why does OOS $=-0.52$ in a quiet regime not falsify the strategy?
+\end{exercise}
+\begin{solution}
+Regime dependence is a property to model (gate or size on regime), not necessarily a
+failure of the edge in the regimes where it exists.
+\end{solution}
+
+\begin{exercise}
+What is the difference between purging and embargoing in one sentence each?
+\end{exercise}
+\begin{solution}
+Purge drops train labels overlapping the test block; embargo drops a safety margin of
+$W$ bars on each side so nothing else straddles.
+\end{solution}
+
+\begin{exercise}
+A colleague reports CV score 0.94 on 30-bar labels. Which audit question first?
+\end{exercise}
+\begin{solution}
+``What was the adjacent-label correlation and were boundary rows purged?''---0.94 on
+0.98-correlated labels is partly bookkeeping.
+\end{solution}
+
+\begin{exercise}
+Why is the rolling window a belief, not a technique?
+\end{exercise}
+\begin{solution}
+Its width encodes an assumed memory timescale of the process---a modelling choice made
+before seeing the data.
+\end{solution}
+
+\begin{exercise}
+Give two reasons the anchored IS decays across folds even for a real edge.
+\end{exercise}
+\begin{solution}
+Regime dilution (the window averages different worlds) and signal crowding/decay over
+calendar time.
+\end{solution}
+
+\begin{exercise}[hard]
+Prove that with a $W$-bar forward label, contiguous K-fold shares at least $W-1$
+labels per boundary, and derive the honest minimum embargo.
+\end{exercise}
+\begin{solution}
+Labels $t{-}W{+}1,\ldots,t{-}1$ all contain test bars in their windows: $W{-}1$ rows.
+Embargo $\ge W$ clears every feature and label window.
+\end{solution}
+
+\begin{exercise}[hard]
+Explain why nested walk-forward is the honest way to report a tuner, and what exactly it
+measures.
+\end{exercise}
+\begin{solution}
+It treats (signal + selection rule) as the unit under test; the outer sequence measures
+how the \emph{procedure} performs OOS, separating the edge from lucky parameters.
+\end{solution}
+
+\begin{exercise}[hard]
+Propose a walk-forward design for a strategy with monthly labels on a 5-year dataset---
+what is the binding constraint?
+\end{exercise}
+\begin{solution}
+Only $\sim$60 labels exist and each is 30-bar-correlated; folds shrink to the point where
+per-fold estimates are noise---the binding constraint is effective sample size, not
+compute.
+\end{solution}
+
+\section*{Notes}
+Validation is where the previous chapter's caution becomes procedure. The leaks here are
+not exotic---they are label windows and boundary rows, countable and fixable. What you
+cannot fix is a world that changes regime, and that is what the fold sequence is for.
+
+\section*{Further reading}
+\begin{itemize}
+\item L.~de Prado, \emph{Advances in Financial ML} --- purged CV and embargo (Ch.~7):
+
+\url{https://www.wiley.com/en-us/Advances+in+Financial+Machine+Learning-p-9781119482086}
+\item scikit-learn \texttt{TimeSeriesSplit} --- the basic implementation:
+
+\url{https://scikit-learn.org/stable/modules/generated/sklearn.model_selection.TimeSeriesSplit.html}
+\item D.~Bailey et al., ``Backtest Overfitting'' (JOIM) --- the context:
+
+\url{https://www.davidhbailey.com/dhbpapers/deflated-sharpe.pdf}
+\item Hyndman \& Athanasopoulos, \emph{Forecasting: P\&P} --- time-series CV:
+
+\url{https://otexts.com/fpp3/tscv.html}
+\end{itemize}
+
+\begin{rulebox}[Watch instead]
+\begin{itemize}
+\item ``11. Time Series Analysis II'' --- MIT 18.S096 (83:47). Model evaluation for series;
+re-verified 2026-10-11.
+\url{https://www.youtube.com/watch?v=_IFUfFuyQlU}
+\item ``Python for Data Analysis'' --- PyData/McKinney (10:28). The plumbing; re-verified
+2026-10-11.
+\url{https://www.youtube.com/watch?v=_T8LGqJtuGc}
+\end{itemize}
+\end{rulebox}

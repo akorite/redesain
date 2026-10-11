@@ -1,0 +1,11 @@
+\begin{tikzpicture}
+\begin{axis}[width=0.86\linewidth,height=0.34\linewidth,
+    xlabel={day},ylabel={annualized vol (\%)},
+    xmin=0,xmax=720,ymin=15,ymax=65,
+    tick style={draw=none},axis line style={draw=slate},font=\scriptsize]
+  \addplot[accent,thick] file{figures/data/EWMA.tex};
+  \addplot[slate,thick,dashed] file{figures/data/ROLL.tex};
+  \node[font=\scriptsize,text=accent] at (axis cs:600,57) {EWMA $\lambda{=}0.94$};
+  \node[font=\scriptsize,text=slate] at (axis cs:120,52) {60d rolling};
+\end{axis}
+\end{tikzpicture}

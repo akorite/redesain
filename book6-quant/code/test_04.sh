@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+set -e
+cd "$(dirname "$0")"
+python3 funding_sim.py | grep -q "mean funding 0.091bp/h  sum 65.78bp"
+python3 funding_sim.py | grep -q "carry yield 30d: 27.5bp"
+python3 liq_calc.py | grep -q "liquidation price = entry\*(1-IM)/(1-MM) = 48,241"
+python3 liq_calc.py | grep -q "check: loss 879 = wallet 1,000 - MM 121 ? True"
+python3 basis_carry.py | grep -q "sd 19.0bp"
+python3 funding_hist.py | grep -q "mean +0.113bp/h"
+python3 funding_hist.py | grep -q "mean(f - premium) = +1.08bp"
+echo "ALL ch04 CHECKS PASS"

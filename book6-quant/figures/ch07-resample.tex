@@ -1,0 +1,11 @@
+\begin{tikzpicture}[font=\scriptsize,every node/.style={align=center}]
+  \node[draw=slate,fill=white,rounded corners=1pt,minimum width=2.6cm] (tr) at (0,0)
+    {129 prints\\ 60s bucket};
+  \node[draw=accent,fill=accentsoft,rounded corners=1pt,minimum width=2.6cm] (o) at (3.6,1.0) {o = first print};
+  \node[draw=accent,fill=accentsoft,rounded corners=1pt,minimum width=2.6cm] (h) at (3.6,0.33) {h = max};
+  \node[draw=accent,fill=accentsoft,rounded corners=1pt,minimum width=2.6cm] (l) at (3.6,-0.33) {l = min};
+  \node[draw=accent,fill=accentsoft,rounded corners=1pt,minimum width=2.6cm] (c) at (3.6,-1.0) {c = last print};
+  \draw[->,ink] (tr) -- (o); \draw[->,ink] (tr) -- (h);
+  \draw[->,ink] (tr) -- (l); \draw[->,ink] (tr) -- (c);
+  \node[text=slate] at (3.6,-1.9) {and $v$ = sum of volumes, $n$ = print count};
+\end{tikzpicture}

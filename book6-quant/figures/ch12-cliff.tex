@@ -1,0 +1,7 @@
+\begin{tikzpicture}[font=\scriptsize]
+  \draw[->,slate] (0,0)--(8.6,0) node[below left=-1pt]{day};
+  \foreach \x in {0.3,0.9,1.5,2.1,2.7,3.3,3.9,4.5,5.1,5.7,6.3,6.9,7.5}
+    \draw[good,thick] (\x,1.0)--(\x,1.35);
+  \draw[red,very thick] (6.9,1.0)--(6.9,-0.9);
+  \node[align=left,text=slate] at (8.2,2.0) {+0.7\% on 95\% of days,\\ $-8\%$ on 5\%:\\ Sharpe $+2.09$};
+\end{tikzpicture}

@@ -1,0 +1,11 @@
+\begin{tikzpicture}[font=\scriptsize,every node/.style={align=center}]
+  \node[draw=good,fill=goodbg,rounded corners=1pt,minimum width=4.1cm] (t1) at (0,1.6)
+    {T1 flat market $\Rightarrow$ zero PnL};
+  \node[draw=good,fill=goodbg,rounded corners=1pt,minimum width=4.1cm] (t2) at (4.6,1.6)
+    {T2 trend $\Rightarrow$ exact compound};
+  \node[draw=good,fill=goodbg,rounded corners=1pt,minimum width=4.1cm] (t3) at (0,0.5)
+    {T3 fees $\Rightarrow$ strictly lower eq};
+  \node[draw=good,fill=goodbg,rounded corners=1pt,minimum width=4.1cm] (t4) at (4.6,0.5)
+    {T4 signal $\Rightarrow$ fill at next open};
+  \node[text=slate] at (2.3,-0.5) {if the harness is wrong, every number it emits is wrong};
+\end{tikzpicture}

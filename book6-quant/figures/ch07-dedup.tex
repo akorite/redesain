@@ -1,0 +1,7 @@
+\begin{tikzpicture}
+\begin{axis}[width=0.6\linewidth,height=0.4\linewidth,ybar,bar width=22pt,
+    ylabel={prints},symbolic x coords={raw,deduped,flagged},
+    xtick=data,tick style={draw=none},axis line style={draw=slate},font=\scriptsize]
+  \addplot[fill=accentsoft,draw=accent] coordinates {(raw,1006) (deduped,990) (flagged,4)};
+\end{axis}
+\end{tikzpicture}

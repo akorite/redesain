@@ -1,0 +1,15 @@
+\begin{tikzpicture}[x=0.62cm,y=0.055cm]
+  \draw[->,slate] (0,0) -- (12.6,0) node[below left=-1pt,font=\scriptsize]{days};
+  \draw[->,slate] (0,-30) -- (0,32) node[above left=-1pt,font=\scriptsize]{$F-S$ (bp)};
+  \draw[slate,dashed] (0,0)--(12.4,0);
+  % expiring futures: decay to zero
+  \foreach \x/\b in {0/26,2/19,4/12,6/7,8/3.5,10/1}
+    \draw[accent,very thick] (\x,\b) -- ({\x+2},{\b*0.55});
+  % perp: oscillates, never expires
+  \draw[amber,very thick] plot coordinates {(0,22)(1.5,14)(3,19)(4.5,8)(6,15)(7.5,6)(9,13)(10.5,4)(12,9)};
+  \node[anchor=west,font=\scriptsize,text=accent] at (12.4,6) {expiring futures};
+  \node[anchor=west,font=\scriptsize,text=amber] at (12.4,12) {perp};
+  \foreach \x in {2,4,6,8,10,12} \draw[slate] (\x,0.6)--(\x,-0.6) node[below,font=\scriptsize]{\x};
+  \node[align=center,font=\scriptsize,text=slate] at (6,-22)
+    {expiry forces convergence to spot; the perp has no expiry,\\ so funding must be manufactured to pull it back};
+\end{tikzpicture}

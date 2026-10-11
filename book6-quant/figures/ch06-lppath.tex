@@ -1,0 +1,10 @@
+\begin{tikzpicture}
+\begin{axis}[width=0.86\linewidth,height=0.32\linewidth,
+    xlabel={day},ylabel={LP minus HODL (\%)},
+    xmin=0,xmax=180,ymin=-6,ymax=1,
+    tick style={draw=none},axis line style={draw=slate},
+    xtick={0,45,90,135,180},font=\scriptsize]
+  \addplot[accent,thick] file{figures/data/LP_PATH.tex};
+  \addplot[slate,dotted] coordinates {(0,0)(180,0)};
+\end{axis}
+\end{tikzpicture}

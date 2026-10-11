@@ -1,0 +1,336 @@
+\chapter{Writing it up}\label{ch:writeup}
+
+\noindent The last skill is the one nobody teaches: reporting the result so that another
+human---including future you---can check it. The memo is not the marketing of the
+research; it is the deliverable. This chapter is the contract: claim, evidence, method,
+weaknesses, risks, reproduction.
+
+\section{The memo skeleton}\label{sec:memo}
+
+Six sections cover every honest report: what is claimed, the evidence, what was tried
+(including the silent trials), what could kill it, the risks, and how to reproduce.
+Everything else is style.
+
+\begin{figure}[htbp]\centering
+\input{figures/ch15-memo}
+\caption{The memo skeleton: six sections, each answering a question a reviewer will ask.}
+\label{fig:memo}
+\end{figure}
+
+\begin{example}\label{ex:memo}
+\textbf{Why the skeleton is ordered this way.} Claim first because nobody reads further;
+evidence second because the claim is worthless without it; trials third because the
+evidence is meaningless without the count.
+\begin{solution}
+The order mirrors a hostile reviewer's path: What? Prove it. How many tries? Why might
+it die? What breaks it? Can I rerun it? A memo that answers in that order survives the
+review it was written for.
+\end{solution}
+\end{example}
+
+\section{Claims carry evidence}\label{sec:claim}
+
+\texttt{report\_check.py} lints a memo for the nine fields this book uses:
+\begin{lstlisting}[numbers=none]
+memo check: 9/9 fields present
+missing: none
+the checklist is the deliverable -- a memo without fields is a story
+\end{lstlisting}
+
+\begin{example}\label{ex:claim}
+\textbf{The claim-evidence pair.} ``Funding carry exists'' is a claim;
+``$+0.113$bp/h over 500h, 85\% at the interest floor'' is the evidence.
+\begin{solution}
+Every sentence that asserts something needs a number attached that another person could
+recompute. ``SMA works'' paired with ``$+7.9\%$ vs B\&H $+22.7\%$'' is honest even when
+the answer is ``it underperformed''---the evidence column is allowed to say the claim
+is wrong.
+\end{solution}
+\end{example}
+
+\begin{figure}[htbp]\centering
+\input{figures/ch15-claim}
+\caption{Every claim maps to evidence---including claims the evidence refutes.}
+\label{fig:claim}
+\end{figure}
+
+\section{Reproducibility}\label{sec:repro}
+
+\texttt{repro\_demo.py} shows the seed contract:
+\begin{lstlisting}[numbers=none]
+seed 7: ann ret -31.1%  vol 29.6%
+seed 7: ann ret -31.1%  vol 29.6%
+seed 99: ann ret +24.5%  vol 32.2%
+same seed -> same numbers; pin the seed, pin the data, pin the code
+\end{lstlisting}
+
+\begin{example}\label{ex:repro}
+\textbf{The three pins.} Data (hash), code (commit), seeds (recorded)---any two without
+the third is decorative.
+\begin{solution}
+Reproducibility is the difference between ``I observed'' and ``I estimate''. A result
+that depends on an unpinned random seed is not a result; it is one sample of a
+distribution you have not described. The pin discipline from ch07 is what turns the
+memo from a story into a measurement.
+\end{solution}
+\end{example}
+
+\begin{figure}[htbp]\centering
+\input{figures/ch15-repro}
+\caption{The reproducibility contract: three pins, one reproducible claim.}
+\label{fig:repro}
+\end{figure}
+
+\section{Red-teaming your own work}\label{sec:redteam}
+
+\texttt{redteam\_demo.py} runs the attack checklist on this book's SMA result:
+\begin{lstlisting}[numbers=none]
+  lookahead?     signal uses close_i, fill open_i+1  PASS
+  costs?         5bp fee + 2bp slip modeled          PASS
+  n trials?      1 window pair, no search            PASS
+  regime?        OOS fold -0.52 in quiet regime      FLAG: gate on vol
+  capacity?      BTC liquid; footprint <<1% ADV      PASS
+4 pass / 1 flag -- the flag is the research, not the failure
+\end{lstlisting}
+
+\begin{example}\label{ex:redteam}
+\textbf{The flag is the finding.} Four passes, one flag: the quiet-regime OOS fold
+loses $-0.52$.
+\begin{solution}
+The flag is not a reason to kill the memo---it is the memo's most honest section. A
+result that reports its own regime boundary is more valuable than one that hides it:
+the next researcher knows where to look, and the risk model knows when the signal
+is off.
+\end{solution}
+\end{example}
+
+\begin{figure}[htbp]\centering
+\input{figures/ch15-review}
+\caption{The reviewer's path: claim, evidence, trial count, the flag.}
+\label{fig:review}
+\end{figure}
+
+\begin{figure}[htbp]\centering
+\input{figures/ch15-loop}
+\caption{The write-redteam-fix loop: repeat until every surviving flag has a name.}
+\label{fig:loop}
+\end{figure}
+
+\section{From deck to memo}\label{sec:deck}
+
+The transformation this book has been building toward: ``Sharpe 2.1'' becomes
+``SR 2.1 in-sample / 0.4 out-of-sample, $N{=}40$ tried, flagged in quiet regime''---the
+same research, the honest version.
+
+\begin{figure}[htbp]\centering
+\input{figures/ch15-deck}
+\caption{Deck to memo: the numbers are the same; the honesty is the rewrite.}
+\label{fig:deck}
+\end{figure}
+
+\begin{example}\label{ex:deck}
+\textbf{Why decks die.} A deck presents the best leaf of the forking tree; a memo presents
+the tree.
+\begin{solution}
+Nobody can check ``Sharpe 2.1''---no data, no $N$, no OOS. The memo version can be
+killed (weak OOS, tried 40 things) but can also be trusted: every field a reviewer
+needs is present. The deliverable that survives is the one that volunteered its own
+weaknesses.
+\end{solution}
+\end{example}
+
+\begin{checkpoint}[Writeup audit]
+\begin{itemize}
+\item Name the six memo sections. (Claim, evidence, method, weaknesses, risks, repro.)
+\item What are the three reproducibility pins? (Data hash, code commit, recorded seeds.)
+\item What does a surviving flag mean? (A named weakness, not a failed check.)
+\end{itemize}
+\end{checkpoint}
+
+\section{Recap}\label{sec:wurecap}
+
+The memo is the last honest artifact in the chain: claim $\to$ evidence $\to$ trials
+$\to$ weaknesses $\to$ risks $\to$ reproduction. Everything in this book---the harness,
+the leaks, the validation, the metrics, the sizing, the risk---ends in a document
+someone else can check. Write the one you'd want to review.
+
+\begin{table}[htbp]\centering\small
+\caption{Chapter toolbox.}
+\begin{tabular}{@{}lll@{}}
+\toprule
+Concept & Rule & Gotcha\\
+\midrule
+Skeleton & 6 sections & order = reviewer's path\\
+Claims & each carries evidence & evidence can refute\\
+Repro & data+code+seeds & two of three is decoration\\
+Red-team & run the attack list & the flag is the finding\\
+Deck$\to$memo & honesty is the rewrite & same numbers, fuller truth\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\section{Common mistakes}
+\begin{itemize}
+\item \textbf{Claim without the number.} ``Works well'' is marketing, not research.
+\item \textbf{Omitting the trial count.} The single most-omitted field in the industry.
+\item \textbf{Results without seeds.} Unreproducible $\Rightarrow$ unverifiable
+  $\Rightarrow$ anecdote.
+\item \textbf{Hiding the OOS fold that lost.} The flag is the information.
+\item \textbf{Repro instructions that are aspirational.} If a fresh clone can't run it,
+  it doesn't reproduce.
+\item \textbf{Concluding from the deck.} The deck is the pitch; the memo is the audit.
+\end{itemize}
+
+\section{Exercises}
+\begin{exercise}[easy]
+List the six memo sections.
+\end{exercise}
+\begin{solution}
+Claim, evidence, method (incl.\ $N$), weaknesses, risks, reproduction.
+\end{solution}
+
+\begin{exercise}[easy]
+Why does the claim come first?
+\end{exercise}
+\begin{solution}
+It is the only part every reader reaches---and the part the evidence must answer.
+\end{solution}
+
+\begin{exercise}[easy]
+Name the three reproducibility pins.
+\end{exercise}
+\begin{solution}
+Data (hash), code (commit), seeds (recorded).
+\end{solution}
+
+\begin{exercise}[easy]
+What is a ``flag'' in the red-team table?
+\end{exercise}
+\begin{solution}
+A named weakness that survived the checklist---reported, not hidden.
+\end{solution}
+
+\begin{exercise}[easy]
+Why is ``same seed $\to$ same numbers'' necessary but not sufficient?
+\end{exercise}
+\begin{solution}
+It proves determinism, not correctness---the pins also need the data and code identities.
+\end{solution}
+
+\begin{exercise}
+Rewrite ``Sharpe 2.1'' as a memo claim.
+\end{exercise}
+\begin{solution}
+``SR 2.1 IS / 0.4 OOS on 720d BTC daily, $N{=}40$ variants tried, cost 5+2bp, flagged
+in quiet regime.''
+\end{solution}
+
+\begin{exercise}
+Draft the ``weaknesses'' section for the funding-carry memo.
+\end{exercise}
+\begin{solution}
+Venue rule change, funding-sign flip in bear regimes, crowding of the carry, and the
+500h sample covering mostly one regime.
+\end{solution}
+
+\begin{exercise}
+Why does the evidence column get to say the claim is wrong?
+\end{exercise}
+\begin{solution}
+The memo's job is truth, not advocacy---evidence that refutes is the highest-value kind.
+\end{solution}
+
+\begin{exercise}
+Add a fourth pin to the three---what did you choose and why?
+\end{exercise}
+\begin{solution}
+Environment (OS/library versions): same seed + different numpy can change the numbers.
+\end{solution}
+
+\begin{exercise}
+Order the sections to match a hostile reviewer's read order.
+\end{exercise}
+\begin{solution}
+Claim $\to$ evidence $\to$ method/trials $\to$ weaknesses $\to$ risks $\to$ repro---each
+answers the next question a skeptic asks.
+\end{solution}
+
+\begin{exercise}
+What separates the attack list from generic ``limitations'' prose?
+\end{exercise}
+\begin{solution}
+Each attack is a checkable property (leak? costs? trials?) with a PASS/FLAG verdict,
+not a paragraph of hedges.
+\end{solution}
+
+\begin{exercise}
+A memo has 9/9 fields but no flag survived. Suspicious?
+\end{exercise}
+\begin{solution}
+Yes---every real result has a boundary; a flagless memo usually means the red-team
+wasn't run honestly.
+\end{solution}
+
+\begin{exercise}[hard]
+Argue that the trial count field is the single most consequential in the memo, and
+propose a convention for counting micro-choices.
+\end{exercise}
+\begin{solution}
+Because $N$ converts a Sharpe into an inference (ch09); convention: declare every
+variant evaluated, including those rejected before a formal test.
+\end{solution}
+
+\begin{exercise}[hard]
+Design the ``repro'' section so a stranger can rerun the ch08 SMA result in under five
+minutes.
+\end{exercise}
+\begin{solution}
+`git clone; bash code/test\_08.sh'---the test greps the same numbers the chapter quotes;
+hash of \texttt{data/btc\_daily.csv} is in the README.
+\end{solution}
+
+\begin{exercise}[hard]
+Write the three-sentence version of this entire book.
+\end{exercise}
+\begin{solution}
+Markets are measurable but not honest. Every tool that reports a number has a failure
+mode that manufactures a number, so the research discipline is the chain: honest fills,
+counted trials, purged folds, deflated bars, fractional sizing, and a memo that says
+where it breaks.
+\end{solution}
+
+\section*{Notes}
+This is the capstone the other fourteen chapters point at: none of the machinery matters
+if the report doesn't survive a hostile read. The research that lasts is the research
+that volunteered its weaknesses first---everything else gets red-teamed by someone else,
+on their timeline, not yours.
+
+\section*{Further reading}
+\begin{itemize}
+\item E.~Chan, ``What I Wish I'd Known About Quantitative Trading'' --- the practice:
+
+\url{https://epchan.blogspot.com/}
+\item L.~de Prado, ``The 7 Reasons Most Econometric Investments Fail'' --- the checklist:
+
+\url{https://www.quantresearch.org/Lectures.htm}
+\item ASA, ``Statistical inference'' (reproducibility standards):
+
+\url{https://www.amstat.org/asa/files/pdfs/P-ValueStatement.pdf}
+\item Project Jupyter (notebooks) --- the literate-research tool:
+
+\url{https://jupyter.org/}
+\item M.~Gardner, ``The Three Data Revolutions'' --- reproducibility culture:
+
+\url{https://www.tandfonline.com/doi/full/10.1080/00031305.2023.2284320}
+\end{itemize}
+
+\begin{rulebox}[Watch instead]
+\begin{itemize}
+\item ``12. Risk Analysis'' --- MIT 18.S096 (80:32). What reviewers check; re-verified
+2026-10-11.
+\url{https://www.youtube.com/watch?v=qlytPllimpQ}
+\item ``PyData pandas walkthrough'' --- McKinney (10:28). Reproducible workflow;
+re-verified 2026-10-11.
+\url{https://www.youtube.com/watch?v=_T8LGqJtuGc}
+\end{itemize}
+\end{rulebox}

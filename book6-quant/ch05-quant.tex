@@ -1,0 +1,391 @@
+\chapter{Prediction markets and scoring rules}\label{ch:pm}
+
+\noindent A prediction market is the simplest derivative there is: a share that pays \$1 if an
+event happens and \$0 otherwise. Its price is a probability estimate with money behind it. For
+a researcher the venue is less important than what it produces---a large, public, continuously
+updated panel of probabilistic forecasts you can score, calibrate and cross-check. The canonical
+venue for this book is Polymarket.
+
+\section{The contract}\label{sec:pmcontract}
+
+A YES share costs $p\in(0,1)$ and resolves to $1$ or $0$. A NO share is the complement: it costs
+$1-p$ and resolves to the opposite side. Buying YES at $p$ is a bet with
+$\mathrm{EV}=q-p$ per share where $q$ is the event's true probability, and variance
+$q(1-q)$---binary outcomes are among the highest-variance instruments that exist per unit of
+expected value.
+
+\begin{figure}[htbp]\centering
+\input{figures/ch05-contract}
+\caption{Anatomy of a YES share.}
+\label{fig:contract}
+\end{figure}
+
+\begin{principle}[price is a probability]
+In a frictionless prediction market the YES price equals the marginal trader's subjective
+probability. Real venues have fees, latency and incomplete books, so read $p$ as
+\emph{consensus-minus-frictions}: the best single public number for ``how likely is this,''
+not a guaranteed fair price.
+\end{principle}
+
+\begin{example}\label{ex:pmev}
+\textbf{Expected value.} A market prices YES at $0.62$. You assess $q=0.70$. What is the edge
+per share, the variance, and how many shares must you buy before the bet's standard deviation
+is below its expected profit?
+\begin{solution}
+$\mathrm{EV}=0.70-0.62=+0.08$ per share; $\sigma=\sqrt{0.7\cdot0.3}=0.458$ per share. For $n$
+independent copies the ratio is $n\cdot0.08/(\sqrt{n}\cdot0.458)=\sqrt{n}\cdot0.175>1$ at
+$n>33$ shares. A single binary bet is essentially a coin flip with a weighted coin; edge is a
+\emph{property of repetition}, not of one trade.
+\end{solution}
+\end{example}
+
+\section{Reading a live book}\label{sec:pmlive}
+
+Polymarket's public Gamma API returns market metadata and live outcome prices, no
+authentication required. The 100 most-traded active markets are pinned at
+\texttt{data/pm\_markets.json}:
+
+\begin{lstlisting}[language=Python, numbers=none]
+d=json.load(open("data/pm_markets.json"))
+pr=[float(x) for x in json.loads(m["outcomePrices"])]
+\end{lstlisting}
+\begin{lstlisting}[numbers=none]
+Xi Jinping out before 2027? | ["0.0285", "0.9715"]
+Will Gavin Newsom win the 2028 Democratic pres. nomination | ["0.1545", ...]
+\end{lstlisting}
+
+YES$+$NO sums to $1$ within a few cents everywhere in the snapshot
+(\texttt{arb\_check.py}: ``100 binary markets checked, YES+NO deviating $>$3c from 1: 0'').
+That is the arbitrage channel doing its job: any persistent gap is a machine-readable coupon.
+
+\begin{figure}[htbp]\centering
+\input{figures/ch05-pmhist}
+\caption{YES-price histogram over the 100 most-traded Polymarket markets (snapshot
+2026-10-11): a U-shape---most action concentrates at the near-certain and near-impossible
+tails. \texttt{data/pm\_markets.json}.}
+\label{fig:pmhist}
+\end{figure}
+
+\section{Scoring rules}\label{sec:scoring}
+
+To judge a probability forecaster you need a score. A scoring rule is \emph{proper} if the
+expected score is optimised by reporting your true belief. The two canonical ones:
+
+\begin{principle}[proper scores]
+\textbf{Brier:} $S(p,y)=(p-y)^2$ --- bounded in $[0,1]$, tolerant of wild reports.
+\textbf{Log score:} $S(p,y)=\log(p)$ if $y{=}1$ else $\log(1-p)$ --- strictly proper,
+\emph{unbounded}: reporting $p=0$ on an event that happens is penalised by $-\infty$.
+Properness is what makes an honest forecaster indifferent between reporting and predicting.
+\end{principle}
+
+\begin{example}\label{ex:proper}
+\textbf{Truth is optimal.} \texttt{scoring.py} computes expected scores for reports $p$ when
+the truth is $q=0.6$:
+\begin{lstlisting}[numbers=none]
+q=0.6 report 0.3: E[Brier]=0.3300  E[log]=-0.8651
+q=0.6 report 0.5: E[Brier]=0.2500  E[log]=-0.6931
+q=0.6 report 0.6: E[Brier]=0.2400  E[log]=-0.6730
+q=0.6 report 0.7: E[Brier]=0.2500  E[log]=-0.6956
+q=0.6 report 0.9: E[Brier]=0.3300  E[log]=-0.9843
+proper: best report = truth 0.6 for both rules
+\end{lstlisting}
+\begin{solution}
+Both rules bottom out at $p=q$: Brier reaches its minimum $0.24$ and log score its maximum
+$-0.673$ exactly at the truthful report, and both degrade symmetrically as the report moves
+away. That is propriety in one table: \emph{honesty is a dominant strategy}. (The log rule's
+asymmetry $-0.6931$ vs $-0.6956$ is small here but explodes for extreme reports---see the
+exercise on log penalty.)
+\end{solution}
+\end{example}
+
+\begin{figure}[htbp]\centering
+\input{figures/ch05-score}
+\caption{Expected Brier penalty vs reported probability when $q=0.6$: minimised at the truth.}
+\label{fig:score}
+\end{figure}
+
+\section{Calibration}\label{sec:calib}
+
+Scores rank forecasters; \emph{calibration} diagnoses them. A forecaster is calibrated if,
+among all events it assigned probability $p$, the empirical frequency is $p$. The standard
+tool is the reliability diagram: bin forecasts, plot mean forecast vs empirical rate, and
+compare with the diagonal. The summary statistic is expected calibration error,
+$\mathrm{ECE}=\sum_b \frac{n_b}{n}\lvert \bar f_b - \bar y_b\rvert$.
+
+\begin{example}\label{ex:calib}
+\textbf{Overconfidence detector.} \texttt{calibration.py} builds an overconfident forecaster
+(real outcomes compressed toward 0.5 relative to the issued forecast) and bins 4000
+predictions:
+\begin{lstlisting}[numbers=none]
+bin   mean_forecast  empirical   n
+0.0-0.1  0.043          0.239      134
+0.4-0.5  0.452          0.469      676
+0.7-0.8  0.746          0.642      383
+0.9-1.0  0.954          0.857      133
+ECE=0.0747  (overconfident: forecasts more extreme than reality)
+calibrated twin ECE=0.0230
+\end{lstlisting}
+\begin{solution}
+Events forecast at 4\% actually happen 24\% of the time; events forecast at 95\% happen only
+86\%---both tails bend \emph{toward the middle}, the fingerprint of overconfidence. The
+calibrated twin (forecaster $=$ true generator) scores ECE $0.023$, mostly binning noise.
+ECE is not a score---it cannot rank a bad-but-calibrated forecaster against a good one---but
+as a diagnostic it separates \emph{miscalibration} from \emph{lack of skill}.
+\end{solution}
+\end{example}
+
+\begin{figure}[htbp]\centering
+\input{figures/ch05-reliability}
+\caption{Reliability diagram of the overconfident forecaster: the curve bows below the
+diagonal at high forecasts and above it at low ones. \texttt{calibration.py}.}
+\label{fig:reliability}
+\end{figure}
+
+\section{Consistency and the arbitrage channel}\label{sec:pmarb}
+
+Mutually exclusive outcomes must price to $1$ (plus venue vig), or a Dutch book exists:
+buy all outcomes when $\sum p < 1$ for a guaranteed payout of $1$, or sell all when
+$\sum p>1$. In practice the gap rarely exceeds a few cents on liquid markets---our snapshot
+found zero violations beyond 3c---but the \emph{threat} of the trade is what keeps prices
+coherent, which is why summed prices are a live health check.
+
+\begin{figure}[htbp]\centering
+\input{figures/ch05-arb}
+\caption{The arbitrage channel for multi-outcome markets.}
+\label{fig:arb}
+\end{figure}
+
+\begin{example}\label{ex:tails}
+\textbf{Reading the tails.} In our real snapshot, 21 of 100 markets priced the lead outcome
+below 5c---most of them sports spreads, e.g.\ ``Spread: Viking FK $(-1.5)$'' at 0.9c.
+\begin{solution}
+Tail prices are where the friction model matters most: a 1c share pays 100:1, so a tiny
+mispricing is a huge \emph{relative} edge---and exactly where books are thinnest and
+resolutions most ambiguous. The U-shaped histogram (fig.\ \ref{fig:pmhist}) says the median
+market is already near resolution; the information density lives in the 5--95c band where
+probabilities are actually contested.
+\end{solution}
+\end{example}
+
+\begin{example}\label{ex:respath}
+\textbf{Price paths converge to truth or die trying.} \texttt{resolve\_sim.py} runs a running
+estimate over 200 noisy observations of a $q=0.6$ event (fig.\ \ref{fig:path}):
+\begin{lstlisting}[numbers=none]
+seed1: empirical freq drifts to 0.59 -> resolves 1
+seed2: empirical freq drifts to 0.57 -> resolves 1
+\end{lstlisting}
+A market's price walks the same way: information arrives, the estimate concentrates, and the
+price either ratchets toward 1 or collapses to 0. The interesting trades are mid-path---before
+convergence is priced in.
+\end{example}
+
+\begin{figure}[htbp]\centering
+\input{figures/ch05-path}
+\caption{A running empirical frequency over 200 observations of a $q=0.6$ event---the shape
+every market price follows toward resolution. \texttt{resolve\_sim.py}.}
+\label{fig:path}
+\end{figure}
+
+\begin{checkpoint}[Score a forecaster]
+\begin{itemize}
+\item Compute Brier and log score for reports $(0.8,0.6,0.3)$ on events $(1,0,1)$; who won?
+\item From \texttt{data/pm\_markets.json}, find any market whose YES$+$NO deviates $>1$c and
+explain what a bot does about it.
+\item Why does ECE fail as a \emph{ranking} metric? (A constant 0.5 forecaster can be perfectly
+calibrated on symmetric data yet have no skill.)
+\end{itemize}
+\end{checkpoint}
+
+\section{Recap: the pipeline}\label{sec:pmrecap}
+
+Fetch prices, treat each as a probability, watch consistency for arbitrage, score predictions
+with a proper rule, and diagnose with calibration. Everything in later chapters---backtesting,
+signal evaluation, sizing---reuses this loop: markets emit probabilities; proper scores tell
+you whether the emitter was any good.
+
+\section{Common mistakes}
+\begin{itemize}
+\item \textbf{Reading price as certainty.} $p=0.9$ is a probability, not a promise; one in ten
+  90c favourites still loses, and tails cluster (fig.\ \ref{fig:pmhist}).
+\item \textbf{Summing YES and NO sloppily.} A 3c sum gap on a binary market is usually vig or
+  stale quotes, not an arb---check depth and fees before declaring free money.
+\item \textbf{Scoring with accuracy.} Calling a 0.6 event ``yes'' and scoring 1/0 rewards
+  overconfidence; use a proper rule to compare probability emitters.
+\item \textbf{Trusting ECE alone.} Calibration without sharpness is cheap; a forecaster can
+  be calibrated by always saying 0.5.
+\item \textbf{Ignoring the resolution spec.} ``Xi out before 2027'' resolves on a specific
+  oracle event---read the market's rules, not the headline.
+\item \textbf{Forgetting frictions at the tails.} A 1c misprice is a 100x edge on paper and
+  usually untradeable at size.
+\end{itemize}
+
+\section{Exercises}
+\begin{exercise}[easy]
+A YES share costs $0.35$. What does the NO share cost, and what does the sum imply about
+the venue's vig?
+\end{exercise}
+\begin{solution}
+$1-0.35=0.65$ in a frictionless book; a sum above \$1 is the effective vig on the pair.
+\end{solution}
+
+\begin{exercise}[easy]
+You buy 100 YES shares at $0.62$ and the event resolves YES. PnL? At $q=0.7$, EV?
+\end{exercise}
+\begin{solution}
+PnL $=100(1-0.62)=+38$; EV $=100(0.7-0.62)=+8$.
+\end{solution}
+
+\begin{exercise}[easy]
+Brier score of forecaster who said $p=0.9$ on an event that failed? Log score (nats)?
+\end{exercise}
+\begin{solution}
+Brier $=(0.9-0)^2=0.81$; log $=\log(1-0.9)=\log 0.1=-2.303$.
+\end{solution}
+
+\begin{exercise}[easy]
+Why does the histogram in fig.\ \ref{fig:pmhist} have a U-shape?
+\end{exercise}
+\begin{solution}
+Most-traded markets concentrate near resolution or longshots; mid-probability contests are
+rarer among the top-volume snapshot.
+\end{solution}
+
+\begin{exercise}[easy]
+A market's YES trades $0.52$ while its NO trades $0.44$. Sum?
+\end{exercise}
+\begin{solution}
+$0.96$: buy both for $0.96$, guaranteed $1.00$ payout---a 4c theoretical arb, modulo
+fees/resolution risk.
+\end{solution}
+
+\begin{exercise}
+Show the log score is strictly proper: for truth $q$, expected score
+$q\log p + (1-q)\log(1-p)$ is maximised at $p=q$.
+\end{exercise}
+\begin{solution}
+Derivative $q/p-(1-q)/(1-p)=0\Rightarrow p=q$; second derivative negative---unique max at
+truth.
+\end{solution}
+
+\begin{exercise}
+From \texttt{data/pm\_markets.json}: report the 5 markets closest to $p=0.5$ and argue which
+is the most contested.
+\end{exercise}
+\begin{solution}
+Sort by $|p-0.5|$; the nearest-to-0.5 with high volume is the most contested---your script's
+output is the answer.
+\end{solution}
+
+\begin{exercise}
+A forecaster issues $p$ uniform on $[0.4,0.6]$ while true $q\in\{0.3,0.7\}$ equally. Show it is
+uncalibrated even though mean forecast $=$ mean outcome.
+\end{exercise}
+\begin{solution}
+Within any bin around 0.5, empirical rate $\neq\bar f$: forecasts near 0.6 still cover both
+$q$'s, so conditional frequencies sit off the diagonal---matched marginals, mismatched
+conditionals.
+\end{solution}
+
+\begin{exercise}
+Why do sharp-tailed binary markets resist the ``$p$ is a probability'' reading more than
+mid-range ones?
+\end{exercise}
+\begin{solution}
+At $p<0.05$ the friction terms (fees, latency, thin book, resolution ambiguity) are the same
+size as the price; at $p=0.5$ they are noise.
+\end{solution}
+
+\begin{exercise}
+Dutch-book a three-outcome market: $p_A{=}0.4$, $p_B{=}0.35$, $p_C{=}0.30$. Free profit per
+set?
+\end{exercise}
+\begin{solution}
+Sum $=1.05$: sell all three, collect $1.05$, pay $1.00$ at resolution $=+0.05$ per set
+before fees.
+\end{solution}
+
+\begin{exercise}
+Give the reliability-diagram shape of (i) an overconfident forecaster, (ii) an underconfident
+one, (iii) a well-calibrated one.
+\end{exercise}
+\begin{solution}
+(i) S-curve bowed toward the middle (this chapter's fig.); (ii) inverted bow away from the
+middle; (iii) on the diagonal within binning noise.
+\end{solution}
+
+\begin{exercise}
+Explain why the log score's $-\infty$ penalty on a false 0\% is a \emph{feature}, not a bug.
+\end{exercise}
+\begin{solution}
+It rules out certainty rhetoric: any forecaster who claims impossibility and is wrong even
+once is eliminated---properness requires credence $>0$ on anything not logically excluded.
+\end{solution}
+
+\begin{exercise}[hard]
+Derive the buy-YES Kelly fraction for edge $e=q-p$ at price $p$; plug in $p{=}0.62$, $q{=}0.70$.
+\end{exercise}
+\begin{solution}
+Odds: win $(1-p)/p$ per unit; Kelly $f^*=(q(1-p)-p(1-q))/((1-p)p)\cdot p=(q-p)/(1-p)
+=0.08/0.38\approx0.21$ of bankroll.
+\end{solution}
+
+\begin{exercise}[hard]
+Extend \texttt{calibration.py}: estimate ECE with an equal-\emph{count} binning instead of
+equal-width; explain when each lies.
+\end{exercise}
+\begin{solution}
+Equal-count bins overweight sparse tails with noisy $\bar y$; equal-width bins let small bins
+dominate the tails. Report both---your numbers are the answer.
+\end{solution}
+
+\begin{exercise}[hard]
+Two forecasters: A issues $(0.9,0.8,0.7)$ on $(1,1,0)$; B issues $(0.7,0.7,0.7)$ on the same.
+Score both under Brier and log; who is preferable and why does the answer differ?
+\end{exercise}
+\begin{solution}
+A: Brier $(0.01+0.04+0.49)/3=0.18$, log $(\log.9+\log.8+\log.3)/3\approx-0.527$;
+B: Brier $(0.09+0.09+0.49)/3=0.223$, log $3\log.7/3=-0.357$. A wins Brier (better resolution)
+but loses log (the confident wrong 0.7 costs dearly)---the log rule punishes false confidence
+harsher.
+\end{solution}
+
+\section*{Notes}
+Prediction markets are the cleanest place to learn probabilistic thinking: binary payoffs,
+public prices, and resolution oracles that grade every forecast for you. The same machinery
+(proper scores, calibration, sum-to-one consistency) reappears when evaluating ML classifiers
+and trading signals---a mispriced market and a miscalibrated model fail the same way.
+
+\section*{Further reading}
+\begin{itemize}
+\item Polymarket documentation --- market mechanics, resolution and the API used in this
+chapter:
+
+\url{https://docs.polymarket.com/}
+\item Wikipedia, ``Prediction market'' --- history, mechanism design, and limits:
+
+\url{https://en.wikipedia.org/wiki/Prediction_market}
+\item Wikipedia, ``Scoring rule'' --- the propriety theory behind \S\ref{sec:scoring}:
+
+\url{https://en.wikipedia.org/wiki/Scoring_rule}
+\item Wikipedia, ``Brier score'' --- decomposition (reliability/resolution/uncertainty):
+
+\url{https://en.wikipedia.org/wiki/Brier_score}
+\item FiveThirtyEight, ``Checking Our Work'' --- calibration analysis on real public
+forecasts:
+
+\url{https://projects.fivethirtyeight.com/checking-our-work/}
+\item Polymarket Gamma API --- the public endpoint used by \texttt{arb\_check.py}:
+
+\url{https://gamma-api.polymarket.com/}
+\end{itemize}
+
+\begin{rulebox}[Watch instead]
+\begin{itemize}
+\item ``What Is POLYMARKET? | The Crypto Prediction Market Easy Explained'' --- What The
+Asset (9:43). Contract mechanics and the venue used in this chapter.
+\url{https://www.youtube.com/watch?v=Vqwjwj0-nmQ} (accessed 2026-10-11)
+\item ``How Prediction Markets Work (and why you should care)'' --- Catalyst (7:05). Price-as-
+probability reading; matches \S\ref{sec:pmcontract}.
+\url{https://www.youtube.com/watch?v=tWFuBuo_B10} (accessed 2026-10-11)
+\end{itemize}
+\end{rulebox}

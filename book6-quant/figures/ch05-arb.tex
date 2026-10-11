@@ -1,0 +1,11 @@
+\begin{tikzpicture}[font=\scriptsize,every node/.style={align=center}]
+  \node[draw=slate,fill=white,rounded corners=1pt,minimum width=3.2cm] (m) at (0,0)
+    {three outcomes\\ $p_A{+}p_B{+}p_C=0.97$};
+  \node[draw=good,fill=goodbg,rounded corners=1pt,minimum width=3.2cm] (a) at (4.2,0.8)
+    {buy all three\\ pay $0.97$, get $1$};
+  \node[draw=amber,fill=amberbg,rounded corners=1pt,minimum width=3.2cm] (b) at (4.2,-0.8)
+    {sum $>1$: sell all\\ collect $1$, pay $1$};
+  \draw[->,ink] (m) -- (a);
+  \draw[->,ink] (m) -- (b);
+  \node[text=slate] at (2.4,-1.7) {mutually exclusive outcomes must sum to $1$ (minus vig)};
+\end{tikzpicture}

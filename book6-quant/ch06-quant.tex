@@ -1,0 +1,393 @@
+\chapter{AMMs, liquidity provision and impermanent loss}\label{ch:amm}
+
+\noindent The automated market maker replaced the order book with a function. Instead of
+matching buyers and sellers, a pool holds reserves of two assets and quotes prices off a
+curve. Understanding the curve---its price rule, its depth, and who bears what risk---is the
+entry ticket to on-chain market design.
+
+\section{The constant-product rule}\label{sec:cpmm}
+
+A constant-product pool holds reserves $(x,y)$ and enforces $x\cdot y=k$ through every trade.
+Its spot price is $p=y/x$; buying $x$ with $y$ pushes the state down the curve and raises $p$.
+The quoted execution price is set by the curve's slope, not by any counterparty.
+
+\begin{figure}[htbp]\centering
+\input{figures/ch06-cpmm}
+\caption{The constant-product curve: trades move the state along $x\cdot y=k$; the local
+slope is the price, the curvature is the depth.}
+\label{fig:cpmm}
+\end{figure}
+
+\begin{principle}[price is reserve ratio]
+For CPMM, marginal price $=y/x$ exactly. A trade of $\Delta x$ gets
+$\Delta y = \frac{\Delta x\,(1-f)\,y}{x+\Delta x(1-f)}$ with fee $f$---executed price worsens
+with size because you are walking along the curve, which is why pool depth \emph{is}
+liquidity.
+\end{principle}
+
+\begin{example}\label{ex:amm}
+\textbf{Swaps and impact.} \texttt{amm\_swap.py} runs a pool of $x{=}1000$ tokens against
+$y{=}50{,}000$ USD (price 50) at fee 0.3\%:
+\begin{lstlisting}[numbers=none]
+pool x=1000 y=50000 price=50.00
+in    1: out     49.8  eff price  49.80  impact +0.40%  new px   49.90
+in   10: out    493.6  eff price  49.36  impact +1.28%  new px   49.02
+in   50: out  2374.1  eff price  47.48  impact +5.03%  new px   45.36
+in  200: out  8312.5  eff price  41.56  impact +16.88%  new px   34.74
+in  500: out  16633.3  eff price  33.27  impact +33.47%  new px   22.24
+\end{lstlisting}
+\begin{solution}
+Impact grows roughly linearly for small trades (1 token $\to$ 0.4\%, 50 $\to$ 5\%) then
+convexly: the last line buys at an average 33 vs spot 50. Note the double consequence---the
+buyer got a bad fill \emph{and} moved the pool's spot to 22.24, which is now an arbitrage
+invitation the moment any market still trades near 50.
+\end{solution}
+\end{example}
+
+\begin{figure}[htbp]\centering
+\input{figures/ch06-impact}
+\caption{Execution-price impact vs trade size in the same pool: convexity is the cost of
+consuming depth.}
+\label{fig:impact}
+\end{figure}
+
+\section{Arbitrage is the oracle}\label{sec:amm-arb}
+
+Nothing inside the pool knows the true price. External markets do, and arbitrageurs buy the
+cheap leg and sell the dear one until the pool's spot equals the market's. This has two
+important readings: (i) pool prices track markets because bots force them to; (ii) \emph{the
+LPer is always the other side} of that rebalancing trade. The LP sells what is rising and
+buys what is falling---which is exactly why LP returns lag holding.
+
+\begin{figure}[htbp]\centering
+\input{figures/ch06-arb}
+\caption{The arbitrage channel: gap between pool spot and market price is closed by bots;
+LPs fund the gap.}
+\label{fig:ambarb}
+\end{figure}
+
+\begin{example}\label{ex:arbpnl}
+\textbf{Arb PnL.} The pool of Example~\ref{ex:amm} sits at spot 22.24 after the oversized
+trade while every external venue still quotes 50. A bot buys tokens from the pool until the
+pool's marginal price reaches 50 (ignoring fees for the sketch). How many tokens close the
+gap, and what does the rebalancing look like from the LP's seat?
+\begin{solution}
+Pool spot $=y'/x'=22.24$ with $x'y'\approx k=5\times10^{7}$: restoring spot 50 needs
+$y/x=50$, i.e.\ reserves back to $(1000,\,50{,}000)$. The bot therefore \emph{buys}
+$\approx500$ tokens out of the pool for $\approx16{,}667$ USD---an average fill of
+$\approx33$ against a market price of 50. The LP delivered those tokens $17$/token below
+market: about $\$8{,}300$ of value handed to the bot, roughly $16\%$ of pool TVL. That
+transfer is the IL of fig.~\ref{fig:ilcurve} with a name on it.
+\end{solution}
+\end{example}
+
+\section{Impermanent loss}\label{sec:il}
+
+If the price ratio moves from 1 to $r=p_1/p_0$, the LP's pool value is
+$V_{\mathrm{LP}}=2\sqrt{k}\sqrt{p_1}$-equivalent while the HODL value is
+$V_{\mathrm{H}}=y_0+x_0p_1$. Their ratio depends only on $r$:
+\begin{equation}\label{eq:il}
+\frac{V_{\mathrm{LP}}}{V_{\mathrm{H}}}=\frac{2\sqrt{r}}{1+r},
+\qquad \mathrm{IL}=\frac{2\sqrt{r}}{1+r}-1\le 0.
+\end{equation}
+IL is symmetric (a 2x move up hurts exactly as much as a 2x move down), scale-free (only the
+\emph{ratio} matters), and path-independent at the endpoint (though each fee accrues on the
+path).
+
+\begin{figure}[htbp]\centering
+\input{figures/ch06-ilcurve}
+\caption{IL(\% ) vs price ratio: the $-5.7\%$ at $r=2$ and $r=0.5$---movement in either
+direction costs the LP relative to holding.}
+\label{fig:ilcurve}
+\end{figure}
+
+\begin{example}\label{ex:il}
+\textbf{The IL table.} \texttt{il\_calc.py} evaluates \eqref{eq:il}:
+\begin{lstlisting}[numbers=none]
+r=0.25: IL=-20.00%
+r=0.50: IL= -5.72%
+r=0.80: IL= -0.62%
+r=1.00: IL= +0.00%
+r=1.25: IL= -0.62%
+r=1.50: IL= -2.02%
+r=2.00: IL= -5.72%
+r=4.00: IL=-20.00%
+\end{lstlisting}
+\begin{solution}
+The LP breaks even only if fees out-earn IL. At a 0.3\% fee and a $r=1.5$ move
+(IL=$-2.0\%$), the pool needs $\approx0.224\times$ its TVL in daily volume \emph{every day
+for a month} to compensate---most pools never see that, which is why LPing is a bet that
+volume arrives faster than price moves.
+\end{solution}
+\end{example}
+
+\begin{example}\label{ex:lp}
+\textbf{LP vs HODL across seeds.} \texttt{lp\_sim.py} runs 40 GBM paths
+($\sigma_{\mathrm{daily}}\approx3\%$, 180 days) with fee income at 8\% of TVL/day:
+\begin{lstlisting}[numbers=none]
+40 seeds: LP+fees-vs-hodl mean +2.48%  no-fees -1.93%
+best +4.41%  worst -12.27%
+\end{lstlisting}
+\begin{solution}
+Without fees the LP loses to holding by $\approx2\%$ on average---that's the IL from the
+simulation's volatility. Adding a modest fee stream flips the mean positive but leaves a
+$-12\%$ worst case: LPing is short convexity---you collect a stream of small fees against
+occasional large directional givebacks. The honest description is \emph{selling volatility
+to the market} and getting paid rent for it.
+\end{solution}
+\end{example}
+
+\begin{figure}[htbp]\centering
+\input{figures/ch06-lppath}
+\caption{One seed's LP-minus-HODL path: the bleed is continuous whenever price trends in
+either direction---the fee stream must outrun this drift.}
+\label{fig:lppath}
+\end{figure}
+
+\section{Concentrated liquidity}\label{sec:cl}
+
+Uniswap v3 lets an LP bind its liquidity to a price range $[a,b]$: inside the range the
+position behaves like a CPMM with \emph{virtual} reserves scaled up by the leverage
+$1/(1-\sqrt{a/b})$; outside it holds only one asset and earns nothing. \texttt{cl\_range.py}:
+\begin{lstlisting}[numbers=none]
+range +/-50%: capital multiplier ~2.4x
+range +/-20%: capital multiplier ~5.4x
+range +/-10%: capital multiplier ~10.5x
+range +/-5%: capital multiplier ~20.5x
+range +/-2%: capital multiplier ~50.5x
+\end{lstlisting}
+The multiplier multiplies both the fee rate \emph{and} the IL exposure per unit of
+capital---a $\pm20\%$ range concentrates capital $\approx5\times$, so its IL is
+$\approx5\times$ the full-range number in percentage-of-capital terms.
+
+\begin{figure}[htbp]\centering
+\input{figures/ch06-cl}
+\caption{Concentrated liquidity: capital works only inside $[a,b]$; leaving the range stops
+fees and leaves the position entirely in the underperforming asset.}
+\label{fig:cl}
+\end{figure}
+
+\begin{example}\label{ex:range}
+\textbf{Choosing a range.} ETH trades at 4000. You expect a quiet week: range $[3800,4200]$
+($\pm5\%$, $\approx20\times$ capital efficiency). A competitor chooses $[3200,4800]$
+($\pm20\%$, $\approx5\times$).
+\begin{solution}
+If price stays inside, you earn $\approx4\times$ the fees per unit of capital. On a move to
+4300 you are out of range holding only the sold asset: no fees, full exposure to the move you
+missed, and the decision to re-range costs gas and a new IL clock. Tight ranges are a
+volatility call: you are compensated only while realized vol stays inside your band.
+\end{solution}
+\end{example}
+
+\begin{checkpoint}[AMM sanity]
+\begin{itemize}
+\item Show \eqref{eq:il} from $V_{\mathrm{LP}}=2\sqrt{kp_1}$ and $V_{\mathrm{H}}=y_0+x_0p_1$.
+\item From \texttt{amm\_swap.py}: at what trade size does effective price drop below the
+post-trade spot? (Never---the curve guarantees execution price $\le$ new spot.)
+\item Why does an LP never beat HODL on a one-way move? (IL is strictly negative for
+$r\neq1$.)
+\end{itemize}
+\end{checkpoint}
+
+\section{Recap}\label{sec:ammrecap}
+
+The CPMM is a function that sells liquidity: $p=y/x$ is the price, curvature is the depth,
+arbitrage is the oracle. LPing converts that function's rebalancing into a PnL: fee income
+minus the IL of being on the wrong side of every move. Concentrated liquidity is the same
+trade with a leverage knob on range width.
+
+\begin{table}[htbp]\centering\small
+\caption{Chapter toolbox.}
+\begin{tabular}{@{}lll@{}}
+\toprule
+Concept & Formula/tool & Gotcha\\
+\midrule
+Spot price & $p=y/x$ & post-trade price, not mid\\
+Execution & $\Delta y=\Delta x(1-f)y/(x+\Delta x(1-f))$ & convex impact in size\\
+IL & $2\sqrt r/(1+r)-1$ & symmetric; ratio-only\\
+CL multiplier & $1/(1-\sqrt{a/b})$ & scales fees \emph{and} IL\\
+Breakeven & fee$\times$volume $>$ IL & volume must persist\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\section{Common mistakes}
+\begin{itemize}
+\item \textbf{``IL is only on downside.''} It is symmetric: $r=2$ and $r=0.5$ both cost
+  $-5.7\%$. Any move, either direction, hurts vs holding.
+\item \textbf{Forgetting the fee must outrun IL \emph{per unit time}.} A 0.3\% fee on slow
+  volume will not cover a 5\% price move.
+\item \textbf{Comparing LP return to zero.} The benchmark is HODL---being flat is not the
+  alternative; holding the two assets is.
+\item \textbf{Reading the multiplier as free leverage.} CL scales the IL surface, not just
+  the fees: a tight range magnifies both.
+\item \textbf{Assuming pool price = truth.} It is arbitrage'd to truth only while arbitrage
+  is profitable after gas and latency---in thin moments it lags.
+\item \textbf{Ignoring that impact is convex.} The same pool that gives 0.4\% on a small
+  trade gives 33\% on a large one; quote impact, not fee.
+\end{itemize}
+
+\section{Exercises}
+\begin{exercise}[easy]
+A pool holds $(x,y)=(2000,100{,}000)$. Spot price and $k$?
+\end{exercise}
+\begin{solution}
+$p=y/x=50$, $k=2\times10^{8}$.
+\end{solution}
+
+\begin{exercise}[easy]
+Compute IL for $r=3$. How does it compare to $r=1/3$?
+\end{exercise}
+\begin{solution}
+$2\sqrt3/4-1=-13.4\%$; symmetric: identical at $r=1/3$.
+\end{solution}
+
+\begin{exercise}[easy]
+Buy 20 tokens of the $(1000,50{,}000)$ pool at fee 0.3\%. Effective price and new spot?
+\end{exercise}
+\begin{solution}
+$\Delta y=19.94\times50000/1019.94=977.5$; eff $48.9$; new spot $49,022.5/1020=48.06$.
+\end{solution}
+
+\begin{exercise}[easy]
+Why is a 2x price move equally bad for an LP as a halving?
+\end{exercise}
+\begin{solution}
+IL depends on $\sqrt r + 1/\sqrt r$ symmetrically: the pool ends up holding more of the
+cheaper asset in both cases.
+\end{solution}
+
+\begin{exercise}[easy]
+What is the CL capital multiplier for a $\pm1\%$ range?
+\end{exercise}
+\begin{solution}
+$1/(1-\sqrt{0.99/1.01})\approx1/(1-0.990)\approx100\times$---and so is the IL magnification.
+\end{solution}
+
+\begin{exercise}
+Derive the marginal price of CPMM from $y=k/x$: show $-\partial y/\partial x = y/x$.
+\end{exercise}
+\begin{solution}
+$y=kx^{-1}\Rightarrow dy/dx=-k/x^{2}=-y/x$; the executed price is the slope's magnitude.
+\end{solution}
+
+\begin{exercise}
+A pool earns 0.3\% on daily volume equal to 15\% of TVL. Price drifts $r=1.3$ over a month.
+Does the LP beat HODL?
+\end{exercise}
+\begin{solution}
+Fees $\approx0.003\times0.15\times30=1.35\%$; IL at $r=1.3$: $2\sqrt{1.3}/2.3-1=-0.98\%$;
+net $+0.4\%$---yes, marginally.
+\end{solution}
+
+\begin{exercise}
+Show that the CPMM swap path in Example~\ref{ex:amm} keeps $x'y' \approx k$ up to the fee.
+\end{exercise}
+\begin{solution}
+$(x+\Delta x)(y-\Delta y)=k$ holds for the fee-inclusive $\Delta x$ portion; the fee slice
+accrues to reserves, raising $k$ slightly---the source of LP fee income.
+\end{solution}
+
+\begin{exercise}
+An LP re-ranges a CL position weekly. Write the PnL decomposition that makes the strategy
+comparable to full-range LP.
+\end{exercise}
+\begin{solution}
+PnL = (fees while in range) $-$ (IL realized on exits) $-$ (gas per re-range) $\pm$ (asset
+drift while out of range); all four terms scale with the multiplier, so the comparison is
+not just fee rate.
+\end{solution}
+
+\begin{exercise}
+Why does a large trade \emph{itself} create an arbitrage opportunity, and who pays for
+closing it?
+\end{exercise}
+\begin{solution}
+The trade moves the pool spot away from external prices; a bot buys the cheap leg on the
+pool and sells on the venue---the LP pays, in the form of the rebalanced reserve mix.
+\end{solution}
+
+\begin{exercise}
+Volume/TVL of a real pool is 8\%/day at 0.3\% fee. What annualized fee APR does that imply
+before IL?
+\end{exercise}
+\begin{solution}
+$0.08\times0.003\times365=8.8\%$ APR---which is why high turnover, not high headline APR,
+is the LP metric that matters.
+\end{solution}
+
+\begin{exercise}
+Sketch the LP-vs-HODL curve's asymptotes as $r\to\infty$: what does the LP end up holding?
+\end{exercise}
+\begin{solution}
+IL $\to -100\%$: the pool is all $x$, the asset that went to zero value---the LP sold all
+the appreciating asset along the way.
+\end{solution}
+
+\begin{exercise}[hard]
+Prove that in a mean-reverting market with no fees, LP still loses to HODL for any nonzero
+excursion---i.e.\ IL is not just a trending-market phenomenon. (Hint: IL is path-dependent
+in value terms.)
+\end{exercise}
+\begin{solution}
+For any path returning to $r=1$ the endpoint IL is zero---so in a \emph{perfectly} mean-
+reverting path the loss is fees-only on net, but every round trip still transferred value to
+the arbitrageurs who rebalanced the pool mid-path; the endpoint formula hides the
+pathwise wealth transfer.
+\end{solution}
+
+\begin{exercise}[hard]
+Model a $\pm10\%$ CL position as a barrier strategy. What does the position look like after
+price exits the range---which option did you effectively write?
+\end{exercise}
+\begin{solution}
+You hold 100\% of the depreciated asset---like being knocked into a covered position: the
+CL LP is short a straddle with the range as strike band; exiting the band is the payoff of
+having sold it.
+\end{solution}
+
+\begin{exercise}[hard]
+Extend \texttt{lp\_sim.py}: measure the volume/TVL needed so that median (not mean)
+LP-vs-HODL is positive. Report the number.
+\end{exercise}
+\begin{solution}
+Sweep \texttt{fee\_daily\_turnover} across seeds; the median crossing is the answer
+(typical runs: $\sim$4--6\% daily at these vols).
+\end{solution}
+
+\section*{Notes}
+AMMs made liquidity provision a mechanical, auditable game---and turned ``providing
+liquidity'' into the most mis-sold product in DeFi. The math is one line ($x\cdot y=k$) and
+one inequality (fees vs IL); everything else is frictions. For production rules (fee tiers,
+oracle integration, tick math), the venue docs are canonical and change frequently---the
+Uniswap docs cited below are the reference.
+
+\section*{Further reading}
+\begin{itemize}
+\item Uniswap v2 docs, ``How Uniswap works'' --- the CPMM spec:
+
+\url{https://docs.uniswap.org/contracts/v2/concepts/protocol-overview/how-uniswap-works}
+\item Uniswap docs, ``Concentrated liquidity'' --- v3 range math:
+
+\url{https://docs.uniswap.org/concepts/protocol/concentrated-liquidity}
+\item Wikipedia, ``Automated market maker'' --- family taxonomy beyond CPMM:
+
+\url{https://en.wikipedia.org/wiki/Automated_market_maker}
+\item Wikipedia, ``Uniswap'' --- history and protocol structure:
+
+\url{https://en.wikipedia.org/wiki/Uniswap}
+\item DailyDeFi IL calculator --- sanity-check \eqref{eq:il} interactively:
+
+\url{https://dailydefi.org/tools/impermanent-loss-calculator/}
+\end{itemize}
+
+\begin{rulebox}[Watch instead]
+\begin{itemize}
+\item ``What is an Automated Market Maker? (Liquidity Pool Algorithm)'' --- Whiteboard Crypto
+(10:25). The CPMM story version of \S\ref{sec:cpmm}.
+\url{https://www.youtube.com/watch?v=1PbZMudPP5E} (accessed 2026-10-11)
+\item ``What is Impermanent Loss in Crypto? (Animated + Examples)'' --- Whiteboard Crypto
+(8:17). Two worked IL examples; matches \S\ref{sec:il}.
+\url{https://www.youtube.com/watch?v=_m6Mowq3Ptk} (accessed 2026-10-11)
+\end{itemize}
+\end{rulebox}

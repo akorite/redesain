@@ -1,0 +1,9 @@
+\begin{tikzpicture}[font=\scriptsize,every node/.style={align=center}]
+  \node[draw=ink,fill=goodbg,rounded corners=1pt] (q) at (0,2.2) {order to route};
+  \node[draw=slate,fill=white,rounded corners=1pt] (m) at (-3.0,0.8) {market:\\ now,\\ pay spread+impact};
+  \node[draw=slate,fill=white,rounded corners=1pt] (l) at (0,0.8) {limit:\\ maybe,\\ free+rebate};
+  \node[draw=slate,fill=white,rounded corners=1pt] (s) at (3.0,0.8) {scheduled:\\ TWAP/VWAP,\\ trade speed vs risk};
+  \draw[->,ink] (q.south) -- (m.north) node[midway,left]{urgent};
+  \draw[->,ink] (q.south) -- (l.north) node[midway,right]{patient};
+  \draw[->,ink] (q.south) -- (s.north) node[midway,right]{large};
+\end{tikzpicture}
