@@ -15,7 +15,7 @@ generator is usually the wrong move.
 
 \emph{This chapter is optional for the core route; it feeds the
 CSES ``Probability'' problem set and a small but real slice of
-Codeforces and USACO Gold.}
+Codeforces and USACO-G.}
 
 \section{Finite probability: counting in disguise}\label{sec:finite}
 \index{sample space}\index{event}\index{complement rule}
@@ -355,7 +355,7 @@ sanity-check formula & \texttt{mt19937} simulation & verify only\\
 \begin{exercise}[medium] CSES \emph{Moving Robots} --- implement the 64-source DP; check $k=0$ gives $0.000000$ exactly. \end{exercise}
 \begin{exercise}[medium] Balls into bins: $m$ uniform balls into $n$ bins; expected occupied bins $=n(1-(1-1/n)^m)$. Prove it with indicators. \end{exercise}
 \begin{exercise}[medium] Expected number of tosses of a fair coin to see \emph{two consecutive} heads is $6$ --- derive it by conditioning on the first two outcomes (set up $\mathbb{E}=1+\tfrac12\mathbb{E}[\cdot]$ recurrences). \end{exercise}
-\begin{exercise}[medium] Codeforces \emph{Another Problem About Dividing Numbers}-style tasks aside: solve Kattis \emph{Expected Earnings} --- a small direct linearity exercise. \end{exercise}
+\begin{exercise}[medium] CF \emph{Another Problem About Dividing Numbers}-style tasks aside: solve Kattis \emph{Expected Earnings} --- a small direct linearity exercise. \end{exercise}
 \begin{exercise}[hard] Expected length of the longest run of heads in $n$ fair flips: derive a distribution DP over (length so far, best so far) and compute it for $n=10$ to six decimals. \end{exercise}
 \begin{exercise}[hard] Gambler's ruin: starting with $i$ of $N$ total units, win/lose $\pm1$ each round; prove the expected duration solves a linear recurrence and compute it for $i=N/2$. \end{exercise}
 \begin{exercise}[hard] Expected position of the \emph{second largest} of $n$ i.i.d.\ uniform$\{1..k\}$ draws --- generalise the tail-sum approach to the $r$-th order statistic. \end{exercise}
