@@ -1,0 +1,9 @@
+\begin{tikzpicture}
+\begin{axis}[width=8.2cm,height=4.6cm,xlabel={$t$},ylabel={$v$},
+xmin=0,xmax=6.5,ymin=-1.4,ymax=1.4,font=\small,xtick=\empty,ytick={-1,0,1},
+yticklabels={$-V_p$,0,$V_p$}]
+\addplot[very thick,accent,domain=0:6.28,samples=80] {sin(deg(x))};
+\addplot[dashed,amber] coordinates {(0,0.707) (6.28,0.707)};
+\node[align=center,font=\scriptsize,amber] at (axis cs:4.6,1.05) {$V_{\rm rms}=V_p/\sqrt2$};
+\end{axis}
+\end{tikzpicture}

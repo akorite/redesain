@@ -1,0 +1,7 @@
+\begin{tikzpicture}[scale=0.85,font=\scriptsize]
+\foreach \x/\t in {0/{plant\\$13$\,kV}, 2.8/{step-up\\$400$\,kV}, 5.6/{step-down\\$11$\,kV}, 8.2/{load\\$230$\,V}}{
+\draw[very thick,fill=accent!10,rounded corners=0.15] (\x-1.05,-0.55) rectangle (\x+1.05,0.55);
+\node[align=center] at (\x,0) {\t};}
+\foreach \x in {1.05,3.85,6.65}{\draw[->,very thick] (\x,0) -- (\x+0.7,0);}
+\node[align=left] at (4.1,-1.3) {high voltage carries $P=VI$\\at small $I$: $I^{2}R$ shrinks};
+\end{tikzpicture}

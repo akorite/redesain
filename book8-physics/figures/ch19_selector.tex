@@ -1,0 +1,9 @@
+\begin{tikzpicture}[scale=0.9,font=\scriptsize]
+\draw[very thick] (-1.8,-1.2) rectangle (1.8,1.2);
+\foreach \x in {-1.2,-0.6,0,0.6,1.2}{\node at (\x,0) {$\times$};}
+\draw[->,thick,accent] (-1.4,0.8) -- (1.4,0.8) node[right]{$\mathbf E$};
+\draw[->,very thick] (-3.0,0) -- (-2.0,0) node[left]{$v$};
+\draw[thick,dashed] (-2.0,0) .. controls (0.2,0.1) .. (1.9,0.55);
+\draw[thick,dashed] (-2.0,0) .. controls (0.2,-0.1) .. (1.9,-0.55);
+\node[align=center] at (0,-1.9) {only $v=E/B$ flies straight};
+\end{tikzpicture}

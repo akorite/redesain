@@ -35,3 +35,6 @@
 | 17 | Lec 1 Thermodynamics & Kinetics (MIT 5.60) | MIT OpenCourseWare | 46:46 | https://youtu.be/kLqduWF6GXE | 17.1–17.4 | 2026-10-11 |
 | 17 | Kinetic Theory of Gases Part 1 | MIT OpenCourseWare | 78:39 | https://youtu.be/BhVyiU_dWps | 17.1–17.3 | 2026-10-11 |
 | 17 | Carnot cycle and Carnot engine | Khan Academy | 20:53 | https://youtu.be/aAfBSJObd6Y | 17.6 | 2026-10-11 |
+| 18 | How Does the Power Grid Work? | Practical Engineering | 10:25 | https://youtu.be/v1BMWczn7JM | 18.1, 18.4 | 2026-10-11 |
+| 18 | Transformers -- working & applications | Khan Academy India | 9:03 | https://youtu.be/zf8vnCcETqM | 18.4 | 2026-10-11 |
+| W | F=ma 2025 First Round solutions | Handy Olympiad Physicist | 37:36 | https://youtu.be/7pW4zGW0iLQ | workshop (all) | 2026-10-11 |

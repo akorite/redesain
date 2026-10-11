@@ -1,0 +1,8 @@
+\begin{tikzpicture}[scale=0.9,font=\scriptsize]
+\draw[very thick] (-0.8,-1.6) -- (-0.8,1.6);
+\draw[very thick] (0.8,-1.6) -- (0.8,1.6);
+\draw[very thick,accent] (-0.9,0.4) -- (0.9,0.4);
+\foreach \x/\y in {-0.4/0.9,0/0.9,0.4/0.9,-0.4/-0.4,0/-0.4,0.4/-0.4}{\node at (\x,\y) {$\times$};}
+\draw[->,thick,amber] (0,0.4) -- (0,-0.3) node[right]{$v$};
+\node[align=center] at (0,-2.3) {$v_t=mgR/(B^{2}L^{2})$};
+\end{tikzpicture}

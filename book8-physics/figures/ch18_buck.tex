@@ -1,0 +1,10 @@
+\begin{tikzpicture}[scale=0.9,font=\scriptsize]
+\draw[very thick] (-2.6,0.8) -- (2.6,0.8);
+\draw[very thick] (-2.6,-0.8) -- (2.6,-0.8);
+\draw[thick] (-1.4,0.8) -- (-1.0,1.1) node[above]{sw};
+\draw[thick,decorate,decoration={coil,amplitude=2pt,segment length=7pt}] (-0.8,0.8) -- (0.6,0.8);
+\draw[thick] (0.6,0.8) -- (0.6,0) -- (1.4,0) -- (1.4,-0.8);
+\draw[thick] (-0.9,0.8) -- (-0.9,0) -- (-0.9,-0.8);
+\node at (-0.9,-0.2) {D};
+\node[align=center] at (0,-1.6) {buck: $V_o=DV_{in}$;\\inductor volt-seconds balance};
+\end{tikzpicture}
