@@ -1,0 +1,15 @@
+\begin{tikzpicture}[scale=1.0, >=stealth]
+  % n inputs bar
+  \draw[fill=graybg!30] (0,0) rectangle (8,0.9);
+  \draw[fill=accentsoft!60] (0,0) rectangle (4.8,0.9);
+  \node at (2.4,0.45) {$r$ pivot columns $\to$ dim col};
+  \node at (6.4,0.45) {$n-r$ free $\to$ dim ker};
+  \node[left, align=right] at (-0.15,0.45) {$n$ columns\\ of $A$};
+  % output bar
+  \draw[fill=graybg!30] (0,-2.1) rectangle (8,-1.2);
+  \draw[fill=accentsoft!60] (0,-2.1) rectangle (4.8,-1.2);
+  \node at (2.4,-1.65) {$r$ pivot rows $\to$ dim row};
+  \node at (6.4,-1.65) {$m-r$ $\to$ dim $\ker(A^{T})$};
+  \node[left, align=right] at (-0.15,-1.65) {$m$ rows\\ of $A$};
+  \node at (4,-2.8) {\small RREF counts both ways at once: pivots $+$ free $= n$; pivots $+$ zero-rows $= m$.};
+\end{tikzpicture}

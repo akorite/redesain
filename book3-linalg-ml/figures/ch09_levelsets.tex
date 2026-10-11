@@ -1,0 +1,23 @@
+\begin{tikzpicture}[scale=0.62,>=stealth]
+% PD: ellipses; INDEF: hyperbolas; PSD: parallel lines
+\begin{scope}
+\node at (0,2.6) {\small positive definite};
+\draw[blue,thick] (0,0) ellipse (1.8 and 1.0);
+\draw[blue,thick] (0,0) ellipse (1.2 and 0.62);
+\draw[blue,thick] (0,0) ellipse (0.6 and 0.3);
+\node at (0,-1.7) {\small $x^{T}Ax=c$ closed ovals};
+\end{scope}
+\begin{scope}[xshift=6.4cm]
+\node at (0,2.6) {\small indefinite};
+\draw[red,thick,domain=-2:2,smooth] plot (\x,{sqrt(0.7+\x*\x)});
+\draw[red,thick,domain=-2:2,smooth] plot (\x,{-sqrt(0.7+\x*\x)});
+\draw[red,thick,domain=-2:2,smooth] plot (\x,{0.55*\x});
+\draw[red,thick,domain=-2:2,smooth] plot (\x,{-0.55*\x});
+\node at (0,-1.7) {\small hyperbolas: saddles};
+\end{scope}
+\begin{scope}[xshift=12.8cm]
+\node at (0,2.6) {\small positive semidefinite};
+\foreach \y in {-1.5,-1.0,-0.5,0,0.5,1.0,1.5} \draw[orange!80!black,thick] (-2,\y)--(2,\y);
+\node at (0,-1.7) {\small degenerate: flat lines};
+\end{scope}
+\end{tikzpicture}

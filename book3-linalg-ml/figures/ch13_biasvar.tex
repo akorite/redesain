@@ -1,0 +1,18 @@
+\begin{tikzpicture}[scale=0.6]
+\begin{scope}
+\node at (0,3.9) {\small low bias, low var};
+\draw (0,0) circle (1.2); \draw (0,0) circle (0.7); \draw (0,0) circle (0.25);
+\foreach \p in {(0.15,0.1),(-0.2,0.15),(0.05,-0.25),(-0.1,-0.1),(0.22,-0.05)} \fill[red] \p circle (2pt);
+\end{scope}
+\begin{scope}[xshift=4.6cm]
+\node at (0,3.9) {\small low bias, high var};
+\draw (0,0) circle (1.2); \draw (0,0) circle (0.7); \draw (0,0) circle (0.25);
+\foreach \p in {(0.9,0.5),(-0.8,0.6),(0.3,-1.0),(-0.6,-0.7),(1.0,-0.4)} \fill[red] \p circle (2pt);
+\end{scope}
+\begin{scope}[xshift=9.2cm]
+\node at (0,3.9) {\small high bias, low var};
+\draw (0,0) circle (1.2); \draw (0,0) circle (0.7); \draw (0,0) circle (0.25);
+\foreach \p in {(0.85,0.55),(0.7,0.7),(0.95,0.4),(0.75,0.45),(0.9,0.65)} \fill[red] \p circle (2pt);
+\end{scope}
+\node at (4.6,-1.9) {\small MSE $=$ variance $+$ bias$^2$ --- hitting center is not enough};
+\end{tikzpicture}

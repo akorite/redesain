@@ -1,0 +1,10 @@
+\begin{tikzpicture}[scale=0.8, >=stealth]
+  \draw[step=1.0,graybg!50] (-2.5,-2.5) grid (2.5,2.5);
+  \draw[->,gray] (-2.8,0)--(2.8,0); \draw[->,gray] (0,-2.8)--(0,2.8);
+  \draw[->,accent,very thick] (0,0)--(1.8,0) node[below right=-2pt]{\tiny $\mathbf v$};
+  \draw[->,amber,very thick] (0,0)--(1.27,1.27) node[right]{\tiny $R_{45^\circ}\mathbf v$};
+  \draw[->,amber,thick] (0,0)--(0,1.8) node[above]{\tiny $R_{45^\circ}^2\mathbf v$};
+  \draw[->,gray] (1.5,0.3) arc (15:60:0.8);
+  \node at (2.1,1.0) {\tiny $45^\circ$};
+  \node at (0,-3.3) {\small rotation $\leftrightarrow$ complex pair};
+\end{tikzpicture}

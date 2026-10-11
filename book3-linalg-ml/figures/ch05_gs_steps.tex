@@ -1,0 +1,33 @@
+\begin{tikzpicture}[scale=0.9, >=stealth]
+  % step 0
+  \begin{scope}
+    \draw[->,gray] (-0.3,0)--(2.3,0); \draw[->,gray] (0,-0.3)--(0,2.3);
+    \draw[->,accent,very thick] (0,0)--(1.8,0.5) node[right]{$\mathbf a_1$};
+    \draw[->,accent,very thick] (0,0)--(1.1,1.9) node[above]{$\mathbf a_2$};
+    \node at (1,-0.6) {\small input: $\mathbf a_1,\mathbf a_2$};
+  \end{scope}
+  % step 1
+  \begin{scope}[xshift=3.6cm]
+    \draw[->,gray] (-0.3,0)--(2.3,0); \draw[->,gray] (0,-0.3)--(0,2.3);
+    \draw[->,accent,very thick] (0,0)--(1.8,0.5);
+    \draw[->,good,very thick] (0,0)--(0.95,0.26) node[below right=-2pt]{\small $\mathbf u_1$};
+    \draw[->,amber,very thick] (0.95,0.26)--(1.1,1.9);
+    \draw[dashed,gray] (0,0)--(1.1,1.9);
+    \node at (1,-0.6) {\small subtract $\mathbf a_2$'s $\mathbf u_1$-part};
+  \end{scope}
+  % step 2
+  \begin{scope}[xshift=7.2cm]
+    \draw[->,gray] (-0.3,0)--(2.3,0); \draw[->,gray] (0,-0.3)--(0,2.3);
+    \draw[->,good,very thick] (0,0)--(0.95,0.26) node[below right=-2pt]{\small $\mathbf u_1$};
+    \draw[->,good,very thick] (0,0)--(0.15,1.63) node[above left=-2pt]{\small $\mathbf u_2\perp\mathbf u_1$};
+    \draw[dashed,gray] (0.95,0.26)--(0.15,1.63);
+    \node at (1,-0.6) {\small residual is $\mathbf u_2$};
+  \end{scope}
+  % step 3
+  \begin{scope}[xshift=10.8cm]
+    \draw[->,gray] (-0.3,0)--(2.3,0); \draw[->,gray] (0,-0.3)--(0,2.3);
+    \draw[->,accent,very thick] (0,0)--(0.95,0.26) node[below right=-2pt]{\small $\mathbf q_1$};
+    \draw[->,accent,very thick] (0,0)--(0.15,1.63) node[above left=-2pt]{\small $\mathbf q_2$};
+    \node at (1,-0.6) {\small normalize: $\mathbf q_i=\mathbf u_i/\|\mathbf u_i\|$};
+  \end{scope}
+\end{tikzpicture}

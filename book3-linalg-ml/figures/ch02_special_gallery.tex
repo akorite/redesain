@@ -1,0 +1,33 @@
+% Figure: what the special matrices do to the unit square, plus block form.
+\begin{tikzpicture}[scale=0.62,>=stealth,sq/.style={thick,fill=accentsoft}]
+  % (a) diagonal: axis scaling
+  \begin{scope}
+    \draw[->,gray] (-0.4,0) -- (2.7,0);\draw[->,gray] (0,-0.4) -- (0,1.9);
+    \draw[sq] (0,0) -- (1,0) -- (1,1) -- (0,1) -- cycle;
+    \draw[sq,fill=accent] (0,0) -- (2,0) -- (2,0.5) -- (0,0.5) -- cycle;
+    \node at (1.15,-1.15) {\small (a) diag$(2,\tfrac12)$};
+  \end{scope}
+  % (b) permutation: swaps the axes
+  \begin{scope}[xshift=3.9cm]
+    \draw[->,gray] (-0.4,0) -- (2.7,0) node[below left] {\scriptsize$y$};
+    \draw[->,gray] (0,-0.4) -- (0,1.9) node[below left] {\scriptsize$x$};
+    \draw[sq] (0,0) -- (1,0) -- (1,1) -- (0,1) -- cycle;
+    \draw[->,accent,thick] (1.45,0.4) to[out=30,in=-30] (0.4,1.45);
+    \node at (1.15,-1.15) {\small (b) permutation};
+  \end{scope}
+  % (c) triangular (shear): tips the top over
+  \begin{scope}[xshift=7.8cm]
+    \draw[->,gray] (-0.4,0) -- (3.4,0);\draw[->,gray] (0,-0.4) -- (0,1.9);
+    \draw[sq] (0,0) -- (1,0) -- (1,1) -- (0,1) -- cycle;
+    \draw[sq,fill=accent] (0,0) -- (1,0) -- (2,1) -- (1,1) -- cycle;
+    \node at (1.4,-1.15) {\small (c) $\begin{bsmallmatrix}1&1\\0&1\end{bsmallmatrix}$ (shear)};
+  \end{scope}
+  % (d) block: same rules, bigger boxes
+  \begin{scope}[xshift=11.9cm,scale=0.55]
+    \draw[thick] (0,0) rectangle (4,4);
+    \draw[thick] (2,0) -- (2,4); \draw[thick] (0,2) -- (4,2);
+    \node at (1,3) {$A_{11}$};\node at (3,3) {$A_{12}$};
+    \node at (1,1) {$A_{21}$};\node at (3,1) {$A_{22}$};
+    \node at (2,-1.15) {\small (d) block matrix};
+  \end{scope}
+\end{tikzpicture}

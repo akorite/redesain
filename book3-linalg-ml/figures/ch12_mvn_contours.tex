@@ -1,0 +1,23 @@
+\begin{tikzpicture}[scale=0.5]
+% 3 panels: spherical, axis-tall, tilted corr .9
+\begin{scope}
+\node at (0,3.4) {\small $\Sigma=I$};
+\draw (0,0) circle (0.9); \draw (0,0) circle (1.8); \draw (0,0) circle (2.7);
+\draw[->] (-3.2,0)--(3.2,0); \draw[->] (0,-3.2)--(0,3.2);
+\end{scope}
+\begin{scope}[xshift=7.4cm]
+\node at (0,3.4) {\small $\Sigma=\mathrm{diag}(1,4)$};
+\draw (0,0) ellipse (0.8 and 1.7);
+\draw (0,0) ellipse (1.6 and 3.4);
+\draw[->] (-3.2,0)--(3.2,0); \draw[->] (0,-3.6)--(0,3.6);
+\end{scope}
+\begin{scope}[xshift=14.8cm]
+\node at (0,3.4) {\small $\rho=0.9$};
+\begin{scope}[rotate=45]
+\draw (0,0) ellipse (0.55 and 2.0);
+\draw (0,0) ellipse (1.1 and 4.0);
+\end{scope}
+\draw[->] (-3.4,0)--(3.4,0); \draw[->] (0,-3.4)--(0,3.4);
+\end{scope}
+\node at (7.4,-4.2) {\small axes $=$ eigenvectors of $\Sigma$; radii $=\sqrt{\lambda_i}$ (ch.9!)};
+\end{tikzpicture}

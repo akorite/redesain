@@ -1,0 +1,21 @@
+\begin{tikzpicture}[scale=0.9, >=stealth]
+  % left: line through origin = subspace
+  \begin{scope}
+    \draw[->, gray] (-1.8,0)--(1.8,0); \draw[->, gray] (0,-1.4)--(0,1.4);
+    \draw[accent, very thick] (-1.6,-0.8)--(1.6,0.8);
+    \node at (0,-1.9) {\small (a) line through $\mathbf 0$: subspace};
+  \end{scope}
+  % middle: shifted line = not
+  \begin{scope}[xshift=5.2cm]
+    \draw[->, gray] (-1.8,0)--(1.8,0); \draw[->, gray] (0,-1.4)--(0,1.4);
+    \draw[amber, very thick] (-1.6,-1.0)--(1.6,1.4);
+    \fill (0,0) circle (1.2pt) node[below right, ink]{\tiny $\mathbf 0\notin$};
+    \node at (0,-1.9) {\small (b) same slope, misses $\mathbf 0$: not};
+  \end{scope}
+  % right: two parabola-ish curve through origin = still not
+  \begin{scope}[xshift=10.4cm]
+    \draw[->, gray] (-1.8,0)--(1.8,0); \draw[->, gray] (0,-1.4)--(0,1.4);
+    \draw[amber, very thick] plot[domain=-1.25:1.25,smooth] (\x,{0.8*\x*\x});
+    \node at (0,-1.9) {\small (c) contains $\mathbf 0$ but bends: not};
+  \end{scope}
+\end{tikzpicture}

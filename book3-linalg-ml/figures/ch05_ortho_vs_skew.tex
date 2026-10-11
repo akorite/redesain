@@ -1,0 +1,16 @@
+\begin{tikzpicture}[scale=0.9, >=stealth]
+  \begin{scope}
+    \draw[->,gray] (-0.3,0)--(2.5,0); \draw[->,gray] (0,-0.3)--(0,2.5);
+    \draw[->,accent,very thick] (0,0)--(2,0) node[right]{$\mathbf b_1$};
+    \draw[->,accent,very thick] (0,0)--(0,2) node[above]{$\mathbf b_2$};
+    \draw[dashed,gray] (2,0)--(2,2)--(0,2);
+    \node at (1.1,-0.6) {\small orthogonal basis};
+  \end{scope}
+  \begin{scope}[xshift=5.5cm]
+    \draw[->,gray] (-0.3,0)--(2.8,0); \draw[->,gray] (0,-0.3)--(0,2.5);
+    \draw[->,amber,very thick] (0,0)--(2.3,0) node[right]{$\mathbf c_1$};
+    \draw[->,amber,very thick] (0,0)--(1.5,2) node[above]{$\mathbf c_2$};
+    \draw[dashed,gray] (2.3,0)--(3.8,2)--(1.5,2);
+    \node at (1.4,-0.6) {\small skew basis, same plane};
+  \end{scope}
+\end{tikzpicture}

@@ -1,0 +1,344 @@
+\chapter{Matrices and matrix algebra}\label{ch:matrices}
+
+Chapter 1 used a matrix as a box of coefficients feeding an algorithm. This chapter treats the matrix as an object in its own right — something you can multiply, transpose, invert and factor — and builds the small algebra that every later chapter uses without comment. After it you will be able to (a) read $A\mathbf{x}$ as a weighted combination of $A$'s columns; (b) read $AB$ both as composition of two actions and as a grid of inner products; (c) decide when $A^{-1}$ exists and compute it by Gauss--Jordan; and (d) recognize the four special matrix shapes that make algebra cheap: diagonal, triangular, permutation, block.
+
+\section{A matrix is a box of coefficients --- and a recipe}\label{sec:matdef}
+
+An $m\times n$ \emph{matrix}\index{matrix} $A$ is a rectangular array of numbers with $m$ rows and $n$ columns; we write $a_{ij}$ or $A_{ij}$ for the entry in row $i$, column $j$. That is the storage view. The operational view — the one worth tattooing — is that $A$ is a \emph{recipe}\index{matrix!as transformation}: feed it a vector $\mathbf{x}\in\mathbb{R}^n$ and it produces a vector $A\mathbf{x}\in\mathbb{R}^m$. A $3\times3$ matrix is a machine $\mathbb{R}^3\to\mathbb{R}^3$; a $2\times3$ matrix maps $\mathbb{R}^3\to\mathbb{R}^2$. Nothing about a matrix is mysterious once you hold both views: the box \emph{is} the recipe, written out entry by entry.
+
+Two special members of the family show up constantly. The \emph{zero matrix}\index{zero matrix} $0$ sends everything to $\mathbf{0}$. The \emph{identity matrix}\index{identity matrix} $I_n$ — ones on the diagonal, zeros elsewhere — is the recipe ``change nothing'': $I_n\mathbf{x}=\mathbf{x}$. And matrices of the same shape add entrywise: $(A+B)_{ij}=a_{ij}+b_{ij}$, which is exactly ``do both recipes and add the results''; likewise $cA$ scales every entry. So the set of $m\times n$ matrices is itself a vector space — a fact the vector-spaces chapter cashes in.
+
+\section{\texorpdfstring{$A\mathbf{x}$}{Ax} as a column combination}\label{sec:axcol}
+
+Chapter 1 introduced the column picture for solving; here it becomes the definition. The product $A\mathbf{x}$ is the combination of $A$'s \emph{columns} weighted by the entries of $\mathbf{x}$:
+\[
+  A\mathbf{x} = x_1\mathbf{a}_1 + x_2\mathbf{a}_2 + \cdots + x_n\mathbf{a}_n,
+  \qquad \mathbf{a}_j = \text{column $j$ of } A.
+\]
+
+\begin{example}\label{ex:axcol}
+Compute $A\mathbf{x}$ for
+\(
+  A=\begin{bmatrix} 1 & 0 & 2\\ 2 & 1 & 0\\ 0 & 1 & 1\end{bmatrix},
+  \ \mathbf{x}=(3,-1,2)^{T}
+\).
+\textbf{Strategy.} Read $A\mathbf{x}$ column-wise: take $3$ of column 1, subtract one of column 2, add two of column 3. Then sanity-check one entry the row way.
+\begin{solution}
+$3\mathbf{a}_1 - 1\mathbf{a}_2 + 2\mathbf{a}_3
+ = 3(1,2,0)^{T} - (0,1,1)^{T} + 2(2,0,1)^{T}
+ = (7,5,1)^{T}$.
+Row check: row 1 gives $1\cdot3+0\cdot(-1)+2\cdot2=7$; row 2 gives $6-1+0=5$; row 3 gives $0-1+2=1$. \checkmark
+\end{solution}
+\end{example}
+
+\begin{figure}[htbp]
+\centering
+\input{figures/ch02_ax_column}
+\caption{$A\mathbf{x}$ as a weighted column combination. Notice the recipe nature of the picture: the columns $\mathbf a_1,\mathbf a_2$ are fixed by $A$; the weights come from $\mathbf x$; the output is where the chain ends. Change $\mathbf x$ and the endpoint moves — that motion \emph{is} the matrix acting.}
+\label{fig:axcol}
+\end{figure}
+
+Two consequences fall out immediately and are worth memorizing rather than re-deriving. First, $A\mathbf{e}_j=\mathbf{a}_j$: multiplying by the $j$-th \emph{standard basis vector}\index{standard basis} $\mathbf{e}_j$ (1 in position $j$, 0 elsewhere) picks out column $j$ — so you can probe a matrix column by column. Second, $A\mathbf{x}=\mathbf{0}$ has a nontrivial solution exactly when the columns of $A$ are \emph{dependent}\index{linear dependence} (some column is a combination of the others). That single sentence is the seed of rank, null space, and invertibility all at once.
+
+\begin{exercise}[easy]
+Let $A=\begin{bmatrix} 2 & -1\\ 0 & 3\end{bmatrix}$, $\mathbf{x}=(4,1)^{T}$. Compute $A\mathbf{x}$ by the column rule, then verify entry 2 by the row rule. Then find a nonzero $\mathbf{x}$ with $A\mathbf{x}=(2,-1)^{T}$ — reading $A\mathbf{x}$ as a column combination, which column is being singled out?
+\end{exercise}
+
+\section{Matrix multiplication as composition}\label{sec:matmul}
+
+If $B$ is a recipe and $A$ is a recipe, the obvious thing to build is ``do $B$ first, then $A$'' — the \emph{composition}\index{composition} $A\circ B$. Matrix multiplication is exactly that, packaged as one matrix:
+\[
+  (AB)\mathbf{x} = A(B\mathbf{x}), \qquad\text{for every }\mathbf{x}.
+\]
+Working out what entry of $AB$ must be to make this true gives the familiar rule: if $A$ is $m\times k$ and $B$ is $k\times n$,
+\[
+  (AB)_{ij} = \sum_{l=1}^{k} a_{il}\,b_{lj} = (\text{row $i$ of }A)\cdot(\text{column $j$ of }B).
+\]
+The product exists only when the inner dimensions match — columns of $A$ = rows of $B$ — and the result is $m\times n$. Figure~\ref{fig:abgrid} is the picture to hold: entry $(i,j)$ lives where row $i$ of $A$ meets column $j$ of $B$.
+
+\begin{figure}[htbp]
+\centering
+\input{figures/ch02_ab_grid}
+\caption{$AB$ as a grid of inner products. Notice the highlighted cell: its value is row $i$ of $A$ dotted with column $j$ of $B$, and nothing else in either matrix touches it. Each of the $mn$ cells is an independent dot product — which is also why matrix multiplication parallelizes so well.}
+\label{fig:abgrid}
+\end{figure}
+
+The algebra that follows is best learned by contrast with numbers:
+
+\begin{itemize}
+  \item \emph{Associative}\index{associativity}: $A(BC)=(AB)C$, always — because both sides mean ``$C$, then $B$, then $A$'' and composition is unambiguous. (You will prove this properly in the hand derivation.)
+  \item \emph{Distributive}: $A(B+C)=AB+AC$ and $(A+B)C=AC+BC$.
+  \item \emph{Not commutative}\index{commutativity!fails}: $AB\neq BA$ in general. Order matters because the recipes do different things in different orders — and because often only one of the two products is even defined.
+\end{itemize}
+
+\begin{lstlisting}[language=Python,caption={Naive triple-loop \texttt{matmul} against \texttt{np.matmul}: correct, and painfully slow. File: \texttt{code/ch02\_matmul\_triple.py}.},label={lst:matmul}]
+import time
+import numpy as np
+
+def matmul(A, B):
+    n, k, m = A.shape[0], B.shape[0], B.shape[1]
+    C = np.zeros((n, m))
+    for i in range(n):
+        for j in range(m):
+            for l in range(k):
+                C[i, j] += A[i, l] * B[l, j]
+    return C
+
+rng = np.random.default_rng(1)
+np.seterr(all="ignore")      # Accelerate BLAS prints spurious fp warnings
+np.matmul(np.eye(4), np.eye(4))   # warm-up
+
+print(f"{'n':>5} {'ours (s)':>10} {'np (s)':>10} {'agree?':>8}")
+for n in [128, 256]:
+    A, B = rng.standard_normal((n, n)), rng.standard_normal((n, n))
+    t0 = time.perf_counter(); C_ours = matmul(A, B); t1 = time.perf_counter()
+    t2 = time.perf_counter(); C_np = np.matmul(A, B); t3 = time.perf_counter()
+    print(f"{n:>5} {t1-t0:>10.4f} {t3-t2:>10.4f} {str(np.allclose(C_ours, C_np)):>8}")
+for n in [512, 1024]:
+    A, B = rng.standard_normal((n, n)), rng.standard_normal((n, n))
+    t2 = time.perf_counter(); np.matmul(A, B); t3 = time.perf_counter()
+    print(f"{n:>5} {'--':>10} {t3-t2:>10.4f} {'--':>8}")
+\end{lstlisting}
+
+\begin{lstlisting}[caption={Output of listing~\ref{lst:matmul}. Our loop agrees exactly with the library — the rule is the same; doubling $n$ multiplies our time by $\sim8$ ($2n^3$ multiply-adds), while LAPACK stays four orders of magnitude faster by blocking for cache.}]
+    n   ours (s)     np (s)   agree?
+  128     0.4196     0.0001     True
+  256     3.3752     0.0002     True
+  512         --     0.0007       --
+ 1024         --     0.0062       --
+\end{lstlisting}
+
+\begin{exercise}[easy]
+For $A=\begin{bmatrix}1&2\\0&1\end{bmatrix}$ and $B=\begin{bmatrix}1&0\\1&1\end{bmatrix}$, compute $AB$ and $BA$ by hand. Are they equal? Then explain in one sentence what each does to the vector $\mathbf{e}_1$.
+\end{exercise}
+
+\section{Transpose, inverses, and when they exist}\label{sec:transposeinv}
+
+The \emph{transpose}\index{transpose} $A^{T}$ flips a matrix across its diagonal: $(A^{T})_{ij}=a_{ji}$ — rows become columns. Two rules carry the whole algebra of the transpose:
+\[
+  (A^{T})^{T}=A, \qquad (AB)^{T}=B^{T}A^{T}.
+\]
+The second is the \emph{reverse-order} rule and it surprises everyone once. Why reversed? Because $(AB)\mathbf{x}=A(B\mathbf{x})$, and an inner product reads symmetrically: row $i$ of $AB$ dotted with $\mathbf{x}$ equals column $i$ of $B^{T}A^{T}$ dotted with $\mathbf{x}$ — the next example makes it concrete. A \emph{symmetric}\index{symmetric matrix} matrix satisfies $A^{T}=A$; they own the spectral theorem later, and you build one for free whenever you form $A^{T}A$.
+
+\begin{example}\label{ex:transp}
+Verify $(AB)^{T}=B^{T}A^{T}$ on paper for $A=\begin{bmatrix}1&2\\3&4\end{bmatrix}$, $B=\begin{bmatrix}0&1\\1&0\end{bmatrix}$, then prove it in general.
+\textbf{Strategy.} Compute both sides on the $2\times2$ case first — one matrix each, ten seconds — and only then do the index bookkeeping for the proof. The check is not the proof; it is what keeps the proof honest.
+\begin{solution}
+$AB=\begin{bmatrix}2&1\\4&3\end{bmatrix}$, so $(AB)^{T}=\begin{bmatrix}2&4\\1&3\end{bmatrix}$. And $B^{T}A^{T}=\begin{bmatrix}0&1\\1&0\end{bmatrix}\begin{bmatrix}1&3\\2&4\end{bmatrix}=\begin{bmatrix}2&4\\1&3\end{bmatrix}$. Equal. \checkmark
+\emph{Proof.} The $(i,j)$ entry of $(AB)^{T}$ is the $(j,i)$ entry of $AB$: $\sum_l a_{jl}b_{li}$. The $(i,j)$ entry of $B^{T}A^{T}$ is $\sum_l (B^{T})_{il}(A^{T})_{lj}=\sum_l b_{li}a_{jl}$ — the same sum, terms commuted. $\square$
+\end{solution}
+\end{example}
+
+Now the inverse. A square matrix $A$ is \emph{invertible}\index{inverse}\index{invertible} when a matrix $A^{-1}$ exists with
+\[
+  A^{-1}A = I = AA^{-1}.
+\]
+Invertible means exactly: the recipe can be undone — $A$ sends distinct inputs to distinct outputs and hits everything in range. Chapter-1 language translates that into a test you already own: \emph{$A$ is invertible iff elimination produces $n$ pivots} (iff the only solution of $A\mathbf{x}=\mathbf{0}$ is $\mathbf{x}=\mathbf{0}$, iff the columns are independent). To actually compute $A^{-1}$, run elimination on the $2n$-column matrix $[\,A\mid I\,]$ and continue past echelon form until the left half is $I$; the right half is then $A^{-1}$. This is \emph{Gauss--Jordan elimination}\index{Gauss--Jordan}.
+
+\begin{figure}[htbp]
+\centering
+\input{figures/ch02_inverse_undo}
+\caption{The inverse as undo, and why $(AB)^{-1}=B^{-1}A^{-1}$. Notice the order: to walk the chain back you must undo the \emph{last} step first. Same reason you take off shoes before socks.}
+\label{fig:inverseundo}
+\end{figure}
+
+\begin{example}\label{ex:inverse}
+Invert $A=\begin{bmatrix}1&2&0\\2&5&1\\0&1&3\end{bmatrix}$ by Gauss--Jordan.
+\textbf{Strategy.} Augment $[\,A\mid I\,]$, eliminate down to echelon form exactly as in Chapter~1, then keep going: scale each pivot to 1 and clear \emph{upward} so the left half becomes $I$. Whatever happened to the right half is the answer.
+\begin{solution}
+\[
+\left[\begin{array}{ccc|ccc}1&2&0&1&0&0\\2&5&1&0&1&0\\0&1&3&0&0&1\end{array}\right]
+\to\left[\begin{array}{ccc|ccc}1&2&0&1&0&0\\0&1&1&-2&1&0\\0&0&2&2&-1&1\end{array}\right]
+\to\left[\begin{array}{ccc|ccc}1&0&0&7&-3&1\\0&1&0&-3&3/2&-1/2\\0&0&1&1&-1/2&1/2\end{array}\right]
+\]
+($R_2-2R_1$, then $R_3-R_2$, then scale and clear upward.) So
+\(
+A^{-1}=\begin{bmatrix}7&-3&1\\-3&3/2&-1/2\\1&-1/2&1/2\end{bmatrix}
+\), and the code below confirms $AA^{-1}=I$ exactly.
+\end{solution}
+\end{example}
+
+\begin{lstlisting}[language=Python,caption={Gauss--Jordan inverse on example~\ref{ex:inverse}, verified against \texttt{np.linalg.inv}. File: \texttt{code/ch02\_gauss\_jordan\_inverse.py}.},label={lst:gj}]
+import numpy as np
+
+A = np.array([[1., 2., 0.], [2., 5., 1.], [0., 1., 3.]])
+n = A.shape[0]
+AI = np.column_stack([A, np.eye(n)])
+
+for col in range(n):
+    AI[col] = AI[col] / AI[col, col]        # normalize pivot row
+    for row in range(n):
+        if row != col:
+            AI[row] -= AI[row, col] * AI[col]  # kill the column elsewhere
+
+A_inv = AI[:, n:]
+print("A_inv by Gauss-Jordan:")
+print(A_inv)
+print("np.linalg.inv agrees:", np.allclose(A_inv, np.linalg.inv(A)))
+print("A @ A_inv:")
+print(A @ A_inv)
+\end{lstlisting}
+
+\begin{lstlisting}[caption={Output of listing~\ref{lst:gj}. The hand computation and the library agree to the last digit; $AA^{-1}=I$ on the nose.}]
+A_inv by Gauss-Jordan:
+[[ 7.  -3.   1. ]
+ [-3.   1.5 -0.5]
+ [ 1.  -0.5  0.5]]
+np.linalg.inv agrees: True
+A @ A_inv:
+[[1. 0. 0.]
+ [0. 1. 0.]
+ [0. 0. 1.]]
+\end{lstlisting}
+
+The practical rule deserves its own line, because violating it is a rite of passage everyone fails once: \textbf{never compute $A^{-1}$ to solve $A\mathbf{x}=\mathbf{b}$.} Chapter 1's $LU$ solve is faster, more stable, and gives the same answer. The inverse exists in this book as an algebraic object — for proofs, small closed forms, and understanding — not as a solver.
+
+\begin{exercise}[medium]
+Two claims, prove or disprove each: (a) if $A$ and $B$ are invertible, so is $AB$, and $(AB)^{-1}=B^{-1}A^{-1}$; (b) if $AB=I$ for square $A,B$, then also $BA=I$. (For (b), think of $A$'s columns: what does $AB=I$ say about them?)
+\end{exercise}
+
+\section{Special matrices: diagonal, triangular, permutation, block}\label{sec:special}
+
+Four shapes recur so often that each gets a name and a shortcut; figure~\ref{fig:gallery} shows three of them acting on the plane plus the fourth in box form.
+
+\begin{description}
+\item[Diagonal\index{diagonal matrix}] $D=\mathrm{diag}(d_1,\dots,d_n)$: scales axis $i$ by $d_i$ and does nothing else. $D\mathbf{x}$ is entrywise scaling; $D_1D_2$ is diagonal again ($d_id_i'$); $D^{-1}=\mathrm{diag}(1/d_i)$ when no $d_i=0$. The cheapest matrix there is — eigenvalue theory later asks ``how close to diagonal can we make $A$?''
+\item[Triangular\index{triangular matrix}] upper $U$ or lower $L$: the output of Chapter~1. Triangular systems solve by substitution in $O(n^2)$; products stay triangular; diagonal entries are the pivots (Chapter~6: the eigenvalues).
+\item[Permutation\index{permutation matrix}] $P$: $I$ with rows reordered — one 1 per row and column. $P\mathbf{x}$ relabels coordinates; $P^{T}=P^{-1}$ undoes it. They are why `shuffle' and `reorder' are free in linear algebra.
+\item[Block\index{block matrix}] $\begin{bmatrix}A_{11}&A_{12}\\A_{21}&A_{22}\end{bmatrix}$: matrices whose entries are matrices. The multiplication rule is unchanged — block row times block column, summed — provided every inner product is dimensionally legal. Proofs and parallel code both lean on this constantly.
+\end{description}
+
+\begin{figure}[htbp]
+\centering
+\input{figures/ch02_special_gallery}
+\caption{Three special matrices acting on the unit square, and the fourth in box form. Notice that diagonal only stretches axes, permutation only relabels them, and the shear (upper triangular) leaves the bottom edge alone — the special structures are exactly the restrictions that make their algebra cheap.}
+\label{fig:gallery}
+\end{figure}
+
+\begin{lstlisting}[language=Python,caption={A permutation matrix is a reorder, and $P^{T}$ undoes it — the same trick a data loader uses when it shuffles sample order. File: \texttt{code/ch02\_permutation\_dataset.py}.},label={lst:perm}]
+import numpy as np
+
+# a tiny "dataset": each row tagged with its original index
+X = np.array([[0., 10.], [1., 11.], [2., 12.], [3., 13.]])
+sigma = [2, 0, 3, 1]              # new order of rows
+
+n = len(sigma)
+P = np.zeros((n, n))
+P[np.arange(n), sigma] = 1        # row i of PX is row sigma[i] of X
+
+print("P =\n", P)
+print("P @ X =\n", P @ X)
+print("X[sigma] =\n", X[sigma])
+print("same thing:", np.allclose(P @ X, X[sigma]))
+print("P.T @ P = I:", np.allclose(P.T @ P, np.eye(n)))
+print("undo with P.T:", np.allclose(P.T @ (P @ X), X))
+\end{lstlisting}
+
+\begin{lstlisting}[caption={Output of listing~\ref{lst:perm}. $P@X$ is exactly fancy-indexing \texttt{X[sigma]}; $P^{T}P=I$ because a permutation never duplicates or drops a row.}]
+P =
+ [[0. 0. 1. 0.]
+ [1. 0. 0. 0.]
+ [0. 0. 0. 1.]
+ [0. 1. 0. 0.]]
+P @ X =
+ [[ 2. 12.]
+ [ 0. 10.]
+ [ 3. 13.]
+ [ 1. 11.]]
+X[sigma] =
+ [[ 2. 12.]
+ [ 0. 10.]
+ [ 3. 13.]
+ [ 1. 11.]]
+same thing: True
+P.T @ P = I: True
+undo with P.T: True
+\end{lstlisting}
+
+\section{Hand derivation}\label{sec:handderiv2}
+
+Two proofs, both short, both worth doing with the interpreter closed.
+\begin{enumerate}
+  \item Prove $(AB)^{-1}=B^{-1}A^{-1}$ directly from the definition: a matrix $X$ is \emph{the} inverse of $M$ iff $MX=I$ and $XM=I$. Compute $(B^{-1}A^{-1})(AB)$ and $(AB)(B^{-1}A^{-1})$ using associativity only — no entries allowed. Conclude uniqueness of the inverse: if $X$ and $Y$ both satisfy the definition for $A$, then $X=Y$ (multiply $AX=I$ by $Y$ on the left).
+  \item Prove associativity $(AB)C=A(BC)$ via composition: define $f_B(\mathbf{x})=B\mathbf{x}$ and show both sides name the same function, $f_A\circ f_B\circ f_C$, applied to an arbitrary $\mathbf{x}$. This is the ``functions compose associatively'' argument — write it out fully, including the step where you use the definition $(MN)\mathbf{x}=M(N\mathbf{x})$.
+\end{enumerate}
+
+\section{Common mistakes}\label{sec:mistakes2}
+
+\begin{tripwire}[Assuming $AB=BA$]
+Matrix multiplication is not commutative, full stop. When a manipulation needs you to swap the order — expanding $(A+B)^2$, moving a term past another — write out both orders first and check which you actually have. $(A+B)^2=A^2+AB+BA+B^2$, and that middle pair usually cannot merge.
+\end{tripwire}
+\begin{tripwire}[Wrong order in $(AB)^{T}$]
+The transpose of a product is the product of the transposes \emph{reversed}: $B^{T}A^{T}$, not $A^{T}B^{T}$. Same reversal for inverses. Mnemonic: to undo $AB$ you meet $B$ last, so $B$'s undo comes first.
+\end{tripwire}
+\begin{tripwire}[Dimension mismatches read as ``almost right'']
+A $3\times2$ times a $3\times2$ is not ``nearly'' a product — it is undefined, and no reshaping the answer rescues it. Before every multiplication, name the shapes: $(m\times k)(k\times n)\to(m\times n)$. If the inner numbers disagree, stop.
+\end{tripwire}
+\begin{tripwire}[Believing every nonzero matrix is invertible]
+$\begin{bmatrix}1&1\\1&1\end{bmatrix}$ is about as nonzero as matrices get, and it crushes the whole plane onto a line — no undo exists. Invertibility is about the columns being independent, which Chapter 1 already showed you how to test: $n$ pivots, or nothing.
+\end{tripwire}
+
+\section{Summary}\label{sec:ch2summary}
+
+\begin{center}
+\small
+\begin{tabularx}{\linewidth}{@{}lY Y@{}}
+\toprule
+\tablehead \thead{Concept} & \thead{Statement} & \thead{Where used next} \\
+\midrule
+$A\mathbf{x}$ & column combination, weights from $\mathbf x$ & everything \\
+$AB$ & composition; $(AB)_{ij}=$ row$_i\cdot$col$_j$; needs inner dims equal & every model \\
+Associativity & $A(BC)=(AB)C$ via composition & proofs, chaining layers \\
+$AB\neq BA$ & order is part of the meaning & commutator exercises \\
+Transpose & $(A^T)_{ij}=a_{ji}$; $(AB)^T=B^TA^T$ & $A^TA$, symmetric ch. \\
+Inverse & $AA^{-1}=I$; exists iff $n$ pivots; Gauss--Jordan on $[A|I]$ & least squares (formally) \\
+$(AB)^{-1}$ & $B^{-1}A^{-1}$ — undo last step first & hand derivation \\
+Never invert to solve & $LU$-solve is cheaper and stabler & all numerical work \\
+Special shapes & diagonal (scale), triangular (substitute), permutation ($P^T=P^{-1}$), block (same rules) & rest of book \\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+\begin{wins}
+You can now multiply matrices both ways — as dot-product grids and as composed recipes — invert a small one by hand, and spot the four shapes that make later algebra cheap.
+\end{wins}
+
+\chapternotes{%
+The composition-first treatment of matrix multiplication follows MIT 18.06SC Unit I \cite{ocw1806sc}; the column-combination mantra for $A\mathbf{x}$ is Strang's, restated. VMLS chapters 6 and 10 \cite{vmls} supply the data-first framing (the permutation-as-shuffle example is theirs in spirit) and the gallery treatment of special matrices. MML \S2.2 \cite{mml} is the compact reference for the same algebra. The Immersive Linear Algebra chapter on the matrix \cite{ila} has the interactive versions of figures~\ref{fig:axcol} and \ref{fig:abgrid}. The never-invert-to-solve rule is standard numerical practice \cite{strangILA}.}
+
+\section*{Additional exercises}
+\addcontentsline{toc}{section}{Additional exercises}
+
+\begin{exercise}[easy]
+Let $A=\begin{bmatrix}1&-2\\3&0\end{bmatrix}$, $\mathbf{x}=(5,1)^{T}$, $\mathbf{y}=(0,4)^{T}$. Compute $A\mathbf{x}$, $A\mathbf{y}$, and $A(\mathbf{x}+\mathbf{y})$; confirm the third equals the sum of the first two. Which property of the recipe is that?
+\end{exercise}
+\begin{exercise}[easy]
+For $A=\begin{bmatrix}2&1\\1&2\end{bmatrix}$, compute $A^{T}$, $AA^{T}$, and $A^{T}A$. Which two are equal here, and is that an accident?
+\end{exercise}
+\begin{exercise}[easy]
+Write the $3\times3$ permutation matrix that sends $(x_1,x_2,x_3)$ to $(x_3,x_1,x_2)$. Apply it to $\mathbf{x}=(1,2,3)^{T}$ twice: what do you get and why?
+\end{exercise}
+\begin{exercise}[easy]
+$D=\mathrm{diag}(2,-1,3)$. Compute $D^2$, $D^3$, and $D^{-1}$. What is $D^k$ in general?
+\end{exercise}
+\begin{exercise}[medium]
+For $A=\begin{bmatrix}1&1\\0&1\end{bmatrix}$ and $B=\begin{bmatrix}1&0\\1&1\end{bmatrix}$, compute the \emph{commutator}\index{commutator} $[A,B]=AB-BA$. Then compute $[A,[A,B]]$. When is $[A,B]=0$ in general — what does it say about the two recipes?
+\end{exercise}
+\begin{exercise}[medium]
+Show that $(A^{T}A)^{T}=A^{T}A$ for any matrix $A$ — every Gram matrix is symmetric. Where does this fact get used when we reach least squares?
+\end{exercise}
+\begin{exercise}[medium]
+Let $E_{ij}$ be the matrix that is 1 in position $(i,j)$ and 0 elsewhere. Compute $E_{12}A$ and $AE_{12}$ for a general $3\times3$ matrix $A$ — describe the action in words. (These are the atoms of the ``row operation as matrix'' story.)
+\end{exercise}
+\begin{exercise}[medium — derive]
+$A$ is $2\times3$, $B$ is $3\times2$. Show that $\operatorname{tr}(AB)=\operatorname{tr}(BA)$, where $\operatorname{tr}$ sums the diagonal. Does your argument care that the matrices are not square in the same direction?
+\end{exercise}
+\begin{exercise}[hard]
+Prove the block multiplication rule: if $A=\begin{bmatrix}A_{11}&A_{12}\\A_{21}&A_{22}\end{bmatrix}$ and $B$ similarly partitioned with all inner products legal, then the $(i,j)$ block of $AB$ is $\sum_k A_{ik}B_{kj}$. (Hint: expand one entry of the left side and one of the right side; the sums are the same.)
+\end{exercise}
+\begin{exercise}[hard]
+Show that a square triangular matrix is invertible iff every diagonal entry is nonzero, and that its inverse is triangular of the same kind. (Use Chapter 1's pivot test for the first half; substitution for the second.)
+\end{exercise}
+\begin{exercise}[hard]
+Implement blocked matrix multiplication in Python: cut two $n\times n$ matrices into $b\times b$ blocks, multiply block-wise (one \texttt{np.matmul} per block pair), and reassemble. Verify against \texttt{np.matmul} for $n=512$, $b=64$. File: \texttt{code/ch02\_blocked\_matmul.py}.
+\end{exercise}

@@ -1,0 +1,9 @@
+\begin{tikzpicture}[scale=1.0, >=stealth]
+  \node[draw,graybg!40,fill=graybg!20,minimum width=1.5cm,minimum height=1cm] (U) at (0,0) {$U$};
+  \node[draw,graybg!40,fill=graybg!20,minimum width=1.5cm,minimum height=1cm] (V) at (4,0) {$V$};
+  \node[draw,graybg!40,fill=graybg!20,minimum width=1.5cm,minimum height=1cm] (W) at (8,0) {$W$};
+  \draw[->,thick] (U) -- (V) node[midway,above]{$T$\quad$[T]$};
+  \draw[->,thick] (V) -- (W) node[midway,above]{$S$\quad$[S]$};
+  \draw[->,thick,accent] (U.south) .. controls (2,-1.3) and (6,-1.3) .. (W.south) node[midway,below]{$S\circ T$\quad$[S][T]$};
+  \node[align=center] at (4,-2.1) {\small matrix multiplication is composition written in coordinates:\\ \small apply $[T]$'s columns through $[S]$};
+\end{tikzpicture}

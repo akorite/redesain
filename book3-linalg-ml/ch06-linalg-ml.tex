@@ -1,0 +1,530 @@
+% Chapter 6 -- Determinants
+\chapter{Determinants}\label{ch:determinants}
+
+Every question this book has asked about a square matrix --- does
+$Ax=\mathbf b$ have a unique solution? is $A$ invertible? does the map
+collapse space? --- turns out to be one number's job. The determinant is
+that number: a single scalar distilled from $n^2$ entries that answers all
+of them at once, and geometrically measures how much a linear map stretches
+volume. After this chapter you will be able to compute determinants three
+ways, know which way to reach for in a computation, and read $\det A$ as a
+signed volume rather than an abstract formula. One honest warning before we
+start: determinants are \emph{theoretical} heavyweights and
+\emph{computational} lightweights --- you almost never need one in code,
+and this chapter explains why.
+
+\section{Three definitions that agree}\label{sec:det-defs}
+
+\begin{definition}[Determinant by cofactors]\index{determinant}\index{cofactor expansion}
+For $A\in\mathbb R^{n\times n}$, the \emph{$(i,j)$-minor} $M_{ij}$ is the
+determinant of the matrix left by deleting row $i$ and column $j$; the
+\emph{cofactor} is $C_{ij}=(-1)^{i+j}M_{ij}$. Then
+\[
+\det A=\sum_{j=1}^{n}a_{1j}\,C_{1j}
+\qquad\text{(expansion along row 1)},
+\]
+with $\det[a]=a$ starting the recursion. The same sum along \emph{any} row
+or column gives the same value.
+\end{definition}
+
+\begin{definition}[Determinant by pivots]\index{pivot determinant}
+If elimination reduces $A$ to upper-triangular $U$ using only row-add
+operations and $s$ row swaps, then
+\[
+\det A=(-1)^{s}\,u_{11}u_{22}\cdots u_{nn},
+\]
+the product of the pivots with one minus sign per swap. If no nonzero pivot
+exists in some column, $\det A=0$.
+\end{definition}
+
+\begin{definition}[Determinant as signed volume]\index{signed volume}
+$\det A$ is the signed volume of the parallelepiped spanned by the columns
+of $A$ --- equivalently, the factor by which the linear map $A$ scales
+$n$-dimensional volume, negative when orientation flips.
+\end{definition}
+
+That three definitions give one function is the content of the chapter;
+Figure~\ref{fig:det-scaling} shows the volume meaning directly.
+
+\begin{example}[One 3$\times$3, two ways]\label{ex:det3}
+\textbf{Strategy.} Cofactors along a row with zeros keep the expansion
+short; elimination needs no swaps here, so the pivot product is a pure
+product. Compare.
+
+\textbf{Solution.} Let
+$A=\begin{bmatrix}2&1&0\\1&3&1\\0&1&2\end{bmatrix}$.
+Cofactors along row 1 (the zero in position $(1,3)$ removes a term):
+\[
+\det A
+=2\begin{vmatrix}3&1\\1&2\end{vmatrix}
+-1\begin{vmatrix}1&1\\0&2\end{vmatrix}
++0
+=2(6-1)-1(2-0)=10-2=8 .
+\]
+By elimination: $R_2\leftarrow R_2-\tfrac12R_1$, then
+$R_3\leftarrow R_3-\tfrac{2}{5}R_2$:
+\[
+\begin{bmatrix}2&1&0\\0&5/2&1\\0&0&8/5\end{bmatrix},
+\qquad \det A=2\cdot\tfrac52\cdot\tfrac85=8 .
+\]
+Same answer, $8$ --- and the second route produced it with three
+multiplies instead of a tree of $2\times2$ determinants. That asymmetry
+only gets worse with size (checkpoint below).
+\end{example}
+
+The pivot-product route is an algorithm, not just a trick --- here it is in
+code, swap counting included:
+
+\begin{lstlisting}[caption={\ttfamily code/ch06\_pivot\_det.py --- $\det$ as
+signed pivot product, verified against \ttfamily np.linalg.det on the
+Example~\ref{ex:det3} matrix and on a matrix that forces a row swap.}]
+import numpy as np
+np.set_printoptions(precision=4, suppress=True)
+
+def pivot_det(A):
+    """det via elimination: product of pivots times (-1)^swaps."""
+    A = A.astype(float).copy()
+    n = A.shape[0]
+    swaps = 0
+    det = 1.0
+    for j in range(n):
+        piv = np.argmax(np.abs(A[j:, j])) + j
+        if abs(A[piv, j]) < 1e-12:
+            return 0.0
+        if piv != j:
+            A[[j, piv]] = A[[piv, j]]
+            swaps += 1
+        det *= A[j, j]
+        A[j+1:, j:] -= np.outer(A[j+1:, j] / A[j, j], A[j, j:])
+    return det * (-1.0) ** swaps
+
+# 3x3 from the chapter: det = 8 by cofactors AND by pivots
+A = np.array([[2., 1., 0.],
+              [1., 3., 1.],
+              [0., 1., 2.]])
+print("matrix:")
+print(A)
+print("pivot_det =", pivot_det(A))
+print("np.linalg.det =", np.linalg.det(A))
+
+# swap-count check on a matrix needing a swap
+B = np.array([[0., 2., 1.],
+              [1., 0., 1.],
+              [2., 1., 0.]])
+print("swap-needed matrix pivot_det =", pivot_det(B),
+      "np.linalg.det =", np.linalg.det(B))
+\end{lstlisting}
+
+\begin{lstlisting}[caption={Output of the pivot determinant. Notice the
+swap-counted version matches the library on both --- including the matrix
+whose zero top-left forces a swap ($\det=5$).}]
+matrix:
+[[2. 1. 0.]
+ [1. 3. 1.]
+ [0. 1. 2.]]
+pivot_det = 8.0
+np.linalg.det = 8.000000000000002
+swap-needed matrix pivot_det = 5.0 np.linalg.det = 4.999999999999999
+\end{lstlisting}
+
+\begin{exercise}[easy]\label{ex:det-e1}
+Compute $\det\begin{bmatrix}3&-1\\2&4\end{bmatrix}$ by the $2\times2$
+formula.
+\begin{solution}
+$3\cdot4-(-1)\cdot2=12+2=14$.
+\end{solution}
+\end{exercise}
+
+\section{Properties: product, transpose, row operations}\label{sec:det-props}
+
+\begin{theorem}[Working properties]\label{th:detprops}
+For $A,B\in\mathbb R^{n\times n}$:
+\begin{itemize}
+\item $\det(A^{T})=\det A$.
+\item $\det(AB)=\det A\,\det B$ --- and $\det(A^{-1})=1/\det A$ when $A$ is
+invertible.
+\item Row-add ($R_i\leftarrow R_i+cR_j$) leaves $\det$ unchanged; a row
+swap flips the sign; scaling one row by $c$ scales $\det$ by $c$, so
+$\det(cA)=c^{n}\det A$ (not $c\det A$).
+\end{itemize}
+\end{theorem}
+
+\begin{example}[The product rule, numerically and in outline]\label{ex:detprod}
+\textbf{Strategy.} Check on a pair of $2\times2$s first --- catching a sign
+or arithmetic slip is easy there --- then see why the property is
+structural rather than coincidental.
+
+\textbf{Solution.} Let $A=\begin{bmatrix}2&1\\0&3\end{bmatrix}$ and
+$B=\begin{bmatrix}1&2\\1&1\end{bmatrix}$. Then $\det A=6$, $\det B=-1$,
+and
+\[
+AB=\begin{bmatrix}3&5\\3&3\end{bmatrix},
+\qquad \det(AB)=9-15=-6=6\cdot(-1) .
+\]
+Why it holds (sketch): write $A$ and $B$ as chains of elementary row
+operations (ch.~2 --- every invertible matrix is such a product). Each
+elementary factor multiplies a determinant by a known factor --- $c$ for a
+scaling, $-1$ for a swap, $1$ for a row-add --- and the factors multiply
+through the chain. Volume reading: applying $B$ then $A$ scales volume
+first by $\det B$, then by $\det A$; the composition scales by their
+product.
+\end{example}
+
+\begin{checkpoint}
+Which is bigger work for a $20\times20$: cofactor expansion or pivot
+product? Cofactors cost $\sim n!$ operations; elimination $\sim n^3/3$.
+($20!\approx2.4\times10^{18}$ vs $\approx2700$ --- this is why
+``determinant'' in software is a pivot product.)
+\end{checkpoint}
+
+\section{Determinant as signed volume}\label{sec:det-volume}
+
+A linear map carries the unit square (unit cube) to a parallelogram
+(parallelepiped) whose edges are the columns of $A$. The signed area of
+that image is exactly the determinant --- the sign recording whether the
+map preserved or flipped orientation
+(Figures~\ref{fig:det-scaling}--\ref{fig:det-collapse}).
+
+\begin{figure}[htbp]
+\centering
+\input{figures/ch06_volume_scaling}
+\caption{The map $A=\begin{bmatrix}2&1\\1&1.5\end{bmatrix}$ sends the unit
+square to a parallelogram of area $|\det A|=2$. Notice the edges of the
+image are the \emph{columns} of $A$. Regenerate:
+\ttfamily figures/ch06\_volume\_scaling.tex.}
+\label{fig:det-scaling}
+\end{figure}
+
+\begin{example}[Volume of a parallelepiped]\label{ex:detvol}
+\textbf{Strategy.} Three edges from a common vertex make the columns;
+the signed volume is the determinant, and its sign tells whether the
+three edges form a right- or left-handed triple.
+
+\textbf{Solution.} Edges $\mathbf u=(1,0,0)$, $\mathbf v=(1,1,0)$,
+$\mathbf w=(0,1,2)$:
+\[
+\det\begin{bmatrix}1&1&0\\0&1&1\\0&0&2\end{bmatrix}=1\cdot1\cdot2=2,
+\]
+triangular, so the product of the diagonal. Volume $=2$, orientation
+preserved (positive). Reversing the order of $\mathbf u$ and $\mathbf v$
+(column swap) gives $-2$: same shape, opposite handedness.
+\end{example}
+
+\begin{figure}[htbp]
+\centering
+\input{figures/ch06_orientation}
+\caption{Orientation and the sign of $\det$. Notice a positive determinant
+keeps the counterclockwise ordering of the image edges; a reflection
+reverses it and $\det$ goes negative. Regenerate:
+\ttfamily figures/ch06\_orientation.tex.}
+\label{fig:det-orientation}
+\end{figure}
+
+The code tests the scaling claim on shapes that are \emph{not} the unit
+square --- the factor should be the same for any region.
+
+\begin{lstlisting}[caption={\ttfamily code/ch06\_volume\_scaling.py ---
+areas of three different shapes before/after a $2\times2$ map, then a
+parallelepiped through a $3\times3$.}]
+import numpy as np
+np.set_printoptions(precision=4, suppress=True)
+np.random.seed(7)
+
+def poly_area(P):
+    x, y = P[:, 0], P[:, 1]
+    return 0.5 * abs(np.sum(x * np.roll(y, -1) - y * np.roll(x, -1)))
+
+A = np.array([[2., 1.], [1., 1.5]])
+shapes = {
+    "unit square": np.array([[0, 0], [1, 0], [1, 1], [0, 1.]]),
+    "rectangle": np.array([[0, 0], [2, 0], [2, 0.5], [0, 0.5]]),
+    "triangle": np.array([[0, 0], [1, 0], [0.5, 1.2]]),
+}
+print("A =")
+print(A)
+print("|det A| =", abs(np.linalg.det(A)))
+for name, S in shapes.items():
+    before = poly_area(S)
+    after = poly_area(S @ A.T)
+    print(f"{name:12s} area {before:.4f} -> {after:.4f}  "
+          f"ratio {after/before:.4f}")
+
+B = np.random.randn(3, 3)
+E = np.array([[1., 0.5, 0.], [0., 1., 0.5], [0.5, 0., 1.]])
+v0 = abs(np.linalg.det(E))
+v1 = abs(np.linalg.det(B @ E))
+print("3D parallelepiped: |det E| =", v0,
+      " |det(B E)| =", v1, " ratio =", v1 / v0,
+      " |det B| =", abs(np.linalg.det(B)))
+\end{lstlisting}
+
+\begin{lstlisting}[caption={Output of the scaling experiment. Notice every
+shape scales by exactly $|\det A|=2$ --- the factor is a property of the
+map, not of the region. In 3D the ratio equals $|\det B|$ to the last
+digit shown, which is also the product rule at work.}]
+A =
+[[2.  1. ]
+ [1.  1.5]]
+|det A| = 2.0
+unit square  area 1.0000 -> 2.0000  ratio 2.0000
+rectangle    area 1.0000 -> 2.0000  ratio 2.0000
+triangle     area 0.6000 -> 1.2000  ratio 2.0000
+3D parallelepiped: |det E| = 1.125   |det(B E)| = 1.3290513746968733   ratio = 1.181378999730554   |det B| = 1.181378999730554
+\end{lstlisting}
+
+\section{\texorpdfstring{$\det A=0$ means collapse}{det A = 0 means collapse}}\label{sec:det-zero}
+
+If the parallelepiped collapses flat --- the columns are dependent --- the
+volume is zero. So $\det A=0$, dependent columns, non-invertible, singular:
+four ways to say the same thing (the equivalence built through
+chapters 1--5). Figure~\ref{fig:det-collapse} is the picture.
+
+\begin{figure}[htbp]
+\centering
+\input{figures/ch06_collapse}
+\caption{$\det A=0$ is geometric collapse: the square's image is a segment.
+Notice both column images land on one line --- dependent columns are the
+\emph{cause}, zero volume is the \emph{symptom}. Regenerate:
+\ttfamily figures/ch06\_collapse.tex.}
+\label{fig:det-collapse}
+\end{figure}
+
+The trap is the word \emph{near}. A small determinant is not a small
+collapse --- it is not a collapse at all:
+
+\begin{lstlisting}[caption={\ttfamily code/ch06\_near\_singular.py ---
+four $2\times2$s from ``det $=1$'' to ``det $=0$'', with the condition
+number alongside. Watch which quantity actually tracks invertibility.}]
+import numpy as np
+np.set_printoptions(precision=6, suppress=True)
+
+A = np.array([[1., 0.], [0., 1.]])          # det = 1
+B = np.array([[100., 0.], [0., 0.001]])     # det = 0.1 -- small!
+C = np.array([[1., 1.], [1., 1.0001]])      # det = 1e-4 -- nearly singular
+D = np.array([[1., 1.], [1., 1.]])          # det = 0 -- singular
+for name, M in [("I", A), ("diag(100,0.001)", B),
+                ("near-dep", C), ("dup-rows", D)]:
+    d = np.linalg.det(M)
+    c = np.linalg.cond(M)
+    inv_ok = "yes"
+    try:
+        _ = np.linalg.inv(M)
+    except np.linalg.LinAlgError:
+        inv_ok = "NO"
+    print(f"{name:16s} det={d:12.6f}  cond={c:12.4f}  invertible={inv_ok}")
+
+B2 = B / np.abs(B).max()
+print("rescaled diag(1, 1e-5): det =", np.linalg.det(B2),
+      " cond =", np.linalg.cond(B2))
+\end{lstlisting}
+
+\begin{lstlisting}[caption={Output of the near-singular test. Notice
+``det $=0.1$'' does not mean safe --- the matrix with det $0.1$ has
+condition $10^{5}$, and only the truly singular matrix fails inversion.
+Determinant answers \emph{is} it invertible; condition number answers
+\emph{how close}.}]
+I                det=    1.000000  cond=      1.0000  invertible=yes
+diag(100,0.001)  det=    0.100000  cond= 100000.0000  invertible=yes
+near-dep         det=    0.000100  cond=  40002.0001  invertible=yes
+dup-rows         det=    0.000000  cond=139378947902558128.0000  invertible=NO
+rescaled diag(1, 1e-5): det = 9.999999999999997e-06  cond = 99999.99999999999
+\end{lstlisting}
+
+\begin{exercise}[medium]\label{ex:det-m1}
+$\det A=6$ and $\det B=-2$ for $3\times3$ matrices. Compute
+$\det(ABA^{-1})$, $\det(A^{T}B)$, and $\det(2A)$.
+\begin{solution}
+$\det(ABA^{-1})=\det B=-2$ (similarity). $\det(A^{T}B)=\det A\det B=-12$.
+$\det(2A)=2^{3}\cdot6=48$ --- the exponent is $n$, not $1$.
+\end{solution}
+\end{exercise}
+
+\begin{exercise}[hard]\label{ex:det-h1}
+Prove the pivot-product formula for a $2\times2$: eliminating
+$R_2\leftarrow R_2-(c/a)R_1$ in $\begin{bmatrix}a&b\\c&d\end{bmatrix}$
+($a\ne0$) leaves determinant $a(d-bc/a)=ad-bc$; then show swapping the rows
+of $\begin{bmatrix}a&b\\c&d\end{bmatrix}$ flips the sign.
+\begin{solution}
+After $R_2\leftarrow R_2-(c/a)R_1$ the matrix is
+$\begin{bmatrix}a&b\\0&d-bc/a\end{bmatrix}$; row-add leaves det unchanged,
+triangular det is the diagonal product $a(d-bc/a)=ad-bc$. Swapped matrix
+$\begin{bmatrix}c&d\\a&b\end{bmatrix}$ has det $cb-da=-(ad-bc)$.
+\end{solution}
+\end{exercise}
+
+\section{Cramer's rule, a curiosity}\label{sec:det-cramer}
+
+\begin{theorem}[Cramer's rule]\index{Cramer's rule}
+If $A$ is invertible, the unique solution of $Ax=\mathbf b$ is
+\[
+x_j=\frac{\det A_j}{\det A},
+\qquad
+A_j=\text{$A$ with column $j$ replaced by $\mathbf b$}.
+\]
+\end{theorem}
+
+Elegant, correct, and useless for computation: it computes $n+1$
+determinants where elimination computes the answer directly. Its real
+life is theoretical --- it proves the solution is a rational function of
+the entries, and it hides inside the formula
+$A^{-1}=\operatorname{adj}(A)/\det A$. Meet it so you can say you have met
+it; then go back to elimination.
+
+\begin{figure}[htbp]
+\centering
+\input{figures/ch06_checkerboard}
+\caption{The cofactor sign pattern $(-1)^{i+j}$ for $3\times3$. Notice it
+is a checkerboard --- diagonally adjacent positions share a sign, which is
+why you can expand along any row. Regenerate:
+\ttfamily figures/ch06\_checkerboard.tex.}
+\label{fig:det-checker}
+\end{figure}
+
+\section{Hand derivation}\label{sec:handderiv6}
+
+Derive the $2\times2$ formula from elimination, then watch a row swap flip
+the sign. For $A=\begin{bmatrix}a&b\\c&d\end{bmatrix}$ with $a\ne0$:
+$R_2\leftarrow R_2-(c/a)R_1$ gives
+$\begin{bmatrix}a&b\\0&d-bc/a\end{bmatrix}$ --- upper triangular,
+determinant the pivot product $a\cdot(d-bc/a)=ad-bc$. If $a=0$ the first
+step swaps the rows; the swap contributes a minus sign and the formula
+still lands on $ad-bc$ (check the boundary case $a=0$, $c\ne0$
+directly: $ad-bc=-bc$, and the swap-version gives
+$cb-da=-(ad-bc)=bc-ad$ --- consistent once the sign travels with it).
+Complete the check every derivation owes: the formula is antisymmetric in
+the two rows ($cb-da=-(ad-bc)$) and vanishes on dependent rows
+($a/c=b/d$ gives $ad-bc=0$).
+
+\section{Common mistakes}
+
+\begin{tripwire}[{Adding determinants: $\det(A+B)\ne\det A+\det B$}]
+Determinants multiply; they do not add. Counterexample in one line:
+$\det I+\det I=2$ but $\det(2I)=2^{n}$. If you ever split a determinant
+over a sum, you have produced a wrong number.
+\end{tripwire}
+
+\begin{tripwire}[{Sign bookkeeping on swaps}]
+One row swap flips the sign; two swaps flip it back. Learners reliably
+lose this --- when you count swaps, count them on paper, and write the
+$(-1)^{s}$ factor into the formula before the pivot product, not after
+``remembering at the end.''
+\end{tripwire}
+
+\begin{tripwire}[{Computing with Cramer's rule}]
+Cramer is $n+1$ determinants per solve; elimination is one factorization.
+In code, Cramer's rule on a $10\times10$ is already thousands of times
+slower, and less stable. The formula is for theorems, not for numbers.
+\end{tripwire}
+
+\begin{tripwire}[{Reading ``small determinant'' as ``singular''}]
+$\det A=10^{-6}$ is small but nonzero: $A$ is invertible, full stop.
+``Nearly singular'' is a statement about \emph{conditioning}
+(Section~\ref{sec:det-zero}), not about the determinant crossing some
+threshold. Scale changes det by $c^{n}$; it changes condition not at all.
+\end{tripwire}
+
+\section{Summary}
+
+\begin{center}
+\begin{tabularx}{\textwidth}{l>{\raggedright\arraybackslash}X}
+\toprule
+\textbf{Object} & \textbf{What you need to know}\\
+\midrule
+Cofactor expansion & $\det A=\sum_j a_{1j}(-1)^{1+j}M_{1j}$; any row or
+column works; $\sim n!$ cost \\
+Pivot product & $\det A=(-1)^{s}\prod u_{jj}$; the practical algorithm
+behind \texttt{np.linalg.det} \\
+Signed volume & columns of $A$ span a parallelepiped of volume $|\det A|$;
+sign = orientation \\
+Product rule & $\det(AB)=\det A\det B$; $\det(A^{-1})=1/\det A$;
+$\det(cA)=c^{n}\det A$ \\
+Row operations & add: unchanged; swap: $\times(-1)$; scale by $c$:
+$\times c$ \\
+$\det A=0$ & collapse: dependent columns, singular, no inverse --- all one
+fact \\
+Small det & not singular: conditioning is the question, use
+\texttt{np.linalg.cond} \\
+Cramer's rule & $x_j=\det A_j/\det A$: a theorem that produces a formula,
+not an algorithm \\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+\section*{Additional exercises}
+\addcontentsline{toc}{section}{Additional exercises}
+
+\begin{exercise}[easy]
+Compute $\det\begin{bmatrix}1&4&2\\0&3&1\\0&0&5\end{bmatrix}$ --- and state
+in one word why it is fast.
+\end{exercise}
+
+\begin{exercise}[easy]
+$\det A=3$. What are $\det(2A)$, $\det(A^{T})$, $\det(A^{-1})$ for
+$A\in\mathbb R^{3\times3}$?
+\end{exercise}
+
+\begin{exercise}[easy]
+A $2\times2$ map sends the unit square to a parallelogram of area $7$.
+Give two matrices with $|\det|=7$, one preserving and one flipping
+orientation.
+\end{exercise}
+
+\begin{exercise}[easy]
+True or false, justify in one line: ``$\det A>1$ means $A$ expands every
+vector.''
+\end{exercise}
+
+\begin{exercise}[medium]
+Prove $\det(A^{T})=\det A$ for $2\times2$ and $3\times3$ by direct
+expansion, and explain in one sentence why it holds in general (expansion
+along a column mirrors expansion along a row).
+\end{exercise}
+
+\begin{exercise}[medium]
+Without computing, order these determinants of $3\times3$ matrices: $A$;
+$B$ = $A$ with rows 1 and 3 swapped; $C$ = $A$ with row 2 doubled;
+$D$ = $A$ with row 3 replaced by row 3 $+ 5\times$ row 1. Write each as a
+multiple of $\det A$.
+\end{exercise}
+
+\begin{exercise}[medium]
+In code: take the $4\times4$ Hilbert matrix \texttt{scipy.linalg.hilbert(4)}
+(or build $H_{ij}=1/(i+j-1)$). Compute \texttt{np.linalg.det},
+\texttt{np.linalg.cond}, and our \texttt{pivot\_det}
+(\texttt{code/ch06\_pivot\_det.py}). Is $H$ singular? Would you trust det
+to answer that?
+\end{exercise}
+
+\begin{exercise}[medium]
+Use Cramer's rule to solve
+$\begin{bmatrix}2&1\\1&3\end{bmatrix}\mathbf x=\begin{bmatrix}4\\5\end{bmatrix}$,
+then solve the same system by elimination and compare the work.
+\end{exercise}
+
+\begin{exercise}[hard]
+Prove $\det(AB)=\det A\det B$ for invertible $A$, general $B$, by
+elimination: write $A=LU$ (ch.~2), show $\det(LU B)$ splits into
+$\det L\det U\det B$ factors, and handle $\det B=0$ as a limiting case.
+\end{exercise}
+
+\begin{exercise}[hard]
+A ``det'' candidate $f:\mathbb R^{n\times n}\to\mathbb R$ is required to be
+multilinear in the columns, alternating (zero on equal columns), and
+normalized $f(I)=1$. For $2\times2$ matrices only, prove
+$f(A)=ad-bc$: expand each column as $a_{1j}\mathbf e_1+a_{2j}\mathbf e_2$,
+distribute, and show every term except the two standard permutations
+dies. (This is Axler's definition-first route, in miniature.)
+\end{exercise}
+
+\section*{Notes}
+\addcontentsline{toc}{section}{Notes}
+
+\chapternotes{%
+The cofactors/pivots/volume trio follows Strang's treatment in \cite{ila}
+ch.~7 and the 18.06SC Unit II lectures \cite{ocw1806sc}; the
+signed-volume pedagogy is the \emph{Essence of Linear Algebra} episode on
+determinants \cite{eola}. Axler \cite{axler} ch.~10 builds the determinant
+definition-first via multilinear forms --- the opposite order from ours,
+worth reading once the three definitions here feel solid (the last
+[hard] exercise rehearses his approach in $2\times2$). MML ch.~4
+\cite{mml} frames the same properties for ML use.}

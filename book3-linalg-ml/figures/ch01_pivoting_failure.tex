@@ -1,0 +1,12 @@
+% Figure 1.4: a tiny pivot without a swap produces a confidently wrong answer.
+\begin{tikzpicture}[box/.style={draw,rounded corners=1pt,inner sep=4pt,align=center,font=\small},
+  >=stealth]
+\node[box,fill=amberbg] (p) {pivot $10^{-20}$\\[-2pt]\scriptsize tiny};
+\node[box,fill=amberbg,right=1.1em of p] (m) {multiplier $10^{20}$\\[-2pt]\scriptsize huge};
+\node[box,fill=amberbg,right=1.1em of m] (c) {$y\gets 1$\\[-2pt]\scriptsize plausible};
+\node[box,fill=amberbg,right=1.1em of c] (w) {$x\gets(1-y)/10^{-20}=0$\\[-2pt]\scriptsize wrong: true $x\approx1$};
+\draw[->,thick,amber] (p) -- (m);\draw[->,thick,amber] (m) -- (c);\draw[->,thick,amber] (c) -- (w);
+\node[box,fill=goodbg,below=1.4em of m] (fix) {swap rows first: pivot $1$, multipliers $\le1$};
+\draw[->,thick,good] (p.south) |- (fix.west);
+\draw[->,thick,good] (fix.east) -| (w.south);
+\end{tikzpicture}

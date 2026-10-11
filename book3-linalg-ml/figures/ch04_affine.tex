@@ -1,0 +1,24 @@
+\begin{tikzpicture}[scale=0.9, >=stealth]
+  % linear: line through origin stays through
+  \begin{scope}
+    \draw[->,gray] (-1.5,0)--(1.5,0); \draw[->,gray] (0,-1.2)--(0,1.4);
+    \draw[accent,very thick] (-1.2,-0.7)--(1.2,0.9);
+    \node at (0,-1.7) {\small linear $T$: lines through $\mathbf 0$ stay};
+    \node[align=center] at (0,1.9) {\small $\mathbf 0\mapsto\mathbf 0$,\quad grid squares\\ \small stay parallelograms};
+  \end{scope}
+  % affine: shifted
+  \begin{scope}[xshift=5cm]
+    \draw[->,gray] (-1.5,0)--(1.5,0); \draw[->,gray] (0,-1.2)--(0,1.4);
+    \draw[amber,very thick] (-1.2,-1.0)--(1.2,0.6);
+    \fill (0,0) circle (1.2pt) node[below left,ink]{\tiny $\mathbf 0\notin$ img};
+    \node at (0,-1.7) {\small affine $\mathbf x\mapsto A\mathbf x+\mathbf b$: shifted};
+    \node[align=center] at (0,1.9) {\small same straightness,\\ \small but $\mathbf 0$ moved $\Rightarrow$ not linear};
+  \end{scope}
+  % nonlinear: bent
+  \begin{scope}[xshift=10cm]
+    \draw[->,gray] (-1.5,0)--(1.5,0); \draw[->,gray] (0,-1.2)--(0,1.4);
+    \draw[amber,very thick] plot[domain=-1.1:1.1,smooth] (\x,{0.6*\x*\x});
+    \node at (0,-1.7) {\small nonlinear: lines bend};
+    \node[align=center] at (0,1.9) {\small fails even\\ \small before checking $\mathbf 0$};
+  \end{scope}
+\end{tikzpicture}

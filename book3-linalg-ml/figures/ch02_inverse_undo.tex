@@ -1,0 +1,11 @@
+% Figure: inverse as the map that undoes A; and AB undone one factor at a time.
+\begin{tikzpicture}[>=stealth,node distance=2.1cm,every node/.style={align=center}]
+  \node (x) {$\mathbf x$};
+  \node (bx) [right=of x] {$B\mathbf x$};
+  \node (abx) [right=of bx] {$AB\mathbf x$};
+  \draw[->,thick] (x) -- (bx) node[midway,above] {\small $B$};
+  \draw[->,thick] (bx) -- (abx) node[midway,above] {\small $A$};
+  \draw[->,thick,accent] (abx.south) to[out=-30,in=-150] node[midway,below] {\small $A^{-1}$} (bx.south);
+  \draw[->,thick,accent] (bx.south) to[out=-30,in=-150] node[midway,below] {\small $B^{-1}$} (x.south);
+  \node[below=1.15cm of bx] (lbl) {\small undo $AB$ by undoing $A$ \emph{then} $B$:\\[1pt]\small$(AB)^{-1}=B^{-1}A^{-1}$};
+\end{tikzpicture}

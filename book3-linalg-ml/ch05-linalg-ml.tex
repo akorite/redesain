@@ -1,0 +1,729 @@
+% Chapter 5 -- Orthogonality, projections, and QR
+\chapter{Orthogonality, projections, and QR}\label{ch:orthogonality}
+
+Chapter~3 built the four fundamental subspaces; this chapter gives them
+\emph{geometry}. Once you have an inner product you can measure angles and
+lengths, split a vector into ``part inside a subspace'' and ``part outside,''
+and replace any basis by an orthonormal one that makes every coordinate
+computation a dot product. These are the tools behind least squares (the
+next chapter) and behind almost every numerically stable algorithm in this
+book. After this chapter you will be able to project onto lines and
+subspaces, run Gram--Schmidt by hand and in code, factor $A=QR$, and see
+why classical Gram--Schmidt loses orthogonality while the modified version
+does not.
+
+\section{Inner product, norm, angle}\label{sec:orth-inner}
+
+Coordinates tell you where a vector sits relative to axes. They do not, by
+themselves, tell you how long it is or what angle two vectors make --- for
+that you need one more piece of structure.
+
+\begin{definition}[Inner product]\index{inner product}\index{dot product}
+The \emph{(standard) inner product}, or \emph{dot product}, of
+$\mathbf u=(u_1,\dots,u_n)$ and $\mathbf v=(v_1,\dots,v_n)\in\mathbb R^n$ is
+\[
+\langle\mathbf u,\mathbf v\rangle=\mathbf u^{T}\mathbf v
+=u_1v_1+u_2v_2+\cdots+u_nv_n .
+\]
+It is symmetric ($\langle\mathbf u,\mathbf v\rangle=\langle\mathbf v,\mathbf u\rangle$),
+linear in each argument, and positive definite:
+$\langle\mathbf v,\mathbf v\rangle=\|\mathbf v\|^2>0$ unless $\mathbf v=\mathbf 0$.
+\end{definition}
+
+\begin{definition}[Norm and angle]\index{norm}\index{angle between vectors}
+$\|\mathbf v\|=\sqrt{\langle\mathbf v,\mathbf v\rangle}$ is the \emph{norm} (length)
+of $\mathbf v$, and the angle between two nonzero vectors satisfies
+\[
+\cos\theta=\frac{\langle\mathbf u,\mathbf v\rangle}{\|\mathbf u\|\,\|\mathbf v\|},
+\qquad 0\le\theta\le\pi .
+\]
+\end{definition}
+
+Two facts make the angle formula usable rather than decorative:
+
+\begin{theorem}[Cauchy--Schwarz]\index{Cauchy--Schwarz inequality}
+$|\langle\mathbf u,\mathbf v\rangle|\le\|\mathbf u\|\,\|\mathbf v\|$, with equality
+exactly when $\mathbf u,\mathbf v$ are parallel.
+\end{theorem}
+
+\begin{theorem}[Pythagoras]\index{Pythagoras}
+If $\langle\mathbf u,\mathbf v\rangle=0$ then
+$\|\mathbf u+\mathbf v\|^2=\|\mathbf u\|^2+\|\mathbf v\|^2$.
+\end{theorem}
+
+\begin{proof}[Proof of Pythagoras]
+$\|\mathbf u+\mathbf v\|^2=\langle\mathbf u+\mathbf v,\mathbf u+\mathbf v\rangle
+=\|\mathbf u\|^2+2\langle\mathbf u,\mathbf v\rangle+\|\mathbf v\|^2$, and the
+cross term vanishes by hypothesis.
+\end{proof}
+
+\begin{definition}[Orthogonal vectors]\index{orthogonal vectors}
+$\mathbf u,\mathbf v$ are \emph{orthogonal}, written $\mathbf u\perp\mathbf v$,
+when $\langle\mathbf u,\mathbf v\rangle=0$. A vector is a \emph{unit vector}
+when $\|\mathbf v\|=1$; any nonzero $\mathbf v$ has unit vector
+$\hat{\mathbf v}=\mathbf v/\|\mathbf v\|$ in the same direction.
+\end{definition}
+
+\begin{exercise}[easy]\label{ex:orth-1}
+For $\mathbf u=(1,2,-1)$, $\mathbf v=(3,-1,1)$, compute $\langle\mathbf u,\mathbf v\rangle$,
+$\|\mathbf u\|$, and $\cos\theta$.
+\begin{solution}
+$\langle\mathbf u,\mathbf v\rangle=3-2-1=0$, so the vectors are orthogonal and
+$\theta=\pi/2$. $\|\mathbf u\|=\sqrt{1+4+1}=\sqrt6$.
+\end{solution}
+\end{exercise}
+
+\section{Orthogonal and orthonormal sets}\label{sec:orth-sets}
+
+\begin{definition}[Orthogonal / orthonormal set]\index{orthonormal set}
+Vectors $\mathbf q_1,\dots,\mathbf q_k$ form an \emph{orthogonal set} when
+$\mathbf q_i\perp\mathbf q_j$ for $i\ne j$. If additionally each is a unit
+vector, the set is \emph{orthonormal}: $\mathbf q_i^{T}\mathbf q_j=\delta_{ij}$.
+An orthonormal set that is also a basis is an \emph{orthonormal basis}.
+\end{definition}
+
+\begin{theorem}\label{th:orth-indep}
+A finite orthogonal set of nonzero vectors is linearly independent.
+\end{theorem}
+
+\begin{proof}
+Suppose $c_1\mathbf q_1+\cdots+c_k\mathbf q_k=\mathbf0$. Take the inner product
+with $\mathbf q_j$: every term except $c_j\|\mathbf q_j\|^2$ is orthogonal to
+$\mathbf q_j$, so $c_j\|\mathbf q_j\|^2=0$ and hence $c_j=0$ (each
+$\|\mathbf q_j\|\ne0$). This holds for every $j$, so all coefficients vanish.
+\end{proof}
+
+The payoff: in an orthonormal basis, coordinates are dot products.
+
+\begin{theorem}\label{th:orth-coords}
+If $\mathcal Q=\{\mathbf q_1,\dots,\mathbf q_n\}$ is an orthonormal basis of
+$\mathbb R^n$ and $\mathbf v=c_1\mathbf q_1+\cdots+c_n\mathbf q_n$, then
+$c_j=\mathbf q_j^{T}\mathbf v$.
+\end{theorem}
+
+Compare with a general basis (ch.~3): extracting $[\mathbf v]_{\mathcal B}$
+meant solving a linear system. With an orthonormal basis it is $n$ dot
+products --- and each coefficient is computed \emph{independently}, so an
+error in one cannot corrupt the others.
+
+\begin{definition}[Orthogonal matrix]\index{orthogonal matrix}
+A square matrix $Q$ is \emph{orthogonal} when $Q^{T}Q=I$, i.e.
+$Q^{-1}=Q^{T}$: its columns form an orthonormal basis of $\mathbb R^n$.
+\end{definition}
+
+Orthogonal matrices preserve everything geometric:
+$\|Q\mathbf v\|=\|\mathbf v\|$ and
+\[
+\langle Q\mathbf u,Q\mathbf v\rangle
+=\mathbf u^{T}Q^{T}Q\mathbf v=\langle\mathbf u,\mathbf v\rangle .
+\]
+Rotations and reflections from ch.~4 are exactly the 2D orthogonal
+matrices ($\det Q=\pm1$). Their numerical value is just as large:
+multiplying by $Q$ or $Q^{T}$ cannot amplify rounding error, which is
+why stable algorithms are built out of orthogonal factors.
+
+\section{Projection onto a line and onto a subspace}\label{sec:orth-proj}
+
+The concrete problem: given a vector $\mathbf b$ and a subspace $W$, which
+point of $W$ is closest to $\mathbf b$? It is the foot of the perpendicular
+--- the \emph{projection}.
+
+The derivation itself is worth doing once properly
+(Section~\ref{sec:handderiv5}); the result is
+\[
+\mathbf p=\frac{\mathbf a^{T}\mathbf b}{\mathbf a^{T}\mathbf a}\,\mathbf a,
+\qquad
+P=\frac{\mathbf a\mathbf a^{T}}{\mathbf a^{T}\mathbf a}
+\]
+--- a rank-1 matrix satisfying $P^2=P$ and $P^{T}=P$.
+
+\begin{figure}[htbp]
+\centering
+\input{figures/ch05_projection_line}
+\caption{Projection of $\mathbf b$ onto the line through $\mathbf a$. Notice
+that the formula follows entirely from one requirement: the residual
+$\mathbf e=\mathbf b-\mathbf p$ is perpendicular to the line. Regenerate:
+\ttfamily figures/ch05\_projection\_line.tex.}
+\label{fig:proj-line}
+\end{figure}
+
+The same ``residual is perpendicular'' condition works for any subspace.
+If $\mathbf q_1,\dots,\mathbf q_k$ is an \emph{orthonormal} basis of $W$, the
+projection splits into independent one-dimensional pieces:
+
+\begin{proposition}\label{th:proj-onb}
+For orthonormal $\mathbf q_1,\dots,\mathbf q_k$ spanning $W$,
+\[
+\mathbf p=(\mathbf q_1^{T}\mathbf b)\,\mathbf q_1+\cdots+
+(\mathbf q_k^{T}\mathbf b)\,\mathbf q_k .
+\]
+\end{proposition}
+
+\begin{proof}
+Let $\mathbf p$ have that form. Then $\mathbf p\in W$, and for each basis
+vector, $\mathbf q_j^{T}(\mathbf b-\mathbf p)
+=\mathbf q_j^{T}\mathbf b-\mathbf q_j^{T}\mathbf b=0$, so the residual is
+orthogonal to every basis vector, hence to all of $W$.
+\end{proof}
+
+For a \emph{general} basis $A=[\mathbf a_1\ \cdots\ \mathbf a_k]$ of $W$
+(tall, independent columns), the condition $A^{T}(\mathbf b-A\mathbf x)=\mathbf0$
+gives the normal equations $A^{T}A\mathbf x=A^{T}\mathbf b$, and
+
+\begin{theorem}\label{th:proj-matrix}
+If $A$ has linearly independent columns, the orthogonal projection onto
+$\operatorname{col}(A)$ is
+\[
+P=A(A^{T}A)^{-1}A^{T},\qquad P^2=P,\quad P^{T}=P .
+\]
+\end{theorem}
+
+\begin{tripwire}[{Believing $A^{T}A$ is always invertible}]
+$A^{T}A$ is invertible \emph{if and only if} $A$'s columns are linearly
+independent (ch.~8 proves it). Feed it a rank-deficient $A$ and the
+inverse does not exist --- which is exactly what least squares does when
+your data has redundant features.
+\end{tripwire}
+
+\begin{example}[Projection onto a line and a plane]\label{ex:proj}
+\textbf{Strategy.} On a line there is one direction to enforce; on a plane
+with an orthonormal basis the projection splits into separate components
+(Proposition~\ref{th:proj-onb}). Compute each piece, then check that the
+residual kills the subspace.
+
+\textbf{Solution.} Take $\mathbf a=(2,0,1)$ and $\mathbf b=(1,2,3)$.
+Projection onto the line through $\mathbf a$:
+\[
+\mathbf p=\frac{\mathbf a^{T}\mathbf b}{\mathbf a^{T}\mathbf a}\,\mathbf a
+=\frac{2+0+3}{4+0+1}\,\mathbf a=\frac55\,(2,0,1)=(2,0,1).
+\]
+Check: $\mathbf b-\mathbf p=(-1,2,2)$ and
+$\mathbf a\cdot(\mathbf b-\mathbf p)=-2+0+2=0$. \checkmark
+
+Now project the same $\mathbf b$ onto
+$W=\operatorname{span}\{(1,1,0),(0,0,1)\}$. The spanning vectors are already
+orthogonal; normalize to $\mathbf q_1=(1,1,0)/\sqrt2$, $\mathbf q_2=(0,0,1)$:
+\[
+\mathbf p_W=(\mathbf q_1^{T}\mathbf b)\mathbf q_1+(\mathbf q_2^{T}\mathbf b)\mathbf q_2
+=\frac{3}{\sqrt2}\,\frac{(1,1,0)}{\sqrt2}+3(0,0,1)
+=\bigl(\tfrac32,\tfrac32,3\bigr).
+\]
+Check: $\mathbf b-\mathbf p_W=(-\tfrac12,\tfrac12,0)$, which is orthogonal to
+$\mathbf q_1$ ($-\tfrac12+\tfrac12=0$) and to $\mathbf q_2$. \checkmark
+Notice $P_{\text{line}}$ was rank 1; the two pieces of $\mathbf p_W$ were
+computed independently --- impossible with a skew basis.
+\end{example}
+
+\begin{figure}[htbp]
+\centering
+\input{figures/ch05_projection_plane}
+\caption{Projecting $\mathbf b$ onto a plane $W$. Notice the residual
+$\mathbf e$ is perpendicular to \emph{every} direction in $W$, not just the
+basis vectors. Regenerate: \ttfamily figures/ch05\_projection\_plane.tex.}
+\label{fig:proj-plane}
+\end{figure}
+
+The code checks the general formula end-to-end on a 4D example:
+
+\begin{lstlisting}[caption={\ttfamily code/ch05\_projection\_idempotent.py ---
+builds $P=A(A^{T}A)^{-1}A^{T}$ on a $4\times2$ basis, projects, and verifies
+every defining property.}]
+import numpy as np
+np.set_printoptions(precision=4, suppress=True)
+
+A = np.array([[1., 0.],
+              [0., 1.],
+              [1., 1.],
+              [1., -1.]])
+b = np.array([2., 1., 3., -1.])
+
+P = A @ np.linalg.inv(A.T @ A) @ A.T
+p = P @ b
+print("P =")
+print(P)
+print("p = P @ b =", p)
+print("in col(A)?", np.allclose(p, A @ np.linalg.solve(A.T @ A, A.T @ b)))
+print("residual b - p =", b - p)
+print("residual perpendicular to col(A)?", np.allclose(A.T @ (b - p), 0))
+print("P^2 = P:", np.allclose(P @ P, P))
+print("P^T = P:", np.allclose(P.T, P))
+print("||b||^2 = ||p||^2 + ||b-p||^2:",
+      np.isclose(b @ b, p @ p + (b - p) @ (b - p)))
+\end{lstlisting}
+
+\begin{lstlisting}[caption={Output of the projection check. Notice all three
+signatures of an orthogonal projection at once: lands in $\operatorname{col}(A)$,
+perpendicular residual, and $P^2=P$, $P^{T}=P$.}]
+P =
+[[ 0.3333  0.      0.3333  0.3333]
+ [ 0.      0.3333  0.3333 -0.3333]
+ [ 0.3333  0.3333  0.6667  0.    ]
+ [ 0.3333 -0.3333  0.      0.6667]]
+p = P @ b = [ 1.3333  1.6667  3.     -0.3333]
+in col(A)? True
+residual b - p = [ 0.6667 -0.6667  0.     -0.6667]
+residual perpendicular to col(A)? True
+P^2 = P: True
+P^T = P: True
+||b||^2 = ||p||^2 + ||b-p||^2: True
+\end{lstlisting}
+
+\section{Gram--Schmidt and the QR factorization}\label{sec:orth-gs}
+
+Any basis can be upgraded to an orthonormal one by successive subtraction:
+take each vector, remove the parts already claimed by earlier
+orthonormal vectors, and normalize what is left.
+
+The rule in one line: each new vector gives up the parts that earlier
+orthonormal vectors already own. Formally, $\mathbf u_1=\mathbf a_1$, then
+$\mathbf u_j=\mathbf a_j-\sum_{i<j}\operatorname{proj}_{\mathbf u_i}\mathbf a_j$,
+and $\mathbf q_j=\mathbf u_j/\|\mathbf u_j\|$. The projection formula guarantees
+$\mathbf u_j\perp\mathbf u_i$ for all $i<j$.
+
+\begin{example}[Gram--Schmidt by hand]\label{ex:gs}
+\textbf{Strategy.} Work left to right; after each step verify
+$\mathbf u_j$ is orthogonal to every $\mathbf u_i$ before it. Fractions are
+easier to check than radicals --- keep vectors unnormalized until the last
+line.
+
+\textbf{Solution.} Take
+$\mathbf a_1=(1,1,0)$, $\mathbf a_2=(1,0,1)$, $\mathbf a_3=(0,1,1)$.
+\[
+\mathbf u_1=(1,1,0),\qquad
+\mathbf u_2=\mathbf a_2-\frac{\mathbf a_2\cdot\mathbf u_1}{\mathbf u_1\cdot\mathbf u_1}\,\mathbf u_1
+=(1,0,1)-\tfrac12(1,1,0)=\bigl(\tfrac12,-\tfrac12,1\bigr).
+\]
+Check $\mathbf u_1\cdot\mathbf u_2=\tfrac12-\tfrac12=0$. \checkmark\ For the
+third vector, subtract \emph{both} projections:
+\[
+\mathbf u_3=\mathbf a_3-\frac{\mathbf a_3\cdot\mathbf u_1}{2}\,\mathbf u_1
+-\frac{\mathbf a_3\cdot\mathbf u_2}{\mathbf u_2\cdot\mathbf u_2}\,\mathbf u_2
+=(0,1,1)-\tfrac12(1,1,0)-\tfrac{1/2}{3/2}\,\bigl(\tfrac12,-\tfrac12,1\bigr)
+=\bigl(-\tfrac23,\tfrac23,\tfrac23\bigr).
+\]
+Check: $\mathbf u_3\cdot\mathbf u_1=-\tfrac23+\tfrac23=0$ and
+$\mathbf u_3\cdot\mathbf u_2=-\tfrac13-\tfrac13+\tfrac23=0$. \checkmark\
+Normalizing ($\|\mathbf u_1\|=\sqrt2$, $\|\mathbf u_2\|=\sqrt{3/2}$,
+$\|\mathbf u_3\|=2/\sqrt3$):
+\[
+\mathbf q_1=\tfrac{1}{\sqrt2}(1,1,0),\quad
+\mathbf q_2=\tfrac{1}{\sqrt6}(1,-1,2),\quad
+\mathbf q_3=\tfrac{1}{\sqrt3}(-1,1,1).
+\]
+\end{example}
+
+\begin{figure}[htbp]
+\centering
+\input{figures/ch05_gs_steps}
+\caption{Gram--Schmidt on two vectors. Notice the algorithm never creates a
+new direction --- it strips each input of the directions already spoken
+for, and the residual that survives is automatically perpendicular.
+Regenerate: \ttfamily figures/ch05\_gs\_steps.tex.}
+\label{fig:gs-steps}
+\end{figure}
+
+Collect the unit vectors as columns of $Q$ and reverse the bookkeeping:
+since $\mathbf a_j=\sum_{i\le j}r_{ij}\mathbf q_i$ with
+$r_{ij}=\mathbf q_i^{T}\mathbf a_j$ and $r_{jj}=\|\mathbf u_j\|$,
+
+\begin{theorem}[QR factorization]\index{QR factorization}
+Every $A\in\mathbb R^{m\times n}$ with linearly independent columns factors
+as
+\[
+A=QR,
+\]
+where $Q\in\mathbb R^{m\times n}$ has orthonormal columns and
+$R\in\mathbb R^{n\times n}$ is upper triangular with positive diagonal.
+\end{theorem}
+
+The factorization is a solver's dream: $Ax=b$ becomes $Rx=Q^{T}b$, and an
+upper-triangular system costs one back-substitution.
+
+\begin{example}[QR and solving $Ax=b$]\label{ex:qr}
+\textbf{Strategy.} Read $Q$ off Example~\ref{ex:gs}, then get $R=Q^{T}A$
+(the entries are exactly the coefficients discarded during Gram--Schmidt).
+Solve by projecting $\mathbf b$ then back-substituting.
+
+\textbf{Solution.} With the three vectors of Example~\ref{ex:gs},
+\[
+Q=\begin{bmatrix}1/\sqrt2&1/\sqrt6&-1/\sqrt3\\
+1/\sqrt2&-1/\sqrt6&1/\sqrt3\\0&2/\sqrt6&1/\sqrt3\end{bmatrix},
+\qquad
+R=\begin{bmatrix}\sqrt2&1/\sqrt2&1/\sqrt2\\
+0&\sqrt{3/2}&1/\sqrt6\\0&0&2/\sqrt3\end{bmatrix},
+\]
+and you can multiply $QR$ to recover $A$. For $\mathbf b=(3,2,1)$:
+$y=Q^{T}\mathbf b=(5/\sqrt2,\ \sqrt{3/2},\ 0)$, and back-substitution on
+$Rx=y$ gives $x_3=0$, $x_2=1$, $x_1=2$ --- so $x=(2,1,0)$, and indeed
+$2\mathbf a_1+\mathbf a_2=(3,2,1)=\mathbf b$.
+\end{example}
+
+\begin{lstlisting}[caption={\ttfamily code/ch05\_qr\_solve.py --- factors the
+same $3\times3$ with \ttfamily np.linalg.qr and solves $Ax=b$ via
+$y=Q^{T}b$ and back-substitution. Sign convention: \ttfamily numpy returns
+negative diagonal $R$ (both conventions are valid QR factorizations --- it
+is $Q$'s sign that flips to compensate).}]
+import numpy as np
+np.set_printoptions(precision=4, suppress=True)
+
+A = np.array([[1., 1., 0.],
+              [1., 0., 1.],
+              [0., 1., 1.]])
+b = np.array([3., 2., 1.])
+
+Q, R = np.linalg.qr(A)
+print("Q =")
+print(Q)
+print("R =")
+print(R)
+print("Q^T Q = I:", np.allclose(Q.T @ Q, np.eye(3)))
+print("QR = A:", np.allclose(Q @ R, A))
+
+y = Q.T @ b
+x = np.linalg.solve(R, y)          # triangular -> back substitution
+print("x via QR =", x)
+print("np.linalg.solve =", np.linalg.solve(A, b))
+print("residual:", np.linalg.norm(A @ x - b))
+\end{lstlisting}
+
+\begin{lstlisting}[caption={Output of the QR solve. Notice the two
+conventions agree on everything that matters: $Q^{T}Q=I$, $QR=A$, and the
+same $x=(2,1,0)$ as the hand computation.}]
+Q =
+[[-0.7071  0.4082 -0.5774]
+ [-0.7071 -0.4082  0.5774]
+ [-0.      0.8165  0.5774]]
+R =
+[[-1.4142 -0.7071 -0.7071]
+ [ 0.      1.2247  0.4082]
+ [ 0.      0.      1.1547]]
+Q^T Q = I: True
+QR = A: True
+x via QR = [ 2.  1. -0.]
+np.linalg.solve = [2. 1. 0.]
+residual: 6.753223014464259e-16
+\end{lstlisting}
+
+There is a trap hidden in the arithmetic of Gram--Schmidt itself. In the
+\emph{classical} version, the coefficient for direction $i$ is computed
+from the original $\mathbf a_j$; in the \emph{modified} version it is
+computed from the partially-deflated vector --- same value in exact
+arithmetic, very different in floating point.
+
+\begin{lstlisting}[caption={\ttfamily code/ch05\_gs\_stability.py ---
+classical vs.\ modified Gram--Schmidt on nearly-parallel columns
+($\varepsilon=10^{-8}$). Measures orthogonality drift as
+$\|Q^{T}Q-I\|_\infty$.}]
+import numpy as np
+np.set_printoptions(precision=2, suppress=True)
+np.seterr(all="ignore")
+
+def classical_gs(A):
+    Q = np.zeros_like(A)
+    for j in range(A.shape[1]):
+        v = A[:, j].copy()
+        for i in range(j):
+            v -= (Q[:, i] @ A[:, j]) * Q[:, i]
+        Q[:, j] = v / np.linalg.norm(v)
+    return Q
+
+def modified_gs(A):
+    Q = np.zeros_like(A)
+    V = A.copy()
+    for j in range(A.shape[1]):
+        Q[:, j] = V[:, j] / np.linalg.norm(V[:, j])
+        for k in range(j + 1, A.shape[1]):
+            V[:, k] -= (Q[:, j] @ V[:, k]) * Q[:, j]
+    return Q
+
+eps = 1e-8
+A = np.array([[1., 1., 1.],
+              [eps, 0., 0.],
+              [0., eps, 0.],
+              [0., 0., eps]])
+
+Qc = classical_gs(A)
+Qm = modified_gs(A)
+print("classical  |Q^T Q - I| =", np.linalg.norm(Qc.T @ Qc - np.eye(3), ord=np.inf))
+print(Qc.T @ Qc)
+print("modified   |Q^T Q - I| =", np.linalg.norm(Qm.T @ Qm - np.eye(3), ord=np.inf))
+print(Qm.T @ Qm)
+Q_lib, _ = np.linalg.qr(A)
+print("np.linalg.qr |Q^T Q - I| =",
+      np.linalg.norm(Q_lib.T @ Q_lib - np.eye(3), ord=np.inf))
+\end{lstlisting}
+
+\begin{lstlisting}[caption={Output of the stability test. Notice classical
+Gram--Schmidt loses \emph{half a unit} of orthogonality while modified loses
+$10^{-8}$, and the library QR (Householder reflectors) is exact to machine
+precision. This is not a toy gap --- it is why nobody ships classical
+Gram--Schmidt.}]
+classical  |Q^T Q - I| = 0.500000007071068
+[[ 1.  -0.  -0. ]
+ [-0.   1.   0.5]
+ [-0.   0.5  1. ]]
+modified   |Q^T Q - I| = 1.1153550716504105e-08
+[[ 1. -0. -0.]
+ [-0.  1.  0.]
+ [-0.  0.  1.]]
+np.linalg.qr |Q^T Q - I| = 7.726045597493973e-16
+\end{lstlisting}
+
+\begin{tripwire}[{Assuming classical and modified Gram--Schmidt are the same
+algorithm}]
+They are algebraically identical and numerically different. Classical GS
+computes each projection coefficient against the original column, so
+rounding errors in early $\mathbf q_i$ pollute everything downstream;
+modified GS recomputes against the partially-deflated vector. On nearly
+dependent input the classical version can return columns at $45^\circ$
+angles, as the listing shows.
+\end{tripwire}
+
+\section{Orthogonal complements: the four subspaces pair up}\label{sec:orth-complements}
+
+\begin{definition}[Orthogonal complement]\index{orthogonal complement}
+The \emph{orthogonal complement} of a subspace $W\subseteq\mathbb R^n$ is
+\[
+W^\perp=\{\mathbf v\in\mathbb R^n:\langle\mathbf v,\mathbf w\rangle=0
+\text{ for all }\mathbf w\in W\}.
+\]
+It is a subspace, $W\cap W^\perp=\{\mathbf0\}$, and
+$\dim W+\dim W^\perp=n$.
+\end{definition}
+
+\begin{theorem}[Fundamental theorem, geometric form]\label{th:fund-orth}
+For $A\in\mathbb R^{m\times n}$:
+\[
+\operatorname{row}(A)^{\perp}=\ker(A),\qquad
+\operatorname{col}(A)^{\perp}=\ker(A^{T}),
+\]
+i.e.\ $\mathbb R^n=\operatorname{row}(A)\oplus\ker(A)$ and
+$\mathbb R^m=\operatorname{col}(A)\oplus\ker(A^{T})$.
+\end{theorem}
+
+\begin{proof}
+$\mathbf x\in\ker(A)$ iff $A\mathbf x=\mathbf0$ iff every row of $A$ is
+orthogonal to $\mathbf x$ iff $\mathbf x\perp\operatorname{row}(A)$. Apply the
+same argument to $A^{T}$.
+\end{proof}
+
+\begin{figure}[htbp]
+\centering
+\input{figures/ch05_complements}
+\caption{The four subspaces as orthogonal pairs. Notice every vector
+splits: its $\operatorname{row}(A)$ part is what $A$ ``sees,'' its
+$\ker(A)$ part maps to $\mathbf0$. Regenerate:
+\ttfamily figures/ch05\_complements.tex.}
+\label{fig:complements}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\input{figures/ch05_ortho_vs_skew}
+\caption{Orthogonal vs.\ skew bases of the same plane. Notice both span
+the same space --- only the orthogonal one makes projection and
+coordinates decouple. Regenerate: \ttfamily figures/ch05\_ortho\_vs\_skew.tex.}
+\label{fig:ortho-vs-skew}
+\end{figure}
+
+\begin{exercise}[medium]\label{ex:orth-2}
+Find the orthogonal complement of $W=\operatorname{span}\{(1,1,1)\}$ in
+$\mathbb R^3$.
+\begin{solution}
+$W^\perp$ is the plane $x+y+z=0$, i.e.
+$\operatorname{span}\{(1,-1,0),\,(1,0,-1)\}$. Dimension check:
+$\dim W+\dim W^\perp=1+2=3$.
+\end{solution}
+\end{exercise}
+
+\begin{exercise}[medium]\label{ex:orth-3}
+For $A=\begin{bmatrix}1&0&1\\0&1&1\end{bmatrix}$, split
+$\mathbf b=(1,1,0)$ into $\operatorname{row}(A)$ and $\ker(A)$ parts.
+\begin{solution}
+$\ker(A)$ is the line $t(1,1,-1)$. Projecting $\mathbf b$ onto it gives
+$\frac{2}{3}(1,1,-1)$, so
+$\mathbf b=\underbrace{\tfrac13(1,1,2)}_{\text{row part}}
++\underbrace{\tfrac13(2,2,-2)}_{\text{null part}}$; check
+$A\cdot\frac13(2,2,-2)=\frac13(0,0)=\mathbf0$. \checkmark
+\end{solution}
+\end{exercise}
+
+\begin{exercise}[hard]\label{ex:orth-4}
+Let $P$ be the projection matrix onto a subspace $W$. Prove $I-P$ is the
+projection matrix onto $W^\perp$.
+\begin{solution}
+$(I-P)^2=I-2P+P^2=I-P$ and $(I-P)^{T}=I-P$, so $I-P$ is a projection.
+Its column space is $\{\mathbf v-P\mathbf v\}=\{\text{residuals}\}\subseteq W^\perp$;
+for any $\mathbf w\in W^\perp$, $P\mathbf w=\mathbf0$ so
+$(I-P)\mathbf w=\mathbf w$ and the image is all of $W^\perp$.
+\end{solution}
+\end{exercise}
+
+\section{Hand derivation}\label{sec:handderiv5}
+
+Derive the projection formula from scratch. Drop a perpendicular from
+$\mathbf b$ to the line through $\mathbf a$. The foot $\mathbf p$ must satisfy
+two conditions: $\mathbf p$ lies on the line, so $\mathbf p=\hat b\,\mathbf a$
+for some scalar $\hat b$; and the residual $\mathbf e=\mathbf b-\mathbf p$ is
+orthogonal to the line, so $\langle\mathbf a,\mathbf b-\hat b\mathbf a\rangle=0$.
+Expanding,
+$\langle\mathbf a,\mathbf b\rangle=\hat b\,\langle\mathbf a,\mathbf a\rangle$,
+hence
+\[
+\hat b=\frac{\mathbf a^{T}\mathbf b}{\mathbf a^{T}\mathbf a},\qquad
+\mathbf p=\frac{\mathbf a^{T}\mathbf b}{\mathbf a^{T}\mathbf a}\,\mathbf a .
+\]
+Now promote it to a subspace. With columns of $A$ spanning $W$, write
+$\mathbf p=A\mathbf x$ and require the residual orthogonal to every column:
+$A^{T}(\mathbf b-A\mathbf x)=\mathbf0$, i.e.\ $A^{T}A\mathbf x=A^{T}\mathbf b$.
+Independent columns make $A^{T}A$ invertible, so
+$\mathbf x=(A^{T}A)^{-1}A^{T}\mathbf b$ and
+$P=A(A^{T}A)^{-1}A^{T}$. Finally check the algebra the geometry
+promised: $P^2=A(A^{T}A)^{-1}A^{T}A(A^{T}A)^{-1}A^{T}=P$ since
+$A^{T}A$ cancels, and $P^{T}=P$ by expanding the transpose.
+
+\section{Common mistakes}
+
+\begin{tripwire}[Projecting onto the wrong subspace]
+$\operatorname{proj}_W\mathbf b$ answers ``closest point in $W$,'' not
+``closest point \emph{to} $W$.'' In least squares you project $\mathbf b$
+onto $\operatorname{col}(A)$, not onto the rows --- swapping them is the
+most common conceptual bug in the next chapter.
+\end{tripwire}
+
+\begin{tripwire}[{Forgetting to normalize before projecting onto a direction}]
+$\operatorname{proj}_{\mathbf a}\mathbf b
+=\frac{\mathbf a^{T}\mathbf b}{\mathbf a^{T}\mathbf a}\mathbf a$ --- the
+denominator is $\|\mathbf a\|^2$, not $\|\mathbf a\|$. If $\mathbf a$ is
+already a unit vector they coincide, which is why orthonormal bases make
+the formula look like ``just dot products.''
+\end{tripwire}
+
+\begin{tripwire}[Treating similar-looking projections as interchangeable]
+Projecting with an orthonormal basis ($\mathbf p=\sum(\mathbf q_i^{T}\mathbf b)\mathbf q_i$)
+and with a general basis ($P=A(A^{T}A)^{-1}A^{T}\mathbf b$) give the same
+point only when the orthonormal vectors span the same $W$. The second
+formula works without orthogonality but costs an inverse.
+\end{tripwire}
+
+\begin{tripwire}[{Assuming $P^2=P$ and $P^{T}=P$ are optional properties}]
+They are not properties you must verify case-by-case; they \emph{define}
+orthogonal projection. If a ``projection'' you computed fails either one,
+it is wrong --- or it was an oblique (non-orthogonal) projection to begin
+with.
+\end{tripwire}
+
+\section{Summary}
+
+\begin{center}
+\begin{tabularx}{\textwidth}{l>{\raggedright\arraybackslash}X}
+\toprule
+\textbf{Object} & \textbf{What you need to know}\\
+\midrule
+Inner product & $\langle\mathbf u,\mathbf v\rangle=\mathbf u^{T}\mathbf v$;
+gives norm $\|\mathbf v\|=\sqrt{\langle\mathbf v,\mathbf v\rangle}$ and
+$\cos\theta=\langle\mathbf u,\mathbf v\rangle/\|\mathbf u\|\|\mathbf v\|$ \\
+Orthonormal basis & $\mathbf q_i^{T}\mathbf q_j=\delta_{ij}$; coordinates are
+dot products $c_j=\mathbf q_j^{T}\mathbf v$ \\
+Orthogonal matrix & $Q^{T}Q=I$, i.e.\ $Q^{-1}=Q^{T}$; preserves lengths
+and angles; $\det=\pm1$ \\
+Projection onto line & $\mathbf p=\frac{\mathbf a^{T}\mathbf b}{\mathbf a^{T}\mathbf a}\mathbf a$;
+$P=\mathbf a\mathbf a^{T}/\mathbf a^{T}\mathbf a$ \\
+Projection onto subspace & orthonormal basis:
+$\mathbf p=\sum(\mathbf q_i^{T}\mathbf b)\mathbf q_i$; general basis:
+$P=A(A^{T}A)^{-1}A^{T}$; always $P^2=P$, $P^{T}=P$ \\
+Gram--Schmidt & $\mathbf u_j=\mathbf a_j-\sum_{i<j}\operatorname{proj}_{\mathbf u_i}\mathbf a_j$,
+$\mathbf q_j=\mathbf u_j/\|\mathbf u_j\|$; use the modified version \\
+QR & $A=QR$: orthonormal $Q$, upper-triangular $R$; solves
+$Ax=b$ as $Rx=Q^{T}b$ \\
+Orthogonal complement & $\operatorname{row}(A)^{\perp}=\ker(A)$,
+$\operatorname{col}(A)^{\perp}=\ker(A^{T})$; every space splits
+$W\oplus W^\perp=\mathbb R^n$ \\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+\section*{Exercises}
+
+\begin{exercise}[easy]
+Compute $\operatorname{proj}_{\mathbf a}\mathbf b$ for
+$\mathbf a=(1,2,2)$, $\mathbf b=(4,-1,1)$, and verify the residual is
+orthogonal to $\mathbf a$.
+\end{exercise}
+
+\begin{exercise}[easy]
+Is $Q=\frac{1}{5}\begin{bmatrix}3&4\\4&-3\end{bmatrix}$ orthogonal? What is
+its determinant, and which kind of map is it?
+\end{exercise}
+
+\begin{exercise}[easy]
+Run Gram--Schmidt by hand on $(1,0),(1,1)$, then write the QR of
+$A=\begin{bmatrix}1&1\\0&1\end{bmatrix}$.
+\end{exercise}
+
+\begin{exercise}[easy]
+Show that if $W$ is a subspace, so is $W^\perp$ (check the three
+subspace properties from ch.~3).
+\end{exercise}
+
+\begin{exercise}[medium]
+Prove the projection $\mathbf p=\operatorname{proj}_W\mathbf b$ is the unique
+closest point of $W$ to $\mathbf b$: for any $\mathbf w\in W$,
+$\|\mathbf b-\mathbf w\|^2=\|\mathbf b-\mathbf p\|^2+\|\mathbf p-\mathbf w\|^2$.
+(Hint: Pythagoras --- where do the vectors live?)
+\end{exercise}
+
+\begin{exercise}[medium]
+A projection matrix has $P^{T}=P$, $P^2=P$. Show its eigenvalues (ch.~7
+preview) can only be 0 or 1: if $P\mathbf v=\lambda\mathbf v$ then
+$\lambda^2=\lambda$.
+\end{exercise}
+
+\begin{exercise}[medium]
+Compute the QR of $A=\begin{bmatrix}1&1\\1&0\\0&1\end{bmatrix}$ by hand and
+use it to project $\mathbf b=(1,1,1)$ onto $\operatorname{col}(A)$. Verify
+$A^{T}(\mathbf b-\mathbf p)=\mathbf0$.
+\end{exercise}
+
+\begin{exercise}[medium]
+In code (\texttt{numpy}), generate a random $6\times3$ matrix $A$, compute
+$P=A(A^{T}A)^{-1}A^{T}$, and verify $P^2=P$, $P^{T}=P$, and
+$\operatorname{rank}(P)=3$. What do the eigenvalues of $P$ look like?
+\end{exercise}
+
+\begin{exercise}[medium]
+For $A=\begin{bmatrix}1&2\\2&4\\3&6\end{bmatrix}$ (rank 1), write the orthogonal
+decomposition of $\mathbf b=(1,1,1)$ into $\operatorname{col}(A)$ and
+$\ker(A^{T})$ parts. Which subspace holds most of $\mathbf b$?
+\end{exercise}
+
+\begin{exercise}[hard]
+Prove that a square matrix $P$ is an orthogonal projection
+($P^2=P$, $P^{T}=P$) onto $\operatorname{col}(P)$ --- i.e.\ the two algebraic
+conditions characterize projections completely.
+\end{exercise}
+
+\begin{exercise}[hard]
+Show that $(W^\perp)^\perp=W$ for any subspace $W\subseteq\mathbb R^n$, and
+use it to prove $\operatorname{row}(A)=\ker(A)^\perp$.
+\end{exercise}
+
+\begin{exercise}[hard]
+Implement modified Gram--Schmidt yourself and compare against
+\texttt{np.linalg.qr} on a random $8\times5$ matrix: report
+$\|Q^{T}Q-I\|_\infty$ and $\|A-QR\|_\infty$ for both, plus the residual of
+$Rx=Q^{T}b$ solving $Ax=b$. Explain any sign differences in $Q$ and $R$.
+(Reference implementation: \texttt{code/ch05\_gs\_stability.py}.)
+\end{exercise}
+
+\section*{Notes}
+
+\chapternotes{%
+Projection onto a line and the Gram--Schmidt--QR pipeline follow
+Strang's ordering (orthogonalization before least squares)
+\cite{ila,ocw1806sc}. The classical-versus-modified stability gap and
+Householder-style reflection QR are treated numerically in MML ch.~3
+\cite{mml} and practically in VMLS ch.~11 \cite{vmls}. Orthogonal
+complements of the four subspaces are the geometric half of the
+fundamental theorem; the dimension half was the rank--nullity theorem
+of ch.~3 \cite{axler,ila}.}

@@ -1,0 +1,403 @@
+\chapter{Vector spaces, subspaces, and the four fundamental subspaces}\label{ch:spaces}
+
+Chapters 1--2 worked inside $\mathbb{R}^n$ without ever saying what $\mathbb{R}^n$ \emph{is}. This chapter names the game: a vector space is a place where linear algebra works, a subspace is a smaller place inside it that still plays by the same rules, and every matrix quietly cuts its input space and output space into four pieces that explain exactly what the matrix can and cannot do. After this chapter you will be able to test whether a set is a subspace, extract a basis by elimination, count dimensions without computing anything, and draw the four fundamental subspaces of any matrix — the single most reused picture in applied linear algebra.
+
+\section{Vector spaces: axioms with motivation, not ceremony}\label{sec:axioms}
+
+A \emph{vector space}\index{vector space} over $\mathbb{R}$ is a set $V$ together with two operations — addition $\mathbf{u}+\mathbf{v}$ and scalar multiplication $c\mathbf{v}$ — that stay inside $V$ and obey the rules you already use on arrows: commutativity and associativity of $+$, a zero vector, additive inverses, $1\mathbf{v}=\mathbf{v}$, and the two distributive laws. That is the complete list, and the honest reason for the list is parsimony, not piety: everything we prove about $\mathbb{R}^n$ uses only these properties, so it automatically holds anywhere they hold. Write them once, then forget them — you will never again verify an axiom in this book, but every theorem will quietly depend on them.
+
+The examples that matter here: $\mathbb{R}^n$ itself; the set of $m\times n$ matrices (Chapter 2 noted it is a vector space); the polynomials of degree at most $n$, written $\mathcal{P}_n$; and the set of solutions $\{\mathbf{x}:A\mathbf{x}=\mathbf{0}\}$, which is a vector space \emph{because} the equations are linear — add two solutions or scale one and you still have a solution. That last example is the point of the whole chapter: solution sets of linear systems are exactly the subspaces we are about to name.
+
+\begin{exercise}[easy]
+For each set, decide if it is a vector space under the usual operations: (a) vectors in $\mathbb{R}^3$ with integer coordinates; (b) solutions of $A\mathbf{x}=\mathbf{b}$ with $\mathbf{b}\neq\mathbf{0}$; (c) polynomials of degree \emph{exactly} $3$.
+\end{exercise}
+
+\section{Subspaces}\label{sec:subspaces}
+
+A \emph{subspace}\index{subspace} of $V$ is a subset that is itself a vector space. You do not need to check ten axioms — almost all are inherited. Only three things can go wrong:
+\begin{enumerate}
+  \item $\mathbf{0}\in S$ \;(the set must contain the zero vector),
+  \item closed under $+$ \;($\mathbf{u},\mathbf{v}\in S \Rightarrow \mathbf{u}+\mathbf{v}\in S$),
+  \item closed under scaling \;($\mathbf{v}\in S \Rightarrow c\mathbf{v}\in S$ for all $c\in\mathbb{R}$).
+\end{enumerate}
+Geometrically, subspaces of $\mathbb{R}^3$ are exactly: $\{\mathbf{0}\}$, lines through the origin, planes through the origin, and $\mathbb{R}^3$ itself. \emph{Through the origin} is the tell — a subspace must contain $\mathbf{0}$, and it must be flat.
+
+\begin{example}\label{ex:subtest}
+Which of these are subspaces of $\mathbb{R}^3$?
+$S_1=\{(x,y,z):x+2y+z=0\}$ and $S_2=\{(x,y,z):x+2y+z=1\}$.
+\textbf{Strategy.} Same equation, different right-hand side — run the three-check on each. Expect exactly one to pass, and the fastest kill is property (1).
+\begin{solution}
+$S_1$: $\mathbf{0}$ satisfies $0+0+0=0$ \checkmark. If $(x,y,z)$ and $(x',y',z')$ are in $S_1$, the sum has $x+x'+2(y+y')+(z+z')=0+0=0$ \checkmark. Scaling works identically \checkmark. So $S_1$ is a subspace — the plane through the origin with normal $(1,2,1)$.
+$S_2$: $\mathbf{0}$ fails $0+0+0=1$ immediately — also, doubling $(0,0,1)\in S_2$ leaves the set. Not a subspace: it is the same plane shifted off the origin.
+\end{solution}
+\end{example}
+
+\begin{figure}[htbp]
+\centering
+\input{figures/ch03_subspace_test}
+\caption{The subspace test as a picture. (a) passes all three checks; (b) fails the first because it misses $\mathbf 0$ — no amount of flatness rescues a shifted line; (c) contains $\mathbf 0$ but fails closure: a scaled point on the curve leaves the curve.}
+\label{fig:subtest}
+\end{figure}
+
+The two subspaces attached to a matrix are worth naming now. The \emph{null space}\index{null space}\index{kernel} (or kernel) $\ker(A)=\{\mathbf{x}:A\mathbf{x}=\mathbf{0}\}$ is a subspace of $\mathbb{R}^n$ — the solution set from Chapter 1, finally given an address. The \emph{column space}\index{column space} $\operatorname{col}(A)=\{A\mathbf{x}:\mathbf{x}\in\mathbb{R}^n\}$ — every vector you can \emph{build} from the columns — is a subspace of $\mathbb{R}^m$.
+
+\section{Span and linear independence}\label{sec:spanindep}
+
+The \emph{span}\index{span} of vectors $\mathbf{v}_1,\dots,\mathbf{v}_k$ is the set of all their linear combinations — everything you can reach by scaling and adding. It is always a subspace (check the three properties; they fall out in one line each). Vectors are \emph{linearly independent}\index{linear independence} if the only way to combine them into $\mathbf{0}$ is the trivial way $c_1=\dots=c_k=0$; otherwise some vector is redundant — a combination of the others. In equation form: the columns of $A$ are independent exactly when $\ker(A)=\{\mathbf{0}\}$ — the connection between this section and Chapter 1's free variables is that free variables are precisely what produces nonzero null-space vectors.
+
+Spanning and independence pull in opposite directions: spanning says the set is \emph{big enough} (you can reach everything); independence says it is \emph{tight enough} (nothing wasted). Figure~\ref{fig:spanindep} keeps the two apart — the confusion between them is mistake number one on every exam.
+
+\begin{figure}[htbp]
+\centering
+\input{figures/ch03_span_indep}
+\caption{Spanning $\cap$ independent $=$ basis. Notice the two failure modes are genuinely different diseases: the left set can reach everything but has a member it does not need; the right set has no redundancy but cannot reach most of $\mathbb{R}^2$.}
+\label{fig:spanindep}
+\end{figure}
+
+\section{Basis and dimension}\label{sec:basisdim}
+
+A \emph{basis}\index{basis} of $V$ is a set that is both spanning and independent — a minimal generating set, equivalently a maximal independent set. The payoff: every $\mathbf{v}\in V$ is a combination of basis vectors in \emph{exactly one} way (uniqueness is what independence buys; existence is what spanning buys). Any two bases of $V$ have the same size — a nontrivial theorem whose proof is a careful exchange argument we take on faith here — and that common size is the \emph{dimension}\index{dimension} $\dim V$.
+
+\begin{example}\label{ex:dimcount}
+What is $\dim\mathbb{R}^{m\times n}$ (all $m\times n$ matrices)? And $\dim\mathcal{P}_n$ (polynomials $\le n$)?
+\textbf{Strategy.} Don't count the space — exhibit a basis and count \emph{it}. For matrices the atoms are obvious: one nonzero entry at a time.
+\begin{solution}
+Let $E_{ij}$ be the matrix that is $1$ in position $(i,j)$ and $0$ elsewhere. Every $A$ is $\sum_{i,j}a_{ij}E_{ij}$, and the only combination giving the zero matrix has all $a_{ij}=0$ — spanning and independent. There are $mn$ of them: $\dim\mathbb{R}^{m\times n}=mn$. For polynomials, $\{1,t,t^2,\dots,t^n\}$ spans by definition and is independent (a polynomial that is identically zero has all coefficients zero): $\dim\mathcal{P}_n=n+1$.
+\end{solution}
+\end{example}
+
+\begin{exercise}[easy]
+Find a basis and the dimension of the subspace of symmetric $2\times2$ matrices $\{A:A^{T}=A\}$. Then of the skew-symmetric ones $\{A:A^{T}=-A\}$.
+\end{exercise}
+
+\section{The four fundamental subspaces of \texorpdfstring{$A$}{A}}\label{sec:foursub}
+
+Every $m\times n$ matrix comes with four subspaces, two in the domain $\mathbb{R}^n$ and two in the codomain $\mathbb{R}^m$:
+\begin{itemize}
+  \item $\operatorname{col}(A)\subseteq\mathbb{R}^m$ — what $A$ can output: the span of its columns.
+  \item $\ker(A)\subseteq\mathbb{R}^n$ — what $A$ kills: the solutions of $A\mathbf{x}=\mathbf{0}$.
+  \item $\operatorname{row}(A)=\operatorname{col}(A^{T})\subseteq\mathbb{R}^n$ — the span of its rows.
+  \item $\ker(A^{T})\subseteq\mathbb{R}^m$ — the \emph{left null space}: the $\mathbf{y}$ with $\mathbf{y}^{T}A=\mathbf{0}^{T}$, i.e.\ the codomain vectors dotted to zero by every column of $A$ (the perpendicularity is made precise in Chapter 7).
+\end{itemize}
+
+\begin{example}\label{ex:nullbasis}
+Find a basis of $\ker(A)$ for $A=\begin{bmatrix}1&2&0&3\\2&4&1&4\\1&2&1&1\end{bmatrix}$ by elimination.
+\textbf{Strategy.} $A\mathbf{x}=\mathbf{0}$ is a homogeneous system — right side already zero, so eliminate as in Chapter 1 but continue past echelon form until each pivot is 1 with zeros above and below it. That form is \emph{reduced row echelon form}\index{reduced row echelon form} (RREF): pivot variables then read off as combinations of free variables, and setting each free variable to 1 in turn produces a basis.
+\begin{solution}
+Elimination (as in Example~\ref{ex:foursub} ahead) gives
+\(
+\operatorname{rref}(A)=\begin{bmatrix}1&2&0&3\\0&0&1&-2\\0&0&0&0\end{bmatrix}
+\): pivots in columns 1 and 3, free columns 2 and 4. Pivot variables: $x_1=-2x_2-3x_4$, $x_3=2x_4$.
+Free choice $(x_2,x_4)=(1,0)\Rightarrow(-2,1,0,0)$; choice $(0,1)\Rightarrow(-3,0,2,1)$.
+So $\ker(A)=\operatorname{span}\{(-2,1,0,0),(-3,0,2,1)\}$, dimension 2 — and the listing below confirms it.
+\end{solution}
+\end{example}
+
+\begin{lstlisting}[language=Python,caption={RREF by hand then read off a null-space basis, checked against \texttt{scipy.linalg.null\_space}. File: \texttt{code/ch03\_null\_space\_basis.py}.},label={lst:nullspace}]
+import numpy as np
+from scipy.linalg import null_space
+
+A = np.array([[1., 2., 0., 3.],
+              [2., 4., 1., 4.],
+              [1., 2., 1., 1.]])
+
+def rref(M, tol=1e-10):
+    M = M.copy().astype(float)
+    rows, cols = M.shape
+    pivots = []
+    r = 0
+    for c in range(cols):
+        if r >= rows:
+            break
+        k = np.argmax(np.abs(M[r:, c])) + r
+        if abs(M[k, c]) < tol:
+            continue
+        M[[r, k]] = M[[k, r]]
+        M[r] = M[r] / M[r, c]
+        for i in range(rows):
+            if i != r:
+                M[i] -= M[i, c] * M[r]
+        pivots.append(c)
+        r += 1
+    return M, pivots
+
+R, pivots = rref(A)
+print("RREF =")
+print(R)
+print("pivot columns:", pivots)
+
+free = [c for c in range(A.shape[1]) if c not in pivots]
+basis = []
+for f in free:
+    x = np.zeros(A.shape[1])
+    x[f] = 1.0
+    for row, p in enumerate(pivots):
+        x[p] = -R[row, f]
+    basis.append(x)
+basis = np.array(basis).T
+print("free columns:", free)
+print("null-space basis (columns):")
+print(basis)
+print("A @ basis ~ 0:", np.allclose(A @ basis, 0))
+print("scipy null_space:")
+print(np.round(null_space(A), 6))
+\end{lstlisting}
+
+\begin{lstlisting}[caption={Output of listing~\ref{lst:nullspace}. Our RREF basis is different from SciPy's — both are correct: a basis is not unique. SciPy returns an \emph{orthonormal} one (Chapter 7); ours is exact integers off the RREF.}]
+RREF =
+[[ 1.  2.  0.  3.]
+ [-0. -0.  1. -2.]
+ [ 0.  0.  0.  0.]]
+pivot columns: [0, 2]
+free columns: [1, 3]
+null-space basis (columns):
+[[-2. -3.]
+ [ 1.  0.]
+ [ 0.  2.]
+ [ 0.  1.]]
+A @ basis ~ 0: True
+scipy null_space:
+[[ 0.91937   0.087749]
+ [-0.264094 -0.584824]
+ [-0.260788  0.721266]
+ [-0.130394  0.360633]]
+\end{lstlisting}
+
+\begin{example}\label{ex:foursub}
+All four subspaces of the same $A=\begin{bmatrix}1&2&0&3\\2&4&1&4\\1&2&1&1\end{bmatrix}$.
+\textbf{Strategy.} One elimination run answers everything: pivot columns of $A$ are a basis for $\operatorname{col}(A)$; pivot rows of the RREF for $\operatorname{row}(A)$; free-variable vectors for $\ker(A)$; and for $\ker(A^{T})$ solve $A^{T}\mathbf{y}=\mathbf{0}$ — or spot which combination of rows produces the zero row in elimination.
+\begin{solution}
+Rank $r=2$ (two pivots), and one elimination run gives all four:
+\begin{itemize}
+  \item $\operatorname{col}(A)$: pivot columns 1 and 3 of $A$ — $\operatorname{span}\{(1,2,1),(0,1,1)\}$, a plane in $\mathbb{R}^3$, dim 2.
+  \item $\operatorname{row}(A)$: the nonzero RREF rows $(1,2,0,3)$, $(0,0,1,-2)$ — a plane in $\mathbb{R}^4$, dim 2.
+  \item $\ker(A)$: from example~\ref{ex:nullbasis}, dim 2.
+  \item $\ker(A^{T})$: solving $A^{T}\mathbf{y}=\mathbf{0}$ gives $\mathbf{y}=(-1,1,-1)$, a line in $\mathbb{R}^3$, dim 1. Check: $-(1,2,0,3)+(2,4,1,4)-(1,2,1,1)=\mathbf{0}$. \checkmark
+\end{itemize}
+Tally: $2+2=4=n$ and $2+1=3=m$.
+\end{solution}
+\end{example}
+
+\begin{lstlisting}[language=Python,caption={Dimension check on all four subspaces of example~\ref{ex:foursub}'s matrix. File: \texttt{code/ch03\_four\_subspaces.py}.},label={lst:four}]
+import numpy as np
+from scipy.linalg import null_space
+
+A = np.array([[1., 2., 0., 3.],
+              [2., 4., 1., 4.],
+              [1., 2., 1., 1.]])
+m, n = A.shape
+
+r = np.linalg.matrix_rank(A)
+C = A[:, [0, 2]]                    # pivot columns -> basis of col(A)
+N = null_space(A)                   # basis of ker(A)
+N_left = null_space(A.T)            # basis of ker(A^T) = left null space
+
+print("rank r =", r)
+print("dim col(A)  =", C.shape[1], " (should be r)")
+print("dim ker(A)  =", N.shape[1], " (should be n - r =", n - r, ")")
+print("dim row(A)  =", r, " (should be r)")
+print("dim ker(A^T)=", N_left.shape[1], " (should be m - r =", m - r, ")")
+print("counts: r + (n-r) =", r + N.shape[1], "= n;",
+      "r + (m-r) =", r + N_left.shape[1], "= m")
+print("basis of col(A) (pivot columns of A):")
+print(C)
+print("basis of ker(A^T):")
+print(np.round(N_left, 6))
+print("sanity: N_left.T @ A ~ 0:", np.allclose(N_left.T @ A, 0))
+\end{lstlisting}
+
+\begin{lstlisting}[caption={Output of listing~\ref{lst:four}. Both counting laws verify on the nose: $r+(n-r)=n$, $r+(m-r)=m$. SciPy returns the normalized $(-1,1,-1)/\sqrt3\approx(-0.577,0.577,-0.577)$ for the left null space.}]
+rank r = 2
+dim col(A)  = 2  (should be r)
+dim ker(A)  = 2  (should be n - r = 2 )
+dim row(A)  = 2  (should be r)
+dim ker(A^T)= 1  (should be m - r = 1 )
+counts: r + (n-r) = 4 = n; r + (m-r) = 3 = m
+basis of col(A) (pivot columns of A):
+[[1. 0.]
+ [2. 1.]
+ [1. 1.]]
+basis of ker(A^T):
+[[-0.57735]
+ [ 0.57735]
+ [-0.57735]]
+sanity: N_left.T @ A ~ 0: True
+\end{lstlisting}
+
+\begin{figure}[htbp]
+\centering
+\input{figures/ch03_four_subspaces}
+\caption{The four fundamental subspaces — the signature picture of this book. Notice the two counts: the domain splits into row space ($r$) plus null space ($n-r$), the codomain into column space ($r$) plus left null space ($m-r$). And notice what $A$ \emph{does}: it maps the row space isomorphically onto the column space, and annihilates the null space entirely. Every fact in this chapter lives in this figure.}
+\label{fig:foursub}
+\end{figure}
+
+\section{Rank and the rank--nullity theorem}\label{sec:ranknullity}
+
+The \emph{rank}\index{rank} $r$ of $A$ is its number of pivots — equivalently $\dim\operatorname{col}(A)$. The deep fact, worth staring at, is that this also equals $\dim\operatorname{row}(A)$: \emph{column rank $=$ row rank}\index{column rank $=$ row rank}, one number measured two ways. It is not obvious — the pivot columns of $A$ are not even in the same space as the pivot rows — and it is why ``the rank'' is well-defined rather than two.
+
+The counting that falls out of elimination is the \emph{rank--nullity theorem}\index{rank--nullity}:
+\[
+  \dim\operatorname{col}(A) + \dim\ker(A) = n, \qquad\text{i.e. } r + (n-r) = n.
+\]
+Pivots explain the world; free variables explain what the world cannot see. Data-side translation for later chapters: if a feature matrix has rank $r<n$, then $n-r$ directions of feature space carry no information at all.
+
+\begin{lstlisting}[language=Python,caption={Rank computed three ways on matrices we force to be low-rank: pivots of $A$ (column rank), pivots of $A^{T}$ (row rank), and \texttt{np.linalg.matrix\_rank}. File: \texttt{code/ch03\_rank\_two\_ways.py}.},label={lst:rank}]
+import numpy as np
+
+rng = np.random.default_rng(4)
+np.seterr(all="ignore")
+
+def rref_rank(M, tol=1e-10):
+    M = M.copy().astype(float)
+    rows, cols = M.shape
+    r = 0
+    for c in range(cols):
+        if r >= rows:
+            break
+        k = np.argmax(np.abs(M[r:, c])) + r
+        if abs(M[k, c]) < tol:
+            continue
+        M[[r, k]] = M[[k, r]]
+        M[r] = M[r] / M[r, c]
+        for i in range(rows):
+            if i != r:
+                M[i] -= M[i, c] * M[r]
+        r += 1
+    return r
+
+print(f"{'shape':>9} {'np rank':>8} {'col rank (pivots)':>18} "
+      f"{'row rank (pivots of A.T)':>24}")
+for m, n in [(4, 5), (5, 4), (6, 6)]:
+    A = rng.standard_normal((m, n))
+    # make A low-rank on purpose: column 3 = column 0 - 2*column 1
+    A[:, 3] = A[:, 0] - 2 * A[:, 1]
+    print(f"{m}x{n:>6} {np.linalg.matrix_rank(A):>8} "
+          f"{rref_rank(A):>18} {rref_rank(A.T):>24}")
+\end{lstlisting}
+
+\begin{lstlisting}[caption={Output of listing~\ref{lst:rank}. Column rank and row rank agree on every shape — and equal the SVD-based library rank. (The tall $5\times4$ case loses one to our forced dependency, the wide $4\times5$ case is already row-limited.)}]
+    shape  np rank  col rank (pivots) row rank (pivots of A.T)
+4x     5        4                  4                        4
+5x     4        3                  3                        3
+6x     6        5                  5                        5
+\end{lstlisting}
+
+\begin{figure}[htbp]
+\centering
+\input{figures/ch03_rank_nullity}
+\caption{Rank--nullity as a counting diagram. Notice the pivot count $r$ is shared between the two bars: the same elimination pass that finds the $r$ pivot columns also leaves $m-r$ zero rows.}
+\label{fig:ranknull}
+\end{figure}
+
+\begin{exercise}[medium]
+$A$ is $7\times9$ with rank 4. Give the dimensions of all four subspaces. What is the maximum rank a $7\times9$ matrix could have, and what would change?
+\end{exercise}
+
+\section{Coordinates}\label{sec:coordinates}
+
+A basis $\mathcal{B}=\{\mathbf{b}_1,\dots,\mathbf{b}_n\}$ of $V$ turns abstract vectors into tuples: the \emph{coordinate vector}\index{coordinates}\index{coordinate vector} $[\mathbf{v}]_{\mathcal{B}}=(c_1,\dots,c_n)$ is defined by $\mathbf{v}=c_1\mathbf{b}_1+\cdots+c_n\mathbf{b}_n$. The point $\mathbf{v}$ does not move — only the labels do. In $\mathbb{R}^n$ the standard basis makes coordinates invisible: $(x_1,\dots,x_n)$ \emph{is} the coordinate vector in the standard basis. Change basis and the same point gets new numbers; figure~\ref{fig:coords} shows the one picture that makes this obvious. Computing coordinates is solving a linear system — find $B\mathbf{c}=\mathbf{v}$ where $B$ has the basis vectors as columns — so everything in Chapter 1 is already coordinate-finding machinery.
+
+\begin{figure}[htbp]
+\centering
+\input{figures/ch03_coordinates}
+\caption{Same vector, different numbers. Notice $\mathbf v$ is fixed; the basis $\mathcal B=\{\mathbf b_1,\mathbf b_2\}$ supplies the grid, and $[\mathbf v]_{\mathcal B}=(1.2,1.3)$ is just the recipe ``1.2 of $\mathbf b_1$, then 1.3 of $\mathbf b_2$''. Coordinates are instructions, not identity.}
+\label{fig:coords}
+\end{figure}
+
+\begin{exercise}[medium]
+$\mathcal{B}=\{(2,1),(1,2)\}$ is a basis of $\mathbb{R}^2$. Find $[\mathbf{v}]_{\mathcal{B}}$ for $\mathbf{v}=(5,4)$, then for $\mathbf{v}=\mathbf{e}_1$. (Each is a $2\times2$ linear system.)
+\end{exercise}
+
+\section{Hand derivation}\label{sec:handderiv3}
+
+Derive rank--nullity yourself, step by step, for a general $m\times n$ matrix $A$. Take $\operatorname{rref}(A)$, let $r$ be the pivot count.
+\begin{enumerate}
+  \item Why is $\dim\operatorname{col}(A)=r$? (Show the $r$ pivot columns of $A$ — the original columns, not RREF's — are independent, and every other column is a combination of them. Where in the RREF do you \emph{read} those combinations?)
+  \item Why is $\dim\ker(A)=n-r$? (Each free variable contributes exactly one basis vector, built by setting it to 1 and solving for pivot variables. Show these $n-r$ vectors are independent — look at the rows where the free coordinates sit.)
+  \item Add the two counts. Where exactly did you use that every column is either pivot or free?
+\end{enumerate}
+
+\section{Common mistakes}\label{sec:mistakes3}
+
+\begin{tripwire}[``Spanning'' mistaken for ``independent'']
+A basis needs both properties; students routinely check one and claim both. $\{\mathbf{e}_1,\mathbf{e}_2,\mathbf{e}_1+\mathbf{e}_2\}$ spans $\mathbb{R}^2$ and is not a basis (redundant); $\{\mathbf{e}_1\}$ is independent and is not a basis (incomplete). Check spanning and independence separately, every time.
+\end{tripwire}
+\begin{tripwire}[Assuming row operations preserve the column space]
+They do not. Row operations preserve $\ker(A)$ and $\operatorname{row}(A)$ exactly, but $\operatorname{col}(A)$ moves — that is precisely why the basis of $\operatorname{col}(A)$ is taken from the \emph{original} pivot columns, not the RREF columns. $\operatorname{col}(\operatorname{rref}(A))$ is a different, simpler space of the same dimension.
+\end{tripwire}
+\begin{tripwire}[Dimension of the space vs.\ dimension of the ambient space]
+A plane through the origin in $\mathbb{R}^3$ is 2-dimensional sitting inside a 3-dimensional space. Writing ``$\dim = 3$'' because it lives in $\mathbb{R}^3$ confuses the two numbers — the dimension counts \emph{degrees of freedom inside} the subspace, and it is always the size of a basis of that subspace.
+\end{tripwire}
+\begin{tripwire}[Declaring a set a subspace without checking]
+``It looks linear'' is not a check. The three properties take under a minute each and kill every plausible-looking counterexample: shifted planes, curves through the origin, half-lines, integer lattices, nonnegative vectors.
+\end{tripwire}
+
+\section{Summary}\label{sec:ch3summary}
+
+\begin{center}
+\small
+\begin{tabularx}{\linewidth}{@{}lY Y@{}}
+\toprule
+\tablehead \thead{Concept} & \thead{Statement} & \thead{Watch for} \\
+\midrule
+Vector space & closed under $+$, scaling, usual rules & don't re-verify axioms \\
+Subspace & $\mathbf 0\in S$ + closed $+$ + closed scaling & shifted sets fail on $\mathbf 0$ \\
+Span & all combinations; always a subspace & $\operatorname{span}\subseteq$ ambient \\
+Independent & $c_1\mathbf v_1+\cdots=\mathbf 0\Rightarrow$ all $c_i=0$ & iff $\ker(A)=\{\mathbf 0\}$ \\
+Basis & spanning $\cap$ independent; unique coordinates & both, not one \\
+Dimension & size of any basis & inside-degrees-of-freedom \\
+$\ker(A)$, $\operatorname{col}(A)$ & subspaces of $\mathbb R^n$, $\mathbb R^m$ & pivot columns of $A$ itself \\
+$\operatorname{row}(A)$, $\ker(A^T)$ & the other two of the four & left null $=$ codomain gap \\
+Rank & pivot count; col rank $=$ row rank & one number, two views \\
+Rank--nullity & $r + \dim\ker = n$ & free vars $=$ unseen dirs \\
+Coordinates & $[\mathbf v]_{\mathcal B}$ via $B\mathbf c=\mathbf v$ & labels, not the point \\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+\begin{wins}
+You can test subspaces, pull bases out of RREF, count all four subspaces' dimensions at sight, and read a matrix's behavior off the four-subspaces picture.
+\end{wins}
+
+\chapternotes{%
+The four-subspaces diagram and the ``count pivots'' derivation are MIT 18.06SC Unit I's signature content \cite{ocw1806sc}, also chapters 2--3 of \cite{strangILA}. The axioms-with-motivation register follows Axler chapters 1--2 \cite{axler} (his treatment is the rigorous baseline; our applications drive the choices). VMLS chapter 5 \cite{vmls} and MML \S2.4--2.6 \cite{mml} cover the same ground in data-science register. SciPy's \texttt{null\_space} computes an orthonormal basis via SVD — preview of Chapter 9.}
+
+\section*{Additional exercises}
+\addcontentsline{toc}{section}{Additional exercises}
+
+\begin{exercise}[easy]
+Is $\{(x,y):x\ge0,y\ge0\}$ (the first quadrant) a subspace of $\mathbb{R}^2$? Check all three properties explicitly.
+\end{exercise}
+\begin{exercise}[easy]
+Give a basis and the dimension for each: (a) $\mathbb{R}^4$; (b) the $z=0$ plane in $\mathbb{R}^3$; (c) the solution set of $x+2y+3z=0$ in $\mathbb{R}^3$; (d) $\mathcal{P}_2$.
+\end{exercise}
+\begin{exercise}[easy]
+Determine whether $\{(1,2),(3,6)\}$, $\{(1,0),(0,1),(1,1)\}$, $\{(1,2),(3,4)\}$ are bases of $\mathbb{R}^2$, saying which property fails in each failure.
+\end{exercise}
+\begin{exercise}[easy]
+$A$ is $3\times5$ with rank 3. Dimensions of $\ker(A)$, $\operatorname{col}(A)$, $\operatorname{row}(A)$, $\ker(A^{T})$? Is $A\mathbf{x}=\mathbf{b}$ solvable for every $\mathbf{b}$?
+\end{exercise}
+\begin{exercise}[medium]
+Show that $\ker(AB)\supseteq\ker(B)$ for any conformable $A,B$. Give a $2\times2$ example where the containment is strict — what does that mean geometrically?
+\end{exercise}
+\begin{exercise}[medium]
+Prove that the intersection $U\cap W$ of two subspaces is a subspace, and give an example in $\mathbb{R}^3$ where the union $U\cup W$ of two subspaces is \emph{not}. (The correct object is $U+W=\{\mathbf{u}+\mathbf{w}\}$ — define it and show it is a subspace.)
+\end{exercise}
+\begin{exercise}[medium]
+Find bases for all four subspaces of $A=\begin{bmatrix}1&1&0\\0&1&1\\1&2&1\\2&3&1\end{bmatrix}$ and verify the two counting laws.
+\end{exercise}
+\begin{exercise}[medium]
+$A$ is $m\times n$ with $m<n$. Show $\ker(A)\neq\{\mathbf{0}\}$ without eliminating — a pure counting argument using rank bounds.
+\end{exercise}
+\begin{exercise}[medium — derive]
+If $\operatorname{col}(A)=\mathbb{R}^m$, show that for every $\mathbf{b}$ there exist $n-r$ linearly independent directions $\mathbf{d}$ with $A(\mathbf{x}+\mathbf{d})=\mathbf{b}$ for any particular solution $\mathbf{x}$ — i.e.\ the ambiguity in the answer is exactly $\ker(A)$. (This upgrades Chapter 1's ``particular plus null space'' to a dimension statement.)
+\end{exercise}
+\begin{exercise}[hard]
+Prove that row operations preserve $\operatorname{row}(A)$ but not $\operatorname{col}(A)$: (a) each row of $EA$ ($E$ elementary) is a combination of rows of $A$, and conversely since $E$ is invertible — conclude $\operatorname{row}(EA)=\operatorname{row}(A)$; (b) exhibit a $2\times2$ $A$ and row swap with $\operatorname{col}(EA)\neq\operatorname{col}(A)$.
+\end{exercise}
+\begin{exercise}[hard]
+The \emph{exchange lemma}\index{exchange lemma}: if $\{\mathbf{u}_1,\dots,\mathbf{u}_k\}$ is independent in a space spanned by $\{\mathbf{v}_1,\dots,\mathbf{v}_m\}$, then $k\le m$. Prove it by induction on $k$ (swap one $\mathbf{u}$ for one $\mathbf{v}$ at a time), and state in one sentence why it makes ``dimension'' well-defined.
+\end{exercise}
+\begin{exercise}[hard]
+Let $U=\{A\in\mathbb{R}^{3\times3}:\operatorname{tr}A=0\}$ and $W=\{A:A^{T}=A\}$. Compute $\dim U$, $\dim W$, $\dim(U\cap W)$, and a basis of $U\cap W$. Guess the formula $\dim(U+W)=\dim U+\dim W-\dim(U\cap W)$ and check it on your numbers.
+\end{exercise}

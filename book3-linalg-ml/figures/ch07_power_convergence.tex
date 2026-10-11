@@ -1,0 +1,11 @@
+\begin{tikzpicture}[scale=0.8, >=stealth]
+  \draw[step=1.0,graybg!50] (-1,-1) grid (5,5);
+  \draw[->,gray] (-1.3,0)--(5.3,0); \draw[->,gray] (0,-1.3)--(0,5.3);
+  \draw[gray,dashed] (0,0)--(5,3.54);
+  \node[below right=-2pt] at (4.6,3.0) {\tiny dominant line};
+  \draw[->,accent!30,thick] (0,0)--(1.0,0.1);
+  \draw[->,accent!55,thick] (0,0)--(2.0,0.9);
+  \draw[->,accent!80,thick] (0,0)--(3.2,2.0);
+  \draw[->,accent,very thick] (0,0)--(4.4,3.1);
+  \node at (2.5,-0.8) {\small iterates rotate onto the dominant eigendirection};
+\end{tikzpicture}

@@ -1,0 +1,27 @@
+\begin{tikzpicture}[scale=0.44]
+% k=1 blob, k=5 blob+edge soft, k=20 sharper, k=50 ~full
+\begin{scope}
+\node at (1.6,3.7) {\small $k=1$};
+\fill[blue!25] (0.6,0.7) ellipse (1.1 and 0.85);
+\draw (0,0) rectangle (3.2,3.2);
+\end{scope}
+\begin{scope}[xshift=4.1cm]
+\node at (1.6,3.7) {\small $k=5$};
+\fill[blue!30] (0.6,0.7) ellipse (1.1 and 0.85);
+\fill[blue!15] (2.2,0) rectangle (3.2,3.2);
+\draw (0,0) rectangle (3.2,3.2);
+\end{scope}
+\begin{scope}[xshift=8.2cm]
+\node at (1.6,3.7) {\small $k=20$};
+\fill[blue!40] (0.6,0.7) ellipse (1.15 and 0.9);
+\fill[blue!25] (2.15,0) rectangle (3.2,3.2);
+\draw (0,0) rectangle (3.2,3.2);
+\end{scope}
+\begin{scope}[xshift=12.3cm]
+\node at (1.6,3.7) {\small $k=50$};
+\fill[blue!45] (0.6,0.7) ellipse (1.2 and 0.95);
+\fill[blue!35] (2.1,0) rectangle (3.2,3.2);
+\draw (0,0) rectangle (3.2,3.2);
+\end{scope}
+\node at (8,-1.0) {\small rel.\ errors $0.20,0.023,0.014,0.003$ --- mostly done by $k=5$};
+\end{tikzpicture}

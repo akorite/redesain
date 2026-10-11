@@ -1,0 +1,18 @@
+\begin{tikzpicture}[scale=0.8, >=stealth]
+  \begin{scope}
+    \draw[step=1.0,graybg!50] (-1,-1) grid (3,3);
+    \draw[->,gray] (-1.3,0)--(3.3,0); \draw[->,gray] (0,-1.3)--(0,3.3);
+    \draw[->,accent,very thick] (0,0)--(1.5,0) node[below]{\tiny $\mathbf v$};
+    \draw[->,good,very thick] (0,0)--(0.8,1.5) node[above]{\tiny $\mathbf w$};
+    \node at (1,-1.6) {\small before: two directions};
+  \end{scope}
+  \draw[->,very thick,ink] (4,1)--(5.4,1) node[midway,above]{\tiny shear};
+  \begin{scope}[xshift=6.6cm]
+    \draw[step=1.0,graybg!50] (-1,-1) grid (4,3);
+    \draw[->,gray] (-1.3,0)--(4.3,0); \draw[->,gray] (0,-1.3)--(0,3.3);
+    \draw[->,accent,very thick] (0,0)--(1.5,0) node[below]{\tiny $\mathbf v$};
+    \draw[->,good,very thick] (0,0)--(2.3,1.5) node[above]{\tiny $\mathbf w+\mathbf v$};
+    \draw[dashed,gray] (0.8,1.5)--(2.3,1.5);
+    \node at (1.5,-1.6) {\small after: only $\mathbf v$ survives as a line};
+  \end{scope}
+\end{tikzpicture}

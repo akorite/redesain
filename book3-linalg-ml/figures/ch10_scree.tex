@@ -1,0 +1,10 @@
+\begin{tikzpicture}[scale=0.72,>=stealth]
+\draw[->] (0,0)--(8,0) node[right]{$i$};
+\draw[->] (0,0)--(0,5) node[above]{$\sigma_i$};
+% sigma: 47.9 9.8 .30 .28 .27 .26 .25 .24 -- scaled /10
+\foreach \i/\h in {1/4.79,2/0.98,3/0.30,4/0.28,5/0.27,6/0.26,7/0.25,8/0.24}{
+  \draw[fill=blue!40] ({0.7*\i-0.25},0) rectangle ({0.7*\i+0.25},\h);
+}
+\draw[dashed,red] (1.55,0)--(1.55,4.9) node[above]{elbow};
+\node at (4.5,4.5) {\small rank-1 keeps most of the mass};
+\end{tikzpicture}

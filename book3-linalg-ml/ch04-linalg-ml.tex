@@ -1,0 +1,341 @@
+\chapter{Linear maps and change of basis}\label{ch:maps}
+
+Chapter 2 called a matrix ``a recipe'' without defining the recipe kind. This chapter names it: a matrix is a \emph{linear map} written in coordinates — a function between vector spaces that respects the two operations. That single definition explains why the algebra of Chapter 2 exists at all (matrix multiplication is composition), why coordinates are a design decision (Chapter 3), and why two different matrices can be \emph{the same map wearing different labels}. After it you will be able to test a map for linearity, read off its matrix, move the same map between bases, and place the four classic planar maps — rotation, reflection, projection, shear — in a permanent mental gallery.
+
+\section{Linear maps: definition and examples}\label{sec:linmaps}
+
+A map $T:V\to W$ between vector spaces is \emph{linear}\index{linear map} if it respects addition and scaling:
+\[
+  T(\mathbf{u}+\mathbf{v}) = T(\mathbf{u})+T(\mathbf{v}),\qquad
+  T(c\mathbf{v}) = c\,T(\mathbf{v}).
+\]
+Equivalently one line: $T(a\mathbf{u}+b\mathbf{v})=aT(\mathbf{u})+bT(\mathbf{v})$. The consequences matter more than the check: a linear map is completely determined by what it does to a basis (everything else is forced by the two rules), and it must send $\mathbf 0$ to $\mathbf 0$ (put $c=0$). That second clause is a free disqualifier — any map that moves the origin is out before the real test starts.
+
+The family is bigger than it looks: matrix-by-vector $T(\mathbf{x})=A\mathbf{x}$ is linear (that is the distributive law); differentiation of polynomials is linear ($\frac{d}{dt}(p+q)=p'+q'$); the shift $(x_1,x_2,\dots)\mapsto(0,x_1,\dots)$ on sequences is linear; rotation, reflection, projection, shearing of the plane are all linear — Section~\ref{sec:gallery} computes their matrices. Non-examples: translation $\mathbf{x}\mapsto\mathbf{x}+\mathbf{b}$ moves $\mathbf 0$; $\mathbf{x}\mapsto\|\mathbf{x}\|$ fails scaling with $c=-1$; $\mathbf{x}\mapsto x_1^2$ fails everything. Figure~\ref{fig:affine} keeps the three cases apart in one look.
+
+\begin{figure}[htbp]
+\centering
+\input{figures/ch04_affine}
+\caption{Linear vs. affine vs. nonlinear. Notice that affine maps are \emph{almost} linear — same flatness, wrong origin — which is exactly why they matter: a neural network layer is affine, and every ``bias'' term you will ever add is the $+\mathbf b$ that makes it non-linear in this strict sense.}
+\label{fig:affine}
+\end{figure}
+
+\begin{example}\label{ex:linverify}
+Is $T(x,y)=(x+2y,\;3x-y)$ linear? If so, find its matrix.
+\textbf{Strategy.} Check the two rules symbolically, not on test values — and then read the matrix off what $T$ does to $\mathbf e_1,\mathbf e_2$: the columns \emph{are} the outputs.
+\begin{solution}
+$T(\mathbf u+\mathbf v)=(u_1+v_1+2(u_2+v_2),\,3(u_1+v_1)-(u_2+v_2))=T(\mathbf u)+T(\mathbf v)$ \checkmark; $T(c\mathbf v)=(cv_1+2cv_2,\,3cv_1-cv_2)=cT(\mathbf v)$ \checkmark. Linear. $T(\mathbf e_1)=(1,3)$, $T(\mathbf e_2)=(2,-1)$, so
+\(
+[T]=\begin{bmatrix}1&2\\3&-1\end{bmatrix}.
+\)
+\end{solution}
+\end{example}
+
+\section{Kernel and image}\label{sec:kerim}
+
+Two subspaces accompany every linear map, and they are the Chapter-3 pair in disguise: the \emph{kernel}\index{kernel} $\ker T=\{\mathbf v:T(\mathbf v)=\mathbf 0\}\subseteq V$ (what the map erases) and the \emph{image}\index{image} $\operatorname{im}T=\{T(\mathbf v):\mathbf v\in V\}\subseteq W$ (what it can produce). For $T(\mathbf x)=A\mathbf x$ these are exactly $\ker(A)$ and $\operatorname{col}(A)$ — same objects, abstract names. Rank--nullity survives the translation with zero extra work:
+\[
+  \dim\operatorname{im}T + \dim\ker T = \dim V.
+\]
+Two names for the borderline cases: $T$ is \emph{injective}\index{injective} (no two inputs share an output) iff $\ker T=\{\mathbf 0\}$; \emph{surjective}\index{surjective} (reaches all of $W$) iff $\operatorname{im}T=W$. When both hold, $T$ is an \emph{isomorphism}\index{isomorphism} — the spaces are the same space with different labels, and $T^{-1}$ exists as a linear map.
+
+\begin{figure}[htbp]
+\centering
+\input{figures/ch04_kernel_image}
+\caption{Kernel and image in one schematic. Notice the kernel is a subspace \emph{of the domain} that all lands on one point, while the image is a subspace \emph{of the codomain} that may be strictly smaller than $W$ — the two failures are independent, and rank--nullity counts them together.}
+\label{fig:kerim}
+\end{figure}
+
+\section{Every linear map is a matrix}\label{sec:matrixrep}
+
+Here is the theorem that justifies the whole book so far. Given a linear $T:V\to W$ and bases $\mathcal B=\{\mathbf b_1,\dots,\mathbf b_n\}$ of $V$, $\mathcal C=\{\mathbf c_1,\dots,\mathbf c_m\}$ of $W$: write each $T(\mathbf b_j)$ in $\mathcal C$-coordinates, and place those coordinates in column $j$. The resulting $m\times n$ matrix $[T]_{\mathcal{C}\leftarrow\mathcal{B}}$ \emph{is} $T$ in coordinates:
+\[
+  [T(\mathbf v)]_{\mathcal C} = [T]_{\mathcal{C}\leftarrow\mathcal{B}}\,[\mathbf v]_{\mathcal B}.
+\]
+The columns answer one question each — ``where does basis vector $\mathbf b_j$ go, in $\mathcal C$-words?'' — and that is the entire content of the map, because linearity extends basis behavior to everything. When both bases are standard, $[T]$ is just the matrix whose columns are $T(\mathbf e_j)$ — which is why Chapter 2 could find a matrix by watching $\mathbf e_j$.
+
+Composition now earns its keep: $[S\circ T]=[S][T]$ — the matrix of a composed map is the product of the matrices, in whatever consistent bases you chose. \emph{That} is why matrix multiplication is defined the way it is (Figure~\ref{fig:composition}); Chapter 2's rule was reverse-engineered from this requirement.
+
+\begin{figure}[htbp]
+\centering
+\input{figures/ch04_composition}
+\caption{Composition is matrix multiplication. Notice the direction of travel: $\mathbf x$ meets $T$ (and $[T]$) first. The product $[S][T]$ is exactly the matrix whose columns are $[S]([T]\mathbf e_j)$ — do $T$, then $S$, to each basis vector.}
+\label{fig:composition}
+\end{figure}
+
+\begin{example}\label{ex:gallery}
+Find the matrices of the planar catalog: rotation by $\theta$, reflection across the $x$-axis, projection onto the $x$-axis.
+\textbf{Strategy.} One method handles all three: watch $\mathbf e_1=(1,0)$ and $\mathbf e_2=(0,1)$, write their images as columns. Geometry supplies the images; trig supplies the numbers for rotation.
+\begin{solution}
+\emph{Rotation} $R_\theta$: $\mathbf e_1\mapsto(\cos\theta,\sin\theta)$, $\mathbf e_2\mapsto(-\sin\theta,\cos\theta)$ (derived properly in the hand derivation):
+\(
+R_\theta=\begin{bmatrix}\cos\theta&-\sin\theta\\ \sin\theta&\cos\theta\end{bmatrix}.
+\)
+\emph{Reflection} across the $x$-axis: $\mathbf e_1$ stays, $\mathbf e_2$ flips: $\begin{bmatrix}1&0\\0&-1\end{bmatrix}$.
+\emph{Projection} onto the $x$-axis: $\mathbf e_1$ stays, $\mathbf e_2$ dies: $\begin{bmatrix}1&0\\0&0\end{bmatrix}$.
+\end{solution}
+\end{example}
+
+\section{Change of basis and similarity}\label{sec:changebasis}
+
+Chapter 3 ended with coordinates as labels. Now the punchline: the \emph{same} linear map has different matrices in different bases, and the matrices are related by a rule with a name. If $\mathcal B$ is a basis of $V$ with basis-change matrix $B$ (the $\mathbf b_j$ as columns), then
+\[
+  [T]_{\mathcal B} = B^{-1}\,[T]_{\text{std}}\,B,
+\]
+because the right side does the whole trip: $B$ translates $\mathcal B$-coordinates to standard, $[T]_{\text{std}}$ does the map, $B^{-1}$ translates back. Two square matrices $M,N$ with $N=B^{-1}MB$ for some invertible $B$ are \emph{similar}\index{similar matrices} — and the meaning of similarity is exactly ``same map, different basis''. Chapter 8 exploits this: pick the basis where the map looks simplest (a diagonal matrix) and the map becomes transparent.
+
+\begin{figure}[htbp]
+\centering
+\input{figures/ch04_same_map}
+\caption{One quarter-turn, two witness bases. Notice the map itself did not move — only the grid did. The matrix $[T]_{\mathcal B}$ answers ``where do $\mathbf b_1,\mathbf b_2$ go, measured in $\mathbf b$'s?'' and similarity converts between the two descriptions.}
+\label{fig:samemap}
+\end{figure}
+
+\begin{example}\label{ex:changebasis}
+$T$ = quarter-turn of $\mathbb R^2$: $[T]_{\text{std}}=A=\begin{bmatrix}0&-1\\1&0\end{bmatrix}$. Find $[T]_{\mathcal B}$ for $\mathcal B=\{(2,1),(1,1)\}$, and verify it represents the same map.
+\textbf{Strategy.} Apply the conversion: $[T]_{\mathcal B}=B^{-1}AB$ with $B=\begin{bmatrix}2&1\\1&1\end{bmatrix}$. Then verify on one concrete vector by doing the map both ways and demanding the same physical output.
+\begin{solution}
+$B^{-1}=\begin{bmatrix}1&-1\\-1&2\end{bmatrix}$, so
+\(
+[T]_{\mathcal B}=B^{-1}AB=\begin{bmatrix}-3&-2\\5&3\end{bmatrix}.
+\)
+Check on $\mathbf v=(5,1)$: standard gives $A\mathbf v=(-1,5)$. In $\mathcal B$-words $[\mathbf v]_{\mathcal B}=B^{-1}\mathbf v=(4,-3)$, and $[T]_{\mathcal B}(4,-3)=(-6,17)$ — back through $B$: $B(-6,17)=(-12+17,-6+17)=(5,11)$?? Careful — recompute: $B(-6,17)=(-6\cdot2+17\cdot1,\,-6+17)=(5,11)$. That disagrees! Recheck the arithmetic: $[T]_{\mathcal B}\,(4,-3)=\begin{bmatrix}-3&-2\\5&3\end{bmatrix}\begin{bmatrix}4\\-3\end{bmatrix}=\begin{bmatrix}-12+6\\20-9\end{bmatrix}=\begin{bmatrix}-6\\11\end{bmatrix}$, then $B(-6,11)=(-12+11,-6+11)=(-1,5)$ \checkmark — same as $A\mathbf v$. (The mis-step above is what happens when coordinate arithmetic runs ahead of itself — hence the next listing does it mechanically.)
+\end{solution}
+\end{example}
+
+\begin{lstlisting}[language=Python,caption={Change of basis, done both ways on the same vector. File: \texttt{code/ch04\_change\_basis.py}.},label={lst:changebasis}]
+import numpy as np
+np.set_printoptions(precision=4, suppress=True)
+
+# T = quarter-turn:  standard matrix A
+A = np.array([[0., -1.], [1., 0.]])
+
+# new basis B = {b1, b2} = columns of B
+B = np.array([[2., 1.], [1., 1.]])      # b1=(2,1), b2=(1,1)
+
+# same map in B-coordinates:  [T]_B = B^{-1} A B
+TB = np.linalg.inv(B) @ A @ B
+print("[T]_B =")
+print(TB)
+
+# check on a vector: v = (5, 1) standard.
+v = np.array([5., 1.])
+c = np.linalg.solve(B, v)             # [v]_B : B-coords of v
+Tv_A = A @ v                          # [T(v)] in standard coords
+Tv_B = B @ (TB @ c)                   # via B-coords
+print("[v]_B =", c)
+print("via A:", Tv_A)
+print("via [T]_B:", Tv_B)
+print("same physical answer:", np.allclose(Tv_A, Tv_B))
+print("A = B [T]_B B^-1 ok:",
+      np.allclose(A, B @ TB @ np.linalg.inv(B)))
+\end{lstlisting}
+
+\begin{lstlisting}[caption={Output of listing~\ref{lst:changebasis}. The two matrices look nothing alike yet produce identical physical outputs — similarity is sameness of map, not sameness of entries.}]
+[T]_B =
+[[-3. -2.]
+ [ 5.  3.]]
+[v]_B = [ 4. -3.]
+via A: [-1.  5.]
+via [T]_B: [-1.  5.]
+same physical answer: True
+A = B [T]_B B^-1 ok: True
+\end{lstlisting}
+
+\begin{exercise}[easy]
+Find $[T]_{\text{std}}$ for $T(x,y,z)=(x+y,\;y-z,\;x+z)$ by watching $\mathbf e_1,\mathbf e_2,\mathbf e_3$.
+\end{exercise}
+
+\section{A geometric catalog: rotations, reflections, projections, shears}\label{sec:gallery}
+
+Four planar maps deserve permanent residence (Figure~\ref{fig:gallery}); the code below moves a point cloud through each.
+
+\begin{figure}[htbp]
+\centering
+\input{figures/ch04_gallery}
+\caption{The unit square (with a marker letter so you can see orientation) through the four classic maps. Notice: rotation preserves everything including handedness; reflection preserves distances but flips the letter; shear preserves area but not shape; projection collapses a whole dimension — its determinant of $0$ is the algebraic echo of the lost axis.}
+\label{fig:gallery}
+\end{figure}
+
+\begin{description}
+\item[Rotation] $R_\theta=\begin{bmatrix}\cos\theta&-\sin\theta\\ \sin\theta&\cos\theta\end{bmatrix}$: rigid, length- and angle-preserving; $\det=1$.
+\item[Reflection] across a line: distance-preserving but orientation-reversing; $\det=-1$.
+\item[Shear] $\begin{bmatrix}1&k\\0&1\end{bmatrix}$: slides each point horizontally by $k$ times its height — area-preserving, angle-destroying; $\det=1$.
+\item[Projection] onto a line through the origin: $P=\mathbf{u}\mathbf{u}^{T}/\mathbf{u}^{T}\mathbf{u}$; idempotent ($P^2=P$), $\det=0$ — information genuinely lost.
+\end{description}
+
+\begin{lstlisting}[language=Python,caption={The four catalog maps applied to a point cloud, with determinants. File: \texttt{code/ch04\_gallery\_transform.py}.},label={lst:gallery}]
+import numpy as np
+np.set_printoptions(precision=3, suppress=True)
+
+# the catalog maps as matrices
+theta = np.pi / 6
+rot = np.array([[np.cos(theta), -np.sin(theta)],
+                [np.sin(theta),  np.cos(theta)]])
+refl = np.array([[1., 0.], [0., -1.]])          # reflect across x-axis
+shear = np.array([[1., 0.5], [0., 1.]])          # shear in x
+proj = np.array([[1., 0.], [0., 0.]])            # project onto x-axis
+
+# point cloud: the unit square + the letter F's bounding corners
+pts = np.array([[0., 0.], [1., 0.], [1., 1.], [0., 1.],
+                [0.25, 0.75], [0.75, 0.75]])
+
+for name, M in [("rotation", rot), ("reflection", refl),
+                ("shear", shear), ("projection", proj)]:
+    print(f"{name:>12} det={np.linalg.det(M):+.3f}")
+    print(np.round(pts @ M.T, 2))
+print("rotation preserves lengths:",
+      np.allclose(np.linalg.norm(pts, axis=1),
+                  np.linalg.norm(pts @ rot.T, axis=1)))
+print("projection is idempotent:", np.allclose(proj @ proj, proj))
+\end{lstlisting}
+
+\begin{lstlisting}[caption={Output of listing~\ref{lst:gallery} (first few rows shown per map). The determinants tell the story before the coordinates do: $+1$ preserves volume and orientation, $-1$ flips orientation, $0$ collapses.}]
+    rotation det=+1.000
+[[ 0.    0.  ]
+ [ 0.87  0.5 ]
+ [ 0.37  1.37]
+ [-0.5   0.87]
+ [-0.16  0.77]
+ [ 0.27  1.02]]
+  reflection det=-1.000
+...
+       shear det=+1.000
+[[0.   0.  ]
+ [1.   0.  ]
+ [1.5  1.  ]
+ [0.5  1.  ]
+ [0.62 0.75]
+ [1.12 0.75]]
+  projection det=+0.000
+[[0.   0.  ]
+ [1.   0.  ]
+ [1.   0.  ]
+ [0.   0.  ]
+ [0.25 0.  ]
+ [0.75 0.  ]]
+rotation preserves lengths: True
+projection is idempotent: True
+\end{lstlisting}
+
+\begin{lstlisting}[language=Python,caption={Projection onto a general line, built from $P=\mathbf{u}\mathbf{u}^{T}/\mathbf{u}^{T}\mathbf{u}$ alone. File: \texttt{code/ch04\_projection\_matrix.py}.},label={lst:proj}]
+import numpy as np
+np.set_printoptions(precision=4, suppress=True)
+
+# project onto the line spanned by u = (3, 4):  P = u u^T / u^T u
+u = np.array([3., 4.])
+P = np.outer(u, u) / (u @ u)
+print("P =")
+print(P)
+
+x = np.array([7., 1.])
+Px = P @ x
+print("Px =", Px)
+print("parallel to u?", np.allclose(Px, (Px @ u) / (u @ u) * u))
+print("residual perpendicular?", np.allclose((x - Px) @ Px, 0))
+print("P is symmetric:", np.allclose(P, P.T))
+print("P^2 = P:", np.allclose(P @ P, P))
+
+# every vector splits into along-u + perpendicular:
+print("x = Px + (x-Px):", np.allclose(x, Px + (x - Px)))
+\end{lstlisting}
+
+\begin{lstlisting}[caption={Output of listing~\ref{lst:proj}. The projection of $(7,1)$ onto the line through $(3,4)$ lands exactly at $(3,4)$ — the nearest point on the line. Symmetric and idempotent are not coincidences; Chapter 7 shows they characterize orthogonal projections.}]
+P =
+[[0.36 0.48]
+ [0.48 0.64]]
+Px = [3. 4.]
+parallel to u? True
+residual perpendicular? True
+P is symmetric: True
+P^2 = P: True
+x = Px + (x-Px): True
+\end{lstlisting}
+
+\begin{exercise}[medium]
+$P=\mathbf{u}\mathbf{u}^{T}/\mathbf{u}^{T}\mathbf{u}$ for $\mathbf{u}=(1,2)$. Compute $P$, then $P(5,0)$ and $P(P(5,0))$ — and explain idempotence in one geometric sentence.
+\end{exercise}
+
+\section{Hand derivation}\label{sec:handderiv4}
+
+Derive $R_\theta$ from trigonometry alone. Take $\mathbf e_1=(1,0)$: after rotation by angle $\theta$ it lands at $(\cos\theta,\sin\theta)$ — that is the definition of $\cos,\sin$ on the unit circle. Then $\mathbf e_2=(0,1)$ sits $90^\circ$ ahead, so it lands at $(\cos(\theta+90^\circ),\sin(\theta+90^\circ))=(-\sin\theta,\cos\theta)$. Assemble the columns. Then complete the check every derivation owes: verify $R_\theta R_\phi=R_{\theta+\phi}$ (the addition formulas emerge as a consequence), and $\det R_\theta=\cos^2\theta+\sin^2\theta=1$.
+
+\section{Common mistakes}\label{sec:mistakes4}
+
+\begin{tripwire}[Confusing an abstract vector with its coordinate vector]
+$\mathbf v$ is the thing; $[\mathbf v]_{\mathcal B}$ is its description in $\mathcal B$-words. They coincide only in the standard basis, and writing ``$\mathbf v=(3,1)$'' without naming a basis is quietly assuming one. The bug appears the moment two bases are in play.
+\end{tripwire}
+\begin{tripwire}[Forgetting basis order matters]
+$\{\mathbf b_1,\mathbf b_2\}$ and $\{\mathbf b_2,\mathbf b_1\}$ are different bases: coordinates and matrix columns come out swapped. A basis is an \emph{ordered} list; permute it and every coordinate vector permutes with it.
+\end{tripwire}
+\begin{tripwire}[{Applying $[T]_{\mathcal B}$ to coordinates in the wrong basis}]
+$[T]_{\mathcal B}$ only eats $\mathcal B$-coordinate vectors. Feed it standard coordinates and it will cheerfully produce a wrong answer that still looks like a vector — the most dangerous kind. Before every matrix application, ask: which basis are these numbers in?
+\end{tripwire}
+\begin{tripwire}[Treating similar matrices as identical]
+$A$ and $B^{-1}AB$ represent the same map but are different matrices: different entries, different pivots, different easy computations. Similarity preserves eigenvalues, determinant, rank — not entries. ``Same map'' is an equivalence, not an equality.
+\end{tripwire}
+
+\section{Summary}\label{sec:ch4summary}
+
+\begin{center}
+\small
+\begin{tabularx}{\linewidth}{@{}lY Y@{}}
+\toprule
+\tablehead \thead{Concept} & \thead{Statement} & \thead{Watch for} \\
+\midrule
+Linear map & $T(a\mathbf u+b\mathbf v)=aT\mathbf u+bT\mathbf v$ & must fix $\mathbf 0$ \\
+Kernel & $\{\mathbf v:T\mathbf v=\mathbf0\}\subseteq V$ & injective iff trivial \\
+Image & $T(V)\subseteq W$ & surjective iff $=W$ \\
+Rank--nullity & $\dim\operatorname{im}+\dim\ker=\dim V$ & ch.\,3 theorem, restated \\
+$[T]_{\mathcal C\leftarrow\mathcal B}$ & columns $=[T\mathbf b_j]_{\mathcal C}$ & eats $\mathcal B$-coords only \\
+Composition & $[S\circ T]=[S][T]$ & why multiplication exists \\
+Change of basis & $[T]_{\mathcal B}=B^{-1}[T]_{\mathrm{std}}B$ & $B$ translates first \\
+Similarity & same map, different basis & entries differ; invariants match \\
+Catalog & rot ($\det1$), refl ($-1$), shear ($1$), proj ($0$, $P^2=P$) & projection onto $\mathbf u$: $\mathbf u\mathbf u^T/\mathbf u^T\mathbf u$ \\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+\begin{wins}
+You can certify a map linear, write its matrix in any basis, shuttle the same map between bases with similarity, and deploy the four canonical planar maps — the vocabulary every linear-model picture uses.
+\end{wins}
+
+\chapternotes{%
+The definition-first register (linear map before matrix, kernel/image before rank--nullity) follows Axler chapter 3 \cite{axler}; our matrix-first order is Strang's, and this chapter is where the two conventions reconcile. The gallery treatment and grid-deformation figures borrow their pedagogy from \cite{ila} ch.9 and the \emph{Essence of Linear Algebra} series \cite{eola} (episodes 3--4: ``linear transformations'' and ``matrix multiplication as composition''). MML \S2.7 \cite{mml} covers the same ground in ML register.}
+
+\section*{Additional exercises}
+\addcontentsline{toc}{section}{Additional exercises}
+
+\begin{exercise}[easy]
+Which of these maps $\mathbb{R}^2\to\mathbb{R}^2$ are linear? For each failure name the rule it breaks: (a) $(x,y)\mapsto(x+y,y)$; (b) $(x,y)\mapsto(xy,y)$; (c) $(x,y)\mapsto(x+1,y)$; (d) $(x,y)\mapsto(y,x)$.
+\end{exercise}
+\begin{exercise}[easy]
+Find $[T]_{\text{std}}$: (a) $T$ = reflection across the line $y=x$; (b) $T$ = doubling every vector; (c) $T$ = projection onto the $y$-axis.
+\end{exercise}
+\begin{exercise}[easy]
+$T:\mathbb{R}^3\to\mathbb{R}^3$ has matrix $\begin{bmatrix}1&0&1\\0&1&0\\0&0&0\end{bmatrix}$. Give a basis for $\ker T$ and $\operatorname{im}T$, and verify rank--nullity.
+\end{exercise}
+\begin{exercise}[easy]
+Verify $[T][S]=[T\circ S]$ on $T(x,y)=(x+y,y)$, $S(x,y)=(2x,x-y)$: compute both sides, compare.
+\end{exercise}
+\begin{exercise}[medium]
+Show $T:\mathcal{P}_2\to\mathcal{P}_2$, $T(p)=p'$ is linear, find its kernel and image, and write its matrix in the basis $\{1,t,t^2\}$. What is $[T]^3$ and why is it zero?
+\end{exercise}
+\begin{exercise}[medium]
+$A=\begin{bmatrix}1&1\\0&1\end{bmatrix}$ (a shear). Compute $A^2,A^3,A^{10}$ and describe the map $T^k$ geometrically. What is $\lim_k A^k\mathbf e_1/\|A^k\mathbf e_1\|$?
+\end{exercise}
+\begin{exercise}[medium]
+The quarter-turn $A=\begin{bmatrix}0&-1\\1&0\end{bmatrix}$ satisfies $A^2=-I$. Use only that fact (no trig) to compute $A^4, A^{2026}$, and the eigen-story it previews: can a real $2\times2$ matrix with $A^2=-I$ have a real eigenvector?
+\end{exercise}
+\begin{exercise}[medium — derive]
+$\mathcal B=\{(1,1),(1,-1)\}$. For $T(x,y)=(x+y,x-y)$ find $[T]_{\mathcal B}$ two ways: (a) write $T\mathbf b_1,T\mathbf b_2$ in $\mathcal B$-coordinates directly; (b) compute $B^{-1}[T]_{\mathrm{std}}B$. Compare — they must agree.
+\end{exercise}
+\begin{exercise}[hard]
+Prove $[S\circ T]_{\mathcal A\leftarrow\mathcal C}=[S]_{\mathcal A\leftarrow\mathcal B}\,[T]_{\mathcal B\leftarrow\mathcal C}$ for bases $\mathcal A,\mathcal B,\mathcal C$ — i.e.\ composition really is matrix multiplication in any consistent bases. (Expand both sides' $(i,j)$ entry; they are the same sum.)
+\end{exercise}
+\begin{exercise}[hard]
+Prove similarity is an equivalence relation (reflexive, symmetric, transitive) and that similar matrices have the same rank and trace. Then exhibit $2\times2$ matrices with the same rank and trace that are \emph{not} similar — what extra invariant separates them?
+\end{exercise}
+\begin{exercise}[hard]
+Implement change-of-basis as a function \texttt{to\_basis(A, B)} returning $B^{-1}AB$, then test it: generate random $2\times2$ $A$ and random bases $B$, verify $\operatorname{tr}$ and $\det$ are similarity-invariant across 100 trials. File: \texttt{code/ch04\_similarity\_invariants.py}.
+\end{exercise}

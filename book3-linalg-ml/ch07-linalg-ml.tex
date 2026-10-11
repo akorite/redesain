@@ -1,0 +1,683 @@
+% Chapter 7 -- Eigenvalues and diagonalisation
+\chapter{Eigenvalues and diagonalisation}\label{ch:eigen}
+
+Most vectors a linear map touches come out rotated and stretched --- but a
+few special directions come out merely \emph{scaled}. Those directions are
+the map's eigenvectors, and they are the coordinates the map itself would
+choose if it could: in the eigenbasis, a matrix is just a diagonal list of
+stretch factors. That one observation unlocks cheap powers of $A$, closed
+forms for recurrences, steady states of Markov chains, and --- two chapters
+from now --- the whole theory of the SVD. After this chapter you can find
+eigenvalues and eigenvectors by hand for small matrices, diagonalise when
+diagonalisation exists, say precisely when it fails, and use all of it on a
+Fibonacci-style recurrence and a Markov chain.
+
+\section{The eigen equation}\label{sec:eig-eq}
+
+\begin{definition}[Eigenvector, eigenvalue]\index{eigenvector}\index{eigenvalue}
+A nonzero vector $\mathbf v$ is an \emph{eigenvector} of $A$ with
+\emph{eigenvalue} $\lambda$ when
+\[
+A\mathbf v=\lambda\mathbf v .
+\]
+The direction is preserved; only the length (and possibly the sign)
+changes. $\mathbf v=\mathbf0$ is excluded on purpose --- it would trivialize
+the equation for every $\lambda$.
+\end{definition}
+
+Figure~\ref{fig:eigendirections} makes the idea visual: most arrows change
+direction under $A$; the eigenvectors are the ones that stay on their own
+line.
+
+\begin{figure}[htbp]
+\centering
+\input{figures/ch07_eigendirections}
+\caption{Eigenvectors are the map's preserved directions. Notice the two
+accent vectors stay on their lines --- merely stretched by $\lambda_1=5$
+and $\lambda_2=2$ --- while a generic vector changes direction.
+Regenerate: \ttfamily figures/ch07\_eigendirections.tex.}
+\label{fig:eigendirections}
+\end{figure}
+
+Two immediate facts worth internalizing:
+
+\begin{itemize}
+\item Eigenvectors are determined only \emph{up to nonzero scale} --- if
+$\mathbf v$ works so does $7\mathbf v$, and $-\mathbf v$. The eigenLINE is
+the object; we pick a unit representative when convenient.
+\item The pair $(\lambda,\mathbf v)$ still satisfies
+$A^2\mathbf v=\lambda^2\mathbf v$, $A^k\mathbf v=\lambda^k\mathbf v$: powers
+of $A$ act trivially on eigendirections. This single fact powers the whole
+chapter.
+\end{itemize}
+
+\section{Characteristic polynomial and finding them by hand}\label{sec:eig-char}
+
+Rewrite $A\mathbf v=\lambda\mathbf v$ as $(A-\lambda I)\mathbf v=\mathbf0$.
+A nonzero $\mathbf v$ exists exactly when $A-\lambda I$ is singular ---
+chapter 6 says that means $\det(A-\lambda I)=0$.
+
+\begin{definition}[Characteristic polynomial]\index{characteristic polynomial}
+$\chi_A(\lambda)=\det(A-\lambda I)$ is a degree-$n$ polynomial in
+$\lambda$; its roots are the eigenvalues of $A$.
+\end{definition}
+
+\begin{example}[A complete $2\times2$ by hand]\label{ex:eig2}
+\textbf{Strategy.} Compute $\chi_A(\lambda)$, factor it (the trace and
+determinant give a free checksum: roots sum to $\operatorname{tr}A$ and
+multiply to $\det A$), then solve $(A-\lambda I)\mathbf v=\mathbf0$ per
+root.
+
+\textbf{Solution.} $A=\begin{bmatrix}4&1\\2&3\end{bmatrix}$:
+\[
+\det\begin{bmatrix}4-\lambda&1\\2&3-\lambda\end{bmatrix}
+=(4-\lambda)(3-\lambda)-2=\lambda^2-7\lambda+10=(\lambda-5)(\lambda-2).
+\]
+Checksum: $\operatorname{tr}A=7=5+2$, $\det A=10=5\cdot2$. \checkmark
+For $\lambda=5$: $A-5I=\begin{bmatrix}-1&1\\2&-2\end{bmatrix}$, null
+direction $(1,1)$: indeed $A(1,1)^{T}=(5,5)^{T}$. For $\lambda=2$:
+$A-2I=\begin{bmatrix}2&1\\2&1\end{bmatrix}$, direction $(1,-2)$:
+$A(1,-2)^{T}=(2,-4)^{T}$. Both verified by direct multiplication.
+\end{example}
+
+\begin{lstlisting}[caption={\ttfamily code/ch07\_eig\_by\_hand.py --- the
+hand answers checked by residual, plus \ttfamily np.linalg.eig and the two
+checksums.}]
+import numpy as np
+np.set_printoptions(precision=4, suppress=True)
+
+A = np.array([[4., 1.], [2., 3.]])
+w_hand, V_hand = 5.0, np.array([1., 1.])
+w2_hand, V2_hand = 2.0, np.array([1., -2.])
+print("A =")
+print(A)
+print("hand: lambda=5, v=(1,1):", np.allclose(A @ V_hand, 5 * V_hand))
+print("hand: lambda=2, v=(1,-2):", np.allclose(A @ V2_hand, 2 * V2_hand))
+
+w, V = np.linalg.eig(A)
+print("np.linalg.eig eigenvalues:", np.sort(w))
+print("eig vectors (cols):")
+print(V)
+print("trace == sum lambda:", np.isclose(np.trace(A), w.sum()))
+print("det == prod lambda:", np.isclose(np.linalg.det(A), w.prod()))
+\end{lstlisting}
+
+\begin{lstlisting}[caption={Output of the eigen check. Notice the library's
+vectors are the same \emph{lines} normalized --- $(1,1)/\sqrt2$ and
+$(1,-2)/\sqrt5$ up to sign --- and both checksums pass.}]
+A =
+[[4. 1.]
+ [2. 3.]]
+hand: lambda=5, v=(1,1): True
+hand: lambda=2, v=(1,-2): True
+np.linalg.eig eigenvalues: [2. 5.]
+eig vectors (cols):
+[[ 0.7071 -0.4472]
+ [ 0.7071  0.8944]]
+trace == sum lambda: True
+det == prod lambda: True
+\end{lstlisting}
+
+\begin{exercise}[easy]
+Find the eigenvalues of $\begin{bmatrix}3&2\\2&3\end{bmatrix}$ and one
+eigenvector for each.
+\begin{solution}
+$\lambda^2-6\lambda+5=0$: $\lambda=5$ with $\mathbf v=(1,1)$, $\lambda=1$
+with $\mathbf v=(1,-1)$.
+\end{solution}
+\end{exercise}
+
+\begin{exercise}[medium]
+Give a $2\times2$ real matrix with \emph{no} real eigenvalues, and compute
+its complex pair.
+\begin{solution}
+Any rotation by $\theta\ne0,\pi$, e.g.
+$\begin{bmatrix}0&-1\\1&0\end{bmatrix}$: $\chi=\lambda^2+1$, roots
+$\pm i$. A real matrix \emph{can} have complex eigenvalues --- they arrive
+in conjugate pairs (Figure~\ref{fig:complex-rot}).
+\end{solution}
+\end{exercise}
+
+\begin{figure}[htbp]
+\centering
+\input{figures/ch07_complex_rotation}
+\caption{Complex eigenvalues mean rotation. Notice a $45^\circ$ rotation
+has no real preserved line at all --- its eigenvalues are
+$e^{\pm i\pi/4}$. Regenerate: \ttfamily figures/ch07\_complex\_rotation.tex.}
+\label{fig:complex-rot}
+\end{figure}
+
+\section{Eigenspaces and multiplicities}\label{sec:eig-mult}
+
+\begin{definition}[Eigenspace]\index{eigenspace}
+$E_\lambda=\ker(A-\lambda I)$ is the \emph{eigenspace} of $\lambda$ --- all
+eigenvectors for that $\lambda$ plus $\mathbf0$. Its dimension is the
+\emph{geometric multiplicity}\index{geometric multiplicity}; the number of
+times $\lambda$ repeats as a root of $\chi_A$ is the \emph{algebraic
+multiplicity}\index{algebraic multiplicity}. Always
+$\dim E_\lambda\le(\text{algebraic multiplicity})$.
+\end{definition}
+
+Example: $\begin{bmatrix}1&1\\0&1\end{bmatrix}$ has $\lambda=1$ with
+algebraic multiplicity 2, but $E_1=\operatorname{span}\{(1,0)\}$ is only
+1-dimensional --- a defective matrix (Section~\ref{sec:eig-defective}).
+
+\begin{theorem}\label{th:eig-indep}
+Eigenvectors belonging to \emph{distinct} eigenvalues are linearly
+independent.
+\end{theorem}
+
+\begin{proof}
+Suppose $\mathbf v_1,\dots,\mathbf v_k$ are eigenvectors for distinct
+$\lambda_1,\dots,\lambda_k$ and some combination vanishes. Apply $A$
+repeatedly: $c_1\lambda_1^j\mathbf v_1+\cdots+c_k\lambda_k^j\mathbf v_k=0$
+for all $j$. Pick two consecutive $j$ and eliminate $\mathbf v_k$: the
+remaining combination has coefficients $c_i(\lambda_i-\lambda_k)$, nonzero
+only where $\lambda_i\ne\lambda_k$ --- induction kills them one at a time.
+\end{proof}
+
+Consequence: $n$ distinct eigenvalues $\Rightarrow$ a full eigenbasis
+$\Rightarrow$ diagonalisable. The converse is false in both directions
+(repeated eigenvalues can still diagonalise; defective ones cannot).
+
+\section{Diagonalisation and powers of \texorpdfstring{$A$}{A}}\label{sec:eig-diag}
+
+Stack the eigenvectors as columns of $V$ and the eigenvalues into
+$\Lambda=\operatorname{diag}(\lambda_1,\dots,\lambda_n)$:
+$AV=V\Lambda$ column-by-column. When $V$ is invertible --- exactly when $A$
+has $n$ independent eigenvectors ---
+
+\begin{theorem}[Diagonalisation]\index{diagonalisation}
+$A=V\Lambda V^{-1}$ iff $A$ has a basis of eigenvectors, and then
+\[
+A^k=V\Lambda^{k}V^{-1},\qquad
+\Lambda^k=\operatorname{diag}(\lambda_1^k,\dots,\lambda_n^k).
+\]
+\end{theorem}
+
+This is the change of basis of chapter 4 paying its second dividend: the
+same map, in its own basis, is a list of independent scalings.
+
+\begin{example}[$A^{10}$ the cheap way]\label{ex:a10}
+\textbf{Strategy.} Don't multiply ten matrices --- decompose the input in
+the eigenbasis, scale each piece by $\lambda^{10}$, reassemble.
+
+\textbf{Solution.} From Example~\ref{ex:eig2},
+$A=V\Lambda V^{-1}$ with $V=\begin{bmatrix}1&1\\1&-2\end{bmatrix}$,
+$\Lambda=\operatorname{diag}(5,2)$. Take $\mathbf x=(1,0)$: solving
+$V\mathbf c=\mathbf x$ gives $\mathbf c=(2/3,\,1/3)$, i.e.
+$\mathbf x=\tfrac23\mathbf v_1+\tfrac13\mathbf v_2$. Then
+\[
+A^{10}\mathbf x=\tfrac23\,5^{10}\mathbf v_1+\tfrac13\,2^{10}\mathbf v_2
+=\begin{bmatrix}(2\cdot5^{10}+2^{10})/3\\(2\cdot5^{10}-2\cdot2^{10})/3\end{bmatrix}
+=\begin{bmatrix}6510758\\6509734\end{bmatrix}.
+\]
+Two exponentiations instead of nine matrix multiplies --- and the dominant
+term $5^{10}$ already explains the answer's scale.
+\end{example}
+
+\begin{lstlisting}[caption={\ttfamily code/ch07\_power\_iteration.py ---
+eight steps of power iteration: multiply, normalize, read the Rayleigh
+quotient.}]
+import numpy as np
+np.set_printoptions(precision=6, suppress=True)
+
+A = np.array([[2., 1., 0.], [1., 2., 1.], [0., 1., 2.]])
+x = np.array([1., 0.5, -0.25])
+print("A =")
+print(A)
+for k in range(8):
+    x = A @ x
+    x = x / np.linalg.norm(x)
+    rq = x @ A @ x
+    print(f"k={k+1}: lambda~{rq:.6f}  x={x}")
+w, V = np.linalg.eig(A)
+print("true dominant:", np.abs(w).max(), " eigenvector:", V[:, np.argmax(np.abs(w))])
+\end{lstlisting}
+
+\begin{lstlisting}[caption={Output of power iteration. Notice the iterate
+rotates onto the dominant eigendirection and the Rayleigh quotient locks
+onto $\lambda_1=2+\sqrt2\approx3.4142$ --- the sign flip versus
+\texttt{np.linalg.eig} is the up-to-scale freedom, not an error.}]
+A =
+[[2. 1. 0.]
+ [1. 2. 1.]
+ [0. 1. 2.]]
+k=1: lambda~2.939597  x=[0.819232 0.573462 0.      ]
+k=2: lambda~3.205318  x=[0.733761 0.652232 0.190234]
+k=3: lambda~3.334830  x=[0.653366 0.686872 0.318307]
+k=4: lambda~3.385931  x=[0.594985 0.699983 0.39499 ]
+k=5: lambda~3.404379  x=[0.557226 0.704641 0.439295]
+k=6: lambda~3.410823  x=[0.534021 0.706258 0.46478 ]
+k=7: lambda~3.413048  x=[0.52009  0.706815 0.479498]
+k=8: lambda~3.413814  x=[0.511822 0.707007 0.488037]
+true dominant: 3.4142135623730914  eigenvector: [-0.5      -0.707107 -0.5     ]
+\end{lstlisting}
+
+\begin{figure}[htbp]
+\centering
+\input{figures/ch07_power_convergence}
+\caption{Power iteration geometrically: each application leans harder on
+the largest eigenvalue, so iterates rotate onto the dominant
+eigendirection. This is the algorithm inside PageRank and every
+large-scale eigensolver. Regenerate:
+\ttfamily figures/ch07\_power\_convergence.tex.}
+\label{fig:power-conv}
+\end{figure}
+
+\section{Defective matrices}\label{sec:eig-defective}
+
+When algebraic multiplicity outgrows geometric multiplicity, the
+eigenbasis runs out of members and $V$ cannot be inverted.
+
+\begin{example}[A shear that cannot diagonalise]\label{ex:defective}
+\textbf{Strategy.} Compute both multiplicities for the shear
+$S=\begin{bmatrix}1&1\\0&1\end{bmatrix}$ and look at the geometry directly.
+
+\textbf{Solution.} $\chi_S=(1-\lambda)^2$: $\lambda=1$ with algebraic
+multiplicity 2. But $S-I=\begin{bmatrix}0&1\\0&0\end{bmatrix}$ has null
+space $\operatorname{span}\{(1,0)\}$ --- geometric multiplicity 1. Only the
+$x$-axis survives as a direction (Figure~\ref{fig:defective}); the second
+slot in the would-be eigenbasis is missing, so $S\ne V\Lambda V^{-1}$ for
+any $V$. The correct replacement (Jordan form) adds a \emph{generalized}
+eigenvector: $S$ maps $\mathbf e_2$ to $\mathbf e_2+\mathbf e_1$, and
+powers show it: $S^k=\begin{bmatrix}1&k\\0&1\end{bmatrix}$ grows
+\emph{linearly}, not exponentially --- the signature of a defect.
+\end{example}
+
+\begin{figure}[htbp]
+\centering
+\input{figures/ch07_defective}
+\caption{The shear's eigendirections collapse. Notice only the
+$x$-direction is preserved; every other direction slides along it and the
+second eigenvector simply does not exist. Regenerate:
+\ttfamily figures/ch07\_defective.tex.}
+\label{fig:defective}
+\end{figure}
+
+\begin{exercise}[medium]
+Decide whether $A=\begin{bmatrix}2&0\\0&2\end{bmatrix}$ and
+$B=\begin{bmatrix}2&1\\0&2\end{bmatrix}$ diagonalise, though both have
+$\chi=(2-\lambda)^2$.
+\begin{solution}
+$A=2I$: every vector is an eigenvector, basis exists, already diagonal.
+$B$: $\ker(B-2I)=\operatorname{span}\{(1,0)\}$, dimension 1 $<2$ ---
+defective, does not diagonalise.
+\end{solution}
+\end{exercise}
+
+\begin{exercise}[hard]
+Show that if $\lambda$ is an eigenvalue of $A$ with eigenvector
+$\mathbf v$, then for every polynomial $p$, $p(\lambda)$ is an eigenvalue
+of $p(A)$ with the same eigenvector. Conclude the eigenvalues of $A^2$ are
+$\lambda_i^2$ --- and explain why $A^2$ can have \emph{fewer} distinct
+eigenvalues than $A$.
+\begin{solution}
+$p(A)\mathbf v=\sum_j c_jA^j\mathbf v=\sum_j c_j\lambda^j\mathbf v
+=p(\lambda)\mathbf v$. For $p(x)=x^2$: eigenvalues $\lambda_i^2$; if
+$\pm\lambda$ both occur they merge into one $\lambda^2$ (e.g.\
+eigenvalues $2$ and $-2$ of $A$ both give $4$ in $A^2$).
+\end{solution}
+\end{exercise}
+
+\section{Applications: recurrences and Markov chains}\label{sec:eig-apps}
+
+\subsection*{Fibonacci, closed form}
+
+The recurrence $F_{k+1}=F_k+F_{k-1}$ becomes a matrix iteration:
+\[
+\begin{bmatrix}F_{k+1}\\F_{k}\end{bmatrix}
+=\begin{bmatrix}1&1\\1&0\end{bmatrix}
+\begin{bmatrix}F_{k}\\F_{k-1}\end{bmatrix},
+\qquad\text{i.e.}\quad \mathbf x_{k}=A\mathbf x_{k-1}=A^{k}\mathbf x_0 .
+\]
+
+\begin{example}[Fibonacci via diagonalisation]\label{ex:fib}
+\textbf{Strategy.} Eigenvalues of $A$: $\chi_A=\lambda^2-\lambda-1$,
+roots $\varphi=(1+\sqrt5)/2$ and $\psi=(1-\sqrt5)/2$. Distinct $\Rightarrow$
+diagonalisable; the full closed form is derived in
+Section~\ref{sec:handderiv7}.
+
+\textbf{Solution.} With $F_0=0,F_1=1$ the eigencoordinate computation
+yields Binet's formula,
+\[
+F_n=\frac{\varphi^{n}-\psi^{n}}{\sqrt5},
+\]
+and since $|\psi|<1$ its term dies exponentially: $F_n$ is the nearest
+integer to $\varphi^{n}/\sqrt5$.
+\end{example}
+
+\begin{lstlisting}[caption={\ttfamily code/ch07\_fibonacci.py --- Binet's
+formula checked against the recursion, timed, and pushed past its float
+limit by an integer matrix power.}]
+import numpy as np
+import time
+np.set_printoptions(precision=4, suppress=True)
+
+A = np.array([[1., 1.], [1., 0.]])
+w, V = np.linalg.eig(A)
+print("eigenvalues of [[1,1],[1,0]]:", np.sort(w))
+phi, psi = (1 + np.sqrt(5)) / 2, (1 - np.sqrt(5)) / 2
+
+def fib_closed(n):
+    return int(round((phi**n - psi**n) / np.sqrt(5)))
+
+def fib_rec(n):
+    a, b = 0, 1
+    for _ in range(n):
+        a, b = b, a + b
+    return a
+
+GOOD = [n for n in range(1, 100) if fib_closed(n) == fib_rec(n)]
+print("closed form exact through n =", GOOD[-1],
+      "; float64 Binet breaks at n =", GOOD[-1] + 1)
+for n in [10, 20, 30, 60, 70]:
+    assert fib_closed(n) == fib_rec(n), n
+print("closed form == recursion for n in {10,20,30,60,70}: OK")
+
+t0 = time.perf_counter()
+for n in range(1, 70):
+    fib_closed(n)
+t1 = time.perf_counter()
+for n in range(1, 70):
+    fib_rec(n)
+t2 = time.perf_counter()
+print(f"closed-form all n<70: {1e3*(t1-t0):.3f} ms")
+print(f"recursion   all n<70: {1e3*(t2-t1):.3f} ms")
+Aint = np.array([[1, 1], [1, 0]], dtype=object)
+Ai = np.linalg.matrix_power(Aint, 100)
+print("F_101 via integer matrix power:", Ai[0, 0])
+n = 10
+An = np.linalg.matrix_power(A, n)
+print(f"A^{n} =")
+print(An.astype(int), f"(entries F11={int(An[0,0])}, F10={int(An[1,0])})")
+\end{lstlisting}
+
+\begin{lstlisting}[caption={Output of the Fibonacci check. Notice float64
+Binet holds only to $n=70$ --- past that the $\varphi^{n}$ term outgrows
+precision; integer matrix powers stay exact forever. (Timing is a wash at
+this $n$; both are cheap --- the point is the \emph{form} exists at all.)}]
+eigenvalues of [[1,1],[1,0]]: [-0.618  1.618]
+closed form exact through n = 70 ; float64 Binet breaks at n = 71
+closed form == recursion for n in {10,20,30,60,70}: OK
+closed-form all n<70: 0.076 ms
+recursion   all n<70: 0.047 ms
+F_101 via integer matrix power: 573147844013817084101
+A^10 =
+[[89 55]
+ [55 34]] (entries F11=89, F10=55)
+\end{lstlisting}
+
+\subsection*{Markov chains and the eigenvalue 1}
+
+A Markov chain stores a probability distribution $\mathbf p$ and updates
+$\mathbf p\leftarrow P\mathbf p$ where each column of $P$ sums to 1.
+Columns summing to 1 makes $\lambda=1$ an eigenvalue, and every steady
+state is its eigenvector:
+
+\begin{example}[Weather chain steady state]\label{ex:markov}
+\textbf{Strategy.} For the two-state chain
+$P=\begin{bmatrix}0.9&0.3\\0.1&0.7\end{bmatrix}$ (columns: from-state),
+find the $\lambda=1$ eigenvector and check that powers converge to it.
+
+\textbf{Solution.} $(P-I)\boldsymbol\pi=\mathbf0$:
+$\begin{bmatrix}-0.1&0.3\\0.1&-0.3\end{bmatrix}\boldsymbol\pi=\mathbf0$
+gives $\pi_1=3\pi_2$; normalizing $\pi_1+\pi_2=1$ yields
+$\boldsymbol\pi=(0.75,0.25)$. The second eigenvalue is $0.6<1$, so every
+other eigendirection decays: $P^{k}\mathbf x\to\boldsymbol\pi$ regardless
+of start --- visible in the listing (Figure~\ref{fig:markov-graph} shows
+the chain).
+\end{example}
+
+\begin{figure}[htbp]
+\centering
+\input{figures/ch07_markov_graph}
+\caption{The weather chain's transition graph. Notice the steady state is
+an \emph{eigenvector}: it is what the dynamics settle onto, not a separate
+concept. Regenerate: \ttfamily figures/ch07\_markov\_graph.tex.}
+\label{fig:markov-graph}
+\end{figure}
+
+\begin{lstlisting}[caption={\ttfamily code/ch07\_markov\_steady.py ---
+steady state from \ttfamily np.linalg.eig, from matrix powers, and from a
+Monte-Carlo run of 200{,}000 steps.}]
+import numpy as np
+np.set_printoptions(precision=6, suppress=True)
+np.random.seed(1)
+
+P = np.array([[0.9, 0.3],
+              [0.1, 0.7]])
+print("P =")
+print(P)
+print("columns sum to 1:", np.allclose(P.sum(axis=0), 1))
+
+w, V = np.linalg.eig(P)
+print("eigenvalues:", w)
+pi = V[:, np.argmax(w)].real
+pi = pi / pi.sum()
+print("steady state (eigenvector of lambda=1):", pi)
+
+x = np.array([1., 0.])
+for k in [10, 20, 50, 200]:
+    xk = np.linalg.matrix_power(P, k) @ x
+    print(f"P^{k} x0 = {xk}")
+rng = np.random.default_rng(0)
+state, counts = 0, np.zeros(2)
+for _ in range(200000):
+    state = rng.choice(2, p=P[:, state])
+    counts[state] += 1
+print("Monte Carlo fractions:", counts / counts.sum())
+\end{lstlisting}
+
+\begin{lstlisting}[caption={Output of the Markov check. Notice three
+routes to the same answer --- eigenvector $(0.75,0.25)$, powers converging
+by $k=20$, Monte-Carlo fractions within sampling error. The subdominant
+eigenvalue $0.6$ sets the convergence speed.}]
+P =
+[[0.9 0.3]
+ [0.1 0.7]]
+columns sum to 1: True
+eigenvalues: [1.  0.6]
+steady state (eigenvector of lambda=1): [0.75 0.25]
+P^10 x0 = [0.751512 0.248488]
+P^20 x0 = [0.750009 0.249991]
+P^50 x0 = [0.75 0.25]
+P^200 x0 = [0.75 0.25]
+Monte Carlo fractions: [0.753955 0.246045]
+\end{lstlisting}
+
+The same $\lambda=1$-eigenvector machinery is PageRank in disguise: the
+``random surfer'' matrix is column-stochastic (with a teleport term to
+kill dangling nodes), and a page's rank is its steady-state probability ---
+computed by power iteration, exactly the loop above, at web scale
+(Figure~\ref{fig:dominant-geo} is the picture).
+
+\begin{figure}[htbp]
+\centering
+\input{figures/ch07_dominant_geometry}
+\caption{Why the dominant eigenvalue rules: the $\lambda_1$ component is
+tripled per application while the $\lambda_2$ component shrinks by half.
+After a few steps only the dominant direction is visible.
+Regenerate: \ttfamily figures/ch07\_dominant\_geometry.tex.}
+\label{fig:dominant-geo}
+\end{figure}
+
+\section{Hand derivation}\label{sec:handderiv7}
+
+Derive Binet's formula from the eigenvalues. With
+$A=\begin{bmatrix}1&1\\1&0\end{bmatrix}$,
+$\chi_A=\lambda^2-\lambda-1$, roots
+$\varphi,\psi=(1\pm\sqrt5)/2$. Eigenvectors: $(\lambda,1)^{T}$ works since
+row 2 of $(A-\lambda I)$ reads $1-\lambda\cdot0$... directly:
+$A(\lambda,1)^{T}=(\lambda+1,\lambda)^{T}=(\lambda^2,\lambda)^{T}
+=\lambda(\lambda,1)^{T}$ using $\lambda^2=\lambda+1$. So
+$V=\begin{bmatrix}\varphi&\psi\\1&1\end{bmatrix}$. Write the start:
+$(1,0)^{T}=c_1\mathbf v_\varphi+c_2\mathbf v_\psi$ --- solving
+$c_1\varphi+c_2\psi=1$, $c_1+c_2=0$ gives $c_1=-c_2=1/(\varphi-\psi)=1/\sqrt5$.
+Then
+\[
+\mathbf x_n=A^{n}\mathbf x_0=\frac{\varphi^{n}}{\sqrt5}\mathbf v_\varphi
+-\frac{\psi^{n}}{\sqrt5}\mathbf v_\psi,
+\qquad
+F_n=\frac{\varphi^{n}-\psi^{n}}{\sqrt5}.
+\]
+Check at $n=1$: $(\varphi-\psi)/\sqrt5=1$ \checkmark; at $n=2$:
+$(\varphi^2-\psi^2)/\sqrt5=(\varphi+\psi)(\varphi-\psi)/\sqrt5=1\cdot1=1$
+\checkmark\ (using $\varphi+\psi=1$, $\varphi\psi=-1$ from
+$\lambda^2=\lambda+1$).
+
+\section{Common mistakes}
+
+\begin{tripwire}[{Expecting real matrices to have real eigenvalues}]
+A rotation has none. Real matrices get complex eigenvalues in conjugate
+pairs --- and they are not a pathology, they \emph{are} the rotation
+content of the map (Figure~\ref{fig:complex-rot}).
+\end{tripwire}
+
+\begin{tripwire}[{Sign errors in $\det(A-\lambda I)$}]
+For $2\times2$, $\det(A-\lambda I)=(a-\lambda)(d-\lambda)-bc$; the
+cross-term is a \emph{minus} $bc$ and the $\lambda$ sits on the diagonal,
+not the off-diagonal. Guard yourself with the free checksum
+$\sum\lambda_i=\operatorname{tr}A$, $\prod\lambda_i=\det A$.
+\end{tripwire}
+
+\begin{tripwire}[{Assuming every matrix diagonalises}]
+Distinct eigenvalues guarantee it; repeated eigenvalues are ambiguous.
+$\begin{bmatrix}1&1\\0&1\end{bmatrix}$ is the canonical counterexample ---
+check $\dim E_\lambda$, not just the algebraic count.
+\end{tripwire}
+
+\begin{tripwire}[{Treating eigenvectors as unique}]
+They are directions, defined only up to nonzero scale and sign.
+\texttt{np.linalg.eig} returns unit vectors whose signs may disagree with
+your hand work --- compare directions ($|\cos\theta|=1$ or
+\texttt{allclose} up to sign), never entries literally.
+\end{tripwire}
+
+\begin{tripwire}[{Confusing eigenvalues of $A$ and $A^2$}]
+$A^2$ has eigenvalues $\lambda_i^2$ with the \emph{same} eigenvectors ---
+not $\lambda_i$ again, and not unrelated values. Opposite eigenvalues
+($\pm\lambda$) collide in $A^2$, so $A^2$ can have fewer distinct values.
+\end{tripwire}
+
+\section{Summary}
+
+\begin{center}
+\begin{tabularx}{\textwidth}{l>{\raggedright\arraybackslash}X}
+\toprule
+\textbf{Object} & \textbf{What you need to know}\\
+\midrule
+Eigen equation & $A\mathbf v=\lambda\mathbf v$, $\mathbf v\ne\mathbf0$;
+direction preserved \\
+Characteristic poly & $\chi_A(\lambda)=\det(A-\lambda I)$; roots $=$
+eigenvalues; $\operatorname{tr}=\sum\lambda_i$, $\det=\prod\lambda_i$ \\
+Eigenspace & $E_\lambda=\ker(A-\lambda I)$; geometric $\le$ algebraic
+multiplicity \\
+Independence & eigenvectors of distinct $\lambda_i$ are linearly
+independent \\
+Diagonalisation & $A=V\Lambda V^{-1}$ iff $n$ independent eigenvectors;
+$A^k=V\Lambda^kV^{-1}$ \\
+Defective & geometric $<$ algebraic $\Rightarrow$ no eigenbasis (shear);
+powers grow polynomially \\
+Power iteration & multiply + normalize $\to$ dominant eigenpair;
+rate set by $|\lambda_2/\lambda_1|$ \\
+Markov steady state & column-stochastic $P$ has $\lambda_1=1$; steady
+state is its eigenvector \\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+\section*{Additional exercises}
+\addcontentsline{toc}{section}{Additional exercises}
+
+\begin{exercise}[easy]
+Find eigenvalues and eigenvectors of
+$\begin{bmatrix}2&0\\0&-3\end{bmatrix}$ and
+$\begin{bmatrix}1&2\\0&-1\end{bmatrix}$. What does a zero row on the
+diagonal buy you?
+\end{exercise}
+
+\begin{exercise}[easy]
+$\mathbf v$ is an eigenvector of $A$ with $\lambda=4$. What are the
+eigenvalues of $A^{3}$, $A^{-1}$, $A+2I$ on the same vector?
+\end{exercise}
+
+\begin{exercise}[easy]
+Compute $\chi_A$ for $A=\begin{bmatrix}1&3\\0&5\end{bmatrix}$ and confirm
+$\operatorname{tr}=\sum\lambda_i$, $\det=\prod\lambda_i$.
+\end{exercise}
+
+\begin{exercise}[easy]
+Give the algebraic and geometric multiplicities of every eigenvalue of
+$\operatorname{diag}(2,2,3)$.
+\end{exercise}
+
+\begin{exercise}[medium]
+Diagonalise $A=\begin{bmatrix}1&2\\2&1\end{bmatrix}$ and compute
+$A^8(1,0)^{T}$ exactly via the eigen decomposition.
+\end{exercise}
+
+\begin{exercise}[medium]
+For the Markov matrix $P=\begin{bmatrix}0.8&0.4\\0.2&0.6\end{bmatrix}$,
+find the steady state and the subdominant eigenvalue; estimate how many
+steps until a start at $(1,0)$ is within $0.01$ of steady state.
+\end{exercise}
+
+\begin{exercise}[medium]
+Show that similar matrices have the same eigenvalues: if $B=P^{-1}AP$ and
+$A\mathbf v=\lambda\mathbf v$, then $B(P^{-1}\mathbf v)=\lambda(P^{-1}\mathbf v)$.
+Does the converse --- same eigenvalues means similar --- hold?
+\end{exercise}
+
+\begin{exercise}[medium]
+In code: run power iteration on a symmetric $4\times4$ of your choice,
+then on one whose two largest eigenvalues are close ($|\lambda_1/\lambda_2|\approx1.05$).
+Count iterations to $10^{-6}$ Rayleigh-quotient error in each case and
+relate to $|\lambda_2/\lambda_1|^k$.
+\end{exercise}
+
+\begin{exercise}[medium]
+The matrix $J=\begin{bmatrix}1&1&0\\0&1&1\\0&0&1\end{bmatrix}$. Compute
+$J^4$ exactly --- the polynomial growth of a defective matrix shows up as
+binomial coefficients.
+\end{exercise}
+
+\begin{exercise}[hard]
+Prove: $A$ diagonalises iff the sum of geometric multiplicities equals
+$n$ iff the minimal polynomial has no repeated roots. (State the minimal
+polynomial; you may use $\chi_A$'s factorization and the eigenspace
+decomposition.)
+\end{exercise}
+
+\begin{exercise}[hard]
+Analyse $R_\theta=\begin{bmatrix}\cos\theta&-\sin\theta\\\sin\theta&\cos\theta\end{bmatrix}$:
+find its (complex) eigenvalues and eigenvectors, show
+$R_\theta=VDV^{-1}$ over $\mathbb C$, and explain why diagonalisation over
+$\mathbb R$ fails for $\theta\ne0,\pi$.
+\end{exercise}
+
+\begin{exercise}[hard]
+Implement shifted power iteration: to find the eigenvalue \emph{nearest}
+$\mu$, run power iteration on $(A-\mu I)^{-1}$. Test on a $3\times3$ of
+your choice against \texttt{np.linalg.eig}, and explain why the dominant
+eigenvalue of $(A-\mu I)^{-1}$ is $1/(\lambda_i-\mu)$.
+\end{exercise}
+
+\begin{exercise}[hard]
+A page graph with dangling node: build the $3\times3$ matrix
+$P=\begin{bmatrix}0&0.5&1/3\\0.5&0&1/3\\0.5&0.5&1/3\end{bmatrix}$ plus a
+teleport term $0.85P+0.15\cdot\frac13J$ ($J$ all-ones). Find the PageRank
+vector by power iteration in code and confirm $\lambda_1=1$.
+\end{exercise}
+
+\section*{Notes}
+\addcontentsline{toc}{section}{Notes}
+
+\chapternotes{%
+The eigen-equation-first development and the applications section follow
+Strang \cite{ila} ch.~10 and 18.06SC Unit II \cite{ocw1806sc}; linear
+dynamics as the motivating application follows VMLS ch.~9 \cite{vmls} and
+MML \S4.4 \cite{mml}. Axler ch.~5 \cite{axler} develops eigen theory
+\emph{without} determinants (invariant subspaces first) --- the opposite
+order from this book's characteristic-polynomial route, worth reading as a
+contrast once the computation here is comfortable.}

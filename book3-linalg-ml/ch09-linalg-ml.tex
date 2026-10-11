@@ -1,0 +1,549 @@
+% Chapter 9 -- Symmetric matrices and the spectral theorem
+\chapter{Symmetric matrices and the spectral theorem}\label{ch:spectral}
+
+Symmetric matrices are the best-behaved class in all of linear algebra:
+every eigenvalue is real, eigenvectors for different eigenvalues are
+perpendicular, and there is always a full orthonormal eigenbasis. The
+spectral theorem says a symmetric matrix is a rotation, an axis-aligned
+stretch, and a rotation back. Everything downstream uses this --- PCA's
+principal axes, the Hessian's curvature readout, quadratic-program
+convexity, and the SVD's construction next chapter. After this chapter
+you can diagonalise any symmetric matrix with an orthogonal $Q$,
+classify definiteness three ways, use the Rayleigh quotient as a variational
+eigenvalue finder, and read a covariance matrix geometrically.
+
+\section{Symmetric matrices and why they are special}\label{sec:sym-special}
+
+\begin{definition}[Symmetric matrix]\index{symmetric matrix}
+$A$ is \emph{symmetric} when $A^{T}=A$: entry $(i,j)$ equals entry
+$(j,i)$. The Gram matrix $A^{T}A$, every covariance matrix, and every
+Hessian of a smooth function are symmetric by construction.
+\end{definition}
+
+Two miracles happen for real symmetric matrices, proved in
+Section~\ref{sec:handderiv9}:
+
+\begin{theorem}[Real eigenvalues]\index{eigenvalue!real}
+If $A=A^{T}$ is real, every eigenvalue of $A$ is real.
+\end{theorem}
+
+\begin{theorem}[Orthogonal eigenvectors]\index{eigenvector!orthogonality}
+If $A=A^{T}$, eigenvectors belonging to \emph{distinct} eigenvalues are
+orthogonal.
+\end{theorem}
+
+Neither holds in general: the rotation
+$\begin{bmatrix}0&-1\\1&0\end{bmatrix}$ has eigenvalues $\pm i$
+(chapter 7) --- symmetry is what removes complex eigenvalues and skew
+eigenframes at once.
+
+\section{The spectral theorem}\label{sec:spectral}
+
+\begin{theorem}[Spectral theorem]\index{spectral theorem}
+Every real symmetric $n\times n$ matrix factors as
+\[
+A=Q\Lambda Q^{T},
+\]
+where $Q$ is orthogonal ($Q^{T}Q=I$, columns = orthonormal eigenvectors)
+and $\Lambda=\operatorname{diag}(\lambda_1,\dots,\lambda_n)$ is real.
+\end{theorem}
+
+Compare chapter 7: there $A=V\Lambda V^{-1}$ held only with a possibly
+ill-conditioned $V$. Symmetry upgrades the basis change:
+$V^{-1}$ becomes $Q^{T}$, perfectly conditioned and free.
+Figure~\ref{fig:rotstretch} shows the geometry: rotate, stretch,
+rotate back.
+
+\begin{figure}[htbp]
+\centering
+\input{figures/ch09_rotstretch}
+\caption{$A=Q\Lambda Q^{T}$ geometrically: rotate into the eigenbasis,
+stretch each axis by $\lambda_i$, rotate back. Notice there are no skew
+angles anywhere --- unlike general diagonalisation, everything stays
+orthogonal. Regenerate: \ttfamily figures/ch09\_rotstretch.tex.}
+\label{fig:rotstretch}
+\end{figure}
+
+\begin{example}[Spectral decomposition by hand]\label{ex:spec2}
+\textbf{Strategy.} For $A=\begin{bmatrix}2&1\\1&2\end{bmatrix}$ the
+eigenvectors must come out orthonormal --- verify, then assemble
+$Q\Lambda Q^{T}$.
+
+\textbf{Solution.} $\chi_A=(2-\lambda)^2-1=\lambda^2-4\lambda+3$: roots
+$\lambda_1=3$, $\lambda_2=1$. Eigenvectors: $(1,1)/\sqrt2$ for 3,
+$(1,-1)/\sqrt2$ for 1 --- note $\langle(1,1),(1,-1)\rangle=0$ as promised.
+Then
+\[
+A=\frac1{\sqrt2}\begin{bmatrix}1&1\\1&-1\end{bmatrix}
+\begin{bmatrix}3&0\\0&1\end{bmatrix}
+\frac1{\sqrt2}\begin{bmatrix}1&1\\1&-1\end{bmatrix}=Q\Lambda Q^{T}.
+\]
+Check the (1,1) entry: $\frac12(3\cdot1+1\cdot1)=2$ \checkmark.
+\end{example}
+
+\begin{lstlisting}[caption={\ttfamily code/ch09\_spec\_verify.py --- a random
+symmetric matrix: eigenvalues real, $Q$ orthogonal, reconstruction exact.}]
+import numpy as np
+np.set_printoptions(precision=4, suppress=True)
+rng = np.random.default_rng(3)
+
+M = rng.standard_normal((4, 4))
+A = M + M.T          # symmetric by construction
+print("A ="); print(A)
+print("symmetric:", np.allclose(A, A.T))
+
+w, Q = np.linalg.eigh(A)   # eig for symmetric matrices
+print("eigenvalues:", w)
+print("Q orthonormal (Q^T Q = I):", np.allclose(Q.T @ Q, np.eye(4)))
+Lam = np.diag(w)
+print("A == Q Lambda Q^T:", np.allclose(Q @ Lam @ Q.T, A))
+print("A^3 == Q Lambda^3 Q^T:",
+      np.allclose(Q @ np.diag(w**3) @ Q.T, A @ A @ A))
+# non-symmetric contrast: same eigenvalues? no orthogonal basis
+B = np.array([[0., -1.], [1., 0.]])
+print("rotation eig:", np.linalg.eigvals(B), "(complex: not symmetric)")
+\end{lstlisting}
+
+\begin{lstlisting}[caption={Output of the spectral check. Notice
+\texttt{eigh} (the symmetric specialist) returns all-real eigenvalues and
+a $Q$ that is orthonormal to machine precision --- and powers collapse to
+$\Lambda^{k}$.}]
+A =
+[[ 4.0818 -3.0083 -0.4471 -0.8491]
+ [-3.0083 -0.4312  1.303  -0.9   ]
+ [-0.4471  1.303   0.4516 -1.4078]
+ [-0.8491 -0.9     -1.4078 -0.7816]]
+symmetric: True
+eigenvalues: [-2.6815 -1.6239  1.8538  5.7722]
+Q orthonormal (Q^T Q = I): True
+A == Q Lambda Q^T: True
+A^3 == Q Lambda^3 Q^T: True
+rotation eig: [0.+1.j 0.-1.j] (complex: not symmetric)
+\end{lstlisting}
+
+\begin{exercise}[easy]
+Decompose $\begin{bmatrix}3&0\\0&1\end{bmatrix}$ and
+$\begin{bmatrix}1&2\\2&1\end{bmatrix}$ as $Q\Lambda Q^{T}$.
+\begin{solution}
+First is already $\Lambda$ with $Q=I$. Second: eigenvalues $3,-1$ with
+$(1,1)/\sqrt2,(1,-1)/\sqrt2$ --- $Q$ orthogonal as required even though an
+eigenvalue is negative (symmetric $\ne$ positive definite!).
+\end{solution}
+\end{exercise}
+
+\section{Quadratic forms and definiteness}\label{sec:quadform}
+
+\begin{definition}[Quadratic form]\index{quadratic form}
+For symmetric $A$, $q(\mathbf x)=\mathbf x^{T}A\mathbf x$ is a pure
+second-degree scalar --- a paraboloid, saddle, or degenerate sheet whose
+level sets Figure~\ref{fig:levelsets} draws.
+\end{definition}
+
+\begin{definition}[Definiteness]\index{positive definite}\index{indefinite}
+$A$ is \emph{positive definite} (PD) when $\mathbf x^{T}A\mathbf x>0$ for
+all $\mathbf x\ne\mathbf0$; \emph{positive semidefinite} (PSD) when
+$\ge0$; \emph{indefinite} when the form takes both signs. Negative
+definite/semidefinite mirror with $\le,<0$.
+\end{definition}
+
+Three equivalent tests (each earns its keep):
+
+\begin{center}
+\begin{tabularx}{\textwidth}{l>{\raggedright\arraybackslash}X}
+\toprule
+\textbf{Test} & \textbf{Statement}\\
+\midrule
+Eigenvalues & PD iff every $\lambda_i>0$; PSD iff $\lambda_i\ge0$;
+indefinite iff mixed signs \\
+Pivots (Sylvester) & PD iff every pivot in elimination is positive ---
+no eigenvalues needed \\
+Leading minors & PD iff all leading principal minors $>0$ \\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+\begin{example}[Classifying three ways]\label{ex:definite}
+\textbf{Strategy.} Take the tridiagonal
+$B=\begin{bmatrix}2&-1&0\\-1&2&-1\\0&-1&2\end{bmatrix}$ and classify by
+pivots (cheap) then eigenvalues (decisive).
+
+\textbf{Solution.} Elimination gives pivots $2,\ \tfrac32,\ \tfrac43$ ---
+all positive, so $B$ is PD without touching eigenvalues. The listing
+confirms: eigenvalues $0.586,2,3.414$ all positive. Contrast
+$\begin{bmatrix}1&2\\2&1\end{bmatrix}$: eigenvalues $-1,3$ and pivots
+$1,-3$ --- indefinite, its level sets are hyperbolas.
+\end{example}
+
+\begin{figure}[htbp]
+\centering
+\input{figures/ch09_levelsets}
+\caption{Level sets $x^{T}Ax=c$ by definiteness. Notice positive definite
+gives closed ellipses (a bowl), indefinite gives hyperbolas (a saddle),
+semidefinite degenerates into parallel lines (a trough).
+Regenerate: \ttfamily figures/ch09\_levelsets.tex.}
+\label{fig:levelsets}
+\end{figure}
+
+\begin{lstlisting}[caption={\ttfamily code/ch09\_definiteness.py ---
+eigenvalues vs.\ pivot signs on four matrices, then $A^{T}A$ is always
+PSD.}]
+import numpy as np
+np.set_printoptions(precision=4, suppress=True)
+
+def pivots(A):
+    A = A.astype(float).copy(); n = A.shape[0]; ps = []
+    for j in range(n):
+        ps.append(A[j, j])
+        if abs(A[j, j]) < 1e-12: break
+        A[j+1:, j:] -= np.outer(A[j+1:, j] / A[j, j], A[j, j:])
+    return np.array(ps)
+
+mats = {
+    "PD   [[2,-1,0],[-1,2,-1],[0,-1,2]]":
+        np.array([[2., -1., 0.], [-1., 2., -1.], [0., -1., 2.]]),
+    "PSD  [[1,1,1],[1,1,1],[1,1,1]]":
+        np.ones((3, 3)),
+    "IND  [[1,0],[0,-1]]":
+        np.array([[1., 0.], [0., -1.]]),
+    "PD?  [[1,2],[2,1]]":
+        np.array([[1., 2.], [2., 1.]]),
+}
+for name, M in mats.items():
+    w = np.linalg.eigvalsh(M)
+    print(f"{name}: eigs {w}  pivots {pivots(M)}")
+
+# A^T A is always PSD
+rng = np.random.default_rng(0)
+A = rng.standard_normal((5, 3))
+G = A.T @ A
+print("Gram G=A^T A eigenvalues:", np.linalg.eigvalsh(G))
+x = rng.standard_normal(3)
+print("x^T G x = ||Ax||^2 =", x @ G @ x, " = ||Ax||^2 check:",
+      np.isclose(x @ G @ x, (A @ x) @ (A @ x)))
+\end{lstlisting}
+
+\begin{lstlisting}[caption={Output of the definiteness tests. Notice
+pivots and eigenvalues agree in sign pattern on every case --- and the
+Gram matrix's eigenvalues are all $\ge0$ because $x^{T}Gx=\lVert
+Ax\rVert^{2}$ is a squared length, never negative.}]
+PD   [[2,-1,0],[-1,2,-1],[0,-1,2]]: eigs [0.5858 2.     3.4142]  pivots [2.     1.5    1.3333]
+PSD  [[1,1,1],[1,1,1],[1,1,1]]: eigs [-0. -0.  3.]  pivots [1. 0.]
+IND  [[1,0],[0,-1]]: eigs [-1.  1.]  pivots [ 1. -1.]
+PD?  [[1,2],[2,1]]: eigs [-1.  3.]  pivots [ 1. -3.]
+Gram G=A^T A eigenvalues: [0.1121 2.9218 9.9282]
+x^T G x = ||Ax||^2 = 8.095346091200302  = ||Ax||^2 check: True
+\end{lstlisting}
+
+\begin{proposition}[$A^{T}A$ is always PSD]
+For any real $A$ (any shape),
+$\mathbf x^{T}(A^{T}A)\mathbf x=\lVert A\mathbf x\rVert^{2}\ge0$. It is PD
+exactly when $A$ has full column rank.
+\end{proposition}
+
+\begin{exercise}[medium]
+Show $A$ PD $\Rightarrow$ $A$ invertible and $A^{-1}$ PD.
+\begin{solution}
+$\lambda_i>0$ means none is zero, so $\det A=\prod\lambda_i>0$ and
+$A^{-1}=Q\Lambda^{-1}Q^{T}$ has eigenvalues $1/\lambda_i>0$ --- PD.
+\end{solution}
+\end{exercise}
+
+\section{Rayleigh quotient}\label{sec:rayleigh}
+
+\begin{definition}[Rayleigh quotient]\index{Rayleigh quotient}
+For symmetric $A$ and $\mathbf x\ne\mathbf0$,
+$R(\mathbf x)=\dfrac{\mathbf x^{T}A\mathbf x}{\mathbf x^{T}\mathbf x}$.
+\end{definition}
+
+Decompose $\mathbf x$ in the eigenbasis: $R$ is a weighted average of the
+$\lambda_i$ with weights $c_i^{2}$ --- so it lives in
+$[\lambda_{\min},\lambda_{\max}]$, and
+
+\begin{theorem}[Min--max principle]\index{min-max principle}
+$\max_{\mathbf x\ne\mathbf0}R(\mathbf x)=\lambda_1$ at $\mathbf x=\mathbf q_1$;
+$\min_{\mathbf x\ne\mathbf0}R(\mathbf x)=\lambda_n$ at $\mathbf x=\mathbf q_n$.
+The $k$-th eigenvalue is the max of $R$ over vectors orthogonal to
+$\mathbf q_1,\dots,\mathbf q_{k-1}$.
+\end{theorem}
+
+This is why power iteration (chapter 7) converged to $\lambda_1$: it is
+hill-climbing $R$ (Figure~\ref{fig:rayleigh}). It is also why PCA's first
+component is a Rayleigh maximization --- Section~\ref{sec:covar}.
+
+\begin{figure}[htbp]
+\centering
+\input{figures/ch09_rayleigh}
+\caption{$R(x)$ on the unit circle. Notice the quotient is maximized
+along $\mathbf q_1$ and minimized along $\mathbf q_2$ --- the
+eigenvectors are exactly the stationary directions of the landscape.
+Regenerate: \ttfamily figures/ch09\_rayleigh.tex.}
+\label{fig:rayleigh}
+\end{figure}
+
+\begin{exercise}[hard]
+From the weighted-average picture, prove: if $\mathbf x$ is a stationary
+point of $R$, then $\mathbf x$ is an eigenvector. (Hint: the gradient of
+$R$ is proportional to $A\mathbf x-R(\mathbf x)\mathbf x$.)
+\begin{solution}
+$\nabla R=2(A\mathbf x-R\mathbf x)/\mathbf x^{T}\mathbf x$; stationary
+$\Rightarrow$ $A\mathbf x=R\mathbf x$ --- the eigen equation with
+$\lambda=R(\mathbf x)$.
+\end{solution}
+\end{exercise}
+
+\section{Covariance matrices: PSD by data}\label{sec:covar}
+
+Center data matrix $X$ ($n$ rows of observations, $d$ feature columns)
+and form $C=X^{T}X/(n-1)$. As a Gram matrix it is automatically PSD ---
+and its eigenstructure IS the data's geometry:
+
+\begin{example}[Covariance eigendecomposition]\label{ex:covspec}
+\textbf{Strategy.} Build correlated 2-D data ($x_2=0.8x_1+\text{noise}$),
+compute $C$, and read its eigenvalues/eigenvectors as the axes of the
+data's spread --- a PCA preview.
+
+\textbf{Solution.} The listing's $C=\begin{bmatrix}1.03&0.86\\0.86&0.88\end{bmatrix}$
+has eigenvalues $1.82,0.09$: one direction carries $95\%$ of variance.
+Its eigenvector $(-0.74,-0.68)$ is the long axis of the data ellipse
+(Figure~\ref{fig:covellipse}) --- principal component 1, found by nothing
+but the spectral theorem.
+\end{example}
+
+\begin{figure}[htbp]
+\centering
+\input{figures/ch09_covellipse}
+\caption{Covariance ellipse on real-ish data. Notice the ellipse's long
+axis is the eigenvector of the largest eigenvalue --- that IS the
+principal component, and its length is the eigenvalue's square root.
+Regenerate: \ttfamily figures/ch09\_covellipse.tex.}
+\label{fig:covellipse}
+\end{figure}
+
+\begin{lstlisting}[caption={\ttfamily code/ch09\_covariance.py --- PCA
+directions fall straight out of \ttfamily np.linalg.eigh on the
+covariance matrix.}]
+import numpy as np
+np.set_printoptions(precision=4, suppress=True)
+
+# correlated 2-D data: x1 height-ish, x2 = 0.8 x1 + noise
+rng = np.random.default_rng(4)
+n = 400
+x1 = rng.standard_normal(n)
+x2 = 0.8 * x1 + 0.4 * rng.standard_normal(n)
+X = np.column_stack([x1, x2])
+X = X - X.mean(axis=0)
+C = X.T @ X / (n - 1)
+print("covariance C ="); print(C)
+w, Q = np.linalg.eigh(C)
+order = np.argsort(w)[::-1]
+w, Q = w[order], Q[:, order]
+print("eigenvalues:", w)
+print("eigenvectors (cols):"); print(Q)
+var_frac = w / w.sum()
+print("variance fraction:", var_frac)
+proj = X @ Q[:, 0]
+print("reconstruction error keeping PC1:",
+      np.mean((X - np.outer(proj, Q[:, 0]))**2))
+print("PC1 direction angle (deg):", np.degrees(np.arctan2(Q[1,0], Q[0,0])))
+\end{lstlisting}
+
+\begin{lstlisting}[caption={Output of the covariance eigensolve. Notice
+$95\%$ of variance rides one eigenvector --- projecting onto it loses
+only $0.046$ mean-square error. This is chapter 10's PCA with the SVD
+training wheels still on.}]
+covariance C =
+[[1.0254 0.8595]
+ [0.8595 0.8843]]
+eigenvalues: [1.8173 0.0925]
+eigenvectors (cols):
+[[-0.7355  0.6776]
+ [-0.6776 -0.7355]]
+variance fraction: [0.9516 0.0484]
+reconstruction error keeping PC1: 0.046111017868167695
+PC1 direction angle (deg): -137.34564252667914
+\end{lstlisting}
+
+\begin{figure}[htbp]
+\centering
+\input{figures/ch09_ellipsoid}
+\caption{$x^{T}Ax=1$ is an ellipsoid whose axes are eigenvectors with
+radii $1/\sqrt{\lambda_i}$ (for the form) --- or $\sqrt{\lambda_i}$ for
+the covariance ellipsoid. Either way: eigenvectors are directions,
+eigenvalues are lengths. Regenerate:
+\ttfamily figures/ch09\_ellipsoid.tex.}
+\label{fig:ellipsoid}
+\end{figure}
+
+\begin{exercise}[easy]
+Why can no covariance matrix be indefinite?
+\begin{solution}
+$C=X^{T}X/(n-1)$ is a Gram matrix: $\mathbf v^{T}C\mathbf v=
+\lVert X\mathbf v\rVert^{2}/(n-1)\ge0$ --- PSD by construction.
+\end{solution}
+\end{exercise}
+
+\section{Hand derivation}\label{sec:handderiv9}
+
+\textbf{Real eigenvalues.} Suppose $A=A^{T}$ real and
+$A\mathbf v=\lambda\mathbf v$ with $\mathbf v\ne\mathbf0$ complex. Take
+conjugate-transposes twice. First,
+$\mathbf v^{*}A\mathbf v=\lambda\,\mathbf v^{*}\mathbf v$. Second,
+conjugating the eigen equation: $A\bar{\mathbf v}=\bar\lambda\bar{\mathbf v}$
+($A$ real), so
+$\mathbf v^{*}A\mathbf v=(A^{T}\mathbf v)^{*}\mathbf v
+=(A\mathbf v)^{*}\mathbf v$... directly:
+$(\mathbf v^{*}A\mathbf v)^{*}=\mathbf v^{*}A^{T}\mathbf v
+=\mathbf v^{*}A\mathbf v$ since $A=A^{T}$ --- the scalar
+$\mathbf v^{*}A\mathbf v$ equals its own conjugate, hence real. But
+$\mathbf v^{*}\mathbf v=\lVert\mathbf v\rVert^{2}>0$ is real and positive,
+so $\lambda=\mathbf v^{*}A\mathbf v/\mathbf v^{*}\mathbf v$ is real.
+\qed
+
+\textbf{Orthogonal eigenvectors.} Let $A\mathbf v_1=\lambda_1\mathbf v_1$,
+$A\mathbf v_2=\lambda_2\mathbf v_2$ with $\lambda_1\ne\lambda_2$. Then
+\[
+\lambda_1\,\mathbf v_1^{T}\mathbf v_2
+=(A\mathbf v_1)^{T}\mathbf v_2
+=\mathbf v_1^{T}A^{T}\mathbf v_2
+=\mathbf v_1^{T}A\mathbf v_2
+=\lambda_2\,\mathbf v_1^{T}\mathbf v_2,
+\]
+so $(\lambda_1-\lambda_2)\,\mathbf v_1^{T}\mathbf v_2=0$ and
+$\mathbf v_1^{T}\mathbf v_2=0$. \qed
+
+Together: eigenvalues real, and eigenvectors of distinct eigenvalues
+orthogonal; repeated eigenvalues get orthonormalized inside their
+eigenspace (Gram--Schmidt, ch.5), giving $Q$.
+
+\section{Common mistakes}
+
+\begin{tripwire}[{``Real matrix $\Rightarrow$ real eigenvalues''}]
+False in general --- rotations have $\pm i$. The theorem is only for
+symmetric $A$. Keep the hypothesis attached: $A^{T}=A$ is doing all the
+work.
+\end{tripwire}
+
+\begin{tripwire}[{PSD vs.\ PD vs.\ indefinite confusion}]
+$\ge0$ and $>0$ are different universes: PSD permits flat directions
+($\lambda=0$), PD doesn't. Check $\lambda_{\min}=0$ before calling a
+matrix PD --- and remember symmetric does NOT imply positive definite
+($\begin{bmatrix}1&2\\2&1\end{bmatrix}$ is symmetric and indefinite).
+\end{tripwire}
+
+\begin{tripwire}[{Believing $A^{T}A$ can be negative definite}]
+$\mathbf x^{T}A^{T}A\mathbf x=\lVert A\mathbf x\rVert^{2}\ge0$ always ---
+it cannot even have a negative eigenvalue. If your Gram matrix shows one,
+the computation is wrong, not the theorem.
+\end{tripwire}
+
+\begin{tripwire}[{Mixing up similarity with orthogonal similarity}]
+$B=P^{-1}AP$ shares eigenvalues only; $B=Q^{T}AQ$ additionally preserves
+symmetry \emph{and} is perfectly conditioned. The spectral theorem is
+orthogonal similarity --- don't reach for a general $P$ when $Q$ exists.
+\end{tripwire}
+
+\section{Summary}
+
+\begin{center}
+\begin{tabularx}{\textwidth}{l>{\raggedright\arraybackslash}X}
+\toprule
+\textbf{Object} & \textbf{What you need to know}\\
+\midrule
+Spectral theorem & $A=A^{T}\Rightarrow A=Q\Lambda Q^{T}$, $Q$ orthogonal,
+$\Lambda$ real \\
+Definiteness & PD: $\lambda_i>0$ / all pivots $>0$ / minors $>0$; PSD:
+$\lambda_i\ge0$; indefinite: mixed signs \\
+Gram matrices & $A^{T}A$ always PSD; PD iff full column rank \\
+Rayleigh quotient & $R(x)=x^{T}Ax/x^{T}x\in[\lambda_n,\lambda_1]$;
+extremes at eigenvectors (min--max) \\
+Ellipsoids & eigenvectors $=$ axes, $\sqrt{\lambda_i}=$ radii \\
+Covariance & PSD by construction; top eigenvector $=$ PC1 (PCA next
+chapter) \\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+\section*{Additional exercises}
+\addcontentsline{toc}{section}{Additional exercises}
+
+\begin{exercise}[easy]
+Decide whether each is symmetric: $A+A^{T}$, $A-A^{T}$, $A^{T}A$,
+$AA^{T}$, $ABA^{T}$ with $B$ symmetric.
+\end{exercise}
+
+\begin{exercise}[easy]
+Classify definiteness of $\begin{bmatrix}2&0\\0&3\end{bmatrix}$,
+$\begin{bmatrix}0&1\\1&0\end{bmatrix}$,
+$\begin{bmatrix}1&1\\1&1\end{bmatrix}$ from their eigenvalues.
+\end{exercise}
+
+\begin{exercise}[easy]
+Give a symmetric matrix with eigenvalues $4$ and $-2$, and one with $4$
+and $0$. Which is invertible?
+\end{exercise}
+
+\begin{exercise}[easy]
+Compute $R(\mathbf x)$ for $A=\operatorname{diag}(5,1)$ at
+$\mathbf x=(1,0),(0,1),(1,1)$. Where do max/min sit?
+\end{exercise}
+
+\begin{exercise}[medium]
+Show that $A$ PD and $B$ PD implies $A+B$ PD. Does $AB$ stay symmetric?
+Give a counterexample or proof.
+\end{exercise}
+
+\begin{exercise}[medium]
+Classify definiteness of
+$\begin{bmatrix}4&2&0\\2&4&0\\0&0&-1\end{bmatrix}$ two ways (pivots,
+eigenvalues) without a computer.
+\end{exercise}
+
+\begin{exercise}[medium]
+Show that if $A$ is PSD then its diagonal entries are $\ge0$, and
+$a_{ii}=0$ forces the entire row/column $i$ to be zero. (Hint: test
+vectors $\mathbf e_i$ and $\mathbf e_i+t\mathbf e_j$.)
+\end{exercise}
+
+\begin{exercise}[medium]
+In code: generate a $3\times3$ symmetric $A$, compute $R(\mathbf x)$ on
+100 random unit vectors, and show the empirical max/min approximate
+$\lambda_1,\lambda_3$ --- then locate the maximizer closest to the top
+eigenvector.
+\end{exercise}
+
+\begin{exercise}[medium]
+The Hessian of $f(x,y)=x^{2}+4xy+y^{2}$ is constant. Classify the
+critical point at the origin by definiteness.
+\end{exercise}
+
+\begin{exercise}[hard]
+Prove the min--max principle: $\lambda_k$ equals the maximum of
+$R(\mathbf x)$ over the subspace orthogonal to
+$\mathbf q_1,\dots,\mathbf q_{k-1}$, and every maximizer is an
+eigenvector for $\lambda_k$.
+\end{exercise}
+
+\begin{exercise}[hard]
+Show $A$ PD $\Rightarrow$ there is a unique PSD ``square root''
+$A^{1/2}=Q\Lambda^{1/2}Q^{T}$ with $A^{1/2}A^{1/2}=A$, and use it to
+explain the covariance-ellipsoid radii.
+\end{exercise}
+
+\begin{exercise}[hard]
+Interlacing: prove that deleting the last row and column of a symmetric
+$A$ interlaces the eigenvalues,
+$\lambda_1(A)\ge\lambda_1(A')\ge\lambda_2(A)\ge\cdots\ge\lambda_{n-1}(A')
+\ge\lambda_n(A)$. (Rayleigh quotient over a subspace does all the work.)
+\end{exercise}
+
+\section*{Notes}
+\addcontentsline{toc}{section}{Notes}
+
+\chapternotes{%
+The rotate--stretch--rotate framing and definiteness-via-pivots follow
+Strang \cite{ila} and 18.06SC Unit III \cite{ocw1806sc}; Axler ch.~7
+\cite{axler} gives the cleaner operator-theory route (self-adjoint first,
+eigenvalues as a consequence); MML \S3.5 and ch.~4 \cite{mml} anchor the
+PSD/quadratic-form clarity we borrow (its issue tracker documents exactly
+the PD/PSD confusion we tripwire). The covariance-as-PSD application
+follows VMLS \cite{vmls}; PCA proper arrives next chapter.}

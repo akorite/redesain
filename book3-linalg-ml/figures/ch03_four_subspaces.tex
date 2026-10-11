@@ -1,0 +1,19 @@
+\begin{tikzpicture}[scale=1.0, >=stealth]
+  % domain box split vertically: row space | null space
+  \draw[graybg!40, fill=graybg!25] (0,0) rectangle (4.6,3);
+  \draw[dashed, gray] (2.3,0) -- (2.3,3);
+  \node[align=center] at (1.15,2.6) {$\operatorname{row}(A)$\\ \small dim $r$};
+  \node[align=center] at (3.45,2.6) {$\ker(A)$\\ \small dim $n-r$};
+  \draw[->] (1.15,0.4) -- (1.15,1.6);
+  \draw[->] (3.45,0.4) -- (3.45,1.6);
+  \node[below] at (2.3,-0.15) {domain $\mathbb{R}^n$, dim $n$};
+  % codomain box split horizontally: col space / left null space
+  \draw[graybg!40, fill=graybg!25] (7.4,0) rectangle (12,3);
+  \draw[dashed, gray] (7.4,1.5) -- (12,1.5);
+  \node[align=center] at (9.7,2.25) {$\operatorname{col}(A)$,\quad dim $r$};
+  \node[align=center] at (9.7,0.75) {$\ker(A^{T})$,\quad dim $m-r$};
+  \node[below] at (9.7,-0.15) {codomain $\mathbb{R}^m$, dim $m$};
+  % arrows
+  \draw[->, accent, very thick] (4.8,2.25) -- (7.2,2.25) node[midway, above]{$A$: isomorphism};
+  \draw[->, amber, very thick] (4.8,0.9) -- (7.2,0.55) node[midway, above]{\small sends to $\mathbf 0$};
+\end{tikzpicture}

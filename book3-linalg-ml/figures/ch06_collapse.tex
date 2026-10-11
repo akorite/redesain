@@ -1,0 +1,19 @@
+\begin{tikzpicture}[scale=0.75, >=stealth]
+  \begin{scope}
+    \draw[step=1.0,graybg!60] (0,0) grid (4,4);
+    \draw[->,gray] (0,0)--(4.5,0); \draw[->,gray] (0,0)--(0,4.5);
+    \fill[accentsoft!40] (0,0)--(1,0)--(1,1)--(0,1)--cycle;
+    \draw[accent,thick] (0,0)--(1,0)--(1,1)--(0,1)--cycle;
+    \node at (2,-0.7) {\small volume $1$};
+  \end{scope}
+  \draw[->,very thick,ink] (5,2)--(6.4,2) node[midway,above]{$A$};
+  \begin{scope}[xshift=7.5cm]
+    \draw[step=1.0,graybg!60] (0,0) grid (4,4);
+    \draw[->,gray] (0,0)--(4.5,0); \draw[->,gray] (0,0)--(0,4.5);
+    \draw[accent,very thick] (0,0)--(3.5,3.5);
+    \fill[accent] (1,1) circle (2pt) (2.5,2.5) circle (2pt);
+    \node[above left=-2pt] at (1,1) {\tiny $A\mathbf e_1$};
+    \node[above left=-2pt] at (2.5,2.5) {\tiny $A\mathbf e_2$};
+    \node at (2,-0.7) {\small square $\to$ segment: $\det=0$};
+  \end{scope}
+\end{tikzpicture}

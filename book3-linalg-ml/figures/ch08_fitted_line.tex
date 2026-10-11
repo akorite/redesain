@@ -1,0 +1,14 @@
+\begin{tikzpicture}[scale=0.9,>=stealth]
+\draw[->] (-0.3,0) -- (5,0) node[right]{$x$};
+\draw[->] (0,-0.3) -- (0,5.6) node[above]{$y$};
+% fitted line y = 1 + 0.9 x
+\draw[thick,blue,domain=0.3:4.7] plot (\x,{1+0.9*\x});
+\node[blue] at (4.5,4.6) {$\hat y=1.0+0.9x$};
+% data points (1,2) (2,3) (3,3) (4,5) with residual segments
+\foreach \x/\y in {1/2,2/3,3/3,4/5}{
+  \pgfmathsetmacro{\yh}{1+0.9*\x}
+  \draw[red,thick] (\x,\y) -- (\x,\yh);
+  \fill (\x,\y) circle (2.2pt);
+}
+\node[red] at (3.75,3.6) {residuals};
+\end{tikzpicture}

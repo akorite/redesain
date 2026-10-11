@@ -1,0 +1,21 @@
+% Figure 1.2: elimination on the worked-example matrix, three states.
+\begin{tikzpicture}[every node/.style={inner sep=1pt}]
+\node (s0) {\footnotesize$\left[\begin{array}{ccc|c}
+  \cellcolor{accentsoft}1 & 2 & 1 & 7\\
+  3 & 8 & 1 & 17\\
+  0 & 2 & 3 & 11\end{array}\right]$};
+\node[below=2pt of s0] {\small start};
+\node[right=2.6em of s0] (s1) {\footnotesize$\left[\begin{array}{ccc|c}
+  1 & 2 & 1 & 7\\
+  0 & \cellcolor{accentsoft}2 & -2 & -4\\
+  0 & 2 & 3 & 11\end{array}\right]$};
+\node[below=2pt of s1] {\small after column 1};
+\node[right=2.6em of s1] (s2) {\footnotesize$\left[\begin{array}{ccc|c}
+  1 & 2 & 1 & 7\\
+  0 & 2 & -2 & -4\\
+  0 & 0 & \cellcolor{accentsoft}5 & 15\end{array}\right]$};
+\node[below=2pt of s2] {\small echelon form};
+\draw[->,thick] (s0) -- (s1) node[midway,above,align=center]
+  {\scriptsize $R_2\!-\!3R_1$\\[-2pt]\scriptsize ($R_3$ already $0$)};
+\draw[->,thick] (s1) -- (s2) node[midway,above] {\scriptsize $R_3\!-\!R_2$};
+\end{tikzpicture}

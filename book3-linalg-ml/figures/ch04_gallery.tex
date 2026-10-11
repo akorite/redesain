@@ -1,0 +1,40 @@
+\begin{tikzpicture}[scale=0.62, >=stealth]
+\def\squaremarker{\draw[fill=accentsoft!50,draw=accent,thick] (0,0)--(1,0)--(1,1)--(0,1)--cycle; \node[accent] at (0.35,0.62){\tiny F};}
+% original
+\begin{scope}
+  \draw[gray!45,step=0.5] (-0.5,-0.5) grid (1.5,1.5);
+  \draw[->,gray] (-0.5,0)--(1.6,0); \draw[->,gray] (0,-0.5)--(0,1.6);
+  \squaremarker
+  \node at (0.5,-1) {\small original};
+\end{scope}
+% rotation 30deg
+\begin{scope}[xshift=3.4cm]
+  \draw[gray!45,step=0.5] (-0.5,-0.5) grid (1.5,1.5);
+  \draw[->,gray] (-0.5,0)--(1.6,0); \draw[->,gray] (0,-0.5)--(0,1.6);
+  \begin{scope}[rotate=30]\squaremarker\end{scope}
+  \node at (0.5,-1) {\small rotation};
+\end{scope}
+% reflection y->-y
+\begin{scope}[xshift=6.8cm]
+  \draw[gray!45,step=0.5] (-0.5,-1.5) grid (1.5,0.5);
+  \draw[->,gray] (-0.5,0)--(1.6,0); \draw[->,gray] (0,-1.6)--(0,0.6);
+  \begin{scope}[yscale=-1]\squaremarker\end{scope}
+  \node at (0.5,-1.9) {\small reflection};
+\end{scope}
+% shear x+=0.5y
+\begin{scope}[xshift=10.2cm]
+  \draw[gray!45,step=0.5] (-0.5,-0.5) grid (1.8,1.5);
+  \draw[->,gray] (-0.5,0)--(1.9,0); \draw[->,gray] (0,-0.5)--(0,1.6);
+  \begin{scope}[xslant=0.5]\squaremarker\end{scope}
+  \node at (0.6,-1) {\small shear};
+\end{scope}
+% projection onto x-axis
+\begin{scope}[xshift=13.8cm]
+  \draw[gray!45,step=0.5] (-0.5,-0.5) grid (1.5,1.5);
+  \draw[->,gray] (-0.5,0)--(1.6,0); \draw[->,gray] (0,-0.5)--(0,1.6);
+  \draw[fill=amberbg!70,draw=amber,thick] (0,0)--(1,0)--(1,0.02)--(0,0.02)--cycle;
+  \node[amber] at (0.45,0.2){\tiny F};
+  \draw[dashed,gray] (1,1)--(1,0); \draw[dashed,gray] (0.35,0.62)--(0.35,0);
+  \node at (0.5,-1) {\small projection};
+\end{scope}
+\end{tikzpicture}

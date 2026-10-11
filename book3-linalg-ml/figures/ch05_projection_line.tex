@@ -1,0 +1,10 @@
+\begin{tikzpicture}[scale=1.1, >=stealth]
+  \draw[->, gray] (-0.5,0)--(4.5,0);
+  \draw[->, gray] (0,-0.5)--(0,3);
+  \draw[accent, very thick] (0,0)--(4,1) node[right]{$\mathbf a$};
+  \draw[->, ink, very thick] (0,0)--(2.4,2.6) node[above]{$\mathbf b$};
+  \draw[->, good, very thick] (0,0)--(2.08,0.52) node[below]{$\mathbf p=\hat b\,\mathbf a$};
+  \draw[->, amber, thick] (2.08,0.52)--(2.4,2.6) node[midway,right]{$\mathbf e=\mathbf b-\mathbf p$};
+  \draw (2.08,0.52) +(0,0.18) -- +(0.13,0.18) -- +(0.13,0);
+  \node[align=left] at (3.2,2.5) {\small residual $\perp$ line:\\ \small $\mathbf e\cdot\mathbf a=0$};
+\end{tikzpicture}

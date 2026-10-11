@@ -1,0 +1,13 @@
+% Figure: Ax as a weighted combination of the columns of A.
+\begin{tikzpicture}[scale=0.9,>=stealth]
+  \draw[->,gray] (-2.2,0) -- (4.4,0) node[below left] {\small $x$};
+  \draw[->,gray] (0,-0.8) -- (0,4.8) node[below left] {\small $y$};
+  % columns of A
+  \draw[->,thick] (0,0) -- (2,1) node[midway,below right=-1pt] {\small $\mathbf a_1$};
+  \draw[->,thick,dashed] (0,0) -- (-1,1.5) node[midway,above left=-2pt] {\small $\mathbf a_2$};
+  % weighted copies, chained
+  \draw[->,thick,accent] (0,0) -- (4,2) node[midway,sloped,below] {\small $2\mathbf a_1$};
+  \draw[->,thick,dashed,accent] (4,2) -- (2.5,4.25) node[midway,sloped,above] {\small $+\,1.5\,\mathbf a_2$};
+  \filldraw[accent] (2.5,4.25) circle (1.8pt) node[above=1pt] {\small $A\mathbf x$};
+  \draw[dotted,gray] (2,1) -- (4,2);
+\end{tikzpicture}

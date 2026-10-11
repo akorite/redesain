@@ -1,0 +1,17 @@
+\begin{tikzpicture}[scale=1.15,>=stealth]
+% plane = col(A) as a parallelogram, b above it, residual perpendicular
+\coordinate (O) at (0,0);
+\coordinate (a1) at (4,0.4);
+\coordinate (a2) at (1.6,1.1);
+\fill[blue!8] (O) -- (a1) -- ($(a1)+(a2)$) -- (a2) -- cycle;
+\draw[blue!50] (O) -- (a1) -- ($(a1)+(a2)$) -- (a2) -- cycle;
+\node[blue!60] at (3.4,1.5) {$\operatorname{col}(A)$};
+\coordinate (p) at (2.6,0.75);          % A xhat on the plane
+\coordinate (b) at (2.9,3.1);           % b off the plane
+\draw[->,thick] (O) -- (a1) node[below right=1pt]{$A\mathbf x$ direction};
+\draw[->,thick,blue] (O) -- (p) node[midway,below left]{$A\hat{\mathbf x}$};
+\draw[->,thick] (O) -- (b) node[above]{$\mathbf b$};
+\draw[->,thick,red] (p) -- (b) node[midway,right]{$\mathbf r=\mathbf b-A\hat{\mathbf x}$};
+\draw (2.75,0.85) -- ++(0.12,0.12) -- ++(-0.05,0.19);
+\node[red] at (3.7,2.4) {$\mathbf r\perp\operatorname{col}(A)$};
+\end{tikzpicture}
