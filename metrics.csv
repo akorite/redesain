@@ -35,3 +35,5 @@ book1-cp,v0.1-tag,200,,,,,,release,coordinator
 book2-discrete,watchlist-appendix,+3,0,0,0,0,0/0/0,coordinator-assembly,coordinator
 book3-linalg-ml,depth-retrofit-ch01-13,208,11 new,+FR/Watch/WEs,+ex,3 batches,0,book1,~10min
 book5-electronics,ch14-16-land,194,18 fig,16 lst,45 ex,3 coordinator rows,2 wrong test scripts fixed (iverilog PASS),elec-0006+coordinator
+book2-discrete,v0.2-tag,182,,,,,,release,coordinator
+book5-electronics,ch18-19+consistency,224,9 fig,7 lst,43 ex,pass incl. link-rot 55/58 live + 16 label fixes,elec-0006

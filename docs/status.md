@@ -87,3 +87,9 @@ Pending a GitHub PAT: issue creation (pinned "Status" issue + `needs-user` label
 - elec remaining: ch17-19 + consistency pass → v0.1.
 - Session notes: book2 (quant) + book1 (physics) auto-paused on SWE-2 transient — resumed manually.
 - Page ledger: cp 200 v0.1 · disc 182 · linalg 208 · elec 194 · ml/quant/physics writing · systems unassigned.
+
+## 2026-10-11 — book2 v0.2 TAGGED; elec complete at 224pp (ch17 file en route)
+- book2-discrete v0.2 tagged+pushed: 182pp, all 17 chapters independently re-reviewed PASS (elec session, 89/89 links live).
+- elec ch18+19 landed locally (KiCad + MCUs) + full consistency/link-rot pass (58 URLs re-curled, 16 dup labels fixed, ISA chain verified). ch17 source missing from delivery — requested.
+- elec-0006 now running linalg depth re-review; then picks up book7-systems.
+- Needs reviewer assignment: elec ch14-19.
