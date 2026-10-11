@@ -1,0 +1,31 @@
+% Figure: CRT preview — two arithmetic progressions meeting at 8 mod 15.
+% Source for Figure~\ref{fig:crtsunzi}. TikZ only; regenerable by compiling main.tex.
+\begin{tikzpicture}[
+  tick/.style={font=\tiny,text=slate},
+  lab/.style={font=\footnotesize\sffamily,text=slate,align=center},
+  mA/.style={circle,draw,fill=accent!25,inner sep=0pt,minimum size=3.4mm,font=\tiny},
+  mB/.style={rectangle,draw,fill=olive!25,inner sep=0pt,minimum size=3.4mm,font=\tiny},
+  mAB/.style={circle,draw,fill=accent!60,inner sep=0pt,minimum size=4.6mm,font=\tiny}
+]
+% number line 0..29, two rows: mod 3 row (top) and mod 5 row (bottom)
+\foreach \n in {0,...,29} {
+  \draw[rulegray] (\n*0.23,0) -- (\n*0.23,-0.12);
+  \node[tick] at (\n*0.23,-0.42) {\n};
+}
+\draw[thick,rulegray] (-0.1,0) -- (6.75,0);
+% x = 2 mod 3 marks (circles, top)
+\foreach \n in {2,5,8,11,14,17,20,23,26,29}
+  \node[mA] at (\n*0.23,0.55) {};
+% x = 3 mod 5 marks (squares, bottom)
+\foreach \n in {3,8,13,18,23,28}
+  \node[mB] at (\n*0.23,-0.95) {};
+% meeting at 8 and 23
+\node[mAB] at (8*0.23,0.55) {};
+\node[mAB] at (23*0.23,0.55) {};
+\node[mAB] at (8*0.23,-0.95) {};
+\node[mAB] at (23*0.23,-0.95) {};
+\node[lab] at (-0.55,0.55) {$\equiv 2\ (3)$};
+\node[lab] at (-0.55,-0.95) {$\equiv 3\ (5)$};
+\node[lab] at (3.4,-1.75) {The two conditions agree exactly at
+$x \equiv 8 \pmod{15}$ --- one residue class per $3\cdot5$ block.};
+\end{tikzpicture}

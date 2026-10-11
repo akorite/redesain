@@ -1,0 +1,22 @@
+% Figure: the two solutions of 14x = 6 mod 20 spaced m/d = 10 apart.
+% Source for Figure~\ref{fig:linline}. TikZ only; regenerable by compiling main.tex.
+\begin{tikzpicture}[
+  tick/.style={font=\tiny,text=slate},
+  sol/.style={circle,draw,fill=accent!60,inner sep=0pt,minimum size=5mm},
+  lab/.style={font=\footnotesize\sffamily,text=slate,align=center}
+]
+\draw[thick,rulegray] (-0.1,0) -- (4.85,0);
+\foreach \n in {0,...,19} {
+  \draw[rulegray] (\n*0.24,0) -- (\n*0.24,-0.12);
+}
+\foreach \n in {0,2,4,6,8,10,12,14,16,18}
+  \node[tick] at (\n*0.24,-0.4) {\n};
+\node[sol] at (9*0.24,0.28) {};
+\node[sol] at (19*0.24,0.28) {};
+\node[lab] at (9*0.24,0.85) {$x \equiv 9$};
+\node[lab] at (19*0.24,0.85) {$x \equiv 19$};
+\draw[<->,thick,accent] (9*0.24,-0.75) -- (19*0.24,-0.75)
+  node[midway,below,lab] {$+\tfrac{m}{d} = +10$};
+\node[lab] at (2.3,-1.5) {$14x \equiv 6 \pmod{20}$: one seed $x_0 = 9$, and
+$\gcd(14,20)=2$ copies of it, spaced $20/2 = 10$ apart.};
+\end{tikzpicture}

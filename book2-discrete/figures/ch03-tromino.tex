@@ -26,7 +26,7 @@
 % quarter boundaries
 \draw[accent,thick] (0.92,0.23) -- (0.92,-1.15);
 \draw[accent,thick] (-0.23,-0.92) -- (1.61,-0.92);
-\node[lab,anchor=north,align=center] at (0.69,-1.3) {cut in quarters,\\ one L at centre};
+\node[lab,anchor=north,align=center]{cut in quarters,\\ one L at centre};
 \end{scope}
 % ---------- panel 3: subproblem view ----------
 \begin{scope}[xshift=56mm]
@@ -35,14 +35,14 @@
     \node[cell] at (\c*0.46,-\r*0.46) {};
 \node[cell,hole] at (0,0) {};
 \node[cell,ctr] at (1*0.46,-1*0.46) {};
-\node[lab,anchor=north,align=center] at (0.46,-1.05) {each quadrant:\\ a smaller hole};
+\node[lab,anchor=north,align=center]{each quadrant:\\ a smaller hole};
 \end{scope}
 % ---------- panel 4: assembled 4x4 (real tiling) ----------
 \begin{scope}[xshift=84mm]
-\foreach \rc/\row in {0/{\#,B,C,C},1/{B,B,A,C},2/{D,A,A,E},3/{D,D,E,E}}
+\foreach \rc/\row in {0/{H,B,C,C},1/{B,B,A,C},2/{D,A,A,E},3/{D,D,E,E}}
   \foreach \c [count=\i] in \row
     \node[cell] at (\i*0.46-0.46,-\rc*0.46) {\c};
-\node[cell,hole] at (0,0) {\#};
+\node[cell,hole] at (0,0) {};
 \node[lab,anchor=north] at (0.69,-1.3) {assembled: 5 trominos};
 \end{scope}
 \end{tikzpicture}

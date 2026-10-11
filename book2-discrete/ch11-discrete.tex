@@ -54,6 +54,24 @@ equivalently, iff it contains \emph{no odd cycle} (an odd cycle needs a
 third colour; a 2-colouring propagates consistently when no odd cycle
 exists to break it).
 
+\begin{example}\label{ex:bipcheck}
+Decide whether the cube graph $Q_3$ (vertices = binary strings of
+length 3, edges = single-bit flips) is bipartite.
+\par\smallskip
+\textbf{Strategy.} Either produce a 2-colouring or exhibit an odd
+cycle --- the theorem says exactly one will exist. Try the obvious
+candidate first: parity of the string's weight.
+\par\smallskip
+\begin{solution}
+Colour a string by the parity of its number of 1s:\newline
+$\{000,011,101,110\}$ vs $\{001,010,100,111\}$. Every edge flips
+exactly one bit, hence flips
+parity --- so every edge crosses the classes, and $Q_3$ is bipartite.
+(Generalised: every hypercube $Q_d$ is bipartite by weight parity; and
+the same weight-parity trick settles the grid graphs $P_m \times P_n$.)
+\end{solution}
+\end{example}
+
 \section{Trees}\label{sec:trees}
 \index{tree}\index{spanning tree}
 A tree is connected and acyclic. Every tree on $n \ge 2$ vertices has a
@@ -183,6 +201,15 @@ vertex of degree $d$ bounds $\chi \le d_{\max} + 1$ greedily.
 A graph has degrees $3,3,2,2,1,1$. Is it possible? Check the handshake
 lemma first.
 \end{exercise}
+\begin{figure}[ht]\centering
+\input{figures/ch11-coloring}
+\caption{A proper 3-colouring of the 5-wheel: the rim alternates two
+colours and the hub takes a third. Notice the lower bound is forced ---
+an odd rim can never be 2-coloured, so $\chi = 3$ is proved, not
+guessed.}
+\label{fig:coloring}
+\end{figure}
+
 \begin{exercise}[medium]\label{exr:g2}
 Prove a tree is bipartite.
 \end{exercise}
@@ -270,6 +297,68 @@ Extend \texttt{euler\_check.py} to output one actual Eulerian trail
 (Hierholzer's algorithm) and verify it uses each edge exactly once on
 200 random even-degree graphs.
 \end{exercise}
+\begin{exercise}[easy]
+A party of $9$ people: show someone shook hands with an even number of
+others --- or show the statement is false as stated, and repair it.
+\end{exercise}
+\begin{exercise}[medium]
+Show every tree is bipartite two ways: by the odd-cycle criterion and
+by an explicit 2-colouring (pick a root, colour by depth parity).
+\end{exercise}
+\begin{exercise}[medium]
+A connected planar graph has $V = 8$, $E = 12$. Find $F$, then show no
+convex polyhedron can have $7$ edges (use the handshake lemma on the
+dual --- each face has $\ge 3$ sides).
+\end{exercise}
+\begin{exercise}[hard]
+Prove every planar graph has a vertex of degree $\le 5$, and hence is
+6-colourable by greedy induction (the warmup for the 5- and 4-colour
+theorems).
+\end{exercise}
+
+\section*{Further reading}
+\begin{itemize}
+\item R.~Hammack, \emph{Book of Proof}, 3rd ed., Ch.~14 ---
+\url{https://richardhammack.github.io/BookOfProof/}
+--- free PDF;
+graphs, Eulerian trails and colouring gently done.
+\item E.~Lehman, F.~T.~Leighton, A.~R.~Meyer, \emph{Mathematics for
+Computer Science}, Ch.~10--12 ---
+\url{https://courses.csail.mit.edu/6.042/spring18/mcs.pdf}
+--- free PDF;
+the handshake lemma, trees and planarity as taught here.
+\item MIT OpenCourseWare, \emph{6.042J} (Fall 2010) ---
+\url{https://ocw.mit.edu/6-042JF10}
+--- the graph-theory lectures.
+\item Y.~Zhao, \emph{Graph Theory} --- olympiad-grade
+problems on trees, cycles and colourings:
+
+\url{https://yufeizhao.com/olympiad/comb3.pdf}
+\item Berkeley CS70 notes ---
+\url{https://www.eecs70.org/}
+--- free lecture notes; graphs with the
+algorithms continuation.
+\item The Open Logic Project ---
+\url{https://openlogicproject.org/}
+--- for the formal graph-as-
+structure view beneath the pictorial one.
+\end{itemize}
+
+\begin{rulebox}[Watch instead]
+\begin{itemize}
+\item \textbf{Reducible --- ``Introduction to Graph Theory: A Computer
+Science Perspective''}, 16:25,
+\url{https://www.youtube.com/watch?v=LFKZLXVO-Dg}
+--- definitions,
+terminology and why graphs matter: \S\ref{sec:handshake}--%
+\S\ref{sec:trees}. (Verified 2026-10-11.)
+\item \textbf{Numberphile --- ``A Breakthrough in Graph Theory''}, 24:56,
+\url{https://www.youtube.com/watch?v=Tnu_Ws7Llo4}
+--- graph colouring
+and the Hedetniemi conjecture's fall: \S\ref{sec:color}.
+(Verified 2026-10-11.)
+\end{itemize}
+\end{rulebox}
 
 \chapternotes
 The walk/path/cycle hygiene and the planar sections follow 6.042J's

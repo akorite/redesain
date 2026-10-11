@@ -1,0 +1,21 @@
+% Figure: Diophantine solutions as equally spaced lattice points on a line.
+% Source for Figure~\ref{fig:divline}. TikZ only; regenerable by compiling main.tex.
+\begin{tikzpicture}[
+  pt/.style={circle,draw,inner sep=1.6pt,minimum size=3mm},
+  sol/.style={circle,draw,fill=accent!30,inner sep=1.6pt,minimum size=3mm},
+  lab/.style={font=\footnotesize\sffamily,text=slate,align=center}
+]
+\draw[->,rulegray] (-0.4,0) -- (7.2,0);
+\draw[thick,rulegray] (-0.2,-0.75) -- (6.8,2.1);
+\foreach \x in {-0.2,0.6,1.4,2.2,3.0,3.8,4.6,5.4,6.2,6.8}
+  \node[pt] at (\x,{\x*0.35-0.68}) {};
+\node[sol] (s0) at (2.2,0.09) {};
+\node[sol] (s1) at (3.8,0.65) {};
+\node[sol] (s2) at (5.4,1.21) {};
+\node[lab] at (2.2,-0.45) {$x_0$};
+\node[lab] at (3.8,1.15) {$x_0 + \tfrac{b}{d}$};
+\node[lab] at (5.4,1.71) {$x_0 + 2\tfrac{b}{d}$};
+\node[lab] at (3.2,-1.25) {Once one solution exists, all solutions are
+spaced $\tfrac{b}{\gcd}$ apart --- an arithmetic family,\\
+never a scatter. (For $ax + by = c$.)};
+\end{tikzpicture}

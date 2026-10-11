@@ -24,6 +24,14 @@ $(a-b)^2 \ge 0$ with equality iff $a=b$. Expanding gives
 $a^2 + b^2 \ge 2ab$: the entire classical apparatus is this fact wearing
 cleverer clothes.
 
+\begin{figure}[ht]\centering
+\input{figures/ch13-sqsum}
+\caption{$a^2+b^2 \ge 2ab$ as area bookkeeping: the two squares outgrow
+the two rectangles by exactly $(a-b)^2$. Notice the equality case is
+visible --- the leftover square vanishes exactly when $a = b$.}
+\label{fig:sqsum}
+\end{figure}
+
 \begin{example}[AM--GM for $n=4$, from scratch]\index{AM--GM!for four}
 \textbf{Strategy.} We may not assume AM--GM --- we are proving it. The
 only ``free'' inequality is the square. Build up: $n=2$, then bootstrap
@@ -95,6 +103,16 @@ $(\sum a_i^2)(\sum b_i^2) \ge (\sum a_ib_i)^2$, with equality iff the
 vectors are proportional.
 \end{theorem}
 
+\begin{figure}[ht]\centering
+\input{figures/ch13-cauchyvec}
+\caption{Cauchy--Schwarz is a disguised trigonometric fact:
+$\mathbf a\cdot\mathbf b = |\mathbf a||\mathbf b|\cos\theta$ cannot
+exceed $|\mathbf a||\mathbf b|$, with equality only when the vectors are
+parallel. Notice the discriminant proof manufactures exactly this
+$\cos\theta \le 1$ bound.}
+\label{fig:cauchyvec}
+\end{figure}
+
 Proof: $\sum (a_i t + b_i)^2 \ge 0$ is a quadratic in $t$ with no sign
 change, so its discriminant is nonpositive --- that discriminant is
 exactly the claim. The \emph{Engel form}\index{Engel form}: for $b_i>0$,
@@ -125,6 +143,22 @@ half that tells you \emph{which} inequality to use. Apply AM--GM only
 where its equality case ($a_i$ all equal) is attainable in the problem's
 constraints; otherwise the ``minimum'' you found is unattainable and the
 answer is wrong.
+
+\begin{example}[Reading the equality case off the proof]
+Show $a^2 + b^2 + c^2 \ge ab + bc + ca$ for all reals, and find exactly
+when equality holds.
+\par\smallskip
+\textbf{Strategy.} Rearrange into a sum of squares; the equality case
+then reads itself off --- every square must vanish simultaneously.
+\par\smallskip
+\begin{solution}
+$2(a^2+b^2+c^2) - 2(ab+bc+ca) = (a-b)^2 + (b-c)^2 + (c-a)^2 \ge 0$,
+dividing by $2$ gives the claim. Equality needs all three squares zero,
+i.e. $a = b = c$. The same two-step structure solves every problem of
+this shape: first the bound, then the configuration attaining it ---
+and the sum-of-squares form makes the second step mechanical.
+\end{solution}
+\end{example}
 
 \section{Muirhead and Schur}\index{Muirhead}\index{Schur}
 
@@ -369,6 +403,45 @@ $(a_1,\dots,a_n,m,\dots,m)$: mean is still $m$, geometric mean
 $\sqrt[2n]{\prod a_i \cdot m^n}\le m$; squaring out $m^n$ gives
 $\prod a_i \le m^n$.
 \end{solution}
+\begin{exercise}[easy]\label{exr:a12}
+For $x,y>0$ with $xy=1$, find the minimum of $x^2+y^2$ and state the
+equality case.
+\end{exercise}
+\begin{solution}
+$x^2+y^2 \ge 2xy = 2$ by $a^2+b^2\ge2ab$; equality at $x=y=1$.
+\end{solution}
+\begin{exercise}[medium]\label{exr:a13}
+Show for positive $a,b,c$: $(a+b+c)\left(\frac1a+\frac1b+\frac1c\right)
+\ge 9$ --- once by Cauchy--Schwarz in Engel form and once by AM--GM
+twice.
+\end{exercise}
+\begin{solution}
+Engel: $\sum 1/a = \sum 1^2/a \ge (1+1+1)^2/(a+b+c)$. Or AM--GM on
+$a+b+c \ge 3(abc)^{1/3}$ and on $1/a+1/b+1/c \ge 3/(abc)^{1/3}$, then
+multiply. Equality at $a=b=c$ either way.
+\end{solution}
+\begin{exercise}[medium]\label{exr:a14}
+Minimize $\frac{x^2+2}{\sqrt{x^2+1}}$ over real $x$ --- and find the
+trap in the naive AM--GM answer.
+\end{exercise}
+\begin{solution}
+AM--GM on $u+1/u$ for $u=\sqrt{x^2+1}\ge1$ suggests $\min=2$ at
+$u=1$, i.e. $x=0$ --- attainable, so the answer really is $2$ at
+$x=0$; the point is that the equality case must be checked for
+reachability (here it is: $u=1$ occurs), unlike the classic
+$u \ge 2$ variants where $u=1$ is forbidden.
+\end{solution}
+\begin{exercise}[hard]\label{exr:a15}
+Prove Nesbitt a second way: write $\frac{a}{b+c}+1 =
+\frac{a+b+c}{b+c}$ and conclude by AM--HM on the three denominators.
+\end{exercise}
+\begin{solution}
+$\sum \frac{a}{b+c} = \sum\frac{a+b+c}{b+c} - 3$. By
+AM--HM (or the $\sum 1/x \ge 9/\sum x$ exercise above) on
+$b+c, c+a, a+b$: $\sum \frac{1}{b+c} \ge
+\frac{9}{2(a+b+c)}$, so $\sum\frac{a+b+c}{b+c} \ge \frac{9}{2}$ and the
+claim follows with equality at $a=b=c$.
+\end{solution}
 
 \section*{Notes}
 The AM--GM forward--backward induction is Cauchy's original argument
@@ -381,5 +454,42 @@ and normalization strategies are catalogued in \cite{chen-ineq}. For the
 \cite{velleman}. Contest uses: 2024 AIME II P4; 2022 AIME I P15;
 2022 AIME I P7; 2024 AMC 12B P13; 2010 AIME I P9; 2025 AIME II P15;
 2024 AMC 12B P3; 2025 AIME I P14; 2023 AIME I P2.
+
+\section*{Further reading}
+\begin{itemize}
+\item \emph{Basics of Olympiad Inequalities} (S.~Riasat) ---
+\url{https://web.evanchen.cc/handouts/Ineq/en.pdf} --- free PDF; the
+standard olympiad inequalities reference at this level.
+\item E.~Chen's inequality handouts --- tangent-line tricks and harder
+examples:
+\url{https://web.evanchen.cc/handouts/}
+\item The AoPS wiki's curated inequalities articles (search ``Olympiad
+inequalities'' on):
+\url{https://artofproblemsolving.com}
+\item A.~Engel, \emph{Problem-Solving Strategies}, inequalities
+chapters --- the drill source used throughout the notes.
+\item Berkeley CS70 notes ---
+\url{https://www.eecs70.org/} --- for the probabilistic and CS-side uses
+of the same bounds.
+\item R.~Hammack, \emph{Book of Proof} --- for writing the
+equality-case half of an inequality proof cleanly:
+
+\url{https://richardhammack.github.io/BookOfProof/}
+\end{itemize}
+
+\begin{rulebox}[Watch instead]
+\begin{itemize}
+\item \textbf{mathophilia --- ``Proving the AM-GM Inequality with ZERO
+Calculus''}, 9:22,
+\url{https://www.youtube.com/watch?v=bA01HNj2mDw} --- AM--GM for
+$n=2$, then induction and Cauchy's forward--backward induction:
+the AM--GM sections. (Verified 2026-10-11.)
+\item \textbf{Khan Academy --- Linear Algebra playlist} ---
+\url{https://www.youtube.com/playlist?list=PLFD0EB975BA0CC1E0}
+--- 
+contains Sal's Cauchy--Schwarz lectures: the Cauchy--Schwarz section.
+(Verified 2026-10-11.)
+\end{itemize}
+\end{rulebox}
 
 \chapternotes

@@ -1,0 +1,17 @@
+% Figure: pushing a negation through a quantifier chain.
+% Source for Figure~\ref{fig:negpush}. TikZ only; regenerable by compiling main.tex.
+\begin{tikzpicture}[
+  box/.style={draw,inner sep=4pt,font=\small,rounded corners=1pt},
+  lbl/.style={font=\footnotesize\sffamily,text=slate,align=left},
+  arr/.style={->,thick,accent}
+]
+\node[box] (s0) at (0,0) {$\lnot\,\forall x\,\exists y\,P(x,y)$};
+\node[box] (s1) at (0,-1.15) {$\exists x\,\lnot\,\exists y\,P(x,y)$};
+\node[box] (s2) at (0,-2.3) {$\exists x\,\forall y\,\lnot P(x,y)$};
+\draw[arr] (s0) -- (s1);
+\draw[arr] (s1) -- (s2);
+\node[lbl] at (4.6,0) {outermost symbol first:};
+\node[lbl] at (4.6,-1.15) {$\lnot\forall$ becomes $\exists$,};
+\node[lbl] at (4.6,-2.3) {$\lnot\exists$ becomes $\forall$, negation lands on $P$.};
+\node[lbl,anchor=west] at (-3.4,-3.15) {Each quantifier flips exactly once; order never changes.};
+\end{tikzpicture}

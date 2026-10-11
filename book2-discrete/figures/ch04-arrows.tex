@@ -10,7 +10,7 @@
 \begin{scope}
 \node[blob] (A1) at (0,0) {};
 \node[blob] (B1) at (1.7,0) {};
-\node[lab] at (0,-1.35) {injective,\\not surjective};
+\node[lab,align=center]{injective,\\not surjective};
 \foreach \y [count=\i] in {0.6,0,-0.6} \node[pt] (a\i) at (0,\y) {};
 \foreach \y [count=\i] in {0.75,0.25,-0.25,-0.75} \node[pt] (b\i) at (1.7,\y) {};
 \draw[arr] (a1.east) -- (b1.west);
@@ -22,7 +22,7 @@
 \begin{scope}[xshift=40mm]
 \node[blob] at (0,0) {};
 \node[blob] at (1.7,0) {};
-\node[lab] at (0.85,-1.35) {surjective,\\not injective};
+\node[lab,align=center]{surjective,\\not injective};
 \foreach \y [count=\i] in {0.75,0.25,-0.25,-0.75} \node[pt] (c\i) at (0,\y) {};
 \foreach \y [count=\i] in {0.6,0,-0.6} \node[pt] (d\i) at (1.7,\y) {};
 \draw[arr] (c1.east) -- (d1.west);

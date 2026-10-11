@@ -97,11 +97,48 @@ roughly independent of \emph{another} pair sharing, but within one
 group the events collide. The test is always the product rule: does
 knowing $B$ change $A$'s probability?
 
+\begin{figure}[ht]\centering
+\input{figures/ch12-indepgrid}
+\caption{Two fair coins: the joint table factors cell-by-cell. Notice
+independence is a \emph{factorisation} claim --- every entry is a
+product of marginals, which is exactly what $P(A\cap B) = P(A)P(B)$
+says.}
+\label{fig:indepgrid}
+\end{figure}
+
+\begin{example}\label{ex:pairwise}
+Toss two fair coins; let $A$ = ``first heads'', $B$ = ``second
+heads'', $C$ = ``outcomes agree''. Show $A$, $B$, $C$ are
+\emph{pairwise} independent yet not jointly independent.
+\par\smallskip
+\textbf{Strategy.} Check the definition literally: every pair must
+factor, and the triple intersection must fail to factor.
+\par\smallskip
+\begin{solution}
+$P(A) = P(B) = P(C) = 1/2$. Each pair's intersection is a single
+outcome: $A \cap B = \{HH\}$, $A \cap C = \{HH\}$, $B \cap C =
+\{HH\}$, each of probability $1/4 = (1/2)(1/2)$ --- pairwise
+independence holds. But $A \cap B \cap C = \{HH\}$ has probability
+$1/4 \neq 1/8 = P(A)P(B)P(C)$. Equivalently: knowing $A$ \emph{and}
+$B$ determines $C$ exactly. Pairwise independence does not imply joint
+independence --- the conjunction can carry information no single pair
+reveals.
+\end{solution}
+\end{example}
+
 \section{Random variables and expectation}\label{sec:rv}
 \index{random variable}\index{expectation}
 A random variable is a function $X : \Omega \to \mathbb{R}$;
 $E[X] = \sum_\omega X(\omega)\,P(\omega)$. The definition is
 deceptively plain --- its power is in the next section's linearity.
+
+\begin{figure}[ht]\centering
+\input{figures/ch12-exbalance}
+\caption{Expectation as a balance point: the pmf of a fair die balances
+at $3.5$. Notice $E[X]$ need not be a value $X$ ever takes --- it is a
+centre of mass, not a prediction.}
+\label{fig:exbalance}
+\end{figure}
 
 \section{Linearity of expectation}\label{sec:linexp}
 \index{linearity of expectation}
@@ -276,8 +313,8 @@ the naive $1/2$ go wrong?
 \end{exercise}
 \begin{exercise}[medium]
 Derive the birthday threshold estimate $k \approx \sqrt{2 \cdot 365
-\ln 2}$ from the product formula (take logs, approximate
-$\ln(1-x) \approx -x$).
+\log 2}$ from the product formula (take logs, approximate
+$\log(1-x) \approx -x$).
 \end{exercise}
 \begin{exercise}[medium]
 Expected number of inversions in a random permutation of $n$ ---
@@ -299,6 +336,57 @@ fixed-point count per trial over growing $n$ and describe the
 maximum's behavior (conjecture: bounded in distribution with a slowly
 growing tail --- collect data and state what you actually see).
 \end{exercise}
+\begin{exercise}[easy]
+Two dice: find $P(\text{sum} = 7 \mid \text{first die} \ge 4)$.
+\end{exercise}
+\begin{exercise}[medium]
+Show that if $A$ and $B$ are independent, so are $A$ and $B^c$ ---
+independence survives complements (one line of algebra, not intuition).
+\end{exercise}
+\begin{exercise}[hard]
+$100$ fair coins are flipped; find the expected number of runs of
+$k = 3$ consecutive heads by linearity, then verify against
+\texttt{fixed\_points.py}-style simulation.
+\end{exercise}
+
+\section*{Further reading}
+\begin{itemize}
+\item J.~Blitzstein and J.~Hwang, \emph{Introduction to Probability}
+(free online edition) ---
+\url{https://probabilitybook.net} --- the Stat 110 text; story-based
+probability at exactly this chapter's level.
+\item MIT OpenCourseWare, \emph{6.042J} (Fall 2010) ---
+\url{https://ocw.mit.edu/6-042JF10} --- probability for CS; discrete,
+combinatorial, no measure theory.
+\item E.~Lehman, F.~T.~Leighton, A.~R.~Meyer, \emph{Mathematics for
+Computer Science}, probability chapters ---
+\url{https://courses.csail.mit.edu/6.042/spring18/mcs.pdf} --- free PDF;
+linearity of expectation with combinatorial applications.
+\item Berkeley CS70 notes ---
+\url{https://www.eecs70.org/} --- free lecture notes; discrete
+probability, conditioning and the birthday paradox.
+\item E.~Chen, \emph{Expected Uses of Probability} ---
+\url{https://web.evanchen.cc/handouts/ProbabilisticMethod/ProbabilisticMethod.pdf}
+--- olympiad linearity tricks and the probabilistic method.
+\item R.~Hammack, \emph{Book of Proof}, 3rd ed. ---
+\url{https://richardhammack.github.io/BookOfProof/} --- for tightening
+the probabilistic-argument writing style.
+\end{itemize}
+
+\begin{rulebox}[Watch instead]
+\begin{itemize}
+\item \textbf{Harvard Stat 110 --- ``Lecture 1: Probability and
+Counting'' (Joe Blitzstein)}, 46:29,
+\url{https://www.youtube.com/watch?v=KbB0FjPg0mw} --- sample spaces and
+the naive definition, exactly the tone of \S\ref{sec:sample}--%
+\S\ref{sec:complement}. (Verified 2026-10-11.)
+\item \textbf{Harvard Stat 110 full playlist (Blitzstein)}, 34
+lectures,
+\url{https://www.youtube.com/playlist?list=PLLVplP8OIVc8EktkrD3Q8td0GmId7DjW0}
+--- the entire free course this chapter previews.
+(Verified 2026-10-11.)
+\end{itemize}
+\end{rulebox}
 
 \chapternotes
 The four-step method, tree diagrams, linearity of expectation and the

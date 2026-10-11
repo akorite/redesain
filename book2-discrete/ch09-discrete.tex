@@ -95,6 +95,28 @@ target $i$; then $|A_{i_1}\cap\cdots\cap A_{i_j}| = (k-j)^n$, giving
 (The second form reindexes $j \mapsto k-j$; the sign it carries is
 $(-1)^{k-j}$, not $(-1)^j$.)
 
+\begin{example}\label{ex:surj53}
+Count the surjections $[5] \to [3]$.
+\par\smallskip
+\textbf{Strategy.} PIE with bad events ``miss target $i$'' --- all $3^5$
+functions, subtract those missing one box, add back those missing two.
+\par\smallskip
+\begin{solution}
+$3^5 - \binom{3}{1}2^5 + \binom{3}{2}1^5 = 243 - 96 + 3 = 150$.
+(Figure~\ref{fig:surj} draws the same count at $n = 4$.) Sanity check:
+$150/3! = 25 = S(5,3)$ --- the Stirling number, since a surjection
+partitions the domain into $3$ unlabelled fibres then names them.
+\end{solution}
+\end{example}
+
+\begin{figure}[ht]\centering
+\input{figures/ch09-surj}
+\caption{Surjections by PIE: all $k^n$ maps minus those missing a chosen
+box. The empty-box case is exactly what the $j=1$ term removes --- and the
+$j=2$ term restores the double-counted pair-misses.}
+\label{fig:surj}
+\end{figure}
+
 \section{Euler's totient by PIE}\label{sec:phipie}
 \index{Euler's totient!by inclusion--exclusion}
 
@@ -213,6 +235,15 @@ fractions. That is Chapter~10's machinery; the point here is the
 conversion habit: recurrence in, rational function out, coefficients
 back.
 
+\begin{figure}[ht]\centering
+\input{figures/ch09-gfrec}
+\caption{The three-station pipeline: a recurrence becomes a rational
+function by algebra, partial fractions split it into catalog pieces,
+and the coefficient of $x^n$ is read off as a closed form. Every step
+is mechanical --- the creativity is choosing to convert at all.}
+\label{fig:gfrec}
+\end{figure}
+
 \begin{exercise}[easy]\label{exr:pie2}
 How many integers in $1..1000$ are divisible by 3 or 5? By neither?
 \end{exercise}
@@ -314,6 +345,62 @@ made with $\{6, 10, 15\}$ (answer: $29$; prove it is largest by
 induction on residues mod 5 --- and first check why the question only
 makes sense when $\gcd = 1$).
 \end{exercise}
+\begin{exercise}[easy]
+How many integers in $1..360$ are coprime to $360$? Count by PIE and
+check against $\varphi(360) = 96$ from Example~\ref{ex:phipie}.
+\end{exercise}
+\begin{exercise}[medium]
+A club has $10$ members; in how many ways can three disjoint committees
+of $2, 3, 4$ be formed (the leftovers form no committee)? Then recount
+if the committees are labelled $A, B, C$.
+\end{exercise}
+\begin{exercise}[medium]
+Compute the GF of the sequence $a_n = $ number of nonnegative solutions
+of $x_1 + 2x_2 + 5x_3 = n$ as a product, and extract $[x^{10}]$ by
+systematic coefficient bookkeeping.
+\end{exercise}
+\begin{exercise}[hard]
+Prove $D_n/n! = \sum_{k=0}^n (-1)^k/k!$ converges to $1/e$ at the rate
+$1/(n{+}1)!$: bound the tail of the series, and say how large $n$ must
+be before rounding $n!/e$ gives $D_n$ exactly.
+\end{exercise}
+
+\section*{Further reading}
+\begin{itemize}
+\item R.~Hammack, \emph{Book of Proof}, 3rd ed., Ch.~3 ---
+\url{https://richardhammack.github.io/BookOfProof/} --- free PDF;
+inclusion--exclusion as a counting complement.
+\item E.~Lehman, F.~T.~Leighton, A.~R.~Meyer, \emph{Mathematics for
+Computer Science}, Ch.~15 ---
+\url{https://courses.csail.mit.edu/6.042/spring18/mcs.pdf} --- free PDF;
+PIE, derangements and generating functions.
+\item E.~Chen, \emph{Summation} --- the GF and coefficient-extraction
+viewpoint behind \S\ref{sec:ogf}--\S\ref{sec:gfrec}:
+
+\url{https://web.evanchen.cc/handouts/Summation/Summation.pdf}
+\item Y.~Zhao, \emph{Double Counting} --- olympiad-grade PIE and
+two-ways counting:
+
+\url{https://yufeizhao.com/olympiad/doublecounting_mop.pdf}
+\item Berkeley CS70 notes ---
+\url{https://www.eecs70.org/} --- counting with worked problems.
+\item MIT OpenCourseWare, \emph{6.042J} (Fall 2010) ---
+\url{https://ocw.mit.edu/6-042JF10} --- counting and generating
+functions lectures.
+\end{itemize}
+
+\begin{rulebox}[Watch instead]
+\begin{itemize}
+\item \textbf{TrevTutor --- ``GENERATING FUNCTIONS''}, 18:41,
+\url{https://www.youtube.com/watch?v=-drdeNMoe8w} --- formal power
+series and coefficient extraction: \S\ref{sec:ogf}--\S\ref{sec:gfcount}.
+(Verified 2026-10-11.)
+\item \textbf{Mathispower4u --- ``Introduction to Generating Functions
+for Sequences''}, 5:37,
+\url{https://www.youtube.com/watch?v=h39O4rUJPQo} --- the sequence-to-
+function idea in five minutes: \S\ref{sec:ogf}. (Verified 2026-10-11.)
+\end{itemize}
+\end{rulebox}
 
 \chapternotes
 PIE's indicator-function proof and the derangement treatment follow

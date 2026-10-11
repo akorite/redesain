@@ -1,0 +1,29 @@
+% Figure: surjection vs non-surjection — every box hit vs one left empty.
+% Source for Figure~\ref{fig:surj}. TikZ only; regenerable by compiling main.tex.
+\begin{tikzpicture}[
+  el/.style={circle,draw,minimum size=5.2mm,font=\tiny},
+  bx/.style={draw,minimum size=6.4mm,font=\tiny},
+  lab/.style={font=\footnotesize\sffamily,text=slate,align=center}
+]
+% left: surjection 4->3
+\node[lab] at (1.6,1.0) {surjective: all hit};
+\foreach \i in {1,2,3,4} \node[el] (a\i) at (0,-\i*0.55+1.3) {\i};
+\foreach \j/\nm in {1/x,2/y,3/z} \node[bx] (b\j) at (3.0,-\j*0.55+0.75) {\nm};
+\draw[->,accent] (a1) -- (b1);
+\draw[->,accent] (a2) -- (b2);
+\draw[->,accent] (a3) -- (b3);
+\draw[->,accent] (a4) -- (b1);
+% right: non-surjection — z empty
+\node[lab] at (7.4,1.0) {not surjective: one box empty};
+\foreach \i in {1,2,3,4} \node[el] (c\i) at (5.8,-\i*0.55+1.3) {\i};
+\foreach \j/\nm in {1/x,2/y,3/z} \node[bx] (d\j) at (8.8,-\j*0.55+0.75) {\nm};
+\draw[->,rulegray] (c1) -- (d1);
+\draw[->,rulegray] (c2) -- (d1);
+\draw[->,rulegray] (c3) -- (d2);
+\draw[->,rulegray] (c4) -- (d2);
+\draw[red,thick] (8.8,-0.9) circle (0.45);
+\node[lab,align=center]{PIE counts the good ones as\\
+$3^4 - \binom31 2^4 + \binom32 1^4$:\\
+all functions, minus those\\
+missing a box, add back doubles.};
+\end{tikzpicture}

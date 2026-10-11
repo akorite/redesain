@@ -257,6 +257,14 @@ biconditional. ``$n$ even iff $n^2$ even'' needs \emph{both} halves; a proof of
 direction usually hides the interesting half. See Common mistakes.
 \end{tripwire}
 
+\begin{figure}[ht]\centering
+\input{figures/ch02-iff}
+\caption{A biconditional is two one-way streets. Notice: the two arrows are
+\emph{separate} proofs --- each may need a different technique, and finishing
+one leaves the claim half-proved.}
+\label{fig:iffproof}
+\end{figure}
+
 \section{Existence and uniqueness}\label{sec:existence}
 \index{existence}\index{uniqueness}
 
@@ -276,6 +284,30 @@ some pair works; the proof never says which, and it is still a complete proof.
 \emph{Non-constructive}\index{non-constructive proof} existence is legal ---
 just know which kind you are writing, since only constructive proofs produce
 objects you can compute with.
+
+\begin{example}[A unique solution]\label{ex:unique156}
+Prove there is a unique positive integer $n$ with $n^2 + n = 156$.
+\par\smallskip
+\textbf{Strategy.} Two acts again: find one $n$ (search small values ---
+$f(n) = n^2+n$ grows fast), then show no other positive integer works. For
+uniqueness, monotonicity is the cheapest tool: if $f$ is strictly increasing
+on positive integers, two different inputs can never land on $156$.
+\par\smallskip
+\begin{solution}
+\emph{Existence.} $n = 12$: $12^2 + 12 = 144 + 12 = 156$.
+\emph{Uniqueness.} Suppose $m$ is a positive integer with $m^2 + m = 156$.
+If $m > 12$ then $m^2 + m \ge 13^2 + 13 = 182 > 156$; if $m < 12$ then
+$m^2 + m \le 11^2 + 11 = 132 < 156$. So $m = 12$. $\qed$
+\end{solution}
+\end{example}
+
+\begin{figure}[ht]\centering
+\input{figures/ch02-uniq}
+\caption{The two acts of $\exists!$. Notice: existence needs only one working
+object, but uniqueness needs an argument covering \emph{all} candidates ---
+here, squeezing $m$ between $11$ and $13$.}
+\label{fig:uniq}
+\end{figure}
 
 \begin{exercise}[easy]\label{exr:witness}
 Prove $\exists!x \in \Z$ with $3x - 7 = 2$: exhibit the witness, then prove any
@@ -502,6 +534,65 @@ $p_1, p_2, \dots, p_k$, and let $N = p_1 p_2 \cdots p_k + 1$. Prove that $N$
 has a prime factor not among $p_1,\dots,p_k$, conclude infinitely many primes
 exist, and explain why ``$N$ is prime'' is \emph{not} the right claim to make.
 \end{exercise}
+\begin{exercise}[easy]
+For each claim, name the proof technique the shape suggests (no proof needed):
+(i) ``if $3n+2$ is odd then $n$ is odd''; (ii) ``no integer is both even and
+odd''; (iii) ``$n$ is even iff $n{+}2$ is even''; (iv) ``for every nonzero
+digit $d$, $d^2$'s last digit is in $\{1,4,5,6,9\}$''.
+\end{exercise}
+\begin{exercise}[medium]
+Prove by cases on $n \bmod 3$: for every integer $n$, $n^3 - n$ is divisible
+by $3$. Write the case-exhaustiveness line explicitly.
+\end{exercise}
+\begin{exercise}[medium]
+Disprove or prove, choosing the right tool: ``for every prime $p$, $2^p - 1$
+is prime.'' If false, give the smallest counterexample (check
+$p = 2,3,5,7,11$).
+\end{exercise}
+\begin{exercise}[hard]
+Prove: for every integer $n$, $n$ is odd iff $n^2 \equiv 1 \pmod{8}$.
+Label both directions and say which one needs cases on $n = 4k{+}1$ vs
+$4k{+}3$.
+\end{exercise}
+
+\section*{Further reading}
+\begin{itemize}
+\item R.~Hammack, \emph{Book of Proof}, 3rd ed., Ch.~4--10 ---
+\url{https://richardhammack.github.io/BookOfProof/} --- free PDF; the
+technique-by-technique spine this chapter mirrors, with many more worked
+proofs.
+\item E.~Lehman, F.~T.~Leighton, A.~R.~Meyer, \emph{Mathematics for Computer
+Science}, Ch.~1--2 ---
+\url{https://courses.csail.mit.edu/6.042/spring18/mcs.pdf} --- free PDF;
+``patterns of proof'' done CS-style, fast and rigorous.
+\item E.~Chen, \emph{Remarks on English} ---
+\url{https://web.evanchen.cc/handouts/english/english.pdf} --- the
+write-up standards handout; read it once per section of this chapter.
+\item Stanford CS103, \emph{Mathematical Foundations of Computing} ---
+\url{https://web.stanford.edu/class/cs103/} --- free reader; its
+proof-writing guides cover exactly this chapter's ground.
+\item MIT OpenCourseWare, \emph{6.042J Mathematics for Computer Science}
+(Fall 2010) --- \url{https://ocw.mit.edu/6-042JF10} --- lecture notes and
+problem sets for the proofs-first half of the course.
+\item AoPS, \emph{How to Write a Solution} --- contest write-up advice;
+pairs with \S\ref{sec:writing}.
+\url{https://artofproblemsolving.com/articles/how-to-write-solution}
+\end{itemize}
+
+\begin{rulebox}[Watch instead]
+\begin{itemize}
+\item \textbf{TrevTutor --- ``[Discrete Mathematics] Direct Proofs
+Examples''}, 6:59, \url{https://www.youtube.com/watch?v=uDJfx4bK3Jc} ---
+covers \S\ref{sec:direct}: two worked direct proofs including divisibility.
+(Verified 2026-10-11.)
+\item \textbf{TrevTutor --- ``Can You Prove? Proofs in Discrete Math and
+Real Analysis''} (playlist),
+\url{https://www.youtube.com/playlist?list=PLDDGPdw7e6AjLVCdoobmqvyZZpthHGBJ6}
+--- covers \S\ref{sec:cases}--\ref{sec:existence}: contraposition,
+contradiction, cases and existence proofs in short segments.
+(Verified 2026-10-11.)
+\end{itemize}
+\end{rulebox}
 
 \chapternotes
 The technique-per-chapter architecture (direct, contrapositive, contradiction,

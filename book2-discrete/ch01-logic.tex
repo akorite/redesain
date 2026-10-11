@@ -396,6 +396,14 @@ $\exists x\,\forall y$. The $\exists$-witness comes \emph{first} in the negation
 and it must defeat \emph{all} $y$.
 \end{tripwire}
 
+\begin{figure}[ht]\centering
+\input{figures/ch01-negpush}
+\caption{Negation pushed inward through a two-quantifier chain. Notice:
+each quantifier flips exactly once, the order is untouched, and the
+negation lands on the innermost predicate.}
+\label{fig:negpush}
+\end{figure}
+
 \section{English and symbols}\label{sec:english}
 \index{translation!English--symbols}
 
@@ -405,6 +413,15 @@ where most wrong readings happen, so we make it explicit. The usual hiding place
 ``no matter which'' mean $\forall$; ``some'' and ``at least one'' mean $\exists$;
 ``no'' means $\lnot\exists$ (equivalently $\forall\dots\lnot$); ``only'' reverses
 arrows --- ``$P$ only if $Q$'' is $P \Rightarrow Q$, not $Q \Rightarrow P$.
+
+\begin{figure}[ht]\centering
+\input{figures/ch01-flow}
+\caption{The three recurring English patterns and their connectives.
+Notice the left column: universals take $\Rightarrow$ because you restrict
+the domain and then \emph{require} the claim; existentials take $\land$
+because you restrict the domain and then \emph{exhibit} a member.}
+\label{fig:flow}
+\end{figure}
 
 \begin{example}[Goldbach's claim]\label{ex:goldbach}
 Write in symbols, then negate: \emph{every even integer greater than $2$ is a sum of
@@ -447,6 +464,31 @@ bookkeeping --- each flip changes the total by twice the flipped term, and the
 parity of the sum never moves. Both are worth reading on the archive~
 \cite{aops-amc} once you can spot the quantified claims inside them.
 \end{remark}
+
+\begin{example}[``There is a unique\ldots'']\label{ex:unique}
+Translate: \emph{there is a unique prime $p$ such that $p{+}2$ is prime}. Then
+evaluate the statement.
+\par\smallskip
+\textbf{Strategy.} ``Unique'' is two claims AND-ed: existence ($\exists p$) and
+at-most-one (any two candidates coincide). Write both halves, then hunt for the
+witness --- every prime except $2$ is odd, and an odd $p$ makes $p{+}2$ odd only
+in the right way, so check small candidates directly.
+\par\smallskip
+\begin{solution}
+With $P(n)$ = ``$n$ is prime'', uniqueness is
+\[
+\exists p\,\Bigl(P(p)\land P(p{+}2)\Bigr)\;\land\;
+\forall q\,\forall r\,\bigl(\bigl(P(q)\land P(q{+}2)\land P(r)\land P(r{+}2)\bigr)
+\Rightarrow q=r\bigr).
+\]
+Existence: $p=3$ works ($3,5$ both prime). At-most-one fails immediately:
+$q=3$ and $r=5$ both satisfy the property but $3\neq 5$ --- $(5,7)$ is another
+prime pair. The English statement is \emph{false}: there are (at least) two such
+primes, so the ``unique'' claim dies on the second half, not the first. The
+English ``unique'' is exactly the kind of word that silently adds a second
+quantified clause --- always expand it.
+\end{solution}
+\end{example}
 
 \begin{exercise}[medium]\label{exr:translate}
 Write in symbols over $\Z$: ``exactly one of the numbers $a,b,c$ is even''. Then
@@ -577,6 +619,19 @@ and keep the order.
 of $x=2$ twice over; disjunction does not promise exactly one branch. When a
 statement means exactly one, it says so --- translate that as two claims
 ($\lor$ plus $\lnot\land$), as in Exercise~\ref{exr:translate}.
+\item \textbf{Negating an implication as another implication.}
+$\lnot(P\Rightarrow Q)$ is $P\land\lnot Q$, not $P\Rightarrow\lnot Q$. A
+counterexample to ``if $n$ is prime then $n$ is odd'' is a prime that is
+\emph{not} odd ($n=2$) --- an actual object, not a reversed claim.
+\item \textbf{Marking vacuously true claims false.} ``Every even prime greater
+than $2$ is divisible by $5$'' is \emph{true}: there are no even primes above
+$2$, so the implication never gets a test case. Vacuous truth feels like a
+cheat; it is the correct reading.
+\item \textbf{Assuming one witness serves two existential claims.}
+From $\exists x\,P(x)$ and $\exists x\,Q(x)$ you cannot conclude
+$\exists x\,\bigl(P(x)\land Q(x)\bigr)$ --- the $x$'s may be different objects
+(some number is even; some number is odd; no number is both). Existentials
+only merge when one statement produces the witness the other needs.
 \end{itemize}
 
 \section{Additional exercises}
@@ -632,6 +687,88 @@ grid of marks and a claim of the form $\forall x\,\exists y$, $\exists y\,\foral
 or their negations, and have it print the verdict. Test it on the three worlds of
 the listing and on Figure~\ref{fig:quant-order}'s two grids.
 \end{exercise}
+\begin{exercise}[easy]
+Sort these into equivalent pairs: $P\Rightarrow Q$; $\lnot Q\Rightarrow\lnot P$;
+$Q\Rightarrow P$; $\lnot P\Rightarrow\lnot Q$; $\lnot P\lor Q$; $\lnot(P\land\lnot Q)$.
+Which pairs are provably equal by truth table?
+\end{exercise}
+\begin{exercise}[medium]
+Decide the truth value of each claim over $\Z$, and say whether any is vacuously
+true: (i) every negative perfect square is divisible by $4$; (ii) every integer
+$n>1$ has a divisor $d$ with $1<d\le\sqrt{n}$ or $n$ is prime; (iii) some
+composite $n$ has no prime factor at most $\sqrt{n}$.
+\end{exercise}
+\begin{exercise}[medium]
+Write ``there is a unique even prime'' in symbols using $\exists!x\,P(x)$
+expanded as in the earlier hard exercise, then prove the statement true by
+exhibiting the witness and showing uniqueness.
+\end{exercise}
+\begin{exercise}[medium]
+A classmate translated ``no even number above $2$ is prime'' as
+$\forall n\,\bigl(\text{even}(n)\land n>2 \Rightarrow \lnot\text{prime}(n)\bigr)$
+--- correct --- but then negated it as $\exists n\,(\text{even}(n)\land n>2
+\Rightarrow \text{prime}(n))$. Find the two errors and write the real negation
+in English.
+\end{exercise}
+\begin{exercise}[hard]
+Prove by truth table that $\lnot(P\Rightarrow Q)\equiv P\land\lnot Q$, then use it
+to negate, in one line each: (i) ``if $n$ is even then $n^2$ is divisible by $4$'';
+(ii) ``whenever the algorithm halts, its output is sorted''. Give the English
+reading of each negation.
+\end{exercise}
+\begin{exercise}[hard]
+``No'' hides a negated existential. Write ``no prime above $10$ ends in $5$''
+three ways: as $\lnot\exists$, as $\forall\ldots\lnot$, and as a single
+implication over $\Z$. Verify all three agree on a truth-table-style check
+over $n\in\{2,\dots,20\}$ (by hand or code).
+\end{exercise}
+
+\section*{Further reading}
+\begin{itemize}
+\item R.~Hammack, \emph{Book of Proof}, 3rd ed., Ch.~2 ---
+\url{https://richardhammack.github.io/BookOfProof/} --- free PDF; the
+friendliest full treatment of connectives and quantifiers, with a large
+exercise bank pitched exactly at this chapter.
+\item MIT OpenCourseWare, \emph{6.042J Mathematics for Computer Science}
+(Fall 2010), Ch.~1 --- \url{https://ocw.mit.edu/6-042JF10} ---
+the course this book's proof-first order follows; Ch.~1 covers
+propositions, implication and proof patterns.
+\item E.~Lehman, F.~T.~Leighton, A.~R.~Meyer, \emph{Mathematics for Computer
+Science} (the 6.042J text), \S1 ---
+\url{https://courses.csail.mit.edu/6.042/spring18/mcs.pdf} --- free PDF;
+denser than Hammack, worth it for the ``logic in programs'' angle.
+\item Stanford CS103, \emph{Mathematical Foundations of Computing} course
+reader ---
+\url{https://web.stanford.edu/class/cs103/} --- free reader + problem sets;
+its logic units are the best drills on translation and negation.
+\item The Open Logic Project, \emph{forall x: Calgary} ---
+\url{https://openlogicproject.org/} --- free intro-logic text; go here when
+you want the formal (Fitch-style) counterpart of what this chapter teaches
+informally.
+\item CMU 15-151, \emph{Mathematical Foundations for Computer Science}
+(Great Ideas in Theoretical CS) ---
+\url{https://www.cs.cmu.edu/~15281/} --- lecture notes by Anil Ada et al.;
+the early chapters put propositional logic to work on real problems fast.
+\end{itemize}
+
+\begin{rulebox}[Watch instead]
+\begin{itemize}
+\item \textbf{MIT OpenCourseWare --- ``Lec 1 | MIT 6.042J''}, Tom Leighton,
+44:09, \url{https://www.youtube.com/watch?v=L3LMbpZIKhQ} --- covers
+\S1.1--1.3: propositions, truth tables, implication, and the first proofs.
+(Verified 2026-10-11.)
+\item \textbf{Neso Academy --- ``Logical Operators: Negation, Conjunction \&
+Disjunction''}, 6:09,
+\url{https://www.youtube.com/watch?v=6kYngPvoGxU} --- covers \S1.1--1.2: the
+connectives and their truth tables, the quickest possible refresher.
+(Verified 2026-10-11.)
+\item \textbf{Mathematical Visual Proofs --- ``Predicates and Quantifiers
+[Discrete Math Class]''}, $\sim$10:00,
+\url{https://www.youtube.com/watch?v=0rvKhma-3f4} --- covers \S1.4--1.5:
+predicates, quantifier order, and the negation laws that match
+Figure~\ref{fig:negpush}. (Verified 2026-10-11.)
+\end{itemize}
+\end{rulebox}
 
 \chapternotes
 The order --- connectives, truth tables, implication family, then quantifiers and

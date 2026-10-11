@@ -1,0 +1,24 @@
+% Figure: the power set of {1,2,3} as a subset lattice.
+% Source for Figure~\ref{fig:lattice}. TikZ only; regenerable by compiling main.tex.
+\begin{tikzpicture}[
+  s/.style={draw,inner sep=3pt,font=\footnotesize,rounded corners=1pt},
+  e/.style={-,rulegray},
+  lab/.style={font=\footnotesize\sffamily,text=slate,align=center}
+]
+\node[s] (e0) at (0,3.0) {$\emptyset$};
+\node[s] (s1) at (-2,1.5) {$\{1\}$};
+\node[s] (s2) at (0,1.5) {$\{2\}$};
+\node[s] (s3) at (2,1.5) {$\{3\}$};
+\node[s] (t12) at (-2,0) {$\{1,2\}$};
+\node[s] (t13) at (0,0) {$\{1,3\}$};
+\node[s] (t23) at (2,0) {$\{2,3\}$};
+\node[s] (full) at (0,-1.5) {$\{1,2,3\}$};
+\draw[e] (e0)--(s1); \draw[e] (e0)--(s2); \draw[e] (e0)--(s3);
+\draw[e] (s1)--(t12); \draw[e] (s1)--(t13);
+\draw[e] (s2)--(t12); \draw[e] (s2)--(t23);
+\draw[e] (s3)--(t13); \draw[e] (s3)--(t23);
+\draw[e] (t12)--(full); \draw[e] (t13)--(full); \draw[e] (t23)--(full);
+\node[lab,align=center]{edges add one element;\\
+each level has $\binom{3}{k}$ sets ---\\
+$\sum_k \binom{3}{k} = 2^3 = 8$};
+\end{tikzpicture}

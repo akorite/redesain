@@ -212,6 +212,32 @@ Draw the divisibility poset of $36$ and of $30$; why does $30$'s have the
 shape of a cube while $36$'s does not?
 \end{exercise}
 
+\begin{example}\label{ex:taucount}
+Count the positive divisors of $360$ without listing them, then count the
+positive divisors of any $n = p_1^{e_1}\cdots p_k^{e_k}$.
+\par\smallskip
+\textbf{Strategy.} A divisor of $360$ is \emph{constrained freedom}: it
+uses the same primes with smaller or equal exponents. Each exponent is an
+independent choice --- so multiply the choices.
+\par\smallskip
+\begin{solution}
+$360 = 2^3\cdot 3^2\cdot 5$. A divisor has the form $2^a 3^b 5^c$ with
+$0 \le a \le 3$, $0 \le b \le 2$, $0 \le c \le 1$: that is
+$4\times3\times2 = 24$ divisors (Figure~\ref{fig:divgrid}). In general the
+number of positive divisors is
+$\tau(n) = (e_1 + 1)(e_2 + 1)\cdots(e_k + 1)$ --- the ``$+1$'' per factor
+is the option \emph{take none of that prime}.
+\end{solution}
+\end{example}
+
+\begin{figure}[ht]\centering
+\input{figures/ch05-divgrid}
+\caption{The $24$ divisors of $360 = 2^3\cdot 3^2\cdot 5$ as a
+$4\times3\times2$ grid of exponent triples --- the count
+$(e_1+1)(e_2+1)(e_3+1)$ is the grid's volume.}
+\label{fig:divgrid}
+\end{figure}
+
 \section{Euclid's infinitude of primes}\label{sec:infprimes}
 \index{primes!infinitude of}
 
@@ -343,7 +369,15 @@ Check: $12(1 + 3t) + 18(1 - 2t) = 12 + 18 + 36t - 36t = 30$.
 
 The structure is worth naming: solutions form a \emph{particular solution
 plus a lattice} --- a linear Diophantine equation is a line of integer
-points, and B\'ezout is how you land on it.
+points, and B\'ezout is how you land on it (Figure~\ref{fig:divline}).
+
+\begin{figure}[ht]\centering
+\input{figures/ch05-divline}
+\caption{All solutions of $ax + by = c$ sit on one line, spaced
+$b/\gcd(a,b)$ apart in $x$ --- an arithmetic family from one seed
+$x_0$, never a scatter of independent hits.}
+\label{fig:divline}
+\end{figure}
 
 \begin{exercise}[medium]\label{exr:dioph}
 Solve completely or prove impossible: (a) $15x + 35y = 100$;
@@ -437,6 +471,66 @@ coefficients $(x_i, y_i)$ with $ax_i + by_i = r_i$ maintained as an
 invariant --- the \emph{iterative} extended algorithm. Prove its invariant
 by induction and verify on $(252,198)$ and $(1071,462)$.
 \end{exercise}
+\begin{exercise}[easy]
+Compute $\tau(2025)$, $\tau(3600)$, and the number of \emph{odd} divisors
+of $3600$ --- the odd-divisor count is the same product taken only over odd
+primes.
+\end{exercise}
+\begin{exercise}[medium]
+Prove the converse of the gcd-gate for Diophantine equations is tight: if
+$d \mid c$ fails, no integer solution exists; then exhibit an
+\emph{integers-only} equation with a solution whose real line has
+infinitely many integer points ($x - y = 0$) to see why ``one solution''
+and ``finitely many'' are unrelated.
+\end{exercise}
+\begin{exercise}[medium]
+A number $n$ is \emph{abundant} if $\sigma(n) > 2n$ where $\sigma$ sums the
+divisors. Prove $945$ is the smallest odd abundant number is plausible by
+computing $\sigma(945) = \sigma(3^3\cdot5\cdot7)$ using the multiplicative
+formula $\sigma(p^e) = (p^{e+1}-1)/(p-1)$, and verify $\sigma(945) = 1920$.
+\end{exercise}
+\begin{exercise}[hard]
+Prove that for every $n \ge 2$ there is a prime strictly between $n$ and
+$n!$: adapt Euclid's construction to $N = n! - 1$ --- where does the
+argument break if you use $n! + 1$ instead?
+\end{exercise}
+
+\section*{Further reading}
+\begin{itemize}
+\item R.~Hammack, \emph{Book of Proof}, 3rd ed., Ch.~4--5 ---
+\url{https://richardhammack.github.io/BookOfProof/} --- free PDF;
+divisibility, gcd and Euclid drilled with full proofs.
+\item E.~Lehman, F.~T.~Leighton, A.~R.~Meyer, \emph{Mathematics for
+Computer Science}, Ch.~9 ---
+\url{https://courses.csail.mit.edu/6.042/spring18/mcs.pdf} --- free PDF;
+the number-theory chapter with the gcd-gate and Euclid's lemma treated the
+way \S\ref{sec:bezout} and \S\ref{sec:dioph} use them.
+\item Y.~Zhao, \emph{Modular Arithmetic} ---
+\url{https://yufeizhao.com/olympiad/mod2.pdf} --- the handout
+that continues this chapter into orders, Fermat--Euler and Wilson.
+\item MIT OpenCourseWare, \emph{6.042J} (Fall 2010) ---
+\url{https://ocw.mit.edu/6-042JF10} --- number-theory lectures behind
+\S\ref{sec:euclid}--\S\ref{sec:fta}.
+\item The Open Logic Project ---
+\url{https://openlogicproject.org/} --- free texts; set-theoretic
+groundwork for treating integers as a structure.
+\item Cut-the-Knot, divisibility articles ---
+\url{https://www.cut-the-knot.org/} --- the digit-criteria and
+sieve-as-proof perspective behind \S\ref{sec:digits}.
+\end{itemize}
+
+\begin{rulebox}[Watch instead]
+\begin{itemize}
+\item \textbf{MIT OCW 6.042J --- ``Lecture 4: Number Theory I''}, 1:20:24,
+\url{https://www.youtube.com/watch?v=NuY7szYSXSw} --- Euclid's
+algorithm, gcd and divisibility done at the blackboard: \S\ref{sec:euclid}--%
+\S\ref{sec:fta}. (Verified 2026-10-11.)
+\item \textbf{Khan Academy --- ``Journey into cryptography'' playlist}
+\url{https://www.youtube.com/playlist?list=PLSQl0a2vh4HA50QhFIirlEZRXG4yjcoGM}
+--- its modular-arithmetic unit covers \S\ref{sec:digits} and the
+congruence view. (Verified 2026-10-11.)
+\end{itemize}
+\end{rulebox}
 
 \chapternotes
 The presentation follows MIT 6.042J's number-theory chapter: division

@@ -106,6 +106,15 @@ The skill is recognising which direction the problem is already facing:
 systems want construction, big moduli want destruction, and ``show it
 holds for all $n$'' often wants lifting.
 
+\begin{figure}[ht]\centering
+\input{figures/ch07-crtgrid}
+\caption{CRT as a bijection: the $15$ residues fill the
+$(\bmod\, 3)\times(\bmod\, 5)$ grid exactly once each. Construction says
+every cell is reachable; lifting says the coordinates determine the cell's
+content.}
+\label{fig:crtgrid}
+\end{figure}
+
 \section{Systems in practice}\label{sec:crtpractice}
 \index{CRT!non-coprime moduli}
 
@@ -247,6 +256,14 @@ order divides $k$. Chapter~6's power cycles were orders in plain clothes
 whose order is $\varphi(m)$ is a \emph{primitive root}; mod primes one
 always exists (proved in the olympiad track~\cite{zhao}).
 
+\begin{figure}[ht]\centering
+\input{figures/ch07-orderwheel}
+\caption{Order on a wheel: $2^k \bmod 7$ loops
+$1 \to 2 \to 4 \to 1$, so $\operatorname{ord}_7(2) = 3 \mid 6$. The order
+is the loop's length --- and it always divides $\varphi(m)$.}
+\label{fig:orderwheel}
+\end{figure}
+
 \begin{exercise}[medium]\label{exr:ord}
 Find $\operatorname{ord}_{11}(2)$ and $\operatorname{ord}_{11}(10)$;
 both divide $10$ --- which hits the bound, and what does that mean?
@@ -382,6 +399,61 @@ consistency gate, emit the class mod $\mathrm{lcm}$, and report
 inconsistent systems explicitly. Verify on $x \equiv 4 \pmod 6$,
 $x \equiv 2 \pmod 8$ and a deliberately broken system.
 \end{exercise}
+\begin{exercise}[easy]
+Solve $x \equiv 1 \pmod 4$, $x \equiv 0 \pmod 9$ by hand --- multiples of
+$9$ ending in the right class --- and check against \texttt{crt\_solver.py}.
+\end{exercise}
+\begin{exercise}[medium]
+Find the last two digits of $3^{400}$ two ways: Euler's theorem mod $100$
+(what is $\varphi(100)$ and does it apply?) and the power-cycle method of
+Chapter~6. Reconcile the answers.
+\end{exercise}
+\begin{exercise}[medium]
+Prove $\operatorname{ord}_m(a)$ divides $\varphi(m)$ whenever
+$\gcd(a,m) = 1$ by writing $\varphi(m) = q\cdot\operatorname{ord} + r$ with
+$0 \le r < \operatorname{ord}$ and showing $a^r \equiv 1$ forces $r = 0$.
+\end{exercise}
+\begin{exercise}[hard]
+A number leaves remainder $2,3,4$ on division by $5,6,7$ respectively.
+Show it is $x \equiv -1 \pmod{5\cdot6\cdot7/\gcd\text{-corrected}}$, i.e.\
+solve with the non-coprime gate and state the class mod
+$\mathrm{lcm}(5,6,7) = 210$.
+\end{exercise}
+
+\section*{Further reading}
+\begin{itemize}
+\item R.~Hammack, \emph{Book of Proof}, 3rd ed., Ch.~7 ---
+\url{https://richardhammack.github.io/BookOfProof/} --- free PDF;
+CRT, Fermat and Euler drilled gently.
+\item E.~Lehman, F.~T.~Leighton, A.~R.~Meyer, \emph{Mathematics for
+Computer Science}, Ch.~9 ---
+\url{https://courses.csail.mit.edu/6.042/spring18/mcs.pdf} --- free PDF;
+CRT and Euler's theorem with the ring viewpoint.
+\item E.~Chen, \emph{The Chinese Remainder Theorem} ---
+\url{https://web.evanchen.cc/handouts/CRT/CRT.pdf} --- the
+three-lenses presentation behind \S\ref{sec:lenses}.
+\item Y.~Zhao, \emph{Modular Arithmetic} ---
+\url{https://yufeizhao.com/olympiad/mod2.pdf} --- orders and primitive
+roots beyond \S\ref{sec:orders}.
+\item Berkeley CS70 notes ---
+\url{https://www.eecs70.org/} --- free lecture notes; CRT + RSA carried
+through to working code.
+\item Cut-the-Knot, number theory ---
+\url{https://www.cut-the-knot.org/} --- alternate proofs of Fermat,
+Euler and Wilson for comparison.
+\end{itemize}
+
+\begin{rulebox}[Watch instead]
+\begin{itemize}
+\item \textbf{Numberphile --- ``Chinese Remainder Theorem and Cards''},
+11:13, \url{https://www.youtube.com/watch?v=l9dXo5f3zDc} --- Tokieda's
+card-trick CRT, including the non-coprime case of \S\ref{sec:crtpractice}.
+(Verified 2026-10-11.)
+\item \textbf{Socratica --- ``Fermat's Little Theorem''}, 10:35,
+\url{https://www.youtube.com/watch?v=w0ZQvZLx2KA} --- the permutation
+proof of \S\ref{sec:flt} done carefully. (Verified 2026-10-11.)
+\end{itemize}
+\end{rulebox}
 
 \chapternotes
 The three-lenses framing (construction, lifting, destruction) and the

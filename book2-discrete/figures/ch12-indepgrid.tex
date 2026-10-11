@@ -1,0 +1,10 @@
+\begin{tikzpicture}[x=2.4cm,y=1.7cm]
+  \draw (0,0) grid (2,2);
+  \node[font=\small] at (-0.4,1.5) {heads};
+  \node[font=\small] at (-0.4,0.5) {tails};
+  \node[font=\small] at (0.5,2.4) {heads};
+  \node[font=\small] at (1.5,2.4) {tails};
+  \foreach \x/\y in {0.5/1.5,1.5/1.5,0.5/0.5,1.5/0.5}
+    \node[font=\small] at (\x,\y) {$1/4$};
+  \node[font=\small,align=left,anchor=west] at (2.5,1) {every cell $= \tfrac12\cdot\tfrac12$: coin 2's outcome\\changes nothing about coin 1's probability};
+\end{tikzpicture}

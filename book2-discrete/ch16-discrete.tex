@@ -74,19 +74,41 @@ from finiteness, then every argument runs on \emph{that} witness.}
 \label{fig:extremal}
 \end{figure}
 
-\begin{example}[Closest pair as a proof device]\index{closest pair}
-Among $n$ points in the plane, show there is a line through two points
-containing no third (the silly-theorem warm-up: in any configuration
-there exist two points whose line is ``clean'' for the extremal
-argument).
+\begin{example}[Closest pair as a proof device]\index{closest
+pair}\index{Sylvester--Gallai theorem}
+Among $n\ge3$ points in the plane, not all collinear, show that some
+line passes through exactly two of them (Sylvester--Gallai).
 
 \textbf{Strategy.} Don't search all $\binom n3$ triples --- take the
-pairwise distance minimum and argue on \emph{that} pair.
+minimum over all (point, line) distances and argue on \emph{that}
+witness.
 
-\textbf{Solution.} The set of pairs is finite, so a closest pair
-$(P,Q)$ exists. If a third point $R$ lay on line $PQ$, one of
-$PR,RQ$ would be shorter than $PQ$ --- contradicting minimality. The
-witness does the work; the extremal principle supplied it.
+\textbf{Solution.} Consider all pairs $(P,L)$ where $L$ is a line
+through two given points and $P$ is a given point not on $L$; such
+pairs exist because the points are not all collinear, and they are
+finitely many, so one pair $(P,L)$ minimizes $\operatorname{dist}(P,L)$.
+Write $L=QR$ with $Q,R$ given points, and let $F$ be the foot of the
+perpendicular from $P$ to $L$. Suppose $L$ contained a third given
+point $S$. Then $Q,R,S$ are three points of the set on $L$, so two of
+them --- call the nearer one $A$ and the farther $B$ --- lie on the
+same side of $F$ (possibly $A=F$). For $X$ on $L$,
+$\operatorname{dist}(X,\text{line }PB)=|XB|\sin\angle PBL$; hence
+\[
+\operatorname{dist}(A,PB)=|AB|\sin\angle PBL
+\le|FB|\sin\angle PBL=\operatorname{dist}(F,PB)
+<|PB|\sin\angle PBL=\operatorname{dist}(P,L),
+\]
+using $|FB|<|PB|$ (hypotenuse of the right triangle $PFB$). But $PB$
+is a line through two given points and $A\notin PB$ (otherwise
+$PB=L$ would contain $P$), so $(A,PB)$ is a pair with smaller
+distance --- contradicting minimality. Therefore $L$ passes through
+exactly two of the points.
+
+\textbf{Significance.} The witness does the work; the extremal
+principle supplied it. Note what the minimum had to be \emph{of}: the
+closest \emph{pair} alone is not enough (three collinear points defeat
+the naive version), so the quantity minimized is upgraded to a
+point--line distance.
 \end{example}
 
 \section{Advanced pigeonhole}\index{pigeonhole!generalized}
@@ -215,9 +237,10 @@ On a chessboard, a rook moves any number of squares. Is ``color of the
 square'' an invariant under a rook move?
 \end{exercise}
 \begin{solution}
-No --- a rook move may end on either color. Not invariant (a move that
-changes it exists); a move that \emph{preserves} color is a knight
-move's complement story.
+No --- a rook move may end on either color, so color is not invariant
+under rook moves. (A knight move, by contrast, always flips color;
+a quantity that changes predictably is a \emph{monovariant}, the next
+section's tool.)
 \end{solution}
 \begin{exercise}[medium]\label{exr:iv3}
 Start with $\{1,2,\dots,2n\}$ on a board; each move erases two numbers

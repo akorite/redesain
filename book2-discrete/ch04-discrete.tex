@@ -78,6 +78,14 @@ Ordered means $(1,2) \neq (2,1)$; a product with itself carries a diagonal
 $\{(a,a)\}$ that shows up again in Section~\ref{sec:diag} for a very different
 reason.
 
+\begin{figure}[ht]\centering
+\input{figures/ch04-lattice}
+\caption{The power set of $\{1,2,3\}$ as a lattice. Notice: each upward edge
+adds exactly one element, and level $k$ holds $\binom{3}{k}$ subsets ---
+the $2^n$ count falls out of the structure, not just the formula.}
+\label{fig:lattice}
+\end{figure}
+
 \begin{exercise}[easy]\label{exr:powset}
 List $\mathcal{P}(\{1,2,3\})$ and verify the count $2^3$. How many subsets of
 $[n]$ have even size? (Prove your count by pairing each subset with its
@@ -426,6 +434,66 @@ Extend \texttt{code/diagonal\_demo.py} so it works for base-3 expansions
 from your construction that the numbers in $[0,1)$ with \emph{only} digits
 $\{0,2\}$ in base 3 (the Cantor set) are uncountable.
 \end{exercise}
+\begin{exercise}[easy]
+Let $A = \{1,2,3,4\}$, $B = \{2,4,6\}$. Compute $A\cup B$, $A\cap B$,
+$A\setminus B$, $A\times B$'s cardinality, and $|\mathcal{P}(A\cap B)|$.
+\end{exercise}
+\begin{exercise}[medium]
+Prove or disprove: $f(n) = 2n+1$ as a function $\Z\to\Z$ is (i) injective,
+(ii) surjective, (iii) bijective. If any fails, exhibit the counterexample.
+Then restrict the codomain to the odds and redo all three.
+\end{exercise}
+\begin{exercise}[medium]
+On $\Z$, define $a \sim b$ iff $a - b$ is divisible by $5$. Prove this is an
+equivalence relation, list its classes, and say in one sentence why a
+partition and an equivalence relation are the same object.
+\end{exercise}
+\begin{exercise}[hard]
+Prove that the interval $(0,1)$ and the open ray $(0,\infty)$ have the same
+cardinality by writing an explicit bijection (one of $x \mapsto x/(1-x)$ or
+its cousin) and checking it is injective and surjective --- not by waving at
+``infinite means infinite''.
+\end{exercise}
+
+\section*{Further reading}
+\begin{itemize}
+\item R.~Hammack, \emph{Book of Proof}, 3rd ed., Ch.~1, 11--13 ---
+\url{https://richardhammack.github.io/BookOfProof/} --- free PDF; sets,
+functions and cardinality with the two-containment and injective/surjective
+templates this chapter uses.
+\item E.~Lehman, F.~T.~Leighton, A.~R.~Meyer, \emph{Mathematics for Computer
+Science}, Ch.~4, 8 ---
+\url{https://courses.csail.mit.edu/6.042/spring18/mcs.pdf} --- free PDF;
+the countability order and light Cantor treatment of \S\ref{sec:cardinality}.
+\item E.~Chen, \emph{Introduction to Functional Equations} ---
+injective, surjective and bijective restated in solve-for-the-witness
+form; the bridge from this chapter to olympiad functional equations:
+
+\url{https://web.evanchen.cc/handouts/FuncEq-Intro/FuncEq-Intro.pdf}
+\item Stanford CS103, \emph{Mathematical Foundations of Computing} ---
+\url{https://web.stanford.edu/class/cs103/} --- free reader; its
+set-theory and functions units drill element chasing to fluency.
+\item The Open Logic Project ---
+\url{https://openlogicproject.org/} --- free texts; for the
+axiomatic-set-theory view beneath the naive one taught here.
+\item MIT OpenCourseWare, \emph{6.042J} (Fall 2010) ---
+\url{https://ocw.mit.edu/6-042JF10} --- the sets and cardinality
+lectures behind \S\ref{sec:cardinality}.
+\end{itemize}
+
+\begin{rulebox}[Watch instead]
+\begin{itemize}
+\item \textbf{TrevTutor --- ``INTRODUCTION to SET THEORY''}, 16:38,
+\url{https://www.youtube.com/watch?v=tyDKR4FG3Yw} --- covers
+\S\ref{sec:sets}--\ref{sec:powprod}: sets, membership, subsets,
+power sets. (Verified 2026-10-11.)
+\item \textbf{TrevTutor --- ``INJECTIVE, SURJECTIVE, and BIJECTIVE
+FUNCTIONS''}, 17:14,
+\url{https://www.youtube.com/watch?v=bZred_Ksz2k} --- covers
+\S\ref{sec:injsurj}: the three properties with arrow-diagram examples
+matching Figure~\ref{fig:arrows}. (Verified 2026-10-11.)
+\end{itemize}
+\end{rulebox}
 
 \chapternotes
 The element-chase template, the two-containment proof of set equality, and

@@ -130,6 +130,23 @@ Find $7^{-1} \pmod{10}$ and $8^{-1} \pmod{13}$ by extended Euclid; verify
 each by multiplying back.
 \end{exercise}
 
+\begin{example}\label{ex:inverse8}
+Find $8^{-1} \pmod{15}$, then explain why $6$ has no inverse mod $15$.
+\par\smallskip
+\textbf{Strategy.} Inverse is B\'ezout in disguise: solve
+$8x + 15y = 1$ by extended Euclid and read the coefficient of $8$ mod $15$.
+For $6$, the gcd-gate slams shut before you start.
+\par\smallskip
+\begin{solution}
+$15 = 1\cdot8 + 7$; $8 = 1\cdot7 + 1$. Back-substitute:
+$1 = 8 - 7 = 8 - (15 - 8) = 2\cdot8 - 15$, so $8^{-1} \equiv 2
+\pmod{15}$. Check: $8\cdot2 = 16 \equiv 1$. For $6$: $\gcd(6,15) = 3$, and
+$6x \equiv 1 \pmod{15}$ would mean $3 \mid 1$ --- impossible. The row of
+$6$ in a multiplication table mod $15$ hits only multiples of $3$, never
+$1$.
+\end{solution}
+\end{example}
+
 \section{Linear congruences}\label{sec:lincong}
 \index{linear congruence}
 
@@ -159,6 +176,14 @@ Lifting back, the two solutions mod $20$ are $x \equiv 9$ and $x \equiv
 \pmod{20}$.
 \end{solution}
 \end{example}
+
+\begin{figure}[ht]\centering
+\input{figures/ch06-linline}
+\caption{The $\gcd(a,m) = 2$ solutions of $14x \equiv 6 \pmod{20}$: one
+seed $x_0 = 9$ plus copies spaced $m/d = 10$ apart --- a linear congruence
+answers with a finite arithmetic family, not one residue.}
+\label{fig:linline}
+\end{figure}
 
 \section{Modular patterns: last digits, power cycles, casting out
 nines}\label{sec:patterns}
@@ -273,6 +298,15 @@ solution is unique mod $3\cdot5$ whenever the moduli are coprime. Chapter~5
 solved one equation in integers; this is two conditions at once, and the
 same gcd-gate decides existence.
 
+\begin{figure}[ht]\centering
+\input{figures/ch06-crtsunzi}
+\caption{$x \equiv 2 \pmod 3$ (top) and $x \equiv 3 \pmod 5$ (bottom) tag
+the same numbers exactly once per $15$-block: at $8, 23, \dots$ --- the
+single class $x \equiv 8 \pmod{15}$ that CRT guarantees when the moduli
+are coprime.}
+\label{fig:crtsunzi}
+\end{figure}
+
 \begin{example}\label{ex:calendar}
 What day of the week was October 10, 2026?
 \par\smallskip
@@ -375,6 +409,62 @@ Extend \texttt{powers\_cycle.py} to print, for each base $a = 2,\dots,9$
 and modulus $m$, the tail length and period --- and conjecture the rule
 connecting them to $\gcd(a,m)$. Verify on $m = 12, 20, 100$.
 \end{exercise}
+\begin{exercise}[easy]
+Compute $2^{10} \bmod 11$, $5^{6} \bmod 7$ and $10^{20} \bmod 3$ ---
+find each in under a minute by reducing the base or spotting a short
+period first.
+\end{exercise}
+\begin{exercise}[medium]
+Solve $9x \equiv 6 \pmod{15}$ completely; then change the $6$ to a $7$ and
+prove there is no solution --- same modulus, gcd-gate shut.
+\end{exercise}
+\begin{exercise}[medium]
+Prove that if $a \equiv b \pmod m$ and $a \equiv b \pmod n$ with
+$\gcd(m,n) = 1$, then $a \equiv b \pmod{mn}$ --- and give a counterexample
+when $\gcd(m,n) > 1$ (the CRT preview's uniqueness half).
+\end{exercise}
+\begin{exercise}[hard]
+Find all solutions of $x^2 \equiv 1 \pmod{24}$. (Solve mod $3$ and mod $8$
+separately, then combine --- the answer is more than $\pm 1$, which is the
+point.)
+\end{exercise}
+
+\section*{Further reading}
+\begin{itemize}
+\item R.~Hammack, \emph{Book of Proof}, 3rd ed., Ch.~7 ---
+\url{https://richardhammack.github.io/BookOfProof/} --- free PDF;
+congruence, inverses and the cancellation theorem.
+\item E.~Lehman, F.~T.~Leighton, A.~R.~Meyer, \emph{Mathematics for
+Computer Science}, Ch.~9 ---
+\url{https://courses.csail.mit.edu/6.042/spring18/mcs.pdf} --- free PDF;
+modular arithmetic with the gcd-gate framing used here.
+\item Berkeley CS70 notes ---
+\url{https://www.eecs70.org/} --- free lecture notes; the continuation
+into Fermat--Euler, CRT and RSA flagged in \S\ref{sec:crt}.
+\item Y.~Zhao, \emph{Modular Arithmetic} ---
+\url{https://yufeizhao.com/olympiad/mod2.pdf} --- orders and primitive
+roots for the olympiad track.
+\item MIT OpenCourseWare, \emph{6.042J} (Fall 2010) ---
+\url{https://ocw.mit.edu/6-042JF10} --- the modular-arithmetic lectures
+this chapter follows.
+\item Stanford CS103, \emph{Mathematical Foundations of Computing} ---
+\url{https://web.stanford.edu/class/cs103/} --- free reader with extra
+congruence drills.
+\end{itemize}
+
+\begin{rulebox}[Watch instead]
+\begin{itemize}
+\item \textbf{MIT OCW --- ``Lecture 9: Modular Arithmetic''}, 1:19:45,
+\url{https://www.youtube.com/watch?v=Nn8nBPyzzQ0} --- congruence,
+clock arithmetic and exponent patterns: \S\ref{sec:cong}--%
+\S\ref{sec:patterns}. (Verified 2026-10-11.)
+\item \textbf{Zach Star --- ``This completely changed the way I see
+numbers: Modular Arithmetic Visually Explained''}, 20:33,
+\url{https://www.youtube.com/watch?v=lJ3CD9M3nEQ} --- the visual,
+why-it-matters motivation for \S\ref{sec:cong} and \S\ref{sec:patterns}.
+(Verified 2026-10-11.)
+\end{itemize}
+\end{rulebox}
 
 \chapternotes
 The equivalence-first presentation and the cancellation theorem follow

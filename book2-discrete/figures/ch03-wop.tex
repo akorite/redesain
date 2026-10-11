@@ -1,0 +1,18 @@
+% Figure: well-ordering -- the smallest counterexample is where the argument lands.
+% Source for Figure~\ref{fig:wop}. TikZ only; regenerable by compiling main.tex.
+\begin{tikzpicture}[
+  tick/.style={font=\footnotesize\sffamily,text=slate},
+  ok/.style={circle,draw=rulegray,inner sep=1.2pt,minimum size=3.4mm},
+  bad/.style={circle,draw=accent,fill=accent!20,inner sep=1.2pt,minimum size=3.4mm},
+  lab/.style={font=\footnotesize\sffamily,text=slate,align=center}
+]
+\node[tick] at (-1.1,0.3) {claim fails at:};
+\foreach \n/\x in {2/0,3/0.9,4/1.8,5/2.7,6/3.6,7/4.5,8/5.4,9/6.3} {
+  \node[bad] at (\x,0.3) {\tiny \n};
+}
+\node[bad,very thick] (least) at (0,0.3) {\tiny 2};
+\draw[->,very thick,accent] (least.north) -- ++(0,0.55)
+  node[above,lab] {smallest failure $n_0$:\\ attack \emph{this} one};
+\node[lab,align=center]{Every failing set has a least element (well-ordering).\\
+Its minimality does all the work: every strictly smaller case is already fine.};
+\end{tikzpicture}
