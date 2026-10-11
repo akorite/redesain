@@ -63,3 +63,4 @@ book1-cp,floor-micropatch,206,,,,above floor,"+content ch01/02/04/06/09",book1
 book7-systems,review-ch01-04,84,,,,,"PASS×3, ch04 REVISE (9ex<10, watch rows)",book1
 book6-quant,depth-pass,180,,,,floor met,"ch17/18 + csv unscramble, all tests PASS",book2
 book4-ml,review-ch12-18,246,,,,,"7 REVISE shared defect, fixes landed",book2
+book8-physics,depth-pass,180,,,,floor met,"E&M block deepened",physics-session
