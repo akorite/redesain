@@ -249,7 +249,7 @@ the two symmetric legs gives
 T = 2RC\,\ln\!\frac{1+k}{1-k}.
 \]
 With $R = \qty{10}{\kilo\ohm}$, $C = \qty{100}{\nano\farad}$, $k = 0.5$:
-$T = 2(10^{3})\log 3 \approx \qty{2.20}{\milli\second}$ — predict
+$T = 2(10^{3})\ln 3 \approx \qty{2.20}{\milli\second}$ — predict
 $\approx\qty{455}{\hertz}$, then let the sim count.
 
 \begin{lstlisting}[caption={\texttt{comparator\_osc.cir} --- relaxation
@@ -413,7 +413,7 @@ protected, cased packs as they come. A swollen pack is retired, not
 \end{rulebox}
 
 \section{Common mistakes}
-\label{sec:mistakes}
+\label{sec:mistakes07}
 
 \begin{itemize}
 \item \textbf{Applying the golden rules at the rails.} If the required
@@ -434,7 +434,7 @@ near the negative rail only; ``single-supply'' does not mean
 \end{itemize}
 
 \section{Exercises}
-\label{sec:exercises}
+\label{sec:exercises07}
 
 \begin{exercise}[easy]
 A buffer follows a sensor output of \qty{3.1}{\volt}. What is the
@@ -491,7 +491,7 @@ do to accuracy?
 setting $R_1 = \qty{10}{\kilo\ohm}$, $R_2 = \qty{20}{\kilo\ohm}$
 ($k = \frac{1}{3}$). Derive the new predicted period, re-simulate, and
 report measured vs predicted in a table. \textbf{Hint:}
-$\ln\frac{1+k}{1-k} = \log 2$ now.
+$\ln\frac{1+k}{1-k} = \ln 2$ now.
 \end{exercise}
 
 \begin{exercise}[hard]
@@ -502,7 +502,7 @@ would \emph{not} (think noise, cost, battery standby).
 \end{exercise}
 
 \section{Summary}
-\label{sec:summary}
+\label{sec:summary07}
 
 \begin{center}
 \small
@@ -552,12 +552,12 @@ $\approx \qty{0.227}{\volt}$; with buffer $\approx \qty{2.5}{\volt}$
 \item[Mic gain (inline, \S\ref{sec:we-clip})] $R_f =
 \qty{30}{\kilo\ohm}$, $R_{\mathrm{in}} = \qty{1}{\kilo\ohm}$;
 $\pm 1.5$ V out is far inside the swing limit.
-\item[Osc period (inline, \S\ref{sec:we-osc})] $RC = 1/(2\log 3)\,
+\item[Osc period (inline, \S\ref{sec:we-osc})] $RC = 1/(2\ln 3)\,
 \mathrm{ms} \approx \qty{0.455}{\milli\second}$; e.g.\
 $R = \qty{4.55}{\kilo\ohm}$, $C = \qty{100}{\nano\farad}$.
 \item[Thresholds (medium)] $V_T = \frac{10}{40}\times 10 =
 \pm\qty{2.5}{\volt}$: flips high at $+2.5$, low at $-2.5$.
-\item[Oscillator $R$ (medium)] $R = \frac{1}{2fC\log 3} \approx
+\item[Oscillator $R$ (medium)] $R = \frac{1}{2fC\ln 3} \approx
 \qty{18.2}{\kilo\ohm}$.
 \item[LDO vs buck (medium)] LDO wastes $(9-5)\times 0.08 =
 \qty{0.32}{\watt}$ with $4$ V of headroom $\gg$ \qty{0.4}{\volt}
@@ -566,7 +566,7 @@ life beats noise.
 \item[GBW (medium)] Open-loop gain at \qty{20}{\kilo\hertz} $\sim
 10^{6}/2\times10^{4} = 50$ --- barely the wanted closed loop; split into
 two $\times 7$ stages or choose a faster part.
-\item[$k=1/3$ oscillator (hard)] $T = 2RC\log 2 \approx
+\item[$k=1/3$ oscillator (hard)] $T = 2RC\ln 2 \approx
 \qty{1.39}{\milli\second}$ predicted ($\approx\qty{721}{\hertz}$);
 simulate and tabulate --- expect within $1\%$.
 \item[Linear vs buck, \qty{300}{\milli\ampere} (hard)] $(12-5)\times

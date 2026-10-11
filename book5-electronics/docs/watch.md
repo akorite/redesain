@@ -25,3 +25,15 @@
 ### ch16 — A small CPU that runs real programs
 - "8-bit CPU control logic: Part 1" — Ben Eater — 27:52 — decoder/control-unit sections — verified opened 2026-10-11 — https://www.youtube.com/watch?v=dXdoim96v5A
 - "Instructions & Programs: Crash Course Computer Science #8" — CrashCourse — 10:36 — fetch-decode-execute section — verified opened 2026-10-11 — https://www.youtube.com/watch?v=zltgXvg6r3k
+
+### ch17 — Breadboards and the real bench
+- "Breadboard tutorial: How to use a breadboard (for beginners)" — LeftyMaker — 4:16 — anatomy section — verified opened 2026-10-11 — https://www.youtube.com/watch?v=W6mixXsn-Vc
+- "How to Use a Multimeter" — SparkFun Electronics — 10:33 — DMM method section — verified opened 2026-10-11 — https://www.youtube.com/watch?v=SLkPtmnglOI
+
+### ch18 — KiCad: from schematic to a two-layer sensor board
+- "KiCad for Beginners — Step by Step Tutorial (2025)" — DIY Hideout — 23:37 — whole pipeline — verified opened 2026-10-11 — https://www.youtube.com/watch?v=d9_-lQq8ShE
+- "KiCad 6 STM32 PCB Design Full Tutorial" — Phil's Lab #65 — 1:40:05 — spec/schematic/footprints sections — verified opened 2026-10-11 — https://www.youtube.com/watch?v=aVUqaB0IMh4
+
+### ch19 — Microcontrollers and the road ahead
+- "FPGA vs Microcontroller vs Processor | Choosing Right Hardware" — Uplatz — 7:48 — MCU-vs-FPGA decision — verified opened 2026-10-11 — https://www.youtube.com/watch?v=i1ObzbkVfSA
+- "What's an FPGA?" — Charles Clayton — 1:25 — FPGA definition — verified opened 2026-10-11 — https://www.youtube.com/watch?v=iHg0mmIg0UU

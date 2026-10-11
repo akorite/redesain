@@ -1,0 +1,20 @@
+\begin{tikzpicture}[font=\scriptsize, >=latex]
+% soft core inside FPGA
+\draw[thick, fill=graybg] (0.4,0.4) rectangle (9.4,4.6);
+\node[below, font=\footnotesize] at (4.9,4.6) {Tang Nano 9K --- GW1NR-LV9 fabric};
+\draw[thick, fill=accentsoft] (1.0,2.4) rectangle (3.6,3.9);
+\node[align=center] at (2.3,3.3) {\textbf{soft core}\\PicoRV32\\(\(\sim\)2k LUTs)};
+\draw[thick, fill=white] (4.4,3.0) rectangle (6.0,3.9);
+\node[align=center, font=\tiny] at (5.2,3.45) {your peripherals\\(UART, timer,\\sensor board I\/O)};
+\draw[thick, fill=white] (4.4,1.0) rectangle (6.0,2.4);
+\node[align=center, font=\tiny] at (5.2,1.7) {BRAM holds the\\firmware image};
+\draw[<->, thick] (3.6,3.2) -- (4.4,3.2);
+\draw[<->, thick] (5.2,3.0) -- (5.2,2.4);
+\draw[thick, fill=white] (6.8,2.6) rectangle (8.8,4.0);
+\node[align=center, font=\tiny] at (7.8,3.3) {fabric left over\\for accelerators};
+\node[align=left, text=slate, text width=10cm] at (4.9,0.0)
+{A soft core is just more Verilog: PicoRV32 drops a real RISC-V
+CPU into the same LUTs our 302-cell cpu8 used --- the difference
+is the toolchain runs on it, so C code executes inside the FPGA
+alongside the hardware you still write.};
+\end{tikzpicture}

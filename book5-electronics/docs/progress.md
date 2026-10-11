@@ -17,3 +17,6 @@
 | ch14 | An 8-bit ALU | drafted | ~12pp | 5 WEs, 6 figs, 6 listings (all output real), 4+19 ex, sims real / board steps honest | directed 64-vec PASS + 131072-vec exhaustive PASS, iverilog-13, yosys-0.69 synth_gowin |
 | ch15 | Registers, buses and the datapath | drafted | ~13pp | 5 WEs, 6 figs, 6 listings (all real), 3+18 ex, sims real / no board demo (ch16's) | regfile8 12-check PASS, mem 8-check PASS, datapath 8-step PASS, synth_gowin stat real |
 | ch16 | A small CPU that runs real programs | drafted | ~14pp | 5 WEs, 6 figs, 6 listings (all real), 4+18 ex, all sims real / board build lint-clean only | fib 12-OUT-seq PASS + halt, mult 42 PASS + halt, UART decode PASS, synth 302 cells |
+| ch17 | Breadboards and the real bench | drafted | ~10pp | 4 WEs, 6 figs, 3 listings (real ngspice), 5+17 ex, sims real at measured values | divider +0.6% / fade +6.4% comparison real; no board attached (kit chapter) |
+| ch18 | KiCad: schematic to sensor board | drafted | ~12pp | 5 WEs, 6 figs, 4 listings (real netlist/DRC/Gerber/ngspice), 5+17 ex | filter fc=1592Hz real, gerber+drl generated, DRC 0 violations; KiCad GUI described-not-run |
+| ch19 | Microcontrollers and the road ahead | drafted | ~8pp | 3 WEs, 3 figs, 3 listings (shown-not-run), 5+8 ex | read-only tail chapter, Book 7 hand-off + HDLBits/AoE pointers; no new sims |

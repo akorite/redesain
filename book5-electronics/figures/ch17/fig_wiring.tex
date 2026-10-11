@@ -1,0 +1,29 @@
+\begin{tikzpicture}[font=\scriptsize, >=latex]
+% left: good wiring
+\node[font=\small\bfseries] at (2.0,5.8) {wiring that doesn't lie};
+\draw[thick, fill=graybg] (0,2.2) rectangle (4.4,5.4);
+\draw[fill=white] (0.4,2.7) rectangle (1.0,3.3);
+\draw[fill=white] (1.5,2.7) rectangle (2.1,3.3);
+\draw[fill=white] (2.6,2.7) rectangle (3.2,3.3);
+\draw[fill=white] (3.7,2.7) rectangle (4.3,3.3);
+\draw[thick, accent] (0.7,3.3) -- (0.7,4.4) -- (1.8,4.4) -- (1.8,3.3);
+\draw[thick, accent] (1.8,3.3) -- (1.8,4.8) -- (2.9,4.8) -- (2.9,3.3);
+\draw[thick, good] (2.9,3.3) -- (2.9,4.0) -- (4.0,4.0) -- (4.0,3.3);
+\node[align=center, text=slate] at (2.2,1.5) {flat, right angles,\\one bend per hop};
+% right: spaghetti
+\node[font=\small\bfseries] at (7.0,5.8) {wiring that lies};
+\draw[thick, fill=graybg] (5.0,2.2) rectangle (9.4,5.4);
+\draw[fill=white] (5.4,2.7) rectangle (6.0,3.3);
+\draw[fill=white] (6.5,2.7) rectangle (7.1,3.3);
+\draw[fill=white] (7.6,2.7) rectangle (8.2,3.3);
+\draw[fill=white] (8.7,2.7) rectangle (9.3,3.3);
+\draw[thick, accent] (5.7,3.3) .. controls (6.5,5.8) .. (6.8,3.3);
+\draw[thick, good] (5.7,3.3) .. controls (8.5,5.4) .. (9.0,3.3);
+\draw[thick, accent] (6.8,3.3) .. controls (5.0,5.0) .. (7.9,3.3);
+\node[align=center, text=slate] at (7.2,1.5) {loops, crosses, arcs ---\\you can't see the circuit};
+\node[align=center, text=slate, text width=9.5cm] at (4.7,0.3)
+{Rule: a breadboard layout should let you point at the schematic
+with one hand and trace the same node with the other. If a wire
+crosses three parts and doubles back, you have built a schematic
+you can't debug.};
+\end{tikzpicture}

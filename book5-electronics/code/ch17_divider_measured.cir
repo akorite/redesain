@@ -1,0 +1,10 @@
+* ch17_divider_measured.cir -- the divider re-simulated at values a
+* real DMM would report: R1=987ohm (nominal 1k, -1.3%), R2=1982ohm
+* (nominal 2k, -0.9%). The breadboard also adds ~2 ohm of contact
+* resistance on each tie -- modelled as R3.
+V1 1 0 DC 5.02
+R1 1 2 987
+R2 2 3 1982
+R3 3 0 2
+.op
+.end
