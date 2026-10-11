@@ -37,7 +37,7 @@ spread wider. Regenerate: \ttfamily figures/ch13\_sampling\_dist.tex.}
 
 $\mathrm{bias}(\hat\theta)=\mathbb E[\hat\theta]-\theta$;
 $\mathrm{var}(\hat\theta)$ is the spread. The decomposition
-\index{bias--variance trade-off}
+\index{bias--variance tradeoff}
 \[
 \mathbb E[(\hat\theta-\theta)^{2}]
 =\mathrm{var}(\hat\theta)+\mathrm{bias}(\hat\theta)^{2}
@@ -115,7 +115,7 @@ differentiate in each parameter, solve. Full derivation in
 Section~\ref{sec:handderiv13}.
 
 \textbf{Solution.} $\hat\mu=\bar x$ (the sample mean) and
-$\hat\sigma^{2}=\frac1n\sum(x_i-\bar x)^{2}$ --- biased by a factor
+$\hat\sigma^{2}=\frac1n\sum_{i=1}^{n}(x_i-\bar x)^{2}$ --- biased by a factor
 $(n-1)/n$, which is why $s^{2}$ divides by $n-1$ instead.
 \end{example}
 
@@ -393,14 +393,14 @@ MSE decomposition & var $+$ bias$^{2}$ --- the trade-off behind every
 fit \\
 Likelihood & $L(\theta)=p(\text{data}\mid\theta)$; maximize in LOGS ---
 underflow otherwise \\
-MLEs to know & coin $\to H/n$; Gaussian $\to(\bar x,\frac1n\sum
+MLEs to know & coin $\to H/n$; Gaussian $\to(\bar x,\frac1n\sum_{i=1}^{n}
 (x_i-\bar x)^2)$ (biased!) \\
 Bayesian & posterior $\propto$ likelihood$\times$prior; Beta+binomial
 conjugate: just add counts \\
 MAP & posterior mode; flat prior $\Rightarrow$ MAP$=$MLE; Gaussian
 prior $\Rightarrow$ ridge \\
 LS as MLE & Gaussian noise: $\min\|y-Xw\|^2$ IS $\max L$; logistic NLL
-$=\sum[\log(1+e^z)-yz]$ \\
+$=\sum_{i=1}^{n}[\log(1+e^{z_i})-y_iz_i]$ \\
 \bottomrule
 \end{tabularx}
 \end{center}
@@ -476,9 +476,6 @@ Implement rejection sampling for the Beta$(720,394)$ posterior of
 Example~\ref{ex:betacoin}; verify the sampled mean/variance against the
 analytic Beta moments.
 \end{exercise}
-
-\section*{Notes}
-\addcontentsline{toc}{section}{Notes}
 
 \chapternotes{%
 The estimator-framework and the MLE worked set follow MML \S6.4--6.5,
