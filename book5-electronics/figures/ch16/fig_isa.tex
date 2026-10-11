@@ -1,0 +1,27 @@
+\begin{tikzpicture}[font=\scriptsize]
+\node[anchor=north west, inner sep=0] at (0,0) {%
+\begin{tabular}{lllll}
+\toprule
+opcode & mnemonic & operand & bytes & effect\\
+\midrule
+\texttt{0x0} & NOP   & ---     & 1 & nothing\\
+\texttt{0x1} & LDI   & ---     & 2 & \texttt{A $\leftarrow$ imm8}\\
+\texttt{0x2} & MOV   & \texttt{rd}    & 1 & \texttt{r[d] $\leftarrow$ A}\\
+\texttt{0x3} & ADD   & \texttt{rs}    & 1 & \texttt{A $\leftarrow$ A + r[s]}, flags\\
+\texttt{0x4} & SUB   & \texttt{rs}    & 1 & \texttt{A $\leftarrow$ A $-$ r[s]}, flags\\
+\texttt{0x5} & AND   & \texttt{rs}    & 1 & \texttt{A $\leftarrow$ A \& r[s]}, flags\\
+\texttt{0x6} & JMP   & ---     & 2 & \texttt{pc $\leftarrow$ imm8}\\
+\texttt{0x7} & JZ    & ---     & 2 & \texttt{pc $\leftarrow$ imm8} if Z\\
+\texttt{0x8} & OUT   & ---     & 1 & \texttt{out $\leftarrow$ A}\\
+\texttt{0x9} & HALT  & ---     & 1 & pc holds forever\\
+\texttt{0xA} & MOVA  & \texttt{rs}    & 1 & \texttt{A $\leftarrow$ r[s]}\\
+\bottomrule
+\end{tabular}};
+\node[anchor=north west, text width=7.2cm, font=\scriptsize, text=slate] at (0,-6.2)
+{Byte 0 is \texttt{\{op[7:4], operand[3:0]\}}; the operand nibble names
+registers \texttt{r0}--\texttt{r7} (r0 doubles as the accumulator
+\texttt{A}). Two-byte instructions carry an immediate byte at
+\texttt{pc+1} --- including jump targets, the one place ch15's seeded
+encoding needed a wider field: a 4-bit target cannot reach past
+\texttt{0x0F}.};
+\end{tikzpicture}

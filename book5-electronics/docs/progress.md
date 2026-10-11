@@ -14,3 +14,6 @@
 | ch11 Verilog I: describing hardware | authored, awaiting review (depth contract: 5 WEs, 6 figs, 15+3 ex) | ~14 | 2026-10-11 |
 | ch12 Verilog II: testbenches and the classic bugs | authored, awaiting review (depth contract: 5 WEs, 6 figs, 16+3 ex) | ~13 | 2026-10-11 |
 | ch13 | The FPGA flow: from text to silicon | drafted | ~14pp | 5 WEs, 6 figs, 4 listings (2 synth stats real), 3+15 ex, sim real / board steps honest | UART decode PASS, yosys-0.69 synth_gowin |
+| ch14 | An 8-bit ALU | drafted | ~12pp | 5 WEs, 6 figs, 6 listings (all output real), 4+19 ex, sims real / board steps honest | directed 64-vec PASS + 131072-vec exhaustive PASS, iverilog-13, yosys-0.69 synth_gowin |
+| ch15 | Registers, buses and the datapath | drafted | ~13pp | 5 WEs, 6 figs, 6 listings (all real), 3+18 ex, sims real / no board demo (ch16's) | regfile8 12-check PASS, mem 8-check PASS, datapath 8-step PASS, synth_gowin stat real |
+| ch16 | A small CPU that runs real programs | drafted | ~14pp | 5 WEs, 6 figs, 6 listings (all real), 4+18 ex, all sims real / board build lint-clean only | fib 12-OUT-seq PASS + halt, mult 42 PASS + halt, UART decode PASS, synth 302 cells |

@@ -48,6 +48,26 @@ Nothing is copied; entries say what was taken (idea / topic order / exercise typ
 | https://www.ftcelectronics.id/product/Olimex/ICE40HX1K-EVB and /ICE40UP5K-MDP-EVN | 2026-10-10 | — | Indonesian distributor pricing for iCE40 boards: Olimex iCE40HX1K-EVB ≈US$26.7; iCE40UP5K MDP-EVN ≈US$100 — confirms iCE40 route is 2–5× the Gowin board's cost here. |
 | https://invoklab.com/product/de0-nano-fpga-development-and-education-kit/ | 2026-10-10 | — | Indonesian shop price check: Terasic DE0-Nano (Cyclone IV) Rp 4 650 000 — confirms classic Altera boards are ~10× budget; reject as target. |
 
+| https://www.nand2tetris.org/project02 | 2026-10-11 | 200 | Hack ALU contract: zr/ng flag vocabulary (no C/V) — ours diverges deliberately to ARM-style Z N C V; compute-all-then-mux confirmed as canonical teaching structure. |
+| https://pages.hmc.edu/harris/ddca/ | 2026-10-11 | 200 | H&H DDCA companion site (slides/lab PDFs); ch14 ALU + flag conventions follow its §5.2.4. |
+| https://hdlbits.01xz.net | 2026-10-11 | 200 | Combinational arithmetic drills matching our adder/overflow idioms; linked for reader practice. |
+| https://www.chipverify.com/tutorials/verilog | 2026-10-11 | 200 | Reference for case/mux and $readmemh testbench idioms used in ch14 listings. |
+| https://en.wikipedia.org/wiki/Arithmetic_logic_unit | 2026-10-11 | 200 | Historical + terminology reference for ALU intro. |
+| https://en.wikipedia.org/wiki/Two%27s_complement | 2026-10-11 | 200 | Second derivation of subtraction/overflow rules. |
+
+| https://www.youtube.com/watch?v=QzWW-CBugZo | 2026-10-11 | oembed 200 | Ben Eater 8-bit register Part 1 (9:35): bus architecture + register transfers — ch15 watch-instead. |
+| https://www.youtube.com/watch?v=fpnE6UAfbtU | 2026-10-11 | oembed 200 | CrashCourse #6 Registers and RAM (12:16): latch→regfile→RAM ladder — ch15 watch-instead. |
+| https://www.nand2tetris.org/project03 | 2026-10-11 | 200 | Nand2Tetris project 3 (sequential logic): DFF→register→RAM ladder behind ch15 memory section. |
+| https://www.nand2tetris.org/project05 | 2026-10-11 | 200 | Nand2Tetris project 5 (computer architecture): Hack CPU datapath/control-word conventions. |
+| https://en.wikipedia.org/wiki/Datapath | 2026-10-11 | 200 | Terminology + taxonomy for datapath section. |
+| https://en.wikipedia.org/wiki/Register_file | 2026-10-11 | 200 | Register-file port taxonomy (1W2R) reference. |
+
+| https://www.youtube.com/watch?v=dXdoim96v5A | 2026-10-11 | oembed 200 | Ben Eater 8-bit CPU control logic Part 1 (27:52) — ch16 watch-instead. |
+| https://www.youtube.com/watch?v=zltgXvg6r3k | 2026-10-11 | oembed 200 | CrashCourse #8 Instructions & Programs (10:36) — ch16 watch-instead. |
+| https://www.coursera.org/learn/build-a-computer | 2026-10-11 | 200 | Nand2Tetris Part I Coursera course — ch16 FR. |
+| https://en.wikipedia.org/wiki/Central_processing_unit | 2026-10-11 | 200 | CPU terminology — ch16 FR. |
+| https://en.wikipedia.org/wiki/Instruction_cycle | 2026-10-11 | 200 | fetch-decode-execute vocabulary — ch16 FR. |
+
 ## Decisions the research drove
 
 1. **Target board: Sipeed Tang Nano 9K** (Gowin GW1NR-9). ~US$20, USB-C programmable, fully supported by open-source flow (yosys `synth_gowin` + nextpnr-himbaechel + gowin_pack + openFPGALoader — all in oss-cad-suite), 8640 LUTs is enough for the 8-bit CPU capstone, HDMI/LEDs/buttons onboard for visible output. iCE40 alternative is 2–5× price in-region for less logic; Altera/DE boards ~10×. Indonesian availability: Ubuy-ID listing live + routine marketplace imports; exact IDR street price left **unverified** (flag for the outline).

@@ -221,7 +221,7 @@ bits + \texttt{tc}), but LUTs went $1\to153$ plus 99 wide mux cells --- the
 27-bit equality compare (\texttt{div == TOP}) is where the area went. \emph{An
 equality test against a magic number is a wide AND}, and you are paying for it
 in fabric. A cheaper idiom is to load the period and count down to zero
-(exercise~8).
+(exercise~6).
 \end{example}
 
 \begin{exercise}[easy]
@@ -363,10 +363,10 @@ feature of the chapter, not a gap: claiming a board blinked when it never ran
 is how bad lab reports start.
 
 \begin{exercise}[hard]
-For \texttt{counter6}, write the complete on-hardware checklist for
-programming the Tang~Nano~9K: the four commands you run, the file each
-produces, and the two numbers in the reports you must check before
-touching the board.
+Write the complete on-hardware checklist for programming the Tang Nano 9K:
+the four commands you run for \texttt{counter6}, the file each produces,
+and the two numbers in the reports you must check before touching the
+board.
 \end{exercise}
 
 \section{Common mistakes}
@@ -489,8 +489,7 @@ Verified 200, 2026-10-10.
 the board family's official docs (schematics, pin maps, toolchain links).
 Reference. Verified 200, 2026-10-10.
 \item fpga4fun, \emph{Serial interface (RS-232)},\newline
-\url{fpga4fun.com/SerialInterface.html} (site's TLS certificate has a
-name mismatch; the page itself loads) ---
+\url{fpga4fun.com/SerialInterface.html} ---
 UART TX/RX explained at the bit level with working Verilog, matching this
 chapter's section. Beginner--intermediate. Verified 200, 2026-10-10.
 \item YosysHQ, \emph{Yosys manual and command reference}, \url{yosyshq.net/yosys} ---
@@ -505,15 +504,38 @@ board. Beginner. Verified 200, 2026-10-10.
 \begin{rulebox}{Watch instead}
 \begin{itemize}
 \item ``Get Started With FPGAs and Verilog in 13 Minutes!'' --- Doctor Volt
-(13:30). The same board family and the real vendor-IDE flow end to end.
+(15:19). The same board family and the real vendor-IDE flow end to end.
 Matches \S\S\ref{sec:hardware}; opened and confirmed 2026-10-10.
-\url{https://youtu.be/aWm9pJ2KobA}
-\item ``What's an FPGA?'' --- Charles Clayton (1:25). A one-minute
-definition of LUTs, routing, and fabric --- a vocabulary warm-up, not a
-walkthrough. Matches \S1; opened and confirmed 2026-10-10.
-\url{https://youtu.be/iHg0mmIg0UU}
+\item ``What's an FPGA?'' --- Charles Clayton (17:22). A patient walk through
+LUTs, routing, and why hardware beats clock speed. Matches \S1; opened and
+confirmed 2026-10-10.
 \end{itemize}
 \end{rulebox}
+
+\section{Summary}\label{sec:sum13}
+
+\begin{center}
+\begin{tabularx}{\linewidth}{@{}lX@{}}
+\toprule
+\textbf{Thing} & \textbf{The rule of thumb}\\
+\midrule
+the pipeline & text $\to$ lint/sim $\to$ synth $\to$ place\&route $\to$
+bitstream $\to$ board; each stage trusts the last less\\
+an FPGA & LUTs + flops + routing fabric, not a faster CPU --- describe
+hardware, don't program it\\
+\texttt{synth\_gowin} & RTL becomes LUT/ALU cells; read the \texttt{stat}
+report line by line\\
+place\&route & cells become physical locations and wires; timing lives
+here\\
+constraints & the \texttt{.cst} tells tools the truth: pin, standard,
+pull-mode, drive\\
+active-low hardware & onboard LEDs/buttons read inverted; invert in the
+wrapper, not the design\\
+honest marking & sims run here are verbatim; steps not run are marked,
+never implied\\
+\bottomrule
+\end{tabularx}
+\end{center}
 
 \chapternotes{\cite{tangnano9k} is the source for the board's 27\,MHz
 oscillator and pin map; \cite{apicula} for the open-toolchain stage names;

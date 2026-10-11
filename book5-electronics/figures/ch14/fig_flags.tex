@@ -1,0 +1,32 @@
+\begin{tikzpicture}[font=\scriptsize, >=latex]
+% selected result feeds Z and N unconditionally
+\draw[thick, fill=graybg] (0,0) rectangle (2.2,1.1);
+\node[align=center] at (1.1,0.55) {selected\\result \texttt{y}/8};
+\draw[->, thick] (2.2,0.9) -- (3.6,0.9) -- (3.6,0.55) -- (4.4,0.55);
+\draw[thick, fill=goodbg] (4.4,0.15) rectangle (6.4,0.95);
+\node[align=center] at (5.4,0.55) {\texttt{y[7]}\\sign bit};
+\draw[->, thick, accent] (6.4,0.55) -- (7.4,0.55) node[right]{\texttt{o\_n}};
+\draw[->, thick] (2.2,0.25) -- (3.0,0.25) -- (3.0,-0.5) -- (3.8,-0.5);
+\draw[thick, fill=goodbg] (3.8,-0.9) rectangle (6.0,-0.1);
+\node[align=center] at (4.9,-0.5) {8-input NOR\\(\texttt{y == 0})};
+\draw[->, thick, accent] (6.0,-0.5) -- (7.4,-0.5) node[right]{\texttt{o\_z}};
+% carry: mux of per-path candidates
+\draw[thick, fill=amberbg] (0.6,-2.4) rectangle (3.2,-1.2);
+\node[align=center] at (1.9,-1.5) {\texttt{add[8]}};
+\node[align=center] at (1.9,-1.9) {\texttt{sub[8]}};
+\node[align=center] at (1.9,-2.3) {\texttt{a[7]}, \texttt{a[0]}, \texttt{0}};
+\draw[thick, fill=graybg] (4.0,-2.5) rectangle (6.2,-1.3);
+\node[align=center] at (5.1,-1.9) {mux on\\\texttt{i\_op}};
+\draw[->, thick] (3.2,-1.8) -- (4.0,-1.8);
+\draw[->, thick, accent] (6.2,-1.9) -- (7.4,-1.9) node[right]{\texttt{o\_c}};
+% overflow: arithmetic paths only
+\draw[thick, fill=amberbg] (0.6,-3.9) rectangle (3.2,-2.9);
+\node[align=center] at (1.9,-3.2) {\texttt{v\_add}: same signs,\\new sign differs};
+\node[align=center] at (1.9,-3.65) {\texttt{v\_sub}: signs differ,\\new sign $\neq$ \texttt{a[7]}};
+\draw[thick, fill=graybg] (4.0,-3.95) rectangle (6.2,-3.0);
+\node[align=center] at (5.1,-3.45) {mux on\\\texttt{i\_op}};
+\draw[->, thick] (3.2,-3.4) -- (4.0,-3.4);
+\draw[->, thick, accent] (6.2,-3.45) -- (7.4,-3.45) node[right]{\texttt{o\_v}};
+\draw[->, dashed, slate] (5.1,-1.3) -- (5.1,-0.2) -- (1.1,-0.2) -- (1.1,0);
+\draw[->, dashed, slate] (1.1,-1.2) -- (1.1,-0.2);
+\end{tikzpicture}

@@ -1,0 +1,56 @@
+// ch14_alu9k.cst -- Gowin physical constraints, Tang Nano 9K (GW1NR-9C).
+// Pin map per the Sipeed Tang Nano 9K schematic (rev 3674) -- the header
+// numbering shifts between board revisions, so verify against your rev.
+// i_a lands on J6 header pins (consecutive 79..86), i_b on J5, i_op on J6.
+IO_LOC "i_a[0]" 79;
+IO_PORT "i_a[0]" PULL_MODE=UP;
+IO_LOC "i_a[1]" 80;
+IO_PORT "i_a[1]" PULL_MODE=UP;
+IO_LOC "i_a[2]" 81;
+IO_PORT "i_a[2]" PULL_MODE=UP;
+IO_LOC "i_a[3]" 82;
+IO_PORT "i_a[3]" PULL_MODE=UP;
+IO_LOC "i_a[4]" 83;
+IO_PORT "i_a[4]" PULL_MODE=UP;
+IO_LOC "i_a[5]" 84;
+IO_PORT "i_a[5]" PULL_MODE=UP;
+IO_LOC "i_a[6]" 85;
+IO_PORT "i_a[6]" PULL_MODE=UP;
+IO_LOC "i_a[7]" 86;
+IO_PORT "i_a[7]" PULL_MODE=UP;
+IO_LOC "i_b[0]" 25;
+IO_PORT "i_b[0]" PULL_MODE=UP;
+IO_LOC "i_b[1]" 26;
+IO_PORT "i_b[1]" PULL_MODE=UP;
+IO_LOC "i_b[2]" 27;
+IO_PORT "i_b[2]" PULL_MODE=UP;
+IO_LOC "i_b[3]" 28;
+IO_PORT "i_b[3]" PULL_MODE=UP;
+IO_LOC "i_b[4]" 29;
+IO_PORT "i_b[4]" PULL_MODE=UP;
+IO_LOC "i_b[5]" 30;
+IO_PORT "i_b[5]" PULL_MODE=UP;
+IO_LOC "i_b[6]" 33;
+IO_PORT "i_b[6]" PULL_MODE=UP;
+IO_LOC "i_b[7]" 34;
+IO_PORT "i_b[7]" PULL_MODE=UP;
+IO_LOC "i_op[0]" 76;
+IO_PORT "i_op[0]" PULL_MODE=UP;
+IO_LOC "i_op[1]" 77;
+IO_PORT "i_op[1]" PULL_MODE=UP;
+IO_LOC "i_op[2]" 48;
+IO_PORT "i_op[2]" PULL_MODE=UP;
+IO_LOC "i_mode_n" 3;         // onboard button S1, active-low
+IO_PORT "i_mode_n" PULL_MODE=UP;
+IO_LOC "o_led[0]" 10;        // onboard LED1 (active-low)
+IO_PORT "o_led[0]" PULL_MODE=UP DRIVE=8;
+IO_LOC "o_led[1]" 11;
+IO_PORT "o_led[1]" PULL_MODE=UP DRIVE=8;
+IO_LOC "o_led[2]" 13;
+IO_PORT "o_led[2]" PULL_MODE=UP DRIVE=8;
+IO_LOC "o_led[3]" 14;
+IO_PORT "o_led[3]" PULL_MODE=UP DRIVE=8;
+IO_LOC "o_led[4]" 15;
+IO_PORT "o_led[4]" PULL_MODE=UP DRIVE=8;
+IO_LOC "o_led[5]" 16;
+IO_PORT "o_led[5]" PULL_MODE=UP DRIVE=8;

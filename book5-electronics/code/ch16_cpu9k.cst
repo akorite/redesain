@@ -1,0 +1,21 @@
+// ch16_cpu9k.cst -- Tang Nano 9K constraints for the cpu8 top.
+// Pin numbers per the Sipeed Tang Nano 9K schematic (rev 3718+).
+IO_LOC  "i_clk27" 52;
+IO_PORT "i_clk27" PULL_MODE=NONE IO_TYPE=LVCMOS33;
+IO_LOC  "i_btn"    4;
+IO_PORT "i_btn"    PULL_MODE=UP   IO_TYPE=LVCMOS33;
+IO_LOC  "o_led[0]" 10;
+IO_LOC  "o_led[1]" 11;
+IO_LOC  "o_led[2]" 13;
+IO_LOC  "o_led[3]" 14;
+IO_LOC  "o_led[4]" 15;
+IO_LOC  "o_led[5]" 16;
+IO_PORT "o_led[0]" IO_TYPE=LVCMOS33 PULL_MODE=UP DRIVE=8;
+IO_PORT "o_led[1]" IO_TYPE=LVCMOS33 PULL_MODE=UP DRIVE=8;
+IO_PORT "o_led[2]" IO_TYPE=LVCMOS33 PULL_MODE=UP DRIVE=8;
+IO_PORT "o_led[3]" IO_TYPE=LVCMOS33 PULL_MODE=UP DRIVE=8;
+IO_PORT "o_led[4]" IO_TYPE=LVCMOS33 PULL_MODE=UP DRIVE=8;
+IO_PORT "o_led[5]" IO_TYPE=LVCMOS33 PULL_MODE=UP DRIVE=8;
+// UART bridge: the BL702 ties FPGA pin 17 to the USB serial RX line.
+IO_LOC  "o_uart_tx" 17;
+IO_PORT "o_uart_tx" IO_TYPE=LVCMOS33;

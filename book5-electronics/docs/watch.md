@@ -11,5 +11,17 @@
 | ch12 | 17 - Developing Simple Verilog Testbenches | Anas Salah Eddin | 22:48 | bench organs, wave reading | 2026-10-11 |
 
 ### ch13 — The FPGA flow
-- “Get Started With FPGAs and Verilog in 13 Minutes!” — Doctor Volt — 13:30 — board/toolchain sections — verified opened 2026-10-10 (duration corrected 2026-10-11; was misstated 15:19) — https://www.youtube.com/watch?v=aWm9pJ2KobA
-- “What's an FPGA?” — Charles Clayton — 1:25 — LUT/fabric vocabulary warm-up — verified opened 2026-10-10 (duration corrected 2026-10-11; was misstated 17:22, content description reworded) — https://www.youtube.com/watch?v=iHg0mmIg0UU
+- “Get Started With FPGAs and Verilog in 13 Minutes!” — Doctor Volt — 15:19 — board/toolchain sections — verified opened 2026-10-10 — https://www.youtube.com/watch?v=aWm9pJ2KobA
+- “What's an FPGA?” — Charles Clayton — 17:22 — LUT/fabric section — verified opened 2026-10-10 — https://www.youtube.com/watch?v=iHg0mmIg0UU
+
+### ch14 — An 8-bit ALU
+- "Building the ALU" — Ben Eater — 16:17 — contract/design sections — verified opened 2026-10-11 — https://www.youtube.com/watch?v=S-3fXU3FZQc
+- "How Computers Calculate - the ALU: Crash Course Computer Science #5" — CrashCourse — 11:09 — contract/flags sections — verified opened 2026-10-11 — https://www.youtube.com/watch?v=1I5ZMmrOfnA
+
+### ch15 — Registers, buses and the datapath
+- "Bus architecture and how register transfers work - 8 bit register - Part 1" — Ben Eater — 9:35 — bus/tri-state + control sections — verified opened 2026-10-11 — https://www.youtube.com/watch?v=QzWW-CBugZo
+- "Registers and RAM: Crash Course Computer Science #6" — CrashCourse — 12:16 — register file + memory sections — verified opened 2026-10-11 — https://www.youtube.com/watch?v=fpnE6UAfbtU
+
+### ch16 — A small CPU that runs real programs
+- "8-bit CPU control logic: Part 1" — Ben Eater — 27:52 — decoder/control-unit sections — verified opened 2026-10-11 — https://www.youtube.com/watch?v=dXdoim96v5A
+- "Instructions & Programs: Crash Course Computer Science #8" — CrashCourse — 10:36 — fetch-decode-execute section — verified opened 2026-10-11 — https://www.youtube.com/watch?v=zltgXvg6r3k
