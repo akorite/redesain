@@ -13,3 +13,4 @@
 | 11 — Dynamic programming I | written, compiles clean (0 overfull >3pt, 0 undefined refs) | ~7 (book 119pp) | 2026-10-10 |
 | 12 — Dynamic programming II | written, compiles clean (0 overfull >3pt, 0 undefined refs) | ~8 (book 127pp) | 2026-10-10 |
 | 13 — Fenwick and segment trees | written, compiles clean (0 overfull >3pt, 0 undefined refs) | ~8 (book 135pp) | 2026-10-10 |
+| 14 — Number theory and combinatorics | written, compiles clean (0 overfull >3pt, 0 undefined refs); +Further reading +Watch (new contract) | ~9 (book 144pp) | 2026-10-11 |
