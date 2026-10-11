@@ -1,0 +1,21 @@
+\begin{tikzpicture}[scale=0.9,font=\scriptsize]
+% resistor as a cylinder, side view
+\draw[thick] (-2.2,-0.5) rectangle (2.2,0.5);
+\draw[thick] (2.2,0) ellipse (0.18 and 0.5);
+\draw[thick,dashed] (-2.2,0) ellipse (0.18 and 0.5);
+\node at (0,0.05) {resistor, carries $I\rightarrow$};
+% E field along the axis inside
+\draw[->,very thick,accent] (-1.6,-0.85) -- (1.6,-0.85) node[midway,below] {$\mathbf E$ inside, along the wire};
+% B circles around the surface (top and bottom tangent arrows)
+\draw[->,thick] (-1.4,0.62) arc (160:20:0.55);
+\draw[->,thick] (-0.2,0.62) arc (160:20:0.55);
+\draw[->,thick] (1.0,0.62) arc (160:20:0.55);
+\node at (-1.4,1.15) {$\mathbf B$};
+% S arrows pointing inward
+\foreach \x in {-1.4,-0.2,1.0}{
+  \draw[->,thick,good] (\x,1.55) -- (\x,0.75);}
+\foreach \x in {-1.4,-0.2,1.0}{
+  \draw[->,thick,good] (\x,-1.7) -- (\x,-0.65);}
+\node[color=good,align=center] at (3.5,1.1) {$\mathbf S=\mathbf E\times\mathbf B/\mu_0$\\inward};
+\node[align=center] at (0,-2.1) {energy enters through the \emph{surface}: $\int S\,dA=I^{2}R$};
+\end{tikzpicture}

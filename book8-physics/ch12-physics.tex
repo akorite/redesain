@@ -125,6 +125,27 @@ parallel and fairy lights die in strings. \checkmark
 \end{solution}
 \end{example}
 
+\begin{example}[Maximum power transfer --- and why you might not want
+it]\label{ex:maxpower}
+A real source ($\mathcal E$, internal $r$) feeds a load $R_L$. Find
+the $R_L$ that receives maximum power --- and the efficiency there.
+\par\smallskip
+\textbf{Strategy.} Write $P_L$ as a function of $R_L$ and maximize;
+then audit where the rest went.
+\begin{solution}
+$I=\mathcal E/(R_L+r)$, so
+$P_L=\mathcal E^{2}R_L/(R_L+r)^{2}$. Setting $dP_L/dR_L=0$ gives
+$R_L=r$ with $P_{\max}=\mathcal E^{2}/4r$. But then half the power
+burns inside the source: efficiency $\eta=P_L/(P_L+P_r)=50\%$.
+For $\mathcal E=12$\,V, $r=2\,\Omega$: matching gives $R_L=2\,\Omega$,
+$P_{\max}=18$\,W --- while $R_L=18\,\Omega$ delivers only $6.5$\,W
+but at $90\%$ efficiency (total draw $7.2$\,W, nearly all of it
+useful). Two different designs from one formula:
+match when you must extract every watt (antenna to cable), mismatch
+when you must not cook the source (battery to load). \checkmark
+\end{solution}
+\end{example}
+
 \section{RC dynamics: the first circuit ODE}\label{sec:cir-rc}
 
 Charging through $R$: $\mathcal E=q/C+iR$ gives
@@ -190,6 +211,80 @@ mega-ohms. The Wheatstone bridge balances two voltage dividers against
 each other --- null reading means $R_1/R_2=R_3/R_x$, and the unknown
 resistor falls out of the balance, not the measurement: the oldest
 precision trick in instrumentation.
+
+\begin{example}[The Wheatstone bridge: precision from a null]\label{ex:bridge}
+A bridge with $R_1=R_2=R_3=1$\,k$\Omega$ measures
+$R_x=1.01$\,k$\Omega$ ($1\%$ off-nominal) on a $10$\,V supply. How
+much detector voltage appears --- and could a DMM see $0.1\%$?
+\par\smallskip
+\textbf{Strategy.} Two dividers; read the midpoints' difference.
+\begin{solution}
+$V_d=V_s\left[\dfrac{R_x}{R_3+R_x}-\dfrac{R_2}{R_1+R_2}\right]
+=10\left[\dfrac{1.01}{2.01}-0.5\right]=24.9$\,mV.
+Scaling: $V_d\approx V_s\,\epsilon/4$ for small mismatch
+$\epsilon=R_x/R_3-1$, so $0.1\%$ gives $2.5$\,mV --- still decades
+above a cheap DMM's $\textmu$V-class floor. A null instrument needs
+no calibration of the meter itself: the \emph{known} resistors carry
+the accuracy. \checkmark
+\end{solution}
+\end{example}
+
+\begin{lstlisting}[language=Python,caption={\texttt{code/ch12\_bridge\_sweep.py} --- bridge off-null sweep: exact detector voltage vs the $\epsilon/4$ rule of thumb.},label={lst:bridgesweep}]
+Vs = 10.0
+def v_d(eps):
+    return Vs * ((1 + eps) / (2 + eps) - 0.5)
+for eps in [0.0005, 0.001, 0.005, 0.01, 0.05, 0.10]:
+    exact = v_d(eps) * 1000
+    approx = Vs * eps / 4 * 1000
+\end{lstlisting}
+
+Output of a real run:
+\begin{lstlisting}[numbers=none]
+mismatch (%)   V_d measured (mV)   V_d approx Vs*eps/4 (mV)
+       0.05%                1.25                      1.25
+       0.10%                2.50                      2.50
+       0.50%               12.47                     12.50
+       1.00%               24.88                     25.00
+       5.00%              121.95                    125.00
+      10.00%              238.10                    250.00
+0.1% -> 2.50 mV, still decades above a DMM's uV floor
+\end{lstlisting}
+
+The $V_s\epsilon/4$ rule holds to one part in a hundred out to
+$10\%$ mismatch --- the linearisation is the measurement. Below
+$0.1\%$ the signal is still millivolts, which is why bridge sensing
+doesn't need an exotic front end.
+
+\begin{lstlisting}[language=Python,caption={\texttt{code/ch12\_power\_transfer.py} --- load power and efficiency against $R_L$: the flat-topped trade.},label={lst:maxpow}]
+emf, r = 12.0, 2.0
+print(" R_L (ohm)   P_L (W)   efficiency")
+for RL in [0.5, 1.0, 1.5, 2.0, 3.0, 5.0, 10.0, 18.0, 50.0]:
+    P = emf**2 * RL / (RL + r)**2
+    print(f"{RL:9.1f}   {P:7.2f}   {RL/(RL+r)*100:9.1f}%")
+print(f"analytic max: EMF^2/4r = {emf**2/(4*r):.1f} W at R_L = r = {r:.0f} ohm")
+\end{lstlisting}
+
+Output of a real run:
+\begin{lstlisting}[numbers=none]
+ R_L (ohm)   P_L (W)   efficiency
+      0.5     11.52        20.0%
+      1.0     16.00        33.3%
+      1.5     17.63        42.9%
+      2.0     18.00        50.0%
+      3.0     17.28        60.0%
+      5.0     14.69        71.4%
+     10.0     10.00        83.3%
+     18.0      6.48        90.0%
+     50.0      2.66        96.2%
+analytic max: EMF^2/4r = 18.0 W at R_L = r = 2 ohm
+\end{lstlisting}
+
+The curve's flat top is the forgiving part: $R_L=1.5$--$3\,\Omega$
+all deliver within $5\%$ of peak. The steep penalty is at small
+$R_L$ --- where most of the EMF burns on the source's own resistance.
+Efficiency climbs monotonically, so the design choice is always a
+budget: how much power do you need \emph{versus} how much waste can
+the source tolerate.
 
 \section{Common mistakes}\label{sec:cir-mistakes}
 
@@ -337,4 +432,24 @@ diagonal. (APhO-style classic)
 \begin{exercise}[medium]
 A voltmeter of $10$\,M$\Omega$ reads a $1$\,M$\Omega$--$1$\,M$\Omega$
 divider on $10$\,V: what does it actually read? (engineering)
+\end{exercise}
+\begin{exercise}[easy]
+A battery reads $12.6$\,V open-circuit and $11.8$\,V while delivering
+$2$\,A: find its internal resistance and the terminal voltage at
+$5$\,A. (AP-C)
+\end{exercise}
+\begin{exercise}[medium]
+Two bulbs rated $60$\,W and $100$\,W (same nominal voltage) are wired
+in \emph{series} across that voltage: which glows brighter and why is
+the answer counterintuitive? (F=ma)
+\end{exercise}
+\begin{exercise}[medium]
+A charged capacitor discharges through $R$: find the time for the
+\emph{stored energy} to halve, and compare with the half-charge time
+of example~\ref{ex:rchalf}. (F=ma)
+\end{exercise}
+\begin{exercise}[hard]
+An ammeter of resistance $r$ inserted into a branch of resistance
+$R_b$ changes the very current it reports: find the fractional
+measurement error and the condition $r\ll R_b$ implies. (USAPhO-style)
 \end{exercise}

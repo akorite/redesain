@@ -173,6 +173,61 @@ The inrush nearly reaches stall current ($7.9$\,A within $8$\,ms),
 then the growing back-EMF throttles the motor down to its no-load
 point --- the simulation lands on the analytic answer to every digit.
 
+\begin{example}[Power-factor correction: buying back the amps]\label{ex:pfcorr}
+A $10$\,kW shop motor draws at $0.7$ lagging power factor on a
+$240$\,V single-phase line. Find the line current as-is and after a
+capacitor bank corrects the factor to $0.95$ --- and the capacitor's
+required kVAR.
+\par\smallskip
+\textbf{Strategy.} Real power is fixed: $P=VI\cos\varphi$. The
+capacitor supplies the motor's reactive draw locally instead of
+shipping it down the line.
+\begin{solution}
+$I_{\rm before}=P/(V\cos\varphi)=10{,}000/(240\cdot0.7)=59.5$\,A;
+$I_{\rm after}=10{,}000/(240\cdot0.95)=43.9$\,A.
+Reactive vars to cancel:
+$Q_C=P(\tan\varphi_1-\tan\varphi_2)
+=10{,}000(\tan45.6^{\circ}-\tan18.2^{\circ})
+=10{,}000(1.02-0.33)=6.9$\,kVAR.
+Line loss falls to $(0.7/0.95)^{2}=54\%$ of before --- same motor, same work,
+$15$\,A fewer heating the feed. Utilities bill large users for the
+reactive share precisely because it costs them $I^{2}R$.
+\checkmark
+\end{solution}
+\end{example}
+
+\begin{lstlisting}[language=Python,caption={\texttt{code/ch18\_motor\_op.py} --- DC motor operating point: the torque--speed line meets the load.},label={lst:motorop}]
+V, R, kv = 12.0, 1.5, 0.02        # V, ohm, N.m/A (Kt = Kv here)
+w_free = V / kv                    # ideal no-load speed, rad/s
+I_stall = V / R
+def torque(w):
+    I = (V - kv * w) / R
+    return kv * I
+for T_load in [0.01, 0.03, 0.06, 0.09, 0.12]:
+    w = (V - T_load * R / kv) / kv   # solve torque(w) = load
+    I = (V - kv * w) / R
+    p_out, p_in = T_load * w, V * I
+\end{lstlisting}
+
+Output of a real run:
+\begin{lstlisting}[numbers=none]
+no-load speed 600 rad/s   stall torque 0.160 N.m
+ load (N.m)   speed (rad/s)   current (A)   P_out (W)   eff
+       0.01            562.5           0.50          5.6     94%
+       0.03            487.5           1.50         14.6     81%
+       0.06            375.0           3.00         22.5     62%
+       0.09            262.5           4.50         23.6     44%
+       0.12            150.0           6.00         18.0     25%
+max mechanical power at w=300 rad/s (half no-load): 24.0 W
+\end{lstlisting}
+
+The table is the datasheet in disguise: efficiency peaks near
+no-load while mechanical power peaks at \emph{half} no-load speed
+--- the two optima never coincide, so a geared motor's job is to
+place the operating point between them. Stall current $V/R=8$\,A is
+the number the fuse and driver must survive, exactly what
+example~\ref{ex:motor}'s back-EMF protects the running motor from.
+
 \section{In engineering practice: the bridge to Book~5}\label{sec:pw-eng}
 
 The grid chain (\ref{ex:loss}), the motor operating point
@@ -320,4 +375,22 @@ Show RMS of a sine is $V_p/\sqrt2$ by direct integration. (derive)
 \begin{exercise}[medium]
 A bridge rectifier + capacitor supply: sketch the load ripple between
 peaks. (engineering)
+\end{exercise}
+\begin{exercise}[easy]
+Why did the transmission voltage win at high $V$? Reproduce the
+$I^{2}R$ scaling argument in two lines. (AP-C)
+\end{exercise}
+\begin{exercise}[medium]
+A $1$\,kW motor plant runs at pf $0.6$ lagging: find the capacitor
+kVAR to reach $0.9$, and the line-current reduction. (F=ma)
+\end{exercise}
+\begin{exercise}[medium]
+A buck converter at $50\%$ duty with ideal switches: show the output
+averages to $V_{\rm in}/2$ and identify where the lost volts go in a
+real part. (engineering)
+\end{exercise}
+\begin{exercise}[hard]
+A generator's EMF, synchronous reactance and load angle $\delta$:
+sketch how real power transfers as $P\propto\sin\delta$ and say why
+the grid is stable only for $\delta<90^{\circ}$. (USAPhO-style)
 \end{exercise}

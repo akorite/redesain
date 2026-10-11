@@ -165,6 +165,26 @@ Starting from \emph{every} particle at the same speed, random-angle
 collisions alone build the MB shape: mean speed within $0.2\%$ of
 theory and the tail in the right place.
 
+\begin{example}[Molar heats: the gas audits its own degrees of freedom]\label{ex:molar}
+Heat $2$\,mol of nitrogen gas through $\Delta T=100$\,K --- once at
+constant volume, once at constant pressure. Find both heats and the
+$\gamma$ they imply.
+\par\smallskip
+\textbf{Strategy.} Equipartition prices each quadratic degree at
+$\tfrac12R$: diatomic $C_V=\tfrac52R$, and $C_P=C_V+R$ always.
+\begin{solution}
+$Q_V=nC_V\Delta T=2\cdot\tfrac52(8.314)(100)=4.16$\,kJ;
+$Q_P=nC_P\Delta T=2\cdot\tfrac72(8.314)(100)=5.82$\,kJ;
+their ratio $\gamma=C_P/C_V=7/5=1.40$.
+The extra $1.66$\,kJ at constant pressure is exactly the expansion
+work $nR\Delta T$ --- $C_P-C_V=R$ is the first law wearing the
+molar-capacity label. Monatomic argon would run $3/2$ and $5/2$
+($\gamma=1.67$): the capacities \emph{count} the molecule's degrees
+of freedom, so a measured $\gamma$ is a microscopy result.
+\checkmark
+\end{solution}
+\end{example}
+
 \section{In engineering practice: the heat budget}\label{sec:th-eng}
 
 Power plants are figure~\ref{fig:engine} at gigawatt scale (cooling
@@ -319,4 +339,23 @@ Prove it. (derive)
 \begin{exercise}[medium]
 Estimate the rms speed of a nitrogen molecule at room temperature.
 (estimation)
+\end{exercise}
+\begin{exercise}[easy]
+A monatomic gas's $C_V$ vs a diatomic's: which is larger and why does
+rotation raise it? (AP-C)
+\end{exercise}
+\begin{exercise}[medium]
+$2$\,mol of Ar is heated $50$\,K at constant volume, then again at
+constant pressure: find both heats and the $\gamma$ they imply.
+(F=ma)
+\end{exercise}
+\begin{exercise}[medium]
+A heat pump keeps a house at $20^{\circ}$\,C against $-5^{\circ}$\,C
+outside: bound the COP and estimate the electrical cost of $10$\,kW
+of delivered heat. (estimation)
+\end{exercise}
+\begin{exercise}[hard]
+Show the adiabatic TV-relation $TV^{\gamma-1}=$ const follows from
+$PV^{\gamma}=$ const, then use it to find the temperature after
+$10\times$ compression of air. (derive)
 \end{exercise}

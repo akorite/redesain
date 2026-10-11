@@ -162,6 +162,29 @@ battery that trickled seconds charging it. Capacitors are time-traders.
 \end{solution}
 \end{example}
 
+\begin{example}[``Half'' a dielectric, two different answers]\label{ex:halfdiel}
+A parallel-plate capacitor (area $A$, gap $d$, vacuum $C_0=\varepsilon_0A/d$)
+is half-filled with dielectric $\kappa$: (a) a slab filling half the
+\emph{gap} (stacked), (b) a slab covering half the \emph{area}
+(side-by-side). Find $C$ each way.
+\par\smallskip
+\textbf{Strategy.} Treat the device as two capacitors; the question is
+whether they share charge (series) or voltage (parallel).
+\begin{solution}
+(a) Stacked: field crosses an air layer $d/2$ and a dielectric layer
+$d/2$ in series --- same $D$ through both:
+$C_a=\left(\frac{d/2}{\varepsilon_0A}+\frac{d/2}{\kappa\varepsilon_0A}\right)^{-1}
+=C_0\,\frac{2\kappa}{\kappa+1}$.
+(b) Side-by-side: two capacitors at the same $V$ in parallel:
+$C_b=C_0\frac{1+\kappa}{2}$.
+For $\kappa=4$: $C_a=1.6\,C_0$ but $C_b=2.5\,C_0$ --- ``half'' is
+not a number until you say which way it halves. The series member
+always gains least (the air half still bottlenecks the flux); the
+parallel member gains most (the dielectric half is a full extra
+capacitor). \checkmark
+\end{solution}
+\end{example}
+
 \begin{lstlisting}[language=Python,caption={\texttt{code/ch11\_potential\_map.py} --- gradient check and assembly-energy audit.},label={lst:pot}]
 dVdx = (V(charges, x+h, y) - V(charges, x-h, y))/(2*h)
 \end{lstlisting}
@@ -184,6 +207,39 @@ Assembly work step by step (sum q_i*V_others):
 The finite difference reproduces $\mathbf E$ to all printed digits, and
 the two energy routes --- sequential assembly vs pairwise sum --- agree
 to $-0.9142$ as they must.
+
+\begin{lstlisting}[language=Python,caption={\texttt{code/ch11\_dielectric\_scan.py} --- half-dielectric both ways: how the gap is filled decides.},label={lst:dielscan}]
+def c_series(k):    # slab fills half the gap, perpendicular
+    return 2 * k / (k + 1)
+def c_parallel(k):  # slab fills half the area
+    return (1 + k) / 2
+
+print("kappa   C_series/C0   C_parallel/C0")
+for k in [1, 2, 3, 4, 6, 10]:
+    print(f"{k:5d}   {c_series(k):11.3f}   {c_parallel(k):13.3f}")
+\end{lstlisting}
+
+Output of a real run:
+\begin{lstlisting}[numbers=none]
+kappa   C_series/C0   C_parallel/C0
+    1         1.000           1.000
+    2         1.333           1.500
+    3         1.500           2.000
+    4         1.600           2.500
+    6         1.714           3.500
+   10         1.818           5.500
+kappa -> inf limits: series 2.0 C0, parallel diverges like k/2
+  k=  50: series    1.961   parallel       25.5
+  k= 100: series    1.980   parallel       50.5
+  k=1000: series    1.998   parallel      500.5
+\end{lstlisting}
+
+Same material, same amount of it, wildly different capacitance: the
+series stacking saturates at $2C_0$ no matter how good the dielectric
+--- the surviving air gap still dominates --- while the parallel
+layout keeps scaling like $\kappa/2$. Ceramic-chip capacitors pack
+value by geometry: dozens of thin dielectric layers in parallel,
+exactly the right-hand column.
 
 \section{In engineering practice: every capacitor on the board}\label{sec:pot-eng}
 
@@ -349,4 +405,30 @@ $\tfrac12CV^{2}$ directly from $\varepsilon_0E^{2}/2\times$volume.
 \begin{exercise}[medium]
 An electron volt is one electron through one volt: convert $1$\,eV to
 joules and give the proton's speed at that energy. (F=ma)
+\end{exercise}
+\begin{exercise}[easy]
+An isolated charged capacitor's plate separation is doubled. State the
+effect on $C$, $V$, and stored energy --- and where the extra energy
+came from. (AP-C)
+\end{exercise}
+\begin{exercise}[medium]
+Capacitor $C_1$ charged to $V_0$ is connected to an uncharged $C_2$:
+find the common voltage and show energy is lost --- where did it go?
+(F=ma)
+\end{exercise}
+\begin{exercise}[medium]
+From the table below (measured $V$ along an axis), estimate $E_x$ at
+$x=2$\,cm and state which way a proton accelerates. (F=ma data)
+\begin{center}\begin{tabular}{lcccc}
+\toprule
+$x$ (cm) & 1.0 & 2.0 & 3.0 & 4.0\\
+$V$ (V) & 40 & 28 & 20 & 16\\
+\bottomrule
+\end{tabular}\end{center}
+\end{exercise}
+\begin{exercise}[hard]
+A dielectric slab slides so that it fills a fraction $x$ of a
+parallel-plate capacitor's \emph{area} (the side-by-side geometry of
+example~\ref{ex:halfdiel}), held at fixed $Q$. Find the force pulling
+the slab deeper in. (APhO-style)
 \end{exercise}

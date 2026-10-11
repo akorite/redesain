@@ -214,6 +214,34 @@ $d/dr$ of gravity: the Moon's pull differs by $\sim7\%$ across Earth's
 diameter, stretching oceans toward and away from it --- the third
 derivation nobody expected to be useful in a textbook chapter.
 
+\begin{lstlisting}[language=Python,caption={\texttt{code/ch08\_orbit\_audit.py} --- eccentric orbit: conservation drift, apsides, and the vis-viva check.},label={lst:orbitaudit}]
+GM, dt = 4 * np.pi**2, 1e-4            # AU^3/yr^2 units
+r = np.array([1.0, 0.0]); v = np.array([0.0, 6.0])   # v < vcirc -> ellipse
+E0 = 0.5 * np.dot(v, v) - GM / np.linalg.norm(r)
+L0 = r[0] * v[1] - r[1] * v[0]
+for i in range(30000):
+    a = -GM * r / np.linalg.norm(r)**3
+    v = v + a * dt
+    r = r + v * dt
+\end{lstlisting}
+
+Output of a real run:
+\begin{lstlisting}[numbers=none]
+angular momentum drift: +2.31e-14
+energy drift over run : 2.79e-03  (E0 = -21.4784)
+r_min = 0.8381 AU   r_max = 1.0000 AU
+a = 0.9190 AU   vis-viva check: E = -GM/2a = -21.4784
+\end{lstlisting}
+
+Angular momentum is conserved to $10^{-14}$ --- the kick--drift
+integrator's speciality --- while energy drifts $3\times10^{-3}$
+over $30{,}000$ steps, one part in $10^{4}$: the integrator's honest
+noise floor, and worth printing rather than hiding. The orbit's own
+apsides ($0.84$ and $1.00$\,AU --- the launch point was already
+apoapsis, since $v<v_{\rm circ}$) reconstruct a semi-major axis
+whose vis-viva energy returns $E_0$ to every digit: the ellipse
+closes its own books.
+
 \section{In engineering practice: the launch-and-station budget}\label{sec:grav-eng}
 
 Rocket sizing runs this chapter backwards: the mission's $\Delta v$

@@ -49,6 +49,25 @@ change $\mathbf B$ itself.}
 \label{fig:flux4}
 \end{figure}
 
+\begin{example}[The rotating loop: an AC generator in one line]\label{ex:gen}
+A coil of $N$ turns, area $A$, spins at angular rate $\omega$ in a
+uniform $\mathbf B$. Find $\mathcal E(t)$ and its peak.
+\par\smallskip
+\textbf{Strategy.} Only the angle changes:
+$\Phi_B=NBA\cos\omega t$; differentiate it.
+\begin{solution}
+\[\mathcal E=-\frac{d\Phi_B}{dt}=NBA\omega\sin\omega t,
+\qquad \mathcal E_{\max}=NBA\omega.\]
+For $N=100$, $A=0.01$\,m$^{2}$, $B=0.5$\,T at $60$\,Hz:
+$\mathcal E_{\max}=100\times0.5\times0.01\times377=188$\,V ---
+household-scale voltage from geometry and speed alone. Every power
+station is this line: spin something in a field (steam, water, wind
+all just buy the $\omega$) and Faraday writes the waveform. The
+$\sin\omega t$ is also why the grid alternates --- rotation cannot
+make DC. \checkmark
+\end{solution}
+\end{example}
+
 \section{Lenz's law: direction by conservation}\label{sec:far-lenz}
 
 The induced current's field opposes the \emph{change} --- not the
@@ -188,6 +207,34 @@ The audit closes to the watt and the ring frequency/decay match theory
 to all printed digits --- chapter~7's oscillator, here in copper and
 charge.
 
+\begin{lstlisting}[language=Python,caption={\texttt{code/ch14\_rlc\_ring.py} --- an underdamped RLC ring-down: measure the oscillation, audit it against theory.},label={lst:rlcring}]
+L, C, R = 50e-3, 100e-6, 5.0   # H, F, ohm
+w0 = 1 / np.sqrt(L * C)
+wd = np.sqrt(w0**2 - (R / (2 * L))**2)
+dt, n = 1e-5, 15000
+q, i, t_cross, qprev = 100e-6, 0.0, [], 100e-6
+for k in range(n):
+    q, i = q + i * dt, i + (-q / C - i * R) * dt / L
+    if qprev > 0 and q <= 0:
+        t_cross.append(k * dt)
+    qprev = q
+\end{lstlisting}
+
+Output of a real run:
+\begin{lstlisting}[numbers=none]
+omega0 = 447.2 rad/s   theory wd = 444.4 rad/s
+measured zero-crossing periods (s): ['0.01413', '0.01413', '0.01413']
+measured wd = 444.6 rad/s
+amplitude envelope tau = 2L/R = 20.0 ms
+energy halves in 6.9 ms   Q = 4.5
+\end{lstlisting}
+
+The Euler--Cromer loop reproduces $\omega_d$ to three figures ---
+period jitter is invisible at this $Q$. Note the two decay clocks:
+the \emph{amplitude} envelope lives $2L/R=20$\,ms, but the
+\emph{energy} (proportional to the square) halves in $L\ln2/R\approx
+7$\,ms. Confusing the two time constants is a classic lab error.
+
 \section{In engineering practice: the power grid's physics}\label{sec:far-eng}
 
 Generators are figure~\ref{fig:flux4}'s rotation panel run backwards
@@ -195,6 +242,23 @@ Generators are figure~\ref{fig:flux4}'s rotation panel run backwards
 guide; eddy braking stops trains and roller-coasters without contact;
 and induction cooktops are \S\ref{sec:far-e} making currents in your
 pot --- the induced-$\mathbf E$ field turned appliance.
+
+\begin{example}[The flyback spike: inductance will have its current]\label{ex:flyback}
+A relay coil ($L=0.5$\,H) carries $0.5$\,A when its switch opens,
+halting the current in $\sim1$\,\textmu s. Estimate the voltage
+the coil generates --- and why every relay ships with a diode.
+\par\smallskip
+\textbf{Strategy.} The inductor's EMF is $-L\,dI/dt$; a fast $dI$
+is a large EMF.
+\begin{solution}
+$|\mathcal E|=L\,\Delta I/\Delta t=0.5\times0.5/10^{-6}
+\approx2.5\times10^{5}$\,V --- a quarter-megavolt in principle,
+clamped in practice to hundreds of volts by the switch's own arc or
+capacitance. The stored $\tfrac12LI^{2}=63$\,mJ burns wherever it
+can: without the flyback diode's alternate path, it burns the switch.
+\checkmark
+\end{solution}
+\end{example}
 
 \section{Common mistakes}\label{sec:far-mistakes}
 
@@ -329,10 +393,24 @@ frequency and the peak current for initial charge $Q_0$. (AP-C)
 A magnet falls through a conducting tube: argue the terminal velocity
 exists and estimate it via energy balance. (USAPhO-style)
 \end{exercise}
+\begin{exercise}[easy]
+A loop flips $90^{\circ}$ in a uniform field in $0.2$\,s: estimate the
+induced EMF if $A=0.02$\,m$^{2}$, $B=0.3$\,T, $N=50$. (AP-C)
+\end{exercise}
+\begin{exercise}[medium]
+A region's field grows as $B(t)=B_0(1+\alpha t)$ inside a fixed loop
+of area $A$: find the induced EMF and the force direction on the
+loop's positive carriers. (F=ma)
+\end{exercise}
+\begin{exercise}[medium]
+Why can an inductor's current not jump? Connect the stored energy
+$\tfrac12LI^{2}$ to the voltage a sudden change would need. (AP-C)
+\end{exercise}
 \begin{exercise}[hard]
-A loop rotates at $\omega$ in a uniform field: derive
-$\mathcal E(t)=NBA\omega\sin\omega t$ and explain the generator's
-waveform. (APhO-style)
+A generator coil delivers peak $\mathcal E_{\max}$ at $60$\,Hz to a
+load drawing $i(t)=I_0\sin(\omega t-\delta)$: find the average
+mechanical power the turbine must supply, and say what the lag
+$\delta$ costs. (USAPhO-style)
 \end{exercise}
 \begin{exercise}[medium]
 Show $u_B+u_E$ inside a charging capacitor accounts for the energy

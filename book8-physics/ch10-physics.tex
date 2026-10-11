@@ -58,6 +58,31 @@ $1/r^{2}$) against the constant sheet field.}
 \label{fig:er}
 \end{figure}
 
+\begin{example}[Non-uniform sphere: Gauss still wins]\label{ex:nonuni}
+A sphere of radius $R$ carries $\rho(r)=\rho_0(1-r^{2}/R^{2})$ ---
+dense at the centre, fading to zero at the surface. Find $E(r)$ in
+both regions.
+\par\smallskip
+\textbf{Strategy.} Symmetry is untouched, so Gauss applies verbatim;
+the only new work is that $Q_{\rm enc}(r)$ now needs its own integral
+before it can hand you $E$.
+\begin{solution}
+\[Q_{\rm enc}(r)=\int_0^{r}4\pi r'^{2}\rho_0\left(1-\frac{r'^{2}}{R^{2}}\right)dr'
+=4\pi\rho_0\left(\frac{r^{3}}{3}-\frac{r^{5}}{5R^{2}}\right),\]
+so inside,
+$E=\dfrac{\rho_0}{\varepsilon_0}\left(\dfrac r3-\dfrac{r^{3}}{5R^{2}}\right)$.
+Total charge $Q=4\pi\rho_0R^{3}\cdot\frac{2}{15}=8\pi\rho_0R^{3}/15$,
+so outside $E=kQ/r^{2}=2\rho_0R^{3}/(15\varepsilon_0r^{2})$.
+Audit the seam: at $r=R$ the inside branch gives
+$\rho_0R(1/3-1/5)/\varepsilon_0=2\rho_0R/15\varepsilon_0$ ---
+identical, as the fields must be at the surface where $\rho\to0$.
+Numerically, $\rho_0=2$\,\textmu C/m$^{3}$, $R=10$\,cm,
+$r=5$\,cm: $E=3200$\,N/C inside and $3010$\,N/C at the rim.
+The remaining challenge --- which $\rho(r)$ makes $E$ \emph{constant}
+inside --- is left to the exercises. \checkmark
+\end{solution}
+\end{example}
+
 \section{Cylindrical symmetry}\label{sec:ga-cyl}
 
 For a line or cylinder, $\mathbf E=E(r)\hat r$ on the curved wall gives
@@ -192,6 +217,40 @@ $n=90$ --- the theorem never cared about the mesh.
 the flat facets leak --- then the sum settles on theory.}
 \label{fig:converge}
 \end{figure}
+
+\begin{lstlisting}[language=Python,caption={\texttt{code/ch10\_gauss\_nonuni.py} --- field of a non-uniform sphere: numeric shells vs Gauss.},label={lst:gauss2}]
+rho0, R, eps0 = 2.0e-6, 0.10, 8.854e-12   # C/m^3, m
+def q_enc(r):
+    if r >= R:
+        return 8 * np.pi * rho0 * R**3 / 15
+    return 4 * np.pi * rho0 * (r**3 / 3 - r**5 / (5 * R**2))
+def E_analytic(r):
+    return q_enc(r) / (4 * np.pi * eps0 * r**2)
+def E_numeric(r):                          # integrate the shells ourselves
+    rr = np.linspace(0, min(r, R), 20000)
+    q = np.trapezoid(4 * np.pi * rr**2 * rho0 * (1 - rr**2 / R**2), rr)
+    return q / (4 * np.pi * eps0 * r**2)
+\end{lstlisting}
+
+Output of a real run:
+\begin{lstlisting}[numbers=none]
+r/R    E_analytic (N/C)   E_numeric (N/C)
+ 0.2         1469.8            1469.8
+ 0.4         2722.7            2722.7
+ 0.6         3541.9            3541.9
+ 0.8         3710.6            3710.6
+ 1.0         3011.8            3011.8
+ 1.2         2091.5            2091.5
+peak field at r = 0.745 R   (theory: r = sqrt(5)/3 R = 0.745 R)
+seam audit: E(R-) 3017.8 vs E(R+) 3005.8 N/C
+\end{lstlisting}
+
+Two independent computations --- the Gauss-formula evaluation and a
+brute-force shell integral --- agree to a tenth of a newton. Two
+surprises worth the audit: the field \emph{peaks inside} the ball
+($r=\sqrt{5}R/3$, where $dE/dr=0$), because the density fading toward
+the rim eventually loses to the $1/r^{2}$ dilution; and the field
+passes through $r=R$ seamlessly --- Gauss's law has no boundary layer.
 
 \section{In engineering practice: shielding is Gauss's law}\label{sec:ga-eng}
 
@@ -355,4 +414,23 @@ still holds --- why is it useless for computing $E$? (concept)
 \begin{exercise}[medium]
 Find $E$ inside an empty cavity cut off-centre inside a uniformly
 charged sphere. (F=ma; hint: superpose)
+\end{exercise}
+\begin{exercise}[easy]
+A charged balloon is inflated to twice its radius. State what happens
+to the flux through it, $E$ just outside the surface, and $E$ at a
+fixed outside point. (AP-C)
+\end{exercise}
+\begin{exercise}[medium]
+A slab of charge fills $-d<x<d$ with uniform $\rho$: find $E(x)$
+inside and outside, and sketch $E(x)$ across all $x$. (AP-C)
+\end{exercise}
+\begin{exercise}[medium]
+A solid cylinder of radius $R$ carries uniform volume charge $\rho$:
+find $E(r)$ inside and outside, and recover the line-charge limit
+when $R\to0$ at fixed $\lambda$. (F=ma)
+\end{exercise}
+\begin{exercise}[hard]
+A sphere has $\rho(r)=\rho_0e^{-r/R}$ (total charge finite). Write
+$Q_{\rm enc}(r)$ as an integral, evaluate it, and show $E(r)$ has a
+maximum inside the sphere. (USAPhO-style)
 \end{exercise}

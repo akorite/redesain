@@ -142,6 +142,29 @@ chapter~9. \checkmark
 \end{solution}
 \end{example}
 
+\begin{example}[The dipole's energy --- why magnets chase strong
+fields]\label{ex:dipen}
+A coil with $\boldsymbol\mu$ sits in $\mathbf B$ at angle $\theta$.
+Find the energy needed to rotate it --- and the net force when
+$\mathbf B$ is not uniform.
+\par\smallskip
+\textbf{Strategy.} Torque is $-dU/d\theta$: integrate
+$\tau=\mu B\sin\theta$ against the angle. For the force, a dipole
+that stays aligned does work on the field gradient.
+\begin{solution}
+$U(\theta)-U(0)=\int_0^{\theta}\mu B\sin\theta'\,d\theta'
+=\mu B(1-\cos\theta)$, i.e.\ $U=-\boldsymbol\mu\cdot\mathbf B$:
+stability lives at $\theta=0$, antiparallel is the hilltop. In a
+non-uniform field the aligned dipole feels
+$F_x=\mu\,\partial B/\partial x$ --- toward stronger $B$. A
+$\mu=0.5$\,A\,m$^{2}$ coil in a gradient $0.1$\,T/m feels
+$0.05$\,N, always in the direction of growing $|B|$. That is why
+iron filings run to the poles, why magnetic separators work, and how
+MRI's gradient coils drag spins into position: the dipole reads the
+landscape of $|B|$ like a ball reads height. \checkmark
+\end{solution}
+\end{example}
+
 \section{Amp\`ere's law: the magnetic Gauss}\label{sec:mag-amp}
 
 \begin{equation}
@@ -190,6 +213,60 @@ The honest result: plain Euler \emph{invents} energy ($|v|$ runs to
 $19.8$) while the Boris rotation holds it at $1.0000$ and the radius
 within a percent of theory --- the integrator must respect what the
 force can't do.
+
+\begin{example}[The Hall voltage: a voltmeter that weighs charge carriers]\label{ex:hall}
+A copper strip $0.1$\,mm thick carries $10$\,A through a $0.5$\,T
+field. Find the Hall voltage --- and why practical sensors are
+semiconductor, not copper.
+\par\smallskip
+\textbf{Strategy.} Steady state: the transverse field balances
+$\mathbf v\times\mathbf B$; with $I=nqv_dtA$, the Hall field is
+$E_H=v_dB$, so $V_H=IB/(nqt)$.
+\begin{solution}
+$V_H=\dfrac{10\times0.5}{8.5\times10^{28}\times1.6\times10^{-19}
+\times10^{-4}}=3.7$\,\textmu V for copper ($n=8.5\times10^{28}$/m$^{3}$).
+A semiconductor at $n\sim10^{22}$/m$^{3}$ gives $10^{6}\times$ more
+--- millivolts, a measurable signal. Copper's carriers are so dense
+the Hall deflection is microscopic; dilute carriers deflect more.
+\checkmark
+\end{solution}
+\end{example}
+
+\begin{lstlisting}[language=Python,caption={\texttt{code/ch13\_two\_wire.py} --- wire--wire force, the old ampere, and a busbar's midline field.},label={lst:2wire}]
+mu0 = 4 * np.pi * 1e-7
+def force_per_m(I1, I2, d):
+    return mu0 * I1 * I2 / (2 * np.pi * d)
+
+print("   d (m)    F/L (N/m)   for I1=I2=100 A")
+for d in [0.01, 0.05, 0.10, 0.50, 1.00]:
+    print(f"{d:8.2f}   {force_per_m(100,100,d):10.4f}")
+# the ampere definition check: solve force_per_m(I,I,1) = 2e-7
+I = np.sqrt(2e-7 * 2 * np.pi * 1.0 / mu0)
+print(f"I giving exactly 2e-7 N/m at d=1 m: {I:.4f} A")
+# field midway between two antiparallel 100 A busbars 10 cm apart
+d = 0.10
+Bmid = 2 * mu0 * 100 / (2 * np.pi * (d / 2))
+print(f"B midway between antiparallel 100 A bars 10 cm apart: {Bmid*1e6:.1f} uT")
+\end{lstlisting}
+
+Output of a real run:
+\begin{lstlisting}[numbers=none]
+   d (m)    F/L (N/m)   for I1=I2=100 A
+    0.01       0.2000
+    0.05       0.0400
+    0.10       0.0200
+    0.50       0.0040
+    1.00       0.0020
+I giving exactly 2e-7 N/m at d=1 m: 1.0000 A
+B midway between antiparallel 100 A bars 10 cm apart: 800.0 uT
+\end{lstlisting}
+
+The force is small per metre --- a centimetre-separated 100\,A pair
+pulls only $0.2$\,N/m --- until you remember fault currents: a
+$20$\,kA short on the same spacing gives $4$\,kN/m, which is why
+switchgear bracing is structural engineering. The middle line
+recovering $I=1$\,A is not a coincidence: it \emph{was} the
+definition (see workshop W25).
 
 \section{In engineering practice: the magnetic toolkit}\label{sec:mag-eng}
 
@@ -348,4 +425,24 @@ Amp\`ere and explain why it depends on $r$. (AP-C)
 \begin{exercise}[medium]
 An electron enters a field at $45^{\circ}$ to $\mathbf B$: describe
 the helix's radius and pitch. (F=ma)
+\end{exercise}
+\begin{exercise}[easy]
+A proton travels parallel to a current-carrying wire, moving the same
+way as the conventional current: find the force's direction on it.
+(AP-C)
+\end{exercise}
+\begin{exercise}[medium]
+A length of wire is bent into one circular turn of radius $R$, then
+into two stacked turns of radius $R/2$: compare $B$ at the centre.
+(AP-C)
+\end{exercise}
+\begin{exercise}[medium]
+A long solenoid's field is $\mu_0nI$ deep inside: argue why the field
+at the open end is about half that, and where the ``other half''
+lives. (F=ma)
+\end{exercise}
+\begin{exercise}[hard]
+A dipole $\boldsymbol\mu$ is \emph{held} antiparallel to a field
+$B(x)$ that grows with $x$: find the force on it, and explain why
+releasing it flips the answer. (APhO-style)
 \end{exercise}

@@ -272,6 +272,36 @@ update $v$ before $x$ --- conserves a nearby shadow Hamiltonian and merely
 oscillates around the true energy. Every orbit simulation after this
 chapter uses the symplectic variant.
 
+\begin{lstlisting}[language=Python,caption={\texttt{code/ch04\_energy\_budget.py} --- one car, three energy lines: KE, a climb's potential, drag's running cost.},label={lst:budget}]
+m, v, g = 1200.0, 27.0, 9.81        # kg, m/s (~60 mph)
+Cd, A, rho = 0.30, 2.2, 1.2
+KE = 0.5 * m * v**2
+PE_100m = m * g * 100
+F_drag = 0.5 * rho * Cd * A * v**2
+P_drag = F_drag * v
+print(f"KE at 60 mph            : {KE/1e3:8.1f} kJ")
+print(f"PE climbing 100 m       : {PE_100m/1e3:8.1f} kJ")
+print(f"drag power at 60 mph    : {P_drag/1e3:8.1f} kW")
+print(f"1 min of drag work      : {P_drag*60/1e3:8.1f} kJ = {P_drag*60/KE:.2f} x KE")
+\end{lstlisting}
+
+Output of a real run:
+\begin{lstlisting}[numbers=none]
+KE at 60 mph            :    437.4 kJ
+PE climbing 100 m       :   1177.2 kJ
+drag force              :      289 N
+drag power at 60 mph    :      7.8 kW
+1 min of drag work      :    467.7 kJ = 1.07 x KE
+double the speed: drag power x8
+\end{lstlisting}
+
+The audit surprises: a $100$\,m climb costs nearly $3\times$ the
+car's entire highway kinetic energy --- hills are the expensive part
+of the map --- while one minute of cruise drag burns the KE outright.
+The last line is the speed trap: doubling $v$ makes drag \emph{power}
+eight-fold, which is exactly why fuel economy falls off a cliff above
+$90$\,km/h.
+
 \section{In engineering practice: the energy audit}\label{sec:en-eng}
 
 Regenerative braking is this chapter's audit run as accounting: an

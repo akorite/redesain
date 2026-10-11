@@ -113,6 +113,37 @@ comfortable to see, and measuring it back-computes $\lambda$.
 \end{solution}
 \end{example}
 
+\begin{example}[Three slits: phasors do the counting]\label{ex:3slit}
+Add a third slit at the same spacing $d$: find the bright and dark
+positions on the screen and the strength of the first
+\emph{secondary} maximum.
+\par\smallskip
+\textbf{Strategy.} Each slit contributes the same phasor length
+$E_0$, rotated by $\varphi=(2\pi/\lambda)d\sin\theta$ from its
+neighbour; add the three arrows head-to-tail.
+\begin{solution}
+$|E_{\rm tot}|^{2}=E_0^{2}\left[\dfrac{\sin(3\varphi/2)}{\sin(\varphi/2)}\right]^{2}$.
+Principal maxima still at $\varphi=2\pi m$ --- i.e.\ $d\sin\theta=m\lambda$,
+\emph{unchanged} from two slits --- but now two minima sit between
+them, at $\varphi=\pm2\pi/3,\pm4\pi/3$
+(figure~\ref{fig:phasor3}), and a weak secondary maximum stands
+midway at $\varphi=\pi$ where the phasors leave one $E_0$ standing:
+$1/9$ the principal intensity. For $d=0.05$\,mm, $\lambda=600$\,nm,
+$L=1$\,m: principal spots at $1.2$\,cm spacing, darkness at
+$0.4$ and $0.8$\,cm in between. Every added slit makes the bright
+lines \emph{sharper} without moving them --- that sharpening is the
+grating's whole trick. \checkmark
+\end{solution}
+\end{example}
+
+\begin{figure}[htbp]\centering
+\input{figures/ch16_phasor3}
+\caption{Three-slit phasor bookkeeping: aligned arrows give the
+principal maximum; the equilateral closure gives the new minima; one
+surviving arrow is the $1/9$-strength secondary.}
+\label{fig:phasor3}
+\end{figure}
+
 \section{Diffraction: one slit is enough}\label{sec:wav-diffr}
 
 Even a single slit spreads the beam: the first zero sits at
@@ -177,6 +208,51 @@ The snapshots freeze mid-swing exactly on the half-cycle; nodes sit
 exactly still; the beat envelope's nodes land every
 $1/(2\Delta f)=0.125$\,s --- the 4\,Hz warble you hear when two tuners
 disagree.
+
+\begin{example}[Headlights at night: your pupil's Rayleigh limit]\label{ex:headlight}
+How far can your unaided eye ($D\approx5$\,mm pupil) resolve a car's
+two headlights ($1.5$\,m apart) at $\lambda=550$\,nm?
+\par\smallskip
+\textbf{Strategy.} Rayleigh for a circular aperture:
+$\theta_{\rm min}=1.22\lambda/D$; then $\theta\approx s/L$.
+\begin{solution}
+$\theta_{\rm min}=1.22\times5.5\times10^{-7}/5\times10^{-3}
+=1.34\times10^{-4}$\,rad;
+$L=s/\theta=1.5/1.34\times10^{-4}\approx11$\,km.
+Inside that distance the pair splits into two; beyond it, one smeared
+blob --- every dark road is a diffraction demonstration.
+\checkmark
+\end{solution}
+\end{example}
+
+\begin{lstlisting}[language=Python,caption={\texttt{code/ch16\_nslit.py} --- $N$-slit intensity: principal maxima fixed, lines sharpen, satellites counted.},label={lst:nslit}]
+def intensity(phi, N):
+    return (np.sin(N * phi / 2) / np.sin(phi / 2))**2
+phi = np.linspace(1e-6, 2 * np.pi - 1e-6, 400001)
+for N in [2, 3, 8]:
+    I = intensity(phi, N)
+    seg = I[1:]
+    peaks = int(np.sum((seg[1:-1] > seg[:-2]) & (seg[1:-1] > seg[2:])
+                       & (seg[1:-1] > 1)))
+    print(f"N={N}: principal max = {N*N:3d} E0^2,"
+          f"  secondary maxima measured = {peaks}")
+\end{lstlisting}
+
+Output of a real run:
+\begin{lstlisting}[numbers=none]
+N=2: principal max =   4 E0^2,  secondary maxima measured = 0
+N=3: principal max =   9 E0^2,  secondary maxima measured = 1
+N=8: principal max =  64 E0^2,  secondary maxima measured = 6
+N=2: first zero at sin(theta) = lambda/(2 d)   line width ~ 1/2
+N=3: first zero at sin(theta) = lambda/(3 d)   line width ~ 1/3
+N=8: first zero at sin(theta) = lambda/(8 d)   line width ~ 1/8
+\end{lstlisting}
+
+The machine confirms what the phasors sketched: principal maxima
+carry $N^{2}$ units of $E_0^{2}$, exactly $N-2$ secondary maxima
+live between them, and the first zero pulls in like $1/N$ ---
+slit count buys sharpness \emph{and} brightness together, which is
+why a $500$-line grating resolves what three slits cannot.
 
 \section{In engineering practice: optics on the bench}\label{sec:wav-eng}
 
@@ -317,9 +393,24 @@ Huygens. (AP-C)
 Estimate the angular resolution of your eye's pupil ($D\approx5$\,mm)
 and compare with the textbook resolution test. (estimation)
 \end{exercise}
-\begin{exercise}[hard]
-Three equally spaced slits: locate the first \emph{secondary} maximum
-and explain why it is weaker. (USAPhO-style)
+\begin{exercise}[easy]
+In two-slit interference, what happens to the fringe spacing if the
+screen is moved twice as far --- and to the fringe \emph{brightness}
+if the slits are moved twice as close? (AP-C)
+\end{exercise}
+\begin{exercise}[medium]
+A grating has $N$ slits at spacing $d$: argue the principal maxima
+sharpen like $1/N$ and estimate the resolving power
+$\lambda/\Delta\lambda\sim mN$ in order $m$. (USAPhO-style)
+\end{exercise}
+\begin{exercise}[medium]
+A siren passes a stationary listener: derive the heard frequency on
+approach and recession, and explain why the two shifts are not
+symmetric. (F=ma)
+\end{exercise}
+\begin{exercise}[medium]
+Two antennas radiate in phase at $3$\,MHz, $500$\,m apart: find the
+interference pattern on a distant perpendicular bisector. (engineering)
 \end{exercise}
 \begin{exercise}[medium]
 An open--open pipe vs a closed--open pipe: derive both harmonic

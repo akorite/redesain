@@ -130,6 +130,37 @@ but present --- the wave carries both. \checkmark
 \end{solution}
 \end{example}
 
+\begin{example}[Where a resistor's heat comes from]\label{ex:poyntres}
+A wire of radius $a$, length $L$, resistance $R$ carries steady
+$I$ fed by a distant battery. Show the energy arrives through the
+wire's \emph{surface}, not down its length --- and integrate the
+inflow to $I^{2}R$.
+\par\smallskip
+\textbf{Strategy.} Find $\mathbf E$ inside the wire and $\mathbf B$
+at its surface; then $\mathbf S=\mathbf E\times\mathbf B/\mu_0$ over
+the whole skin.
+\begin{solution}
+Inside, Ohmic driving field $E=V/L=IR/L$ runs axially; at the surface
+$B=\mu_0I/2\pi a$ circles the wire. Their cross product points
+\emph{radially inward}
+(figure~\ref{fig:poyntin}) with magnitude
+$S=EB/\mu_0=I^{2}R/(2\pi aL)$. Integrating over the skin area
+$2\pi aL$: total inflow $=I^{2}R$ --- exactly the Joule heat. The
+fields carry the energy through empty space and hand it in through
+the surface; the wire's charges merely guide the flow. That is the
+whole claim of figure~\ref{fig:poynt} made quantitative.
+\checkmark
+\end{solution}
+\end{example}
+
+\begin{figure}[htbp]\centering
+\input{figures/ch15_poyntin}
+\caption{Into the resistor: axial $\mathbf E$ inside, circling
+$\mathbf B$ at the surface, and $\mathbf S$ pointing inward --- power
+enters through the skin.}
+\label{fig:poyntin}
+\end{figure}
+
 \section{The spectrum and light as the same physics}\label{sec:max-spectrum}
 
 Radio through $\gamma$ is one equation's range
@@ -183,6 +214,48 @@ The slope is the propagation speed: $v=1.0000$ lattice units, exactly
 the imposed $c$, for the whole transit.}
 \label{fig:pulseloc}
 \end{figure}
+
+\begin{example}[Sunlight's actual fields]\label{ex:sun}
+The solar constant is $S=1360$\,W/m$^{2}$. Find the $E$- and
+$B$-field amplitudes in the daylight reaching us.
+\par\smallskip
+\textbf{Strategy.} $S_{\rm avg}=E_0^{2}/2\mu_0c$;
+$B_0=E_0/c$; $u_{\rm avg}=S/c$.
+\begin{solution}
+$E_0=\sqrt{2\mu_0cS}=\sqrt{2(376.7)(1360)}=1.0$\,kV/m;
+$B_0=3.4$\,\textmu T; $u_{\rm avg}=4.5$\,\textmu J/m$^{3}$.
+Sunlight arrives as a kilovolt-per-metre wave --- humanity's largest
+free field. \checkmark
+\end{solution}
+\end{example}
+
+\begin{lstlisting}[language=Python,caption={\texttt{code/ch15\_sail.py} --- sail parameter scan: when does radiation pressure beat gravity?},label={lst:sail}]
+S, c, M_sun, G = 1360.0, 3e8, 1.989e30, 6.674e-11
+r_au = 1.496e11
+p = 2 * S / c                     # reflecting sail, N/m^2
+g_sun = G * M_sun / r_au**2
+for sm in [0.5, 1.0, 1.5, 2.0, 5.0]:
+    a = p / (sm * 1e-3)
+\end{lstlisting}
+
+Output of a real run:
+\begin{lstlisting}[numbers=none]
+pressure on a reflector at 1 AU: 9.07 uN/m^2
+solar gravity at 1 AU          : 5.93 mm/s^2
+ areal density (g/m^2)   accel (mm/s^2)   vs gravity
+               0.5            18.13   outward
+               1.0             9.07   outward
+               1.5             6.04   outward
+               2.0             4.53    inward
+               5.0             1.81    inward
+breakeven density: 1.53 g/m^2
+\end{lstlisting}
+
+The scan makes the engineering exact: below $1.5$\,g/m$^{2}$ of
+total areal density --- sail \emph{plus} payload --- radiation
+pressure outruns gravity and the craft spirals outward. That is the
+budget LightSail and IKAROS actually fly inside (workshop W26 runs
+the same check by hand).
 
 \section{In engineering practice: everything wireless}\label{sec:max-eng}
 
@@ -336,4 +409,22 @@ space? Name the missing term. (concept)
 \begin{exercise}[medium]
 A waveguide carries $S$: why does the wire's resistance appear as
 loss in the \emph{fields} picture? (engineering)
+\end{exercise}
+\begin{exercise}[easy]
+Which of the four equations rules out magnetic monopoles --- and which
+two generate the wave? (AP-C)
+\end{exercise}
+\begin{exercise}[medium]
+Inside a working coaxial cable, find where the energy density is
+largest and confirm the flow direction is along the cable, not into
+the conductors. (engineering)
+\end{exercise}
+\begin{exercise}[medium]
+An absorbing sail feels pressure $S/c$; argue a reflecting sail feels
+$2S/c$ and explain the factor of two. (F=ma)
+\end{exercise}
+\begin{exercise}[hard]
+For the resistor of example~\ref{ex:poyntres}, track one joule from
+the battery to the skin: describe $\mathbf S$'s path and why it
+bulges outward between source and load. (USAPhO-style)
 \end{exercise}

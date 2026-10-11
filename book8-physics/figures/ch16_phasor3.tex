@@ -1,0 +1,25 @@
+\begin{tikzpicture}[scale=0.8,font=\scriptsize]
+% phi = 0: collinear, maximum
+\begin{scope}
+\draw[->,thick,black] (0,0) -- (0.9,0);
+\draw[->,thick,black] (0.9,0) -- (1.8,0);
+\draw[->,thick,black] (1.8,0) -- (2.7,0);
+\draw[->,very thick,accent] (0,-0.35) -- (2.7,-0.35);
+\node[align=center] at (1.35,-0.75) {$\varphi=0$: sum $=3E_0$ (bright)};
+\end{scope}
+% phi = 2pi/3: closed triangle, minimum
+\begin{scope}[xshift=4.4cm]
+\draw[->,thick,black] (0,0) -- (0.9,0);
+\draw[->,thick,black] (0.9,0) -- ({0.9+0.9*cos(120)},{0.9*sin(120)});
+\draw[->,thick,black] ({0.9+0.9*cos(120)},{0.9*sin(120)}) -- (0,0);
+\node[align=center] at (0.5,-0.75) {$\varphi=2\pi/3$: closes (dark)};
+\end{scope}
+% phi = pi: two cancel, one survives -> 1/9 intensity
+\begin{scope}[xshift=8.2cm]
+\draw[->,thick,black] (0,0) -- (0.9,0);
+\draw[->,thick,black] (0.9,0) -- (0,0);
+\draw[->,thick,black] (1.15,0) -- (2.05,0);
+\draw[->,very thick,accent] (0,-0.35) -- (0.9,-0.35);
+\node[align=center] at (1.0,-0.75) {$\varphi=\pi$: sum $=E_0$ ($\tfrac19$ light)};
+\end{scope}
+\end{tikzpicture}

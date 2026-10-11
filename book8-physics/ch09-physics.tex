@@ -149,6 +149,29 @@ becomes its own endpoint's infinity. \checkmark
 \end{solution}
 \end{example}
 
+\begin{example}[The infinite line: pay the integral once]\label{ex:line}
+A long straight wire carries uniform line charge $\lambda$. Find
+$\mathbf E$ at perpendicular distance $r$.
+\par\smallskip
+\textbf{Strategy.} Integrate element by element; by symmetry only the
+radial component survives, and the clean substitution is
+$x=r\tan\theta$.
+\begin{solution}
+Element $dx$ at position $x$ contributes radial part
+$dE_r=k\lambda\,dx\,\cos\theta/(r^{2}+x^{2})$. With
+$x=r\tan\theta$: $dx=r\sec^{2}\theta\,d\theta$ and
+$r^{2}+x^{2}=r^{2}\sec^{2}\theta$, so
+\[E=\int_{-\pi/2}^{\pi/2}\frac{k\lambda}{r}\cos\theta\,d\theta
+=\frac{2k\lambda}{r}=\frac{\lambda}{2\pi\varepsilon_0\,r}.\]
+For $\lambda=1$\,nC/m at $r=5$\,cm: $E=360$\,N/C.
+The \emph{finite} rod of length $L$ on the same perpendicular gives the
+same expression weighted by $L/\sqrt{L^{2}+4r^{2}}$ --- which becomes
+$kQ/r^{2}$ for $r\gg L$ (point limit) and $2k\lambda/r$ for
+$r\ll L$. Chapter~10 will re-derive this in two lines from Gauss's law:
+the integral was the price, symmetry is the discount. \checkmark
+\end{solution}
+\end{example}
+
 \section{Motion in a uniform field: kinematics returns}\label{sec:ef-motion}
 
 Inside a parallel-plate capacitor $E$ is constant, so a charge's
@@ -205,6 +228,25 @@ Naked superposition with $N=200$ ring elements nails every limit: the
 dipole ratio converges to $1.000$ as $r/a$ grows, the ring matches the
 analytic $x(x^{2}+R^{2})^{-3/2}$ to $0.00\%$, and the transverse
 components --- $10^{-16}$ --- are symmetry made numeric.
+
+\begin{example}[The dipole: neutrality's field that refuses to die]\label{ex:dipole}
+Two charges $\pm q$ a distance $2a$ apart form dipole moment
+$p=2aq$. Find the on-axis field at $x\gg a$ --- and how much weaker
+it is than a net charge's.
+\par\smallskip
+\textbf{Strategy.} Add the two Coulomb fields on the axis, then expand
+for $x\gg a$.
+\begin{solution}
+$E=kq\left[(x-a)^{-2}-(x+a)^{-2}\right]
+\approx\dfrac{2kp}{x^{3}}$ for $x\gg a$ (the $1/x^{2}$ pieces cancel;
+their difference keeps the $1/x^{3}$ residue).
+For $q=1$\,\textmu C, $a=1$\,mm: at $x=10$\,cm,
+$E_{\rm dip}=3.6\times10^{4}$\,N/C versus $1.8\times10^{6}$\,N/C for
+a bare $2$\,\textmu C --- the dipole is weaker by $2a/x=1/50$, and
+falls one power of $x$ faster besides. Neutral matter still talks
+--- just at shorter range. \checkmark
+\end{solution}
+\end{example}
 
 \section{In engineering practice: electrostatics as a design spec}\label{sec:ef-eng}
 
@@ -370,4 +412,24 @@ lines, why its field is distorted toward the plates. (concept)
 \begin{exercise}[medium]
 Two equal charges $+Q$ at $\pm d/2$: find $\mathbf E$ on the axis
 $x>0$ and its zero. (AP-C)
+\end{exercise}
+\begin{exercise}[easy]
+A line charge has $\lambda=2$\,nC/m. Estimate $|E|$ at $1$\,cm and
+at $10$\,cm, and state the scaling that connects them. (F=ma)
+\end{exercise}
+\begin{exercise}[medium]
+Two infinite lines $+\lambda$ and $-\lambda$ run parallel, $d$ apart.
+Find $\mathbf E$ on the midline between them, giving direction. (AP-C)
+\end{exercise}
+\begin{exercise}[medium]
+A finite rod of length $L$ carries $Q$ uniformly. Find $E$ on its
+perpendicular bisector at distance $r$, then take $L\to\infty$ to
+recover the line-charge result of example~\ref{ex:line}. (AP-C
+FR-style)
+\end{exercise}
+\begin{exercise}[hard]
+A rod of length $L$ has $\lambda(x)=\lambda_0 x/L$. Set up the
+integral for $\mathbf E$ at perpendicular distance $r$ from its
+lightly charged end, and evaluate the limits $r\ll L$, $r\gg L$.
+(USAPhO-style)
 \end{exercise}
