@@ -1,0 +1,14 @@
+% fig_race.tex -- the tb/DUT race cartoon
+\begin{tikzpicture}[font=\footnotesize, >=latex]
+  \draw[->] (0,0) -- (9.2,0) node[right]{time};
+  \foreach \x/\l in {2/posedge, 7/posedge}{
+    \draw[dashed, gray] (\x,0) -- (\x,3.0); \node[below] at (\x,0) {\l}; }
+  \draw[thick] (0,0.15) -- (2,0.15) -- (2,0.75) -- (7,0.75) -- (7,0.15) -- (9,0.15);
+  \node[left] at (0,0.45) {clk};
+  \node[left] at (0,1.6) {BAD:};
+  \draw[thick, red] (2,1.35) -- (2,1.95) -- (9,1.95);
+  \node[right, red, align=left] at (9,1.65) {d changes IN the edge\\ --- who saw old d?};
+  \node[left] at (0,2.6) {GOOD:};
+  \draw[thick, good] (4.5,2.35) -- (4.5,2.95) -- (9,2.95);
+  \node[right, good, align=left] at (9,2.65) {d settles mid-cycle\\ --- posedge unambiguous};
+\end{tikzpicture}

@@ -1,0 +1,15 @@
+% fig_bugcat.tex -- the bug catalogue card
+\begin{tikzpicture}[font=\footnotesize]
+  \node[draw, thick, text width=11.6cm, align=left] at (0,0) {%
+  \textbf{symptom \hspace{3.6em} root cause \hspace{4.6em} fix}\\[2pt]
+  \texttt{q} stuck at \texttt{x}\hspace{1.9em} no reset on regs\hspace{1.9em}
+    reset every flip-flop\\
+  output holds old value\hspace{1.3em} missing \texttt{else}/\texttt{default}
+    \hspace{1.3em} assign on every branch\\
+  tb reads wrong/old d\hspace{1.9em} stimulus at posedge
+    \hspace{2.2em} drive on \texttt{negedge} or \texttt{\#1}\\
+  pipeline too short\hspace{2.2em} \texttt{=} inside posedge
+    \hspace{2.1em} \texttt{<=} in edge blocks\\
+  sim never ends\hspace{3.3em} forgot \texttt{\$finish}
+    \hspace{2.5em} always end the tb yourself};
+\end{tikzpicture}

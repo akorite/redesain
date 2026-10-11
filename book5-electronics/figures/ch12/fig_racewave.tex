@@ -1,0 +1,48 @@
+\begin{figure}[htbp]
+\centering
+\begin{tikzpicture}
+\begin{axis}[
+    width=0.92\linewidth, height=4.4cm,
+    axis lines=left,
+    xlabel={time $t$}, xlabel style={font=\footnotesize},
+    ymin=-0.4, ymax=3.6, ytick=\empty,
+    clip=false,
+    xmin=0, xmax=42, tick label style={font=\footnotesize},
+    title={\footnotesize bad bench: stimulus at \texttt{posedge}},
+    title style={font=\footnotesize},
+]
+\addplot+[const plot, line width=1.1pt, accent, mark=*, mark size=0.7pt]
+  table[x=t,y=db] {figures/ch12/ch12_race.dat};
+\addplot+[const plot, line width=1.1pt, good, mark=square*, mark size=0.7pt]
+  table[x=t,y expr=\thisrow{qb}+2.25] {figures/ch12/ch12_race.dat};
+\node[anchor=east, font=\footnotesize] at (axis cs:-1,0.5) {d};
+\node[anchor=east, font=\footnotesize] at (axis cs:-1,2.75) {q};
+\end{axis}
+\end{tikzpicture}\\[2pt]
+\begin{tikzpicture}
+\begin{axis}[
+    width=0.92\linewidth, height=4.4cm,
+    axis lines=left,
+    xlabel={time $t$}, xlabel style={font=\footnotesize},
+    ymin=-0.4, ymax=3.6, ytick=\empty,
+    clip=false,
+    xmin=0, xmax=42, tick label style={font=\footnotesize},
+    title={\footnotesize good bench: stimulus at \texttt{negedge}},
+    title style={font=\footnotesize},
+]
+\addplot+[const plot, line width=1.1pt, accent, mark=*, mark size=0.7pt]
+  table[x=t,y=dg] {figures/ch12/ch12_race.dat};
+\addplot+[const plot, line width=1.1pt, good, mark=square*, mark size=0.7pt]
+  table[x=t,y expr=\thisrow{qg}+2.25] {figures/ch12/ch12_race.dat};
+\node[anchor=east, font=\footnotesize] at (axis cs:-1,0.5) {d};
+\node[anchor=east, font=\footnotesize] at (axis cs:-1,2.75) {q};
+\end{axis}
+\end{tikzpicture}
+\caption{Same flip-flop, two benches (Listing~\ref{lst:race}). Top: stimulus driven
+\textit{at} \texttt{posedge} --- $d$ still toggles but $q$ is stuck at~1, because the
+bench and the DUT fight over who changes first. Bottom: stimulus moved to
+\texttt{negedge} --- $q$ now samples the settled $d$ and toggles correctly, one edge
+behind. Rows are the real \texttt{\$monitor} output, parsed from
+\texttt{code/ch12\_race\_*.out}.}
+\label{fig:racewave}
+\end{figure}
