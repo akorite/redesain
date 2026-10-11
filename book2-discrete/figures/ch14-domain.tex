@@ -1,0 +1,12 @@
+\begin{tikzpicture}[x=1cm,y=0.8cm]
+  % nested domains with what f(x+y)=f(x)+f(y) allows on each
+  \draw[fill=accent!12,rounded corners=4pt] (0,0) rectangle (10.5,5.4);
+  \node[anchor=north west,font=\small\bfseries] at (0.2,5.4) {$\mathbb R$: $f=cx$ \emph{or} pathology (needs a Hamel basis)};
+  \draw[fill=accent!25,rounded corners=4pt] (0.4,0.5) rectangle (6.6,3.9);
+  \node[anchor=north west,font=\small\bfseries] at (0.6,3.9) {$\mathbb Q$: $f(x)=cx$ forced};
+  \draw[fill=accent!45,rounded corners=4pt] (0.8,0.9) rectangle (4.2,2.7);
+  \node[anchor=north west,font=\small\bfseries] at (1.0,2.7) {$\mathbb Z$: $f(n)=cn$};
+  \draw[fill=accent!65,rounded corners=4pt] (1.2,1.2) rectangle (2.8,2.0);
+  \node[font=\small\bfseries] at (2.0,1.6) {$\mathbb N$};
+  \node[font=\small,align=right] at (9.9,1.0) {the same equation\\has different answer sets\\on different domains};
+\end{tikzpicture}

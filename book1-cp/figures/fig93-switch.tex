@@ -1,0 +1,11 @@
+\begin{tikzpicture}[font=\tiny,scale=0.78]
+\node[draw=accent,rounded corners=2pt,align=center] (a) at (0,0) {stuck \textgreater cap?\\(rule: 25 min no progress)};
+\node[draw=slate,rounded corners=2pt,align=center] (b) at (4.3,1.3) {leave it: restate problem\\on scratch, list 3 approaches};
+\node[draw=slate,rounded corners=2pt,align=center] (c) at (4.3,-1.3) {switch to next readable\\problem};
+\node[draw=good,rounded corners=2pt,align=center] (d) at (8.6,0) {return only with a\\new idea in hand};
+\draw[->,slate] (a)--node[above,sloped]{idea exists}(b);
+\draw[->,slate] (a)--node[below,sloped]{staring blank}(c);
+\draw[->,good,dashed] (b.east)--(d.north);
+\draw[->,good,dashed] (c.east)--(d.south);
+\node[align=left,anchor=west] at (9.4,0) {the real rule:\\switching is free,\\re-reading is what\\costs time};
+\end{tikzpicture}

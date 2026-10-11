@@ -1,0 +1,15 @@
+\begin{tikzpicture}[x=1cm,y=1cm,>=stealth]
+  \foreach \y/\t in {2.4/{$x=y=0$: constants first},
+                    1.4/{$y=0$: isolate $f(x)$ vs $f(0)$},
+                    0.4/{$y=-x$: odd/even, cancellation},
+                    -0.6/{$x=y$: diagonal $f(2x)$, $f(x)^2$},
+                    -1.6/{$y=f(x)$: injectivity probes}}{
+    \node[font=\small,anchor=west,fill=graybg,rounded corners=2pt,inner sep=3pt] at (-5.2,\y) {\t};
+    \draw[->] (-0.6,\y) -- ({1.4},{0.15*\y});
+  }
+  \node[draw,rounded corners=3pt,fill=accent!15,font=\small,minimum height=1.6cm,text width=3.0cm,align=center] (eq) at (3.0,0)
+    {the equation\\$P(x,y)$};
+  \node[draw,rounded corners=3pt,fill=good!20,font=\small,text width=3.2cm,minimum height=1.4cm,align=center] (facts) at (7.4,0)
+    {extracted facts:\\$f(0)$, parity, one-variable equation};
+  \draw[->,thick] (4.6,0) -- (5.8,0);
+\end{tikzpicture}

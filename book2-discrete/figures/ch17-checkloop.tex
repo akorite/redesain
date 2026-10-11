@@ -1,0 +1,13 @@
+\begin{tikzpicture}[x=1cm,y=1cm,>=stealth,every node/.style={font=\small,draw,rounded corners=3pt,minimum height=0.9cm}]
+  \node[fill=accent!20] (solve) at (0,0) {solve};
+  \node[fill=graybg] (dim) at (2.9,0.9) {dimensions/units?};
+  \node[fill=graybg] (edge) at (2.9,-0.9) {edge cases?};
+  \node[fill=graybg] (plug) at (5.8,0) {plug back in};
+  \node[fill=good!25] (submit) at (8.8,0) {submit};
+  \draw[->] (solve) -- (dim);
+  \draw[->] (solve) -- (edge);
+  \draw[->] (dim) -- (plug);
+  \draw[->] (edge) -- (plug);
+  \draw[->] (plug) -- (submit);
+  \draw[->,dashed] (plug) to[bend left=45] node[below,font=\small,draw=none]{any check fails} (solve);
+\end{tikzpicture}

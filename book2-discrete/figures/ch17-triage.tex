@@ -1,0 +1,12 @@
+\begin{tikzpicture}[x=1.05cm,y=0.6cm]
+  % points-per-hour bars for a 3-problem triage decision
+  \foreach \x/\h/\l in {0.5/4.5/{P1: doable, 40 min},
+                        2.7/3.2/{P2: risky, 90 min},
+                        4.9/1.6/{P3: sunk-cost trap}}{
+    \draw[fill=accent!30] (\x-0.6,0) rectangle (\x+0.6,\h);
+    \node[font=\small] at (\x,-0.7) {\l};
+  }
+  \draw[->] (-0.6,0) -- (6.2,0);
+  \draw[->] (-0.6,0) -- (-0.6,5.2) node[above,font=\small] {est.\ pts/hr};
+  \node[font=\small,align=left,anchor=west] at (6.4,3) {order by\emph{rate},\\not difficulty};
+\end{tikzpicture}

@@ -337,6 +337,43 @@ $(M, 2M)$, so partner squares are restricted to squares in that
 interval --- finitely many candidates force a bound. (Open-problem
 flavor; the point is naming the witness.)
 \end{solution}
+\begin{exercise}[easy]\label{exr:i13}
+A chessboard has two opposite corners removed. Show 31 dominoes cannot
+tile it, and name the invariant.
+\end{exercise}
+\begin{solution}
+Each domino covers one black and one white square; the removed corners
+share a colour, leaving $30$ of one colour vs $32$ of the other ---
+the colour-difference invariant $|W-B|=2$ survives every placement and
+no tiling can reach $0$.
+\end{solution}
+\begin{exercise}[medium]\label{exr:i14}
+Numbers $1,\dots,10$ sit on a circle. A move picks two adjacent
+numbers and swaps them. Prove no sequence of moves arranges them in
+decreasing order clockwise if they start increasing --- or find a
+counterexample and diagnose what the invariant actually is.
+\end{exercise}
+\begin{solution}
+Adjacent transpositions generate $S_n$, so decreasing order
+\emph{is} reachable --- the puzzle as stated is a trick with a
+counterexample, not an impossibility. Where parity \emph{does} supply
+a real invariant is the 15-puzzle: the permutation parity combined with
+the blank's position is preserved, and it blocks exactly half of all
+configurations. Lesson: an impossibility claim needs an invariant that
+genuinely never changes --- guess first, verify the invariant before
+believing it.
+\end{solution}
+\begin{exercise}[hard]\label{exr:i15}
+Show the sum of the numbers on a $n$-nim position (in binary XOR,
+not decimal) is the true invariant/monovariant: prove a position is
+winning iff the nim-sum is nonzero, from the definitions.
+\end{exercise}
+\begin{solution}
+Terminal position has nim-sum $0$; from any nonzero position a single
+heap reduction makes the XOR zero (pick the heap containing the top
+bit); from a zero position every move breaks a bit balance and leaves
+nonzero. Winning positions are exactly the nonzero ones.
+\end{solution}
 
 \section*{Notes}
 Invariants, colorings, the extremal principle and game positions follow
@@ -347,5 +384,38 @@ index~\cite{cuttheknot}. Contest uses: 2024 AIME I P3; 2023 AIME I P14;
 2021 AIME I P10; 2024 AMC 12B P5; 2024 AMC 12A P22; 2010 AIME I P12;
 2022 AIME I P9; 2025 AIME II P3; 2023 AIME II P11; USAJMO 2024 P2, P4;
 2023 USAJMO P3, P4, P5; IMO 2026 P1, P3, P4.
+
+\section*{Further reading}
+\begin{itemize}
+\item A.~Engel, \emph{Problem-Solving Strategies}, invariants and
+coloring chapters --- the canonical drill source for this chapter.
+\item P.~Zeitz, \emph{The Art and Craft of Problem Solving} ---
+invariants and the extremal principle with worked strategy.
+\item E.~Lehman, F.~T.~Leighton, A.~R.~Meyer, \emph{Mathematics for
+Computer Science}, state-machine invariants chapter --- free PDF; the
+CS framing of invariants:
+\url{https://courses.csail.mit.edu/6.042/spring18/mcs.pdf}
+\item MIT OpenCourseWare, \emph{6.042J} ---
+\url{https://ocw.mit.edu/6-042JF10} --- the matching lectures.
+\item Y.~Zhao's olympiad handouts ---
+\url{https://yufeizhao.com/olympiad/} --- invariant and extremal
+problem sets.
+\item Cut-the-Knot's games index ---
+\url{https://www.cut-the-knot.org} --- pairing and strategy-stealing
+examples in interactive form.
+\end{itemize}
+
+\begin{rulebox}[Watch instead]
+\begin{itemize}
+\item \textbf{ChessNetwork --- ``Mutilated chessboard problem''},
+4:07, \url{https://www.youtube.com/watch?v=bS3EqMcIlAQ} --- the
+colouring invariant of the Coloring-arguments section in its purest
+form. (Verified 2026-10-11.)
+\item \textbf{Mathologer --- ``The Arctic Circle Theorem''}, 51:49,
+\url{https://www.youtube.com/watch?v=Yy7Q8IWNfHM} --- opens on the same
+mutilated chessboard, then shows how far tiling invariants go.
+(Verified 2026-10-11.)
+\end{itemize}
+\end{rulebox}
 
 \chapternotes

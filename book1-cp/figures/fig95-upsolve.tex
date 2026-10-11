@@ -1,0 +1,10 @@
+\begin{tikzpicture}[font=\tiny,scale=0.78]
+\node[draw=accent,rounded corners=2pt,align=center] (u) at (0,0) {every unsolved+failed\\problem, same week};
+\node[draw=slate,rounded corners=2pt,align=center] (a) at (4.4,1.5) {knew the idea,\\botched impl:\\rewrite cold};
+\node[draw=slate,rounded corners=2pt,align=center] (b) at (4.4,0) {idea was close:\\read 1 hint line,\\retry 30 min};
+\node[draw=slate,rounded corners=2pt,align=center] (c) at (4.4,-1.5) {unknown technique:\\read editorial,\\solve 2 more of it};
+\draw[->,slate] (u)--(a.west); \draw[->,slate] (u)--(b.west); \draw[->,slate] (u)--(c.west);
+\node[draw=good,rounded corners=2pt,align=center] (d) at (8.9,0) {submit accepted,\\file 1-line lesson\\in your log};
+\draw[->,good,dashed] (a.east)--(d.north); \draw[->,good,dashed] (b.east)--(d); \draw[->,good,dashed] (c.east)--(d.south);
+\node[below=4mm of c,align=left] {upsolve $=$ the contest's real teaching;\\skipping it wastes the entry fee};
+\end{tikzpicture}

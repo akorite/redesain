@@ -17,6 +17,15 @@ which candidates exist (over $\mathbb R$, Cauchy's equation has
 infinitely many wild solutions; over $\mathbb Q$, only $kx$) and it
 licenses which inductions you may run ($\mathbb N\to\mathbb Z\to\mathbb Q$).
 
+\begin{figure}[ht]\centering
+\input{figures/ch14-domain}
+\caption{The domain ladder for $f(x+y)=f(x)+f(y)$. Notice the answer
+set only stabilizes into ``$f=cx$'' where the inductions reach --- on
+$\mathbb R$ the tame answer is joined by unclassifiable pathological
+solutions.}
+\label{fig:fedom}
+\end{figure}
+
 \section{Guessing candidates}\index{candidate}
 Before proving uniqueness, guess: try $f=0$, $f=c$, $f=kx$, $f=x+c$,
 $f=kx+c$, monomials, low-degree polynomials. Each guess that survives is
@@ -35,7 +44,15 @@ to appear where you need it.
 \end{itemize}
 Figure~\ref{fig:feflow} is the loop: every substitution should earn a
 fact; a substitution that produces $0=0$ taught you nothing --- try a
-different one.
+different one. Figure~\ref{fig:subst} lists the five workhorse
+substitutions in the order to try them.
+\begin{figure}[ht]\centering
+\input{figures/ch14-subst}
+\caption{The substitution toolbox: each plug is chosen to make two
+terms collide and cancel. Notice they are ordered by cheapness ---
+zeros first, injectivity probes last.}
+\label{fig:subst}
+\end{figure}
 \begin{figure}[ht]\centering
 \input{figures/ch14-flow}
 \caption{Substitution tactics as a decision loop. Notice the goal of
@@ -146,6 +163,23 @@ the verification half that contest graders insist on (the English
 handout's rule: never claim without the construction). An equation can
 shrink a candidate family to $\{f=0\}$, and even that last member still
 has to be checked.
+
+\begin{example}[Verification eliminates a wrong guess]
+Suppose solving $f(xy)=f(x)f(y)$ over $\mathbb R_{>0}$ led you to the
+guess $f(x)=x+c$. Show verification rejects every $c\neq0$.
+\par\smallskip
+\textbf{Strategy.} Plug the candidate in literally --- don't argue
+about whether it ``should'' work.
+\par\smallskip
+\begin{solution}
+$f(xy)=xy+c$ while $f(x)f(y)=(x+c)(y+c)=xy+c(x+y)+c^2$. Equality
+requires $c(x+y)+c^2=c$ for all $x,y$; fixing $y$ and varying $x$
+forces $c=0$ (then $c^2=c$ is automatic). The guess is rejected ---
+and verification catches what the solving pass missed: the real answer
+family is $f \equiv 0$ together with $f(x)=x^k$ (under any mild
+regularity hypothesis).
+\end{solution}
+\end{example}
 
 \section{Summary}
 \begin{center}\small
@@ -309,6 +343,54 @@ polynomials on the same equation and report the surviving family.
 The same $t^2+C$ survives; no cubic term can cancel ($A t^3$'s residual
 grows like $|t|^3$). Brute force confirms the degree bound.
 \end{solution}
+\begin{exercise}[easy]\label{exr:fa11}
+Solve $f(x+1)=f(x)+2$ over $\mathbb Z$.
+\end{exercise}
+\begin{solution}
+Induction both directions: $f(n)=2n+f(0)$; every such function works.
+\end{solution}
+\begin{exercise}[medium]\label{exr:fa12}
+Find all $f:\mathbb Q\to\mathbb Q$ with $f(x+y)=f(x)f(y)$.
+\end{exercise}
+\begin{solution}
+$f(0)=f(0)^2$, so $f(0)\in\{0,1\}$; $f(0)=0$ forces $f\equiv0$. Else
+$f(0)=1$ and $f(x)f(-x)=1$, so $f$ is never $0$, and
+$f(x)=f(x/2)^2>0$. With $a=f(1)$: $f(n)=a^n$, and
+$f(1)=f(1/q)^q$ forces $a^{1/q}\in\mathbb Q$ for \emph{every}
+denominator $q$ --- impossible for $a\neq1$ (write $a=r/s$ reduced;
+$v_p(a)$ would need to be divisible by every $q$). So $a=1$: the only
+solutions are $f\equiv0$ and $f\equiv1$.
+\end{solution}
+\begin{exercise}[medium]\label{exr:fa13}
+Solve $f\bigl(x+f(y)\bigr)=x+y$ over $\mathbb R$.
+\end{exercise}
+\begin{solution}
+$x=0$ gives $f(f(y))=y$: an involution, hence bijective. $y=0$ gives
+$f(x+f(0))=x$, i.e.\ $f(t)=t-c$ with $c=f(0)$. Plug into the
+involution: $t-2c=t$ forces $c=0$, so $f(x)=x$; it verifies.
+\end{solution}
+\begin{exercise}[hard]\label{exr:fa14}
+Show no \emph{continuous} $f:\mathbb R\to\mathbb R$ satisfies
+$f(f(x))=-x$, then exhibit one over $\mathbb C$.
+\end{exercise}
+\begin{solution}
+$f\circ f=-\mathrm{id}$ is bijective, so $f$ is; a continuous bijection
+is strictly monotone, and the composite of two monotone maps (same or
+opposite direction) is increasing --- but $x\mapsto -x$ is strictly
+decreasing. Contradiction. Over $\mathbb C$: $f(z)=iz$.
+\end{solution}
+\begin{exercise}[hard]\label{exr:fa15}
+Show every solution of $f(x+y)=f(x)+f(y)$ over $\mathbb R$ that is
+bounded on some interval is linear --- the regularity bridge from
+$\mathbb Q$ to $\mathbb R$.
+\end{exercise}
+\begin{solution}
+$g(x)=f(x)-f(1)x$ is additive and vanishes on $\mathbb Q$; boundedness
+of $f$ on an interval bounds $g$ near $0$, and an additive function
+bounded near $0$ is continuous at $0$ (since $g(nh)=ng(h)$, unbounded
+blow-up otherwise), hence continuous everywhere, hence $g\equiv0$ ---
+so $f(x)=f(1)x$.
+\end{solution}
 
 \section*{Notes}
 The candidates→substitutions→involution→Cauchy backbone follows Chen's
@@ -320,5 +402,37 @@ involution stock~\cite{engel}. The pointwise-trap framing is the
 sign choice. Contest uses: 2023 AMC 12A P22, P25; 2015 AIME I P10;
 2010 AIME I P6; 2024 AIME I P12; USAJMO 2024 P5; JMO 2015 P4; USAMO
 2002 (read inside~\cite{chen-funceq}); IMO 2026 P5.
+
+\section*{Further reading}
+\begin{itemize}
+\item E.~Chen, \emph{Introduction to Functional Equations} --- free
+PDF; the reference this chapter follows:
+\url{https://web.evanchen.cc/handouts/FuncEq-Intro/FuncEq-Intro.pdf}
+\item E.~Chen, \emph{The English Handout} --- how to write
+``determine all'' answers in both directions:
+\url{https://web.evanchen.cc/handouts/english/english.pdf}
+\item A.~Engel, \emph{Problem-Solving Strategies}, functional-equations
+chapter --- the drill stock.
+\item UNSW CPMSoc workshop slides (the functional-equations PDF is
+under \emph{Mathematics 2021}):
+\url{https://unswcpmsoc.com/workshops/}
+\item R.~Hammack, \emph{Book of Proof} ---
+\url{https://richardhammack.github.io/BookOfProof/} --- for the
+function/bijection machinery the milestones section reuses.
+\item Y.~Zhao's olympiad handouts --- functional-equation problems in
+the olympiad style:
+\url{https://yufeizhao.com/olympiad/}
+\end{itemize}
+
+\begin{rulebox}[Watch instead]
+\begin{itemize}
+\item \textbf{Michael Penn --- ``A functional equation that didn't
+quite make the IMO''}, 6:43,
+\url{https://www.youtube.com/watch?v=ux9KYSK0jl8} --- solves
+$f(x+y)+f(x-y)=f(x)f(y)$ by exactly the substitution tactics of
+the Substitution-tactics section: creative value choices, extracting
+$f(0)$, peeling to one variable. (Verified 2026-10-11.)
+\end{itemize}
+\end{rulebox}
 
 \chapternotes

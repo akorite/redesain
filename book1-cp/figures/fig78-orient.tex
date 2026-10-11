@@ -1,0 +1,11 @@
+\begin{tikzpicture}[scale=1.05,font=\footnotesize]
+\draw[-{stealth},slate] (0,0) -- (4.6,0) node[right]{$x$};
+\draw[-{stealth},slate] (0,0) -- (0,3.2) node[above]{$y$};
+\coordinate (O) at (0,0); \coordinate (A) at (3.6,1.2); \coordinate (B) at (1.4,2.6);
+\draw[thick,ink,-{stealth}] (O) -- (A) node[below right]{$\vec u$};
+\draw[thick,ink,-{stealth}] (O) -- (B) node[above left]{$\vec v$};
+\draw[fill=amberbg,draw=amber,dashed] (O) -- (A) -- (3.6+1.4,1.2+2.6) -- (B) -- cycle;
+\node[font=\footnotesize] at (2.6,1.7) {$\vec u \times \vec v$};
+\node[align=left,anchor=west] at (5.0,2.2)
+ {$>0$: $\vec v$ left of $\vec u$\\$<0$: right\\$=0$: collinear};
+\end{tikzpicture}
