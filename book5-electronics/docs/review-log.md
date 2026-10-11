@@ -10,3 +10,5 @@
 | ch07 op-amps + power | book5 session | book3 session | ACCEPTED 2026-10-10 — PASS (all 3 decks byte-identical ngspice-47; every claim recomputes; tanh macro sound) | |
 | ch08 numbers/bits/Boolean | book5 session | book3 session | ACCEPTED 2026-10-10 — PASS (signed-byte WE 3 ways; alarm K-map EQUIVALENT; iverilog verbatim; read-only contract honored) | |
 | ch09 combinational | book5 session | book3 session | PENDING — 0/0, 105pp 2026-10-10 | |
+| ch10 sequential/FSMs | book5 session | book3 session | PASS 2026-10-11 — all benches live-verified (latch-ff trace, counter, traffic cycle, Mealy 1-cycle-early, 1Hz math); DEFECT: ch10_seq101_tb.v contains traffic FSM src not the tb (seq101 verified via reviewer's own tb; FSM correct) | |
+| ch11 digital fundamentals | book5 session | book3 session | PASS 2026-10-11 — post-merge review; all 6 test_ch11.sh legs live-verified incl. -DSABOTAGE self-check biting (FAIL:1 errors); mux latch/stale demos mechanistically correct; printed blocks byte-identical | |
