@@ -1,0 +1,6 @@
+it 0: noise-pred loss 1.0219
+it 500: noise-pred loss 0.5069
+it 1000: noise-pred loss 0.6647
+it 1500: noise-pred loss 0.5784
+it 2000: noise-pred loss 0.6187
+saved trajectory: 6 panels, T=50 steps, final spread 0.47 vs data 0.43

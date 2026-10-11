@@ -1,0 +1,4 @@
+digits: 1797 imgs, 1400 train / 397 test, binarised
+NLL/pixel  independent : 0.3943
+NLL/pixel  AR(prev-px) : 0.3740  (context helps)
+saved 24-sample grids (real / independent / AR-prev-pixel)

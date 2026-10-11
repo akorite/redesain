@@ -1,0 +1,4 @@
+train-world accuracy (consistent scaler): 1.000
+serve accuracy (per-batch re-fit scaler):  0.981
+serve accuracy (per-request re-fit):       0.389
+divergence train-vs-solo: +0.611

@@ -1,0 +1,6 @@
+rows     0-500: PSI 0.038   KS 0.056
+rows  1500-2000: PSI 0.013   KS 0.064
+rows  3000-3500: PSI 0.601   KS 0.336
+rows  4500-5000: PSI 0.065   KS 0.073
+PSI>0.25 alarm first at row 3000 (drift injected at 3000; lead 0 rows)
+max PSI post-drift 0.612; max KS post-drift 0.336

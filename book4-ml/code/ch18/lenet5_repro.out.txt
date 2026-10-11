@@ -1,0 +1,9 @@
+epoch 0: test acc 0.9672 err 0.0328 t=26s
+epoch 1: test acc 0.9759 err 0.0241 t=52s
+epoch 2: test acc 0.9808 err 0.0192 t=77s
+epoch 3: test acc 0.9854 err 0.0146 t=104s
+epoch 4: test acc 0.9843 err 0.0157 t=130s
+epoch 5: test acc 0.9856 err 0.0144 t=156s
+epoch 6: test acc 0.9862 err 0.0138 t=183s
+epoch 7: test acc 0.9875 err 0.0125 t=209s
+params 61706 | final err 0.0125 vs paper 0.0095

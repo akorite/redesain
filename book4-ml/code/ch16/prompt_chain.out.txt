@@ -1,0 +1,9 @@
+[good] chain   (2 calls): ANSWER: based on 3
+[good]  extract step saw: EXTRACTED: 3,41.2,38.7,2,4.5,1,204.
+[good] monolith(1 call ): ANSWER: the value is 6.0
+
+[weak] chain   (2 calls): ANSWER: based on 3
+[weak]  extract step saw: EXTRACTED: 3,41.2,38.7,2,4.5,1,204.
+[weak] monolith(1 call ): ANSWER: I am unsure, the text contains many numbers
+
+chain = 2 calls, monolith = 1; control vs latency

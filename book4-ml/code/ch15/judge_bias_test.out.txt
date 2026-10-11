@@ -1,0 +1,8 @@
+judge                    acc  flip long-wins
+neutral (no bias)       0.89  0.00      0.55
+position-biased         0.69  0.69      0.61
+length-biased           0.61  0.00      0.82
+both biases             0.62  0.38      0.79
+
+protocol: verdict must be a permutation-invariant function;
+any flip on swapped order = position-dependent judge.

@@ -1,0 +1,13 @@
+v1 pass: 27/30 = 0.90
+v2 pass: 26/30 = 0.87
+diff -1 items, but the TABLE matters:
+item                           v1   v2
+reverse 'hello'              fail PASS
+2+3*4                        PASS fail
+sqrt of 144                  PASS fail
+10 // 4                      PASS fail
+'hello'[1]                   fail PASS
+first 3 of 'python'          fail PASS
+8 in binary                  PASS fail
+
+regressions v1->v2: 4  fixes: 3

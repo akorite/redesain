@@ -1,0 +1,12 @@
+ep 0: steps 42  eps 0.30  |w| 0.07
+ep 49: steps 34  eps 0.23  |w| 1.40
+ep 99: steps 64  eps 0.18  |w| 1.47
+ep 199: steps 55  eps 0.11  |w| 4.76
+ep 299: steps 35  eps 0.07  |w| 4.35
+ep 399: steps 19  eps 0.05  |w| 4.35
+mean steps eps 0-99: 41
+mean steps eps 100-199: 54
+mean steps eps 200-299: 49
+mean steps eps 300-399: 30
+|w| final: 4.35  (healthy run would stay ~O(1))
+saved /tmp/cartpole_lens.npy

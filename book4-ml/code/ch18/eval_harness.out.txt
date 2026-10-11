@@ -1,0 +1,7 @@
+== golden: 200-image fixed set ==
+{'t': '12:10:35', 'check': 'golden', 'acc': 0.965}
+== drift: brightness-boosted batch vs train-mean reference ==
+{'t': '12:10:35', 'check': 'drift_psi', 'psi': 11.0862, 'alarm': True}
+== canary: real model vs deliberately-broken (shuffled logits) ==
+{'t': '12:10:35', 'check': 'canary', 'good_acc': 0.965, 'broken_acc': 0.07, 'caught': True}
+harness OK -- see harness_log.jsonl
