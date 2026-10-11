@@ -1,0 +1,623 @@
+% Chapter 2 -- Ohm's law, power and the simulator
+\chapter{Ohm's law, power and the simulator}
+\label{ch:ohm}
+
+Chapter~1 gave you the nouns: voltage, current, resistance, schematic, node.
+This chapter gives you the two verbs — compute and simulate — and settles the
+debt from Example~1.2 by actually choosing the LED's resistor. When you finish
+it you should be able to: use $V=IR$ and $P=VI$ in every algebraic form,
+check whether a real resistor survives the power you ask of it, read the
+headline numbers on a component datasheet, write and run your first
+\emph{ngspice} netlist (the simulator every analogue chapter uses), and say
+honestly when Ohm's law applies and when it does not.
+
+\section{Ohm's law: a definition with a job}
+\label{sec:ohmslaw}
+
+In Chapter~1 resistance was introduced as $R=V/I$ — volts per amp, measured in
+ohms\index{ohm}. Turned around, that is \emph{Ohm's law}\index{Ohm's law}:
+\[
+  V = I\,R \qquad\text{and the two shadows}\qquad I = \frac{V}{R},
+  \quad R = \frac{V}{I}.
+\]
+For the components this law describes — resistors, wire, most fixed loads —
+it says the current is \emph{proportional} to the voltage. Double the push,
+double the flow; the ratio never changes. That constancy is the content: a
+resistor is a part whose $V$-$I$ graph is a straight line through the origin,
+and $R$ is its slope\index{V-I characteristic}. Components for which that is
+true are called \emph{linear}\index{linear element} or \emph{ohmic}. Most of
+the interesting ones are not — Section~\ref{sec:nonlinear} is about that.
+
+The law earns its keep on one more fact we will prove properly in
+Chapter~3: in a single loop, the source's voltage is \emph{spent} across the
+elements in the path — the shares always add back to the supply. If the
+\qty{5}{\volt} battery in Figure~1.3 pushes and the LED keeps about
+\qty{2}{\volt} for itself, the resistor is left holding the other
+\qty{3}{\volt}. That sentence is the entire solution to the problem we posed
+in Chapter~1 and could not yet solve.
+
+\begin{example}[The LED question, answered twice]
+\label{ex:ledsizing}
+\emph{Problem.} Drive an LED from \qty{5}{\volt} and, separately, from
+\qty{3.3}{\volt}. Datasheet headline: $V_F \approx 2$\,V at the intended
+current, maximum $I_F = 30$\,mA. Target \qty{15}{\milli\ampere}.\par
+\emph{Strategy.} The resistor does two jobs: it drops whatever voltage the
+LED does not take, and Ohm's law then converts that drop into the current
+everything in the loop shares. Compute $R$, pick the nearest standard E24
+value, then check the corners: source $\pm 5\%$, resistor $\pm 5\%$,
+$V_F$ anywhere in $1.8$--$2.2$\,V.\par
+\emph{Solution, \qty{5}{\volt}.} $R = (5-2)/0.015 = \qty{200}{\ohm}$ — itself
+an E24 value, so the nominal build gives exactly \qty{15}{\milli\ampere}.
+Corners:
+\[
+  I_{\min} = \frac{5\times0.95 - 2.2}{200\times1.05}
+           = \frac{2.55}{210} = 12.1\ \mathrm{mA},
+  \qquad
+  I_{\max} = \frac{5\times1.05 - 1.8}{200\times0.95}
+           = \frac{3.45}{190} = 18.2\ \mathrm{mA}.
+\]
+Every combination is legal: nowhere near 30\,mA, brightness variation
+invisible.\par
+\emph{Solution, \qty{3.3}{\volt}.} $R = (3.3-2)/0.015 = \qty{86.7}{\ohm}
+\rightarrow$ choose E24 \qty{91}{\ohm} (nominal 14.3\,mA). Corners:
+\[
+  I_{\min} = \frac{3.3\times0.95-2.2}{91\times1.05} = 9.8\ \mathrm{mA},
+  \qquad
+  I_{\max} = \frac{3.3\times1.05-1.8}{91\times0.95} = 19.3\ \mathrm{mA}.
+\]
+\emph{Notice:} the lower the headroom over $V_F$, the wider the proportional
+spread — \qty{3.3}{\volt} designs run 10--19\,mA where \qty{5}{\volt} ran
+12--18. Sensitivity analysis is not pedantry; it is how you find the
+designs that fail only on Tuesdays.
+\end{example}
+
+Example~\ref{ex:ledsizing} ends with a part number: ``\qty{200}{\ohm}.''
+The schematic knows that; the beige cylinder in your hand does not carry a
+number at all — it carries paint. Figure~\ref{fig:colorcode} shows how to
+read it.
+
+\begin{figure}[htbp]
+\centering
+\input{figures/ch02/fig_colorcode}
+\caption{The 4-band resistor code: two significant digits, a power-of-ten
+multiplier, and a tolerance band set apart at the end. Read digits toward
+the multiplier. Notice that the bands encode the \emph{nominal} value only —
+the true part lives anywhere inside the tolerance band, which is why
+Example~\ref{ex:ledsizing} computed corners, not just the centre.}
+\label{fig:colorcode}
+\end{figure}
+
+\begin{exercise}[easy]
+Compute: (a) $I$ for $\qty{9}{\volt}$ across $\qty{330}{\ohm}$;
+(b) $R$ needed for \qty{10}{\milli\ampere} from \qty{3.3}{\volt} (no LED);
+(c) the voltage a \qty{1}{\kilo\ohm} resistor drops at \qty{2}{\milli\ampere}.
+\end{exercise}
+
+\section{Power: $P=VI$ and the quarter-watt ceiling}
+\label{sec:power}
+
+Voltage is energy per charge; current is charge per second. Multiply them
+and the units do the talking:
+\[
+  P = V\,I, \qquad \text{1 watt} = \text{1 joule per second}.
+  \index{power|textbf}\index{watt}
+\]
+Every element in a circuit either supplies this power (sources, negative in
+the bookkeeping convention) or spends it (everything else). A resistor spends
+it as heat — substituting $V=IR$ gives the two forms you will use constantly:
+\[
+  P = I^2 R = \frac{V^2}{R}. \index{power!dissipation}
+\]
+The second form has a counterintuitive lesson: \emph{less} resistance across a
+fixed voltage means \emph{more} dissipation. A $\qty{1}{\ohm}$ resistor across
+\qty{5}{\volt} dissipates 25\,W — a space heater, if it survives.
+
+Components are sold with a \emph{power rating}\index{power rating}: the
+continuous dissipation their package can shed before it overheats. The
+jellybean through-hole resistor of this book is rated
+\qty{0.25}{\watt} (a quarter watt). Ratings are not suggestions —
+Example~\ref{ex:rating} shows the failure mode, and Section~\ref{sec:safety2}
+the safety one.
+
+\begin{example}[Can a 1/4 W resistor carry 100 mA?]
+\label{ex:rating}
+\emph{Problem.} A design wants \qty{100}{\milli\ampere} through a
+\qty{47}{\ohm} resistor. Is the standard \qty{0.25}{\watt} part
+adequate?\par
+\emph{Strategy.} The rating is about heat, so compute the dissipation with the
+form that uses the given quantities: $I$ and $R$ are known, so $P=I^2R$.\par
+\emph{Solution.} $P = (0.1)^2 \times 47 = 0.47$\,W $> 0.25$\,W. \textbf{Fails}
+— by nearly a factor of two. A \qty{0.5}{\watt} part barely passes
+($0.47 < 0.5$), and engineering practice is to run resistors at no more than
+half to two-thirds of their rating (the \emph{derating}\index{derating}
+habit: ratings assume ideal mounting, cool air, and a young part). So the
+correct order is a \qty{1}{\watt} resistor — or better, a design that does not
+need 100\,mA.\par
+\emph{Notice:} nobody warned you until you computed. Power ratings are
+invisible on the schematic; checking them is a habit, not a step.
+\end{example}
+
+\begin{exercise}[medium]
+Repeat the check for Example~\ref{ex:ledsizing}: the \qty{200}{\ohm} resistor
+at \qty{15}{\milli\ampere} dissipates how much? Does \qty{0.25}{\watt} suffice
+with derating margin? Then the worst-corner case: \qty{190}{\ohm} at
+18.2\,mA.
+\end{exercise}
+
+\section{When the line bends: nonlinear loads}
+\label{sec:nonlinear}
+
+Here is the sentence to un-learn early: ``the LED's resistance is
+$2\,\mathrm{V}/20\,\mathrm{mA} = \qty{100}{\ohm}$.'' That number exists, but
+it is not a resistance — it is one point on a curve, and the curve is nothing
+like a line.
+
+\begin{figure}[htbp]
+\centering
+\input{figures/ch02/fig_vi_curves}
+\caption{A resistor's $V$-$I$ characteristic against an LED's, from a real
+ngspice sweep of the diode model used in this chapter's netlists. Notice the
+two shapes this chapter keeps separate: the resistor's straight line through
+zero (Ohm's law is its \emph{definition}) and the LED's dead-flat-then-cliff
+curve (Ohm's law has no foothold at all). Below $V_F$ the LED conducts almost
+nothing; above it, the current explodes — which is why the series resistor is
+not optional.}
+\label{fig:vi}
+\end{figure}
+
+A \emph{nonlinear} element\index{nonlinear element} is one whose $V$-$I$
+relationship is not a line through the origin. The LED is the tamest case:
+a \emph{forward voltage}\index{forward voltage} $V_F$ it holds nearly
+constant (about \qty{2}{\volt} for the red indicator type this book uses),
+and a current that rises exponentially once you exceed it. $V=IR$ cannot
+describe that — the ratio $V/I$ is different at every current. What survives
+is the \emph{method}: the LED's curve still passes through every point the
+circuit forces it through; ``about \qty{2}{\volt}'' is simply the datasheet's
+compression of that curve into one usable number. Chapter~5 unpacks the
+device physics; for now, treat $V_F$ as a fact with a tolerance.
+
+\begin{remark}
+This is also why the LED \emph{needs} its resistor. A perfect \qty{2}{\volt}
+source across a 2-V LED is a knife-edge: a degree of temperature or a
+millivolt of mismatch and the exponential current is unbounded. The resistor
+converts the knife-edge into a gentle slope (Figure~\ref{fig:sweep}): above
+the knee the current is set by $(V_{\mathrm{supply}}-V_F)/R$ — Ohm's law
+reappearing once the diode's share is paid.
+\end{remark}
+
+\section{Resistor networks, concept only}
+\label{sec:networks}
+
+Resistors almost never appear alone. Two facts carry you until Chapter~3's
+formal treatment:
+\begin{itemize}
+\item \textbf{In series}\index{series}, the same current threads all of them,
+and their resistances add: $R_{\mathrm{eq}} = R_1 + R_2 + \cdots$ This is why
+the divider in Figure~\ref{fig:predict} splits the supply: two equal shares
+of the total resistance drop equal shares of the voltage.
+\item \textbf{In parallel}\index{parallel}, they share the voltage and split
+the current — two \qty{1}{\kilo\ohm} resistors across the same nodes behave
+as \qty{500}{\ohm}. More paths, less total opposition.
+\end{itemize}
+Chapter~3 turns these into Kirchhoff's laws and the divider formula; today
+you need only the intuition and, in the exercises, a netlist that checks it.
+
+\section{Reading a datasheet's headline numbers}
+\label{sec:datasheet}
+
+Datasheets are long; the skill is knowing which three lines you actually
+need for a given decision. For an LED, these:
+
+\begin{table}[htbp]
+\centering\small
+\begin{tabularx}{\linewidth}{lYl}
+\toprule
+\thead{Line} & \thead{What it means} & \thead{Typical (5 mm red LED)}\\
+\midrule
+$V_F$ (forward voltage) & voltage it keeps for itself at working current & 1.8--2.2\,V, ``typ 2.0''\\
+$I_F$ max & current you must stay under, always & 20--30\,mA\\
+$P_D$ (power dissipation) & heat ceiling, $V_F \times I_F$ & $\sim$100\,mW\\
+\midrule
+viewing angle, $\lambda$ & optics, not electricity & 20--30$^\circ$, 620--630\,nm\\
+\bottomrule
+\end{tabularx}
+\caption{The three electrical numbers that decide an LED circuit, and the
+optics rows you may ignore for now. Notice ``typ'' vs ``max'': \emph{typical}
+is marketing's average; \emph{max/min} are the corners your design must
+survive — Example~\ref{ex:ledsizing} used the $V_F$ range, not the typ
+value, and that choice is why its corners computed to something honest.}
+\label{tab:datasheet}
+\end{table}
+
+The discipline generalises: for every component in this book, the first
+datasheet pass asks only \emph{what does it want} (ratings to satisfy) and
+\emph{what does it do to you} (ratings to stay under). Everything else is a
+second read.
+
+\section{Your first ngspice netlist}
+\label{sec:ngspice}
+
+All the arithmetic so far assumed a \qty{2}{\volt} LED. How wrong is that
+assumption — 1\%, 30\%? The way engineers ask such questions without burning
+parts is \emph{simulation}\index{simulation}: a program that builds the
+equations of your circuit and solves them exactly as you would, minus the
+arithmetic slips. This book uses \emph{ngspice}\index{ngspice}, the free,
+open-source descendant of Berkeley SPICE — the same engine underneath the
+expensive packages.
+
+First, proof it is installed — the Chapter~1 script again, now with
+\texttt{ngspice} present (Listing~\ref{lst:checktools}).
+
+\begin{lstlisting}[language={},numbers=none,caption={Real output of
+\texttt{sh code/check\_tools.sh} on this machine after \texttt{brew install
+ngspice}: the line that matters reads \emph{found}. (The script's version
+grab was also fixed: ngspice prints a decorative banner first, so it now
+reports the first line containing a digit.)},label={lst:checktools02}]
+MISSING  iverilog               Verilog simulation (ch11+)
+MISSING  verilator              lint / fast simulation (ch12+)
+MISSING  yosys                  synthesis (ch13+)
+MISSING  nextpnr-himbaechel     place-and-route, Gowin (ch13+)
+MISSING  gowin_pack             bitstream packer, Gowin (ch13+)
+MISSING  openFPGALoader         programming the board (ch13+)
+MISSING  gtkwave                viewing waveforms (ch11+)
+found    ngspice                ** ngspice-47 : Circuit level simulation program
+MISSING  kicad-cli              PCB work (ch18)
+found    python3                Python 3.9.6
+\end{lstlisting}
+
+A SPICE \emph{netlist}\index{netlist} is a text file that is to a schematic
+what a program is to pseudocode. Listing~\ref{lst:ledcir} is the entire
+simulation for the circuit of Figure~1.3 — and Listing~\ref{lst:ledop} is
+its real output on this machine.
+
+\begin{lstlisting}[language={},caption={\texttt{code/ch02\_led.cir} -- every
+line earns its place: a comment, one source, one resistor, one diode, a
+model, an analysis request, \texttt{.end}.},label={lst:ledcir}]
+* ch02_led.cir -- operating point of the 5 V, R, LED circuit
+* Worked example 2.1 target: about 15 mA through the LED
+V1 1 0 DC 5
+R1 1 2 200
+D1 2 0 LEDMOD
+.model LEDMOD D (IS=1e-19 N=2 BV=100)
+.op
+.end
+\end{lstlisting}
+
+Read it like ngspice does. The first line is always a title/comment. Each
+element line is \emph{name, node+, node-, value}: \texttt{V1 1 0 DC 5} puts a
+\qty{5}{\volt} source between nodes 1 and 0; \texttt{R1 1 2 200} puts
+\qty{200}{\ohm} between nodes 1 and 2; \texttt{D1 2 0 LEDMOD} puts a diode
+from node 2 to ground, using the parameter set named \texttt{LEDMOD} that the
+\texttt{.model} line defines (its \texttt{IS} and \texttt{N} set the curve you
+saw in Figure~\ref{fig:vi}). \emph{Node 0 is ground, always} — the reference
+every voltage is quoted against. Finally \texttt{.op} asks for the DC
+\emph{operating point}\index{operating point}: solve the circuit once, no
+sweeps.
+
+\begin{lstlisting}[language={},numbers=none,caption={Real output of
+\texttt{ngspice -b code/ch02\_led.cir} (model parameter tables omitted; the
+numbers shown are verbatim). Three things to find: the LED's actual $V_F$,
+the loop current, and the sign of the source current.},label={lst:ledop}]
+        Node                                  Voltage
+        ----    -------
+        V(2)                             2.045101e+00
+        V(1)                             5.000000e+00
+
+        Source  Current
+        ------  -------
+
+        v1#branch                       -1.47745e-02
+
+ Diode: Junction Diode model
+         vd                2.0451
+         id             0.0147745
+
+ Resistor: Simple linear resistor
+         i             0.0147745
+         p             0.0436571
+
+ Vsource: Independent voltage source
+         i            -0.0147745
+         p            -0.0738725
+\end{lstlisting}
+
+Three readings, all loaded. \textbf{(1)} $v(2)=2.045$\,V — the model's $V_F$,
+not the assumed 2.0 — and $i = 14.77$\,mA, not 15. The 1.5\% gap is the
+difference between an assumption and a model. \textbf{(2)} Every element
+reports the same current — the single loop really does share one flow.
+\textbf{(3)} The source's current is \emph{negative}: SPICE measures current
+into the positive terminal, and a source delivers current, so its number
+comes out negative — convention, not error. Its power is likewise negative:
+it is supplying the $+73.9$\,mW the resistor ($+43.7$\,mW) and LED (the
+rest) spend.
+
+\begin{figure}[htbp]
+\centering
+\input{figures/ch02/fig_ngspice_flow}
+\caption{The simulation loop in one picture: you write a text file of nodes
+and elements, ngspice builds and solves the circuit equations, and it reports
+every node's voltage and every element's current. The schematic and the
+netlist are the same circuit in two languages — matching them is a skill the
+exercises drill.}
+\label{fig:flow}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\input{figures/ch02/fig_predict}
+\caption{Checkpoint~\ref{cp:predict}: cover the answer, compute both blanks
+by hand, then run the netlist. The point of the exercise is not the numbers —
+it is proving to yourself that two equal resistors split a supply evenly.}
+\label{fig:predict}
+\end{figure}
+
+\begin{checkpoint}[Predict before you run]
+\label{cp:predict}
+For Figure~\ref{fig:predict} — \qty{9}{\volt}, two \qty{330}{\ohm} resistors
+in series — write down $v(2)$ and the loop current before simulating. Then
+write the netlist (three element lines) and run \texttt{.op}. Expect:
+$v(2)=\qty{4.5}{\volt}$, $i = 9/660 \approx \qty{13.6}{\milli\ampere}$.
+\end{checkpoint}
+
+\begin{exercise}[medium]
+Write the netlist for Figure~\ref{fig:predict} yourself (title, three
+elements, \texttt{.op}, \texttt{.end}), run it, and paste the three numbers
+you predicted. If they disagree, find whether the error is in your arithmetic
+or your netlist — both happen.
+\end{exercise}
+
+\section{Why we simulate before we build}
+\label{sec:whysim}
+
+The honest answer is not ``it is easier'' — it is that a simulator makes
+\emph{asking questions} free. Changing $R$ from 200 to 100 costs an edit and
+a keystroke; on a breadboard it costs a resistor and a resteadied hand. The
+sweep commands below are the cheapest form of one question every designer
+asks: \emph{what does this circuit do across a range of conditions?}
+
+\begin{lstlisting}[language={},caption={\texttt{code/ch02\_sweep.cir} -- a
+\texttt{.dc} sweep walks the source from 0 to 5 V and records the loop
+current at each point.},label={lst:sweepcir}]
+* ch02_sweep.cir -- dc sweep: LED-circuit current vs supply voltage
+V1 1 0 DC 0
+R1 1 2 200
+D1 2 0 LEDMOD
+.model LEDMOD D (IS=1e-19 N=2 BV=100)
+.control
+dc v1 0 5 0.05
+let iload = -i(v1)
+set filetype=ascii
+wrdata ch02_sweep.dat iload
+.endc
+.end
+\end{lstlisting}
+
+The \texttt{.control} block runs the \texttt{.dc} analysis: sweep \texttt{v1}
+from 0 to 5 in steps of 0.05, create a vector for the current (negated so it
+reads positive — the source-current sign convention of
+Listing~\ref{lst:ledop}), and write the 101 points to a data file.
+Listing~\ref{lst:sweepdat} shows real lines from it, and
+Figure~\ref{fig:sweep} plots the whole run.
+
+\begin{lstlisting}[language={},numbers=none,caption={Real excerpt of
+\texttt{figures/ch02/ch02\_sweep.dat} (voltage, then current in amps): first
+line, the knee region, and the endpoint. The endpoint's 14.77 mA is
+\emph{exactly} the \texttt{.op} answer — same equations, same result.},
+label={lst:sweepdat}]
+ 0.00000000e+00 -1.60434623e-36
+ ...
+ 1.95000000e+00  4.35823416e-04
+ 2.00000000e+00  6.02192794e-04
+ 2.05000000e+00  7.83622176e-04
+ ...
+ 5.00000000e+00  1.47744954e-02
+\end{lstlisting}
+
+\begin{figure}[htbp]
+\centering
+\input{figures/ch02/fig_sweep}
+\caption{The full \texttt{.dc} sweep, plotted from the real simulation output.
+Notice the two regimes: dead flat below $\sim$2 V (the LED is off and almost
+nothing flows anywhere), then a straight ramp — the resistor has taken
+control. The marked point is the \texttt{.op} you ran: one point of this
+curve computed a different way, agreeing to the last digit.}
+\label{fig:sweep}
+\end{figure}
+
+\begin{example}[One circuit, three ways]
+\label{ex:threeways}
+\emph{Problem.} What current does the Figure~1.3 circuit actually draw at
+\qty{5}{\volt}?\par
+\emph{Strategy.} Compute it three independent ways — assumption, model,
+curve — and require them to agree within stated tolerances. When estimates
+from different machinery agree, the answer is robust; when they do not, the
+disagreement tells you which assumption is weakest.\par
+\emph{Solution.}
+\begin{enumerate}
+\item \textbf{By hand} (the $V_F=2$ assumption): $I = (5-2)/200 =
+\qty{15}{\milli\ampere}$.
+\item \textbf{By \texttt{.op}} (a model of the real diode curve):
+\qty{14.77}{\milli\ampere} — the model's $V_F$ came out 2.045 V, and
+$(5-2.045)/200 = 14.77$\,mA exactly, because SPICE just does the same
+arithmetic with a sharper input.
+\item \textbf{By \texttt{.dc} sweep} (the whole behaviour): Figure~\ref{fig:sweep}
+returns the same \qty{14.77}{\milli\ampere} at $V=5$ and shows the number is
+on the line's flat, boring stretch — no cliff-edge nearby.
+\end{enumerate}
+\emph{Notice:} the hand answer was 1.5\% high — inside any tolerance the
+circuit will ever see. Simulation did not replace the estimate; it
+\emph{priced} it. That is what the simulator is for in this book.
+\end{example}
+
+\section{Safety}
+\label{sec:safety2}
+
+Chapter~1's rules stand: low voltage only, USB power for everything here.
+This chapter adds one line.
+
+\begin{rulebox}[Resistors get hot — check the rating]
+A resistor dissipating over its rating does not fail politely; it browns,
+smells, and can burn a finger or a board. Before powering anything you
+build, run the $P=I^2R$ or $V^2/R$ check of Example~\ref{ex:rating} on the
+stressed parts. In this chapter all dissipation is milliwatts — the rule is
+training for when it is not.
+\end{rulebox}
+
+And a quieter one: \textbf{USB power only} for these experiments. A USB port
+is current-limited by design (typically a few amps, and it will simply shut
+off or sag rather than push dangerous current into a short). Do not
+substitute a bare bench supply or a larger battery until you have a reason —
+the limiting is the safety.
+
+\section{Common mistakes}
+\label{sec:mistakes2}
+
+\begin{description}
+\item[Applying $V=IR$ to nonlinear loads.] The LED has no resistance in the
+Ohm's-law sense: its $V/I$ ratio changes at every point (Figure~\ref{fig:vi}).
+The fix is not a bigger formula, it is the right model — a $V_F$ fact plus a
+series resistor that re-linearises the loop.
+\item[Ignoring power ratings until the resistor browns.] Schematics do not
+draw heat. A \qty{47}{\ohm} resistor at 100\,mA is a 0.47\,W part inside a
+0.25\,W package, and nothing on the schematic page will warn you.
+Example~\ref{ex:rating} is the three-line check; run it every time.
+\item[Treating a \texttt{.op} number as exact.] Simulation solves the model
+you gave it — not the part in your hand. The model said 14.77\,mA; a real
+board with a $\pm$5\% resistor and a loose $V_F$ range delivers anywhere in
+Example~\ref{ex:ledsizing}'s computed band. Simulate for behaviour and
+estimates; measure for truth.
+\item[Netlist nodes that don't match the schematic.] Node numbers in a
+netlist are names, not positions — but they must connect the same things the
+wires do. Every missing wire in a netlist is a component floating in space;
+every shared number is an invisible solder joint. Diff the node list against
+the schematic before running.
+\end{description}
+
+\section{Chapter summary}
+\label{sec:ch2summary}
+
+\begin{table}[htbp]
+\centering\small
+\begin{tabularx}{\linewidth}{llY}
+\toprule
+\thead{Quantity / idea} & \thead{Form} & \thead{The one-line version}\\
+\midrule
+Ohm's law & $V=IR$ & defines $R$; holds for linear parts only\\
+Power & $P=VI=I^2R=V^2/R$ & energy per second; resistors spend it as heat\\
+Power rating & e.g.\ \qty{0.25}{\watt} & package's heat ceiling; derate 2$\times$\\
+Nonlinear (LED) & $V_F$, $I_F$ max & no $R$; a cliff curve + a fact from the datasheet\\
+Series / parallel & add / share & series: one current, voltages split; parallel: one voltage, currents split\\
+Datasheet & typ vs max & satisfy its wants, respect its limits\\
+Netlist & name node+ node- value & text schematic; node 0 is ground\\
+\texttt{.op} & operating point & one solved state: every $v$ and every $i$\\
+\texttt{.dc} & sweep & solve repeatedly over a range — the free question\\
+Sign of source $i$ & negative & SPICE convention: current into the $+$ terminal\\
+\midrule
+Safety & — & rating check first; USB's current limit is a feature\\
+\bottomrule
+\end{tabularx}
+\caption{Chapter 2 on a page: two formulas, one safety habit, and a
+simulator that answers what-if questions for free.}
+\label{tab:ch2summary}
+\end{table}
+
+\section*{Exercises}
+\addcontentsline{toc}{section}{Exercises}
+\label{sec:ch2exercises}
+
+\begin{exercise}[easy]
+(a) Current through \qty{470}{\ohm} at \qty{5}{\volt}. (b) Voltage across
+\qty{2.2}{\kilo\ohm} at \qty{3}{\milli\ampere}. (c) $R$ for \qty{8}{\milli\ampere}
+from \qty{9}{\volt}.
+\end{exercise}
+
+\begin{exercise}[easy]
+Dissipation of: \qty{330}{\ohm} at 13.6\,mA; \qty{100}{\ohm} at 5\,V;
+\qty{1}{\kilo\ohm} at 20\,mA. Which exceed \qty{0.25}{\watt}?
+\end{exercise}
+
+\begin{exercise}[easy]
+A datasheet lists $V_F$ typ 2.0\,V, max 2.4\,V at $I_F$=20\,mA, and
+$I_F$(abs max)=30\,mA. Which number do you design to, and which do you fear?
+\end{exercise}
+
+\begin{exercise}[easy]
+In the netlist \texttt{R1 3 7 470; D2 7 0 LEDMOD}, name each element, the
+nodes it joins, and where ground is.
+\end{exercise}
+
+\begin{exercise}[medium — derive]
+\label{ex:derive-power}
+Starting from $P=VI$ and $V=IR$, derive $P=I^2R$ and $P=V^2/R$. Then derive
+the useful inverse: for a power ceiling $P$ at fixed $V$, the \emph{smallest}
+allowed resistance is $R \ge V^2/P$ — watch which way the inequality flips
+when you clear a fraction.
+\end{exercise}
+
+\begin{exercise}[medium]
+Redo Example~\ref{ex:ledsizing} at \qty{5}{\volt} but with $R=\qty{220}{\ohm}$
+(the more common bin). Compute the nominal current and the tolerance band;
+decide whether it is still a good choice.
+\end{exercise}
+
+\begin{exercise}[medium]
+Write (don't copy) a netlist for a \qty{9}{\volt} source and two
+\qty{1}{\kilo\ohm} resistors in series; predict $v(2)$ and $i$; run
+\texttt{.op} and compare.
+\end{exercise}
+
+\begin{exercise}[medium]
+The kit resistor red-red-brown-gold is nominally \qty{220}{\ohm}$\pm$5\%.
+Give the true-value range. A second resistor marked yellow-violet-red-gold:
+nominal and range.
+\end{exercise}
+
+\begin{exercise}[hard]
+Two LEDs in parallel share one series resistor on 5\,V. Explain why this is
+a trap: the parts are never identical, so one hogs current, gets hotter,
+takes even more current — a runaway split. What does a netlist with two
+slightly different \texttt{IS} values show? (Run it.)
+\end{exercise}
+
+\begin{exercise}[hard — design]
+The supply is unknown, somewhere between 3.3 and 5 V. Choose a resistor and
+justify it so the LED current stays within 10--20\,mA across the whole supply
+range with $V_F \in [1.8, 2.2]$, or prove the spec is impossible.
+\end{exercise}
+
+\subsection*{Hints and selected answers}
+\addcontentsline{toc}{subsection}{Hints and selected answers}
+
+\begin{description}
+\item[Easy 2.1] 10.6\,mA; 6.6\,V; \qty{1.125}{\kilo\ohm} (E24: \qty{1.1}{\kilo\ohm}).
+\item[Easy 2.2] 61.2\,mW ok; 250\,mW at the line; 400\,mW over.
+\item[Easy 2.3] Design current to the typ/$V_F$ band; the 30\,mA abs-max is the cliff edge you never plan to visit.
+\item[Easy 2.4] R1 between nodes 3--7 (470\,$\Omega$); D2 between 7--0; node 0 is ground.
+\item[Med (derive)] $P=VI$, $V=IR \Rightarrow P=(IR)I=I^2R$; $I=V/R \Rightarrow P=V\cdot V/R=V^2/R$; solving $V^2/R \le P$ for $R$ gives $R \ge V^2/P$ — careful: the \emph{minimum} resistance is set by the rating, not the maximum.
+\item[Med (220)] $I_{\mathrm{nom}} = 3/220 = 13.6$\,mA; band $\approx 11.0$--$16.6$\,mA; still good, slightly dimmer.
+\item[Med (1k+1k)] $v(2)=4.5$\,V, $i=4.5$\,mA — a divider preview.
+\item[Med (colours)] 220\,$\Omega$: 209--231\,$\Omega$; yellow-violet-red-gold $=4\,7\times10^2=4.7$\,k$\Omega$: 4465--4935\,$\Omega$.
+\item[Hard (two LEDs)] With IS mismatched by 10\%, the hog takes $\sim$2$\times$ the other's current — and the gap widens with heat. Per-LED resistors is the fix.
+\item[Hard (design)] $I_{\max}$ occurs at 5\,V, $V_F$=1.8, $R_{\min}$: need $R\ge(5.25-1.8)/0.02=172.5\,\Omega$; $I_{\min}$ at 3.135\,V, $V_F$=2.2, $R_{\max}$: need $R\le0.935/0.01=93.5\,\Omega$. Impossible as stated — the answer is a smaller tolerance or two supply rails; the exercise is the proof.
+\end{description}
+
+\chapternotes
+
+\begin{enumerate}
+\item T.~R. Kuphaldt, \emph{Lessons in Electric Circuits}, Vol.~I ``DC'',
+chapters 2 (Ohm's law) and 1.6 (power): the $P=VI$ forms and the ratings
+habit; its own SPICE introduction validates our netlist-first order
+\cite{aacvol1}.
+\item OpenStax, \emph{University Physics} Vol.~2: the derivation of
+$V=IR$ for ohmic materials and where non-ohmic devices break it —
+Section~\ref{sec:nonlinear}'s correct statement \cite{openstaxv2}.
+\item ngspice manual, \texttt{.op}/\texttt{.dc} analysis and \texttt{.control}
+scripting: the exact directives of Listings~\ref{lst:sweepcir}; version 47
+pinned in \texttt{code/README.md} \cite{ngspice}.
+\item The E24 preferred-value series and colour code are industry standard;
+the decoding drill mirrors Table~1.1 \cite{aacvol1}.
+\item The LED model parameters (\texttt{IS}, \texttt{N}) are chosen so the
+simulated knee lands near a real red LED's $V_F$; they are teaching values,
+not a vendor's characterised model — the honesty point of
+Example~\ref{ex:threeways}.
+\end{enumerate}

@@ -1,0 +1,16 @@
+\begin{figure}[htbp]
+\centering
+\begin{tabular}{llll}
+\toprule
+CSR & width & written by & read by \\
+\midrule
+\texttt{mepc}   & 32 & hardware on trap (idex\_pc) & \texttt{mret} \\
+\texttt{mcause} & 5  & hardware on trap (code)    & software (full ISA) \\
+\bottomrule
+\end{tabular}
+\caption{The two CSRs this chapter implements. Real RISC-V defines
+dozens; two suffice to trap, handle, and return. \texttt{mcause} is
+present but unused by the demo --- noted as the extension point for
+timer or external interrupts.}
+\label{fig:csr08}
+\end{figure}

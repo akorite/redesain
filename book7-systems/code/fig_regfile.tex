@@ -1,0 +1,34 @@
+\begin{tikzpicture}[font=\scriptsize, >=latex]
+% 8 register cells in a column
+\foreach \i in {0,...,7}{
+  \pgfmathsetmacro{\y}{6.3-\i*0.75}
+  \draw[thick, fill=graybg] (2.2,\y) rectangle (4.4,\y+0.6);
+  \node at (3.3,\y+0.3) {r\i\ /8};
+}
+% write address decoder
+\draw[thick, fill=amberbg] (0.2,2.4) rectangle (1.9,3.6);
+\node[align=center] at (1.05,3.0) {decoder\\\texttt{i\_waddr}/3};
+\foreach \i in {0,...,7}{
+  \pgfmathsetmacro{\y}{6.6-\i*0.75}
+  \draw[->, slate] (1.9,3.0) -- (2.2,\y);
+}
+\draw[->, thick] (0.2,4.3) -- (1.05,4.3) -- (1.05,3.6);
+\node[left] at (0.2,4.3) {\texttt{i\_clk}};
+\draw[->, thick] (0.2,5.1) -- (1.05,5.1) -- (1.05,4.4);
+\node[left] at (0.2,5.1) {\texttt{i\_we}};
+\draw[->, thick] (0.2,5.9) -- (2.2,5.9) node[pos=0.55, above]{\texttt{i\_waddr}/3};
+\draw[->, thick] (0.2,0.4) -- (1.05,0.4) -- (1.05,1.8) -- (2.2,1.8);
+\node[left] at (0.2,0.4) {\texttt{i\_wdata}/8};
+% two async read ports: any cell -> either output
+\foreach \i in {0,...,7}{
+  \pgfmathsetmacro{\y}{6.6-\i*0.75}
+  \draw[thick, accent] (4.4,\y) -- (5.6,\y);
+}
+\draw[thick, fill=goodbg] (5.6,4.0) rectangle (6.9,4.9);
+\node[align=center] at (6.25,4.45) {mux A\\\texttt{i\_raddr\_a}};
+\draw[->, thick, accent] (6.9,4.45) -- (7.9,4.45) node[right]{\texttt{o\_ra}/8};
+\draw[thick, fill=goodbg] (5.6,2.4) rectangle (6.9,3.3);
+\node[align=center] at (6.25,2.85) {mux B\\\texttt{i\_raddr\_b}};
+\draw[->, thick, accent] (6.9,2.85) -- (7.9,2.85) node[right]{\texttt{o\_rb}/8};
+\node[align=center, text=slate] at (3.3,-0.3) {write: clocked, one cell\\read: combinational, both ports at once};
+\end{tikzpicture}

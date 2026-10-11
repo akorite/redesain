@@ -1,0 +1,35 @@
+\begin{tikzpicture}[font=\scriptsize, >=latex, x=0.85cm, y=0.85cm]
+% full single-cycle datapath
+\draw[thick, fill=accentsoft] (0,3.4) rectangle (1.6,4.4);
+\node[font=\tiny, align=center] at (0.8,3.9) {PC\\reg};
+\draw[thick, fill=accentsoft] (2.2,3.4) rectangle (3.8,4.4);
+\node[font=\tiny, align=center] at (3.0,3.9) {instr\\mem};
+\draw[thick, fill=goodbg] (4.6,3.4) rectangle (6.2,4.4);
+\node[font=\tiny, align=center] at (5.4,3.9) {decode\\+ imm};
+\draw[thick, fill=goodbg] (7.0,3.4) rectangle (8.6,4.4);
+\node[font=\tiny, align=center] at (7.8,3.9) {regfile};
+\draw[thick, fill=amberbg] (9.4,3.4) rectangle (11.0,4.4);
+\node[font=\tiny, align=center] at (10.2,3.9) {ALU};
+\draw[thick, fill=graybg] (11.8,3.4) rectangle (13.4,4.4);
+\node[font=\tiny, align=center] at (12.6,3.9) {data\\mem};
+\draw[thick, fill=white] (13.9,3.6) circle (0.3);
+\node[font=\tiny] at (13.9,3.6) {WB};
+\draw[->, very thick] (1.6,3.9) -- (2.2,3.9);
+\draw[->, very thick] (3.8,3.9) -- (4.6,3.9);
+\draw[->, very thick] (6.2,3.9) -- (7.0,3.9);
+\draw[->, very thick] (8.6,3.9) -- (9.4,3.9);
+\draw[->, very thick] (11.0,3.9) -- (11.8,3.9);
+\draw[->, very thick] (13.4,3.9) -- (13.9,3.9);
+% writeback arc
+\draw[->, dashed, accent] (13.9,3.3) .. controls (8,2.2) .. (7.8,3.35)
+  node[midway, below, font=\tiny]{wb back to regfile};
+% pc+4 loop
+\draw[->, dashed, slate] (13.9,3.6) .. controls (8,5.2) .. (0.8,4.45)
+  node[midway, above, font=\tiny]{pc+4 or pc+immB or pc+immJ};
+\node[align=left, text=slate, text width=11cm] at (7,1.6)
+  {One instruction does the whole journey in one clock: PC $\to$
+   fetch $\to$ decode+imm $\to$ read regs $\to$ ALU $\to$ (maybe)
+   data mem $\to$ writeback, while the next-PC mux chooses
+   pc+4, pc+immB or pc+immJ. Single-cycle is the truth the pipeline
+   is trying to fake.};
+\end{tikzpicture}

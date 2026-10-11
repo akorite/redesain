@@ -1,0 +1,17 @@
+\begin{figure}[htbp]
+\centering
+\begin{tikzpicture}
+\begin{axis}[width=10cm,height=5.5cm, ybar, bar width=8mm,
+  xtick={1,2,3,4,5}, xticklabels={naive,blk4,blk8,blk16,blk32},
+  ylabel={misses (sim, exact)}, ymin=0, ymax=90000,
+  grid=major, grid style={gray!20},
+  tick label style={font=\scriptsize}, label style={font=\small}]
+\addplot[fill=blue!50] table[x=x,y=misses]{code/ch10_misses.dat};
+\end{axis}
+\end{tikzpicture}
+\caption{Exact miss counts from the chapter's own cache model,
+256$\times$256 transpose: block-8 removes two of every three
+misses --- block-16 is \emph{worse than naive}. The sweet spot is
+small.}
+\label{fig:misses10}
+\end{figure}

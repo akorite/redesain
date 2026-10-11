@@ -1,0 +1,24 @@
+\begin{tikzpicture}[font=\scriptsize, >=latex]
+% sw cycle flow strip
+\node[font=\footnotesize\bfseries] at (5.6,4.6) {one \texttt{sw x5,0(x6)} ---
+what each block is doing in its single cycle};
+\foreach \x/\t in {
+  1.0/{fetch insn},
+  3.0/{decode: sw $\to$ memwrite=1},
+  5.2/{regfile: rd1=x6, rd2=x5},
+  7.6/{ALU: addr = x6 + immS},
+  10.0/{dmem[addr] $\leftarrow$ x5},
+  12.6/{pc $\leftarrow$ pc+4}}{
+  \draw[thick, fill=accentsoft] (\x-0.85,3.2) rectangle (\x+0.85,4.0);
+  \node[font=\tiny, align=center] at (\x,3.6) {\t};}
+\draw[->, very thick] (1.85,3.6)--(2.15,3.6);
+\draw[->, very thick] (3.85,3.6)--(4.35,3.6);
+\draw[->, very thick] (6.05,3.6)--(6.75,3.6);
+\draw[->, very thick] (8.45,3.6)--(9.15,3.6);
+\draw[->, very thick] (10.85,3.6)--(11.75,3.6);
+\node[align=left, text=slate, text width=11.5cm] at (6.4,2.2)
+  {No writeback, no branch: \texttt{sw} leaves regfile-write
+   and the writeback mux dark. The control word is the whole
+   behaviour --- once the table row is read, the datapath is
+   a fixed route the data takes.};
+\end{tikzpicture}

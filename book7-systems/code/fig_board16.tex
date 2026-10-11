@@ -1,0 +1,33 @@
+\begin{tikzpicture}[font=\scriptsize, >=latex]
+% board outline
+\draw[thick, fill=graybg, rounded corners] (0,0) rectangle (8.8,4.6);
+\node[font=\small\bfseries] at (4.4,4.3) {Tang Nano 9K --- cpu8 build};
+% fpga
+\draw[thick, fill=accentsoft] (3.4,1.7) rectangle (5.4,3.1);
+\node[align=center] at (4.4,2.4) {GW1NR-LV9\\\texttt{cpu8}};
+% leds
+\foreach \i in {0,...,5}{
+  \draw[thick, fill=goodbg] (6.4+\i*0.38,3.5) rectangle (6.7+\i*0.38,3.8);}
+\node[below] at (7.3,3.4) {LEDs 0--5 = \texttt{out\_reg} (active low)};
+\draw[->, slate] (5.4,2.8) -- (6.6,3.5);
+% button
+\draw[thick, fill=amberbg] (0.6,3.4) rectangle (1.6,3.9);
+\node at (1.1,3.65) {BTN};
+\node[below] at (1.1,3.3) {reset (pin 4)};
+\draw[->, slate] (1.6,3.4) -- (3.4,2.6);
+% uart
+\draw[thick, fill=white] (0.6,1.0) rectangle (2.6,2.0);
+\node[align=center] at (1.6,1.5) {BL702\\USB-UART};
+\draw[->, slate] (2.6,1.5) -- (3.4,2.0) node[midway, below]{\texttt{tx} pin 17};
+% osc
+\draw[thick, fill=white] (6.4,0.8) rectangle (7.4,1.6);
+\node[align=center] at (6.9,1.2) {27 MHz};
+\draw[->, slate] (6.9,1.6) -- (4.9,2.1) node[midway, below]{\texttt{clk} pin 52};
+% usb
+\draw[thick, fill=white] (0.6,0.2) rectangle (2.6,0.7);
+\node at (1.6,0.45) {USB-C};
+\node[align=left, text=slate, text width=10cm] at (5.0,-0.7)
+{Wiring it runs: \texttt{i\_clk27} 52, \texttt{i\_btn} 4,
+\texttt{o\_led[0..5]} 10--16, \texttt{o\_uart\_tx} 17 (the BL702
+bridge: open a serial monitor at 115200 and the OUT bytes arrive).};
+\end{tikzpicture}

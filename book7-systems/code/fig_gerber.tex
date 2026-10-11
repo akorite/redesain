@@ -1,0 +1,23 @@
+\begin{tikzpicture}[font=\scriptsize, >=latex]
+% gerber -> fab -> assembly flow
+\draw[thick, fill=accentsoft] (0.2,2.6) rectangle (2.6,4.2);
+\node[align=center] at (1.4,3.7) {Gerber set};
+\node[align=center, font=\tiny] at (1.4,3.1) {F\_Cu, B\_Cu, Edge\_Cuts,\\mask, paste, .drl};
+\draw[->, thick] (2.6,3.4) -- (3.4,3.4);
+\draw[thick, fill=graybg] (3.4,2.6) rectangle (5.8,4.2);
+\node[align=center] at (4.6,3.7) {fab};
+\node[align=center, font=\tiny] at (4.6,3.1) {etch, plate, mask,\\silk, test};
+\draw[->, thick] (5.8,3.4) -- (6.6,3.4);
+\draw[thick, fill=goodbg] (6.6,2.6) rectangle (9.0,4.2);
+\node[align=center] at (7.8,3.7) {bare board};
+\node[align=center, font=\tiny] at (7.8,3.1) {in the mail,\\$\sim$US\$5--15 + ship};
+% checks box
+\draw[thick, fill=amberbg] (3.0,0.6) rectangle (6.4,2.0);
+\node[align=left, text width=3.2cm] at (4.7,1.3)
+{\textbf{arrival checks}\\continuity on rails\\no shorts on pour\\pad sizes vs parts};
+\draw[->, dashed, slate] (7.8,2.6) -- (6.4,1.4);
+\node[align=left, text=slate, text width=10cm] at (4.7,-0.5)
+{The Gerber is the contract the fab signs: every file is a layer or
+a drill sheet. Our script-generated set is minimal but real ---
+the fab's own DRC will run it again before the copper etches.};
+\end{tikzpicture}

@@ -1,0 +1,24 @@
+\begin{tikzpicture}[font=\scriptsize, >=latex]
+% call tree of fib(7) -- first few nodes
+\node[font=\footnotesize\bfseries] at (4.6,4.6) {call tree of \ttfamily fib(7)\rmfamily, depth first};
+\foreach \x/\y/\l in {
+  5.0/4.0/{f(7)},
+  3.2/3.2/{f(6)},
+  1.8/2.4/{f(5)},
+  0.9/1.6/{f(4)},
+  0.4/0.8/{f(3)},
+  4.6/3.2/{f(5)},
+  6.8/3.2/{f(5)},
+  6.8/4.0/{f(6)}}{
+  \draw[thick, fill=accentsoft] (\x-0.32,\y-0.2) rectangle (\x+0.32,\y+0.2);
+  \node[font=\tiny] at (\x,\y) {\l};}
+\draw[->] (4.7,3.8) -- (3.5,3.4);
+\draw[->] (5.3,3.8) -- (6.5,3.4);
+\draw[->] (3.0,3.0) -- (2.1,2.6);
+\draw[->] (1.6,2.2) -- (1.1,1.8);
+\draw[->] (0.7,1.4) -- (0.5,1.0);
+\node[align=left, text=slate, text width=10cm] at (5.0,-0.3)
+  {fib(7) makes 41 calls --- 40 non-leaf frames, each paying the
+   16-byte stack tax. Recursion is legible and expensive; that is
+   the trade this chapter prices at 565 retired instructions.};
+\end{tikzpicture}

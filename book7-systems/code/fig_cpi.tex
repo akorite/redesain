@@ -1,0 +1,18 @@
+\begin{tikzpicture}[font=\scriptsize, >=latex]
+% CPI measured: independent vs dependent streams
+\node[font=\footnotesize\bfseries] at (5,4.6)
+  {measured on the naive core (real tb output)};
+\draw[thick, fill=goodbg] (1,1.4) rectangle (4,3.4);
+\node[font=\tiny, align=center] at (2.5,3.0) {independent stream};
+\node[font=\tiny, align=center] at (2.5,2.2) {a0..a4 = 1 2 3 4 5\\
+correct, ~1 retire/cycle};
+\draw[thick, fill=amberbg] (5.6,1.4) rectangle (9,3.4);
+\node[font=\tiny, align=center] at (7.3,3.0) {dependent stream};
+\node[font=\tiny, align=center] at (7.3,2.2) {a1 = 3, not 8\\
+retires 1/cycle --- wrong values};
+\node[align=left, text=slate, text width=11cm] at (5,0.6)
+  {The pipeline is FAST either way --- that's the trap. Throughput
+   looks perfect while the dependent stream silently computes
+   garbage. ch07's forwarding/stalls buy correctness back with
+   real hardware.};
+\end{tikzpicture}

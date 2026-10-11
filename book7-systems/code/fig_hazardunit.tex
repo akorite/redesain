@@ -1,0 +1,19 @@
+\begin{tikzpicture}[font=\scriptsize, >=latex]
+\node[font=\footnotesize\bfseries] at (5.6,4.6) {the hazard unit:
+four comparisons, three actions};
+\draw[thick, fill=accentsoft] (3.6,2.8) rectangle (6.4,4.0);
+\node[font=\tiny, align=center] at (5,3.6) {HAZARD\\UNIT};
+\node[font=\tiny, align=right] at (3.2,3.9) {idex\_rd};
+\node[font=\tiny, align=right] at (3.2,3.4) {ifid rs1, rs2};
+\node[font=\tiny, align=left] at (6.8,3.9) {freeze pc, ifid};
+\node[font=\tiny, align=left] at (6.8,3.4) {bubble idex};
+\draw[->] (3.4,3.9) -- (3.6,3.9);
+\draw[->] (3.4,3.4) -- (3.6,3.4);
+\draw[->] (6.4,3.9) -- (6.6,3.9);
+\draw[->] (6.4,3.4) -- (6.6,3.4);
+\node[align=left, text=slate, text width=10.5cm] at (5.4,2.0)
+  {One \texttt{assign} in Verilog: if the instruction in EX is a
+   load and the one in ID reads its destination, freeze fetch and
+   decode, and inject a bubble. Hardware small enough to fit in a
+   figure, important enough to justify the chapter.};
+\end{tikzpicture}

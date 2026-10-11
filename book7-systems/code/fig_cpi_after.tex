@@ -1,0 +1,14 @@
+\begin{tikzpicture}[font=\scriptsize, >=latex]
+\node[font=\footnotesize\bfseries] at (5.6,4.6) {before vs after,
+measured on the same tb};
+\draw[thick, fill=amberbg] (0.8,1.6) rectangle (4.4,3.4);
+\node[font=\tiny, align=center] at (2.6,3.0) {naive (ch06)};
+\node[font=\tiny, align=center] at (2.6,2.3) {a1 = 3 (wrong)\\0 stalls, lying fast};
+\draw[thick, fill=goodbg] (5.6,1.6) rectangle (9.6,3.4);
+\node[font=\tiny, align=center] at (7.6,3.0) {forwarded + stall (ch07)};
+\node[font=\tiny, align=center] at (7.6,2.3) {a1 = 8, a3 = 42 (right)\\exactly 1 bubble};
+\node[align=left, text=slate, text width=10.5cm] at (5.4,0.8)
+  {Correctness cost one pipeline bubble on the load-use pair and
+   zero on everything else --- forwarding paid the whole ALU-hazard
+   bill.};
+\end{tikzpicture}

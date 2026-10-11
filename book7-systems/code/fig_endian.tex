@@ -1,0 +1,24 @@
+\begin{tikzpicture}[font=\scriptsize, >=latex]
+% 0x0A0B0C0D little vs big endian
+\node[align=left, font=\footnotesize\bfseries] at (1.7,4.6)
+  {little-endian (RV32, x86, ARM)};
+\node[align=left, font=\footnotesize\bfseries] at (7.0,4.6)
+  {big-endian (network order)};
+\foreach \i/\v in {0/0D,1/0C,2/0B,3/0A}{
+  \draw[thick, fill=accentsoft] (0.4+\i*0.8,3.8) rectangle (1.2+\i*0.8,4.4);
+  \node at (0.8+\i*0.8,4.1) {\v};
+  \node[font=\tiny, text=slate] at (0.8+\i*0.8,3.6) {+\i};
+}
+\foreach \i/\v in {0/0A,1/0B,2/0C,3/0D}{
+  \draw[thick, fill=graybg] (5.7+\i*0.8,3.8) rectangle (6.5+\i*0.8,4.4);
+  \node at (6.1+\i*0.8,4.1) {\v};
+  \node[font=\tiny, text=slate] at (6.1+\i*0.8,3.6) {+\i};
+}
+\node[align=left, font=\tiny, text width=4.4cm] at (1.7,3.0)
+  {LSB lands at the lowest address --- same value, reversed paper trail};
+\node[align=left, font=\tiny, text width=4.4cm] at (7.0,3.0)
+  {MSB first --- reads left-to-right like the number you wrote};
+\node[align=left, text=slate, text width=10cm] at (5.0,2.2)
+  {Real bytes from \ttfamily ch02\_bytes\rmfamily: \ttfamily 0d 0c 0b 0a
+   \rmfamily --- your dev box writes little-endian, and so does RV32.};
+\end{tikzpicture}

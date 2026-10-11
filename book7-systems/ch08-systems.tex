@@ -1,0 +1,434 @@
+% ch08-systems.tex -- Traps, memory-mapped IO, and a running machine
+\chapter{Traps, memory-mapped IO, and a program that talks to the world}
+\label{ch:systems08}
+
+The core built over chapters~5--7 computes correctly, but it is a
+closed box: it can neither call for help when something goes wrong
+nor emit a single observable byte. This chapter opens two doors at
+once. A minimal trap mechanism --- \texttt{ecall} to enter a handler,
+\texttt{mret} to return --- gives the machine its first taste of
+exception handling. A memory-mapped UART gives it a voice. By the
+end, one testbench run shows a program compute \(6\times 7\), print
+\texttt{42} on a serial wire, trap into a handler that prints
+\texttt{K}, return, print \texttt{!}, and park --- all on real
+Verilog, all bytes decoded off the simulated wire.
+
+\section{Two small additions, one big change of character}
+\label{sec:doors08}
+
+Everything so far treats the processor as a calculator that stalls
+politely when it must. Real machines also need \emph{control}: a way
+for software to ask the hardware for a service and a way for hardware
+to seize control back. On RISC-V that mechanism is the trap: an
+instruction (or an external event) redirects the pc to a fixed
+handler address after saving enough state to return.
+
+And a processor that cannot move bytes in or out is a curiosity.
+The simplest output device imaginable is a UART transmitter --- one
+wire, one bit at a time --- and the simplest way to talk to it is
+\emph{memory-mapped IO}: reserve an address, and let an ordinary
+\texttt{sw} do the talking.
+
+\begin{example}[What one byte on a wire buys]
+\texttt{sw t0, 0(a7)} with \texttt{a7 = 0x10000000} sends the
+contents of \texttt{t0} out pin tx as a framed serial byte. No new
+instruction, no special port instruction --- the address
+\emph{is} the device selector. That is the entire idea behind
+memory-mapped IO, and every real embedded chip is built on it.
+\end{example}
+
+\input{figures/ch08/fig_soc.tex}
+
+\section{Minimal traps: \texttt{ecall} and \texttt{mret}}
+\label{sec:traps08}
+
+Real RISC-V privilege machinery is large: dozens of control and
+status registers, trap delegation, vectored vs.\ direct entry. Two
+CSRs carry this chapter:
+
+\begin{itemize}
+\item \texttt{mepc}: hardware writes the faulting instruction's pc
+      here on trap entry; \texttt{mret} jumps back to
+      \texttt{mepc}+4.
+\item \texttt{mcause}: a small code saying why. Present in our core
+      as an extension point --- the demo handler does not read it.
+\end{itemize}
+
+The micro-architecture adds three lines to the pc logic: on
+\texttt{ecall} in EX, latch \texttt{mepc} and redirect fetch to a
+fixed vector (0x80 here); on \texttt{mret}, redirect to
+\texttt{mepc}+4; both flush the younger stages like a branch.
+
+\input{figures/ch08/fig_trap.tex}
+
+\input{figures/ch08/fig_csr.tex}
+
+\begin{checkpoint}
+Why \texttt{mepc}+4 and not \texttt{mepc}? Because \texttt{mepc}
+holds the \emph{ecall's own} address; returning to it would trap
+again forever. Real RISC-V handlers choose: resume at \texttt{mepc}
+(emulate and retry) or skip to \texttt{mepc}+4 (move on). Ours skips.
+\end{checkpoint}
+
+\section{The UART: one shift register with an address}
+\label{sec:uart08}
+
+The transmitter is the same 8N1 shape used in the electronics book's
+capstone: a 10-bit frame --- start bit, eight data bits least
+significant bit first, stop bit --- shifted out at one bit per
+\texttt{div} clocks. The only new piece is the request line:
+
+\begin{lstlisting}[language=Verilog,caption={The MMIO hook in
+\texttt{rv32i\_soc\_top}: any store word whose address is
+0x10000000 becomes a UART transmit request instead of a dmem
+write.}]
+assign dmem_we  = exmem_memwrite & (exmem_y != 32'h10000000);
+assign uart_req = exmem_memwrite & (exmem_y == 32'h10000000);
+\end{lstlisting}
+
+\noindent That is the whole of ``device driver'': the store's
+address decides where its data goes. Programs use
+\texttt{lui a7,0x10000} once and then \texttt{sw tX,0(a7)} for every
+byte out.
+
+\input{figures/ch08/fig_mmio.tex}
+
+\input{figures/ch08/fig_uartwave.tex}
+
+\begin{example}[Reading the frame]
+For byte 0x34 (`4'), the serial line goes low for one bit time
+(start), carries \texttt{00110100} LSB-first (so the wire order is
+0,0,1,0,1,1,0,0), then returns high (stop). Figure~\ref{fig:uartwave08}
+draws the wire; the testbench literally counts the falling edges that
+begin frames.
+\end{example}
+
+\section{The program, end to end}
+\label{sec:program08}
+
+The demo program exercises every door at once. It computes
+\(6\times 7\) in a register loop (the same multiply-by-add pattern
+from chapter~4), prints the two digits, executes \texttt{ecall},
+prints one more character after \texttt{mret}, then parks:
+
+\begin{lstlisting}[language={[x86masm]Assembler},caption={The demo
+program (assembled by the book's own assembler into
+\texttt{ch08\_prog.hex}). Excerpt --- main loop, UART writes,
+\texttt{ecall}, and the handler at 0x80.}]
+mloop: add  a2, a2, a0     # a2 += 6, seven times
+       addi a1, a1, -1
+       bne  a1, zero, mloop
+       lui  a7, 0x10000    # UART MMIO base
+       li   t0, 52         # '4'
+       sw   t0, 0(a7)
+       ...delay loop...
+       li   t0, 50         # '2'
+       sw   t0, 0(a7)
+       ecall               # trap: mepc <- pc, pc <- 0x80
+       li   t0, 33         # '!'
+       sw   t0, 0(a7)
+park:  beq  zero, zero, park
+# ---- handler at 0x80 ----
+       li   t0, 75         # 'K'
+       sw   t0, 0(a7)
+       mret                # pc <- mepc + 4
+\end{lstlisting}
+
+\begin{example}[What the testbench saw]
+This is real \texttt{vvp} output, verbatim, from the captured
+log \texttt{code/ch08\_soc\_tb.out}:
+
+\begin{verbatim}
+ran 770 cyc, pc=00000058, a2=42 (want 42)
+MMIO bytes sent: 42K!
+uart frames started: 4 (want 4)
+tx start-bit edges seen: 13
+  ok: 6*7=42 via loop
+  ok: '42' to MMIO
+  ok: 'K!' trap handler + mret
+  ok: serial wire really wiggled
+ch08 PASS
+\end{verbatim}
+
+Read it slowly. \texttt{42} proves the compute and the data memory.
+\texttt{K} proves the trap: the handler ran, did its work, and
+\texttt{mret} landed back exactly on the instruction after
+\texttt{ecall} --- the \texttt{!}. Thirteen start-bit edges vs.\ four
+stores also records the early trials where back-to-back stores
+collided while the UART was still \texttt{busy}.
+\end{example}
+
+\begin{checkpoint}
+Why do consecutive \texttt{sw}s to the UART need a delay loop between
+them? The transmitter is busy for \texttt{div}$\times$10 clocks;
+a store arriving mid-frame has nowhere to queue. Real chips answer
+with a status bit the software polls --- our minimal UART teaches
+the collision honestly instead.
+\end{checkpoint}
+
+\section{Receipts: two bugs this chapter paid for itself}
+\label{sec:receipts08}
+
+\begin{example}[The WB/ID boundary hazard --- a fourth hazard class]
+Chapter~7 claimed data, control, and structural hazards covered
+everything. The trap program exposed a fourth: a writer leaving the
+pipeline at WB on the same edge a reader latches its operands in ID.
+The regfile read \texttt{a1 = 0} one cycle too early, the
+\texttt{addi a1,a1,-1} computed \(-1\) instead of \(6\), and the loop
+ran 4\,038 times instead of 7. Fix, and the classic textbook answer:
+a write-bypass \emph{inside} the register file so a WB write is
+visible to a concurrent ID read (``write first''). One line each on
+\texttt{rd1}/\texttt{rd2} --- and it removed the hazard for every
+program, not just this one.
+\end{example}
+
+\begin{example}[The trap vector pointing at a data table]
+The first run of the new core went to 0x40 on \texttt{ecall} ---
+because the handler had been placed at byte 0x80 while
+\texttt{MTVEC} still said 0x40. The machine faithfully trapped
+into the middle of its own main program (executing a \texttt{bne}
+as if it were handler code) and never came back. The debugger showed
+\texttt{pc} frozen at 0x44 --- the \texttt{ecall}'s own address,
+re-trapped on every return because \texttt{mret} landed back on it.
+Two-line fix (0x40$\to$0x80), and a permanent lesson: a trap
+vector is an address like any other; getting it wrong produces the
+most confusing bug in the book --- a processor that is \emph{correct}
+about everything except where it jumps.
+\end{example}
+
+\section{What it costs in silicon}
+\label{sec:synth08}
+
+\input{figures/ch08/fig_synth.tex}
+
+The whole machine --- 5-stage pipelined RV32I core with forwarding,
+stall, flush, trap CSRs, plus the UART --- synthesises to roughly
+4\,000 cells on the GW1NR-LV9, about half its LUT budget. Compare
+with the 302-cell \texttt{cpu8} from the electronics book: the
+pipelining machinery costs an order of magnitude more logic, and buys
+the order of magnitude in clock rate back.
+
+\section{Common mistakes}
+\label{sec:mistakes08}
+
+\begin{itemize}
+\item \textbf{MMIO store eaten by silence.} A store to
+      0x10000000 while \texttt{busy} is high is dropped, not
+      queued. Check a status bit, or pace the writes.
+\item \textbf{\texttt{mret} to \texttt{mepc}, not \texttt{mepc}+4.}
+      Re-executes \texttt{ecall}: an infinite trap loop that looks,
+      in a wave viewer, like a machine ``stuck'' at one address.
+\item \textbf{Trap vector overlapping program code.} If the handler
+      region is not reserved, the trap entry jumps into the middle
+      of normal code --- the machine does nonsense very competently.
+\item \textbf{Forgetting that flush kills the trap's own fetch.} The
+      redirect takes effect on the \emph{next} fetch; the
+      instructions already in flight must be bubbled, or the handler
+      interleaves with dying main-code instructions.
+\item \textbf{Assuming the regfile boundary is free.} WB and ID
+      touch the same storage on the same edge; without an explicit
+      ordering (write-bypass, or write-first timing) it is a
+      data hazard that stalls cannot fix.
+\end{itemize}
+
+\section*{Further reading}
+\label{sec:fr08}
+\begin{itemize}
+\item Patterson \& Hennessy, \emph{Computer Organization and
+      Design}, RISC-V edition --- sections on exceptions and
+      memory-mapped IO (the canonical treatment this chapter follows).
+\item Harris \& Harris, \emph{Digital Design and Computer
+      Architecture, RISC-V ed.} --- the pipelined-processor chapter;
+      our core is a small honest version of theirs.
+\item The RISC-V Instruction Set Manual, Volume~II: Privileged
+      Architecture --- \texttt{mepc}, \texttt{mcause},
+      \texttt{mtvec} definitions we shrink to two registers.
+\item Ben Eater's video documentation of his 8-bit computer's output
+      register --- the same MMIO idea on a breadboard machine
+      (the Book~5 capstone's ancestor).
+\end{itemize}
+
+\begin{rulebox}[Watch instead]
+\begin{itemize}
+\item \textbf{Exceptions \& Interrupts} --- Computerphile
+      (YouTube, verified 2026-10-11): why traps exist at all, at the
+      right altitude for this chapter.
+      \url{https://youtu.be/FR4rmlkgwr4}
+\item \textbf{8-bit computer output register} --- Ben Eater
+      (YouTube, verified 2026-10-11): the memory-mapped output idea
+      on a real breadboard machine; the direct ancestor of our UART
+      hook. \url{https://youtu.be/9Ma3c8xZJk8}
+\end{itemize}
+\end{rulebox}
+
+\section*{Notes}
+\label{sec:notes08}
+\begin{itemize}
+\item Trap semantics follow the RISC-V privileged spec reduced to
+      two CSRs; the UART is the Book~5 capstone serialiser unchanged.
+\item All outputs are verbatim Icarus runs of the chapter's
+      testbench; both bug receipts in sec:receipts08 are real
+      session bugs, fixed in-tree.
+\end{itemize}
+
+\section{Summary}
+\label{sec:summary08}
+\begin{tabularx}{\linewidth}{@{}l X@{}}
+\toprule
+\textbf{Piece} & \textbf{What this chapter added} \\
+\midrule
+Trap entry  & \texttt{ecall}: \texttt{mepc}$\leftarrow$pc, pc$\leftarrow$0x80, flush \\
+Trap return & \texttt{mret}: pc$\leftarrow$\texttt{mepc}+4, flush \\
+MMIO        & address-compare turns \texttt{sw} into a device request \\
+UART        & 8N1 shift register, \texttt{busy} honest about collisions \\
+Regfile     & write-bypass: the fourth (WB/ID) hazard, fixed once \\
+Program     & \texttt{42K!} on a decoded wire: compute, IO, trap, return \\
+Cost        & $\approx$4k cells: pipelining bought speed at 10$\times$ logic \\
+\bottomrule
+\end{tabularx}
+
+% ------- exercises -------
+\section*{Exercises}
+\addcontentsline{toc}{section}{Exercises}
+\stepcounter{section}
+
+\begin{exercise}[easy]
+
+Write the three RV32I instructions a program needs to send byte
+0x41 (`A') to the UART, given that the base register already
+holds 0x10000000. What happens if the instruction immediately
+before it was also a UART store?
+\end{exercise}
+\begin{solution}[hint]
+One \texttt{li} plus one \texttt{sw}; the previous frame must
+have finished or the write is dropped.
+\end{solution}
+
+\begin{exercise}[easy]
+
+\texttt{mepc} currently stores the \texttt{ecall}'s address. What
+would you change if the handler needed to distinguish an
+\texttt{ecall} from an illegal instruction? Which CSR, which value?
+\end{exercise}
+\begin{solution}[hint]
+\texttt{mcause} exists but is never written a distinct code;
+assign one per trap source.
+\end{solution}
+
+\begin{exercise}[easy]
+
+Why does the trap-entry logic live in EX rather than ID in this
+core? What would break if it redirected the pc while the offending
+instruction was still in ID?
+\end{exercise}
+\begin{solution}[hint]
+Younger stages still carry the pre-trap instruction stream;
+the redirect must coincide with the flush.
+\end{solution}
+
+\begin{exercise}[easy]
+
+The UART has no receive side. Which two wires/registers would a
+receiver need that the transmitter does not have?
+\end{exercise}
+\begin{solution}[hint]
+A sampling clock at the bit rate and a byte-valid flag ---
+plus somewhere to buffer the byte.
+\end{solution}
+
+\begin{exercise}[medium]
+
+Our handler is at a fixed address. Sketch the pc-mux change for a
+\emph{vectored} trap where \texttt{mcause} selects among four
+handler addresses. Which existing block does most of the work?
+\end{exercise}
+\begin{solution}[hint]
+It is the same mux \texttt{jal}/branch already use --- one
+more input.
+\end{solution}
+
+\begin{exercise}[medium]
+
+Instrument the testbench to measure elapsed cycles from the
+\texttt{ecall} fetching to the handler's first useful instruction
+retiring. What is the trap latency in this design, in cycles, and
+which pipeline stage sets the floor?
+\end{exercise}
+\begin{solution}[hint]
+Count from the flush to the first handler writeback; EX-entry
+redirect + refill depth.
+\end{solution}
+
+\begin{exercise}[medium]
+
+Add a second MMIO device: a byte-wide output latch at
+0x10000004 driving eight LEDs. How many Verilog lines change?
+What class of bug appears if two MMIO addresses alias by accident?
+\end{exercise}
+\begin{solution}[hint]
+One more address compare; aliased ranges write both devices.
+\end{solution}
+
+\begin{exercise}[medium]
+
+The demo pads UART writes with a software delay loop. Design the
+polling version instead: a read of 0x10000004 returns
+\texttt{busy}. Which datapath piece must grow to support an MMIO
+\emph{read}?
+\end{exercise}
+\begin{solution}[hint]
+The load mux --- reads need a mux input just like stores need
+an address compare.
+\end{solution}
+
+\begin{exercise}[hard]
+
+Argue for or against: on a real RV32I, the trap-entry redirect
+should also record \texttt{mtval} (the faulting address/instruction).
+What goes wrong in our design without it, for a handler that wants
+to emulate the trapped instruction?
+\end{exercise}
+\begin{solution}[hint]
+Without the instruction bits or the bad address, emulation has
+nothing to emulate; the handler must decode \texttt{mepc}'s target
+itself --- possible, but doubles the work.
+\end{solution}
+
+\begin{exercise}[hard]
+
+We fixed the WB/ID hazard with a register-file bypass. An
+alternative is to write the regfile on the negedge of the clock.
+Compare the two: which buys the fix more cheaply, and which survives
+a timing-closed synthesis better? Defend a choice.
+\end{exercise}
+\begin{solution}[hint]
+Negedge writes halve the regfile's setup slack; the bypass is
+two muxes but keeps everything single-edge.
+\end{solution}
+
+\begin{exercise}[hard]
+
+Estimate the CPI cost of the demo program's two delay loops
+(60 iterations each) as a fraction of total program cycles, using
+the measured run (\(\approx\)770 cycles, four frames). How would a
+busy-poll loop change that accounting?
+\end{exercise}
+\begin{solution}[hint]
+Each delay iteration retires $\approx$2 instructions;
+busy-poll spins on a load---also $\approx$2--3 per poll, but
+self-terminating.
+\end{solution}
+
+\begin{exercise}[hard]
+
+The core has no interrupt line --- nothing can trap it from outside.
+Describe the minimal external interrupt mechanism (one pin, one
+pending bit) and where in the pipeline you would sample it. Why is
+``sample between instructions'' easier said than done?
+\end{exercise}
+\begin{solution}[hint]
+You need a point where the pipeline drains cleanly; sampling
+in EX like \texttt{ecall} works if the pin is level-sensitive and
+the handler disables re-entry.
+\end{solution}
+

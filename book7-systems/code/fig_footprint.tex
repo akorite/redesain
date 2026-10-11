@@ -1,0 +1,20 @@
+\begin{tikzpicture}[font=\scriptsize, >=latex]
+% footprint panel: same part, three packages
+\node[font=\small\bfseries] at (4.6,4.8) {one resistor, three bodies};
+\foreach \x/\nm/\s in {0.6/{0402}/{1.0x0.5mm},4.4/{0805}/{2.0x1.25mm},8.2/{axial}/{through-hole}}{
+  \draw[thick, fill=graybg] (\x,2.6) rectangle (\x+2.8,4.2);
+}
+\draw[fill=accentsoft] (1.4,3.3) rectangle (2.0,3.5);
+\draw[fill=accentsoft] (5.2,3.2) rectangle (6.4,3.6);
+\draw[thick] (8.5,3.4) -- (9.9,3.4);
+\draw[fill=accentsoft] (9.0,3.2) rectangle (10.0,3.6);
+\draw[thick] (10.0,3.4) -- (11.0,3.4);
+\node[align=center] at (2.0,2.9) {0402\\(tweezers)};
+\node[align=center] at (5.8,2.9) {0805\\(our pick --- hand-solderable)};
+\node[align=center] at (9.7,2.9) {axial\\(through-hole, biggest)};
+\node[align=left, text=slate, text width=10.5cm] at (5.3,1.7)
+{Footprint $\neq$ value: the schematic says ``1\,k$\Omega$,'' the
+footprint says how much board it sits on. We stay at 0805 and
+through-hole for everything on this board --- hand-solderable,
+hand-fixable, and big enough to read.};
+\end{tikzpicture}

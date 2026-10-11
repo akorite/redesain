@@ -1,0 +1,19 @@
+\begin{figure}[htbp]
+\centering
+\begin{tabular}{lll}
+\toprule
+symbol & meaning & our sim values \\
+\midrule
+$S$ & sets          & 32 or 64 \\
+$E$ & lines per set (ways) & 1--8 \\
+$B$ & block (line) bytes   & 64 \\
+\midrule
+$C$ & capacity $=S\cdot E\cdot B$ & 128--256\,KB model \\
+\bottomrule
+\end{tabular}
+\caption{Cache anatomy in three parameters. $C=S\times E\times B$ is
+the only equation the chapter needs: geometry questions are
+bookkeeping, performance questions are about what these parameters
+do to miss types.}
+\label{fig:anatomy10}
+\end{figure}

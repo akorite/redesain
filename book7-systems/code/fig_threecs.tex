@@ -1,0 +1,17 @@
+\begin{figure}[htbp]
+\centering
+\begin{tabular}{lll}
+\toprule
+miss type & cause & the fix it suggests \\
+\midrule
+compulsory & first touch ever & prefetch, larger lines \\
+capacity   & working set $>$ $C$ & shrink the set (tile), bigger cache \\
+conflict   & too many lines to one set & associativity, layout/padding \\
+\bottomrule
+\end{tabular}
+\caption{The three Cs. Classify the miss before fixing it: the
+chapter's E-sweep shows capacity dominating (assoc barely helps);
+the block-16 regression shows capacity's other face --- a tile
+bigger than the cache behaves worse than no tile.}
+\label{fig:threecs10}
+\end{figure}

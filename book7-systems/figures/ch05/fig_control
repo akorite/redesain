@@ -1,0 +1,18 @@
+\setlength{\tabcolsep}{3pt}
+\begin{tabularx}{\linewidth}{@{}l c c c c c c X@{}}
+\multicolumn{8}{l}{\footnotesize\bfseries Control truth table (the decoder, as a table)}\\[2pt]
+\toprule
+insn & regwrite & alusrc & memread & memwrite & wbsel & branch/jump & aluop \\
+\midrule
+R-type (add\ldots) & 1 & 0 & 0 & 0 & alu & -- & f7,f3 \\
+I-type (addi\ldots) & 1 & 1 & 0 & 0 & alu & -- & f3 \\
+lw & 1 & 1 & 1 & 0 & mem & -- & add \\
+sw & 0 & 1 & 0 & 1 & -- & -- & add \\
+beq/bne & 0 & 0 & 0 & 0 & -- & branch & sub \\
+lui & 1 & 1 & 0 & 0 & immU & -- & -- \\
+jal & 1 & -- & 0 & 0 & pc+4 & jump & -- \\
+\bottomrule
+\multicolumn{8}{p{0.92\linewidth}}{\scriptsize Every row of
+\texttt{ch05\_rv32i\_decode.v} is one line of this table --- the
+table IS the design.}
+\end{tabularx}

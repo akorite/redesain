@@ -1,0 +1,27 @@
+\begin{tikzpicture}[font=\scriptsize, >=latex]
+% flops view (left)
+\node[font=\small\bfseries] at (1.7,6.4) {as flops (what you wrote)};
+\foreach \i in {0,...,3}{
+  \pgfmathsetmacro{\y}{5.6-\i*1.1}
+  \draw[thick, fill=graybg] (0.4,\y) rectangle (2.4,\y+0.8);
+  \node at (1.4,\y+0.4) {8$\times$DFF};
+}
+\node[align=center, text=slate] at (1.4,0.9) {16 cells $\times$ 8 bits\\= up to 128 flops};
+\draw[->, thick, slate] (3.2,3.0) -- (4.4,3.0);
+% BRAM view (right)
+\node[font=\small\bfseries] at (6.6,6.4) {as BRAM (what synthesis saw)};
+\draw[thick, fill=goodbg] (4.6,1.8) rectangle (8.6,5.8);
+\node[align=center] at (6.6,4.4) {\texttt{RAM16SDP4}};
+\node[align=center, font=\tiny, text=slate] at (6.6,3.5) {simple dual-port\\1 write + 1 read port\\per cell};
+\draw[->, thick] (3.8,4.6) -- (4.6,4.6) node[pos=-0.1, left]{\texttt{waddr,we}};
+\draw[->, thick] (3.8,2.2) -- (4.6,2.2) node[pos=-0.1, left]{\texttt{raddr}};
+\draw[->, thick, accent] (8.6,4.6) -- (9.4,4.6) node[right]{\texttt{wdata}};
+\node[align=center, text=slate] at (6.6,0.9) {LUT fabric, not a flop file\\--- but still only 16x4 bits};
+\node[align=center, text=slate, text width=9.5cm] at (4.8,-0.4) {Real
+synth numbers: \texttt{regfile8} (two \emph{asynchronous} reads) $\to$
+4$\times$\texttt{RAM16SDP4} distributed-RAM cells; \texttt{ram16}
+(synchronous write \emph{and} read) $\to$ 2$\times$\texttt{RAM16SDP4}
+plus 8 DFFs --- the output register is the extra flops. True block
+BRAM needs the synchronous shape \emph{and} enough bits to be worth
+the tile.};
+\end{tikzpicture}

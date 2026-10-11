@@ -1,0 +1,14 @@
+\begin{tabularx}{\linewidth}{@{}l c c X@{}}
+\multicolumn{4}{l}{\footnotesize\bfseries Hazard scoreboard --- what
+each fix covers}\\[2pt]
+\toprule
+hazard & fix & cost & left over \\
+\midrule
+ALU $\to$ ALU & forward EX/MEM, MEM/WB & 0 bubbles & none \\
+load $\to$ use & stall 1 + forward & 1 bubble & the bubble \\
+store data & forward to MEM wdata & 0 & none \\
+branch & predict-not-taken + flush & 2 slots on miss & the flush \\
+\bottomrule
+\multicolumn{4}{p{0.95\linewidth}}{\scriptsize Every row was
+measured on the book's core, not asserted.}
+\end{tabularx}
