@@ -26,3 +26,8 @@ Plus a **silent-author-defect class**: chapters repeatedly shipped without `\inp
 - "Verify-before-resolve": coordinator greps every claimed fix in the landed file — authors have twice claimed fixes that weren't in the file.
 - Verbatim-spec fixes for math errors beat round-trip re-reviews: reviewer writes the replacement text, coordinator applies + greps.
 - A deferred-nit batch per book keeps per-chapter latency low without losing the fixes.
+
+## cp ch16/17 review cycle (2026-10-11)
+- **Caught:** dead cp-algorithms FR link (`nearest-points` → correct slug `nearest_points`) — found by the reviewer's live curl check (404 vs 200), not by reading. Confirms live-checking FR/Watch items catches what eyeballing misses.
+- **Process gap:** book2's first cp-review pass worked on a STALE package (md5-identical re-verify) instead of the owed ch16/17 — cost a full cycle. Fix applied: dedicated minimal package containing ONLY the files under review (ch16/17 + their figures + context docs), which removed ambiguity about what "current" meant.
+- **Label-only drift:** the reviewer noted earlier-vs-current diffs were label-only (USACO-B/CF abbreviations) and correctly accepted prior full test-runs instead of re-running — good reviewer judgement, keep this pattern.
