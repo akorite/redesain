@@ -1,0 +1,17 @@
+\begin{center}
+\begin{tabularx}{0.9\linewidth}{lXXr}
+\toprule
+\textbf{C type} & \textbf{LP64 (Linux, macOS arm64)}
+                & \textbf{ILP32 (RV32, Win32)} & \textbf{bits} \\
+\midrule
+\texttt{char}        & 1 & 1 & 8 \\
+\texttt{short}       & 2 & 2 & 16 \\
+\texttt{int}         & 4 & 4 & 32 \\
+\texttt{long}        & 8 & 4 & 64 / 32 \\
+\texttt{long long}   & 8 & 8 & 64 \\
+\texttt{float}       & 4 & 4 & 32 \\
+\texttt{double}      & 8 & 8 & 64 \\
+\texttt{void *}      & 8 & 4 & 64 / 32 \\
+\bottomrule
+\end{tabularx}
+\end{center}

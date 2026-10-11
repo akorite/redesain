@@ -1,0 +1,456 @@
+\chapter{RV32I assembly I: arithmetic, memory, control}
+\label{ch:03}
+
+Chapter~2 showed that the machine sees only bytes. This chapter shows
+what it \emph{does} with them: the 37 instructions of RV32I, the base
+RISC-V integer set --- and the instruction set your capstone CPU will
+execute for real in chapters 5--8. Everything here is concrete: a small
+assembler you can read end-to-end encodes each program to real hex, a
+small interpreter runs it, and every number in the chapter comes from
+that run --- not from a datasheet summary. If you can write a loop in
+this chapter's notation, you can read the disassembly of any program
+your laptop runs.
+
+\index{RV32I}\index{assembly language}\index{register file}%
+\index{ABI names}\index{instruction encoding}\index{R-type}%
+\index{I-type}\index{S-type}\index{B-type}\index{U-type}\index{J-type}%
+\index{pseudoinstruction}\index{branch}\index{load}\index{store}
+
+\section{The register file and the ABI names}
+\label{sec:regs03}
+
+\index{x0}\index{zero register}
+Thirty-two registers, \texttt{x0}--\texttt{x31}, each 32 bits --- the
+same file shape as your cpu8's, just wider and deeper. Two of them are
+special by hardware: \texttt{x0} is hardwired to zero (writes to it are
+silently discarded, which is why \texttt{mv rd, rs} is really
+\texttt{addi rd, rs, 0} and \texttt{nop} is really
+\texttt{addi x0, x0, 0}). The rest are general-purpose by hardware but
+assigned jobs by convention --- the ABI names you will see in every
+disassembly:
+
+\begin{figure}[htbp]
+\centering
+\input{figures/ch03/fig_regs.tex}
+\caption{The RV32I register file with ABI conventions. Programs obey
+the hardware; \emph{programmers} obey this table so calls compose.}
+\label{fig:regs03}
+\end{figure}
+
+\begin{principle}
+The ABI names are a contract between functions, not hardware.
+\texttt{a0}--\texttt{a7} carry arguments and return values;
+\texttt{t0}--\texttt{t6} are temporaries a callee may trash;
+\texttt{s0}--\texttt{s11} a callee must preserve. ch4 makes the stack
+discipline formal; for now: use \texttt{t}-names inside one function
+and the world stays simple.
+\end{principle}
+
+\section{Six formats, one discipline}
+\label{sec:formats03}
+
+\index{opcode}\index{funct3}\index{funct7}\index{immediate}
+Every RV32I instruction is 32 bits --- fixed width, no exceptions ---
+carved into six layouts. The carving is deliberately regular: register
+fields (\texttt{rd}, \texttt{rs1}, \texttt{rs2}), the function selector
+\texttt{funct3}, and the 7-bit \texttt{opcode} keep the same bit
+positions across every format they appear in. Only the immediate bits
+move, and even they preserve their internal order. That regularity is
+not elegance for its own sake --- it is what lets a decoder be a few
+hundred gates rather than a table lookup.
+
+\begin{figure}[htbp]
+\centering
+\input{figures/ch03/fig_formats.tex}
+\caption{The six encoding formats. Green = destination, blue =
+source/opcode, grey = immediate fields.}
+\label{fig:formats03}
+\end{figure}
+
+\begin{example}[Hand-assemble, then verify against the real assembler]
+\label{ex:asm03}
+\texttt{addi a0, a0, 1}: I-type, imm=1, rs1=\texttt{a0}=x10,
+\texttt{f3}=0, rd=x10, op=\texttt{0x13} ---
+$1\ll20 \mid 10\ll15 \mid 10\ll7 \mid \texttt{0x13}
+= \texttt{0x00150513}$. The book's assembler
+(\texttt{code/ch03\_rv32asm.py}, a 40-line Python RV32I assembler)
+produces the same word --- real output on the five-format smoke test:
+
+\begin{lstlisting}[basicstyle=\ttfamily\scriptsize]
+00000000: 00150513   # addi a0, a0, 1
+00000004: 00b50863   # beq a0, a1, done
+00000008: 00b53633   # add a2, a0, a1
+0000000c: 00812683   # lw a3, 8(sp)
+00000010: 00d12623   # sw a3, 12(sp)
+00000014: 00000013   # nop
+\end{lstlisting}
+
+Check \texttt{beq} by hand: B-type needs the offset $16$ (bytes, in
+2-byte units in the encoding: imm=16). The assembler computed
+\texttt{done}-pc = $0x14-0x04 = 16$ --- and the encoding
+\texttt{0x00b50863} decomposes to exactly that.
+\end{example}
+
+\begin{tripwire}[Pseudoinstructions are lies you tell on purpose]
+\texttt{li}, \texttt{mv}, \texttt{nop}, \texttt{j}, \texttt{ret},
+\texttt{bgt} --- none exist in hardware. The assembler expands each to
+a real instruction (\texttt{li t0,1} $\to$ \texttt{addi t0,x0,1}). That
+is friendly until debugging shows \texttt{nop} where you wrote a
+pseudoinstruction, or \texttt{li} becomes two instructions for a big
+constant. Read the listing, not the source.
+\end{tripwire}
+
+\section{Loads, stores and addressing}
+\label{sec:ldst03}
+
+\index{base+offset addressing}
+RV32I has exactly one addressing mode: \emph{base register $+$
+sign-extended 12-bit immediate} --- \texttt{lw rd, off(rs1)} and
+\texttt{sw rs2, off(rs1)}. There is no scaled index, no auto-increment,
+no memory-to-memory op. Walking an array is two instructions: the load,
+and the pointer bump. That austerity is deliberate: one mode keeps the
+address adder single, and the ALU does everything else.
+
+\begin{figure}[htbp]
+\centering
+\input{figures/ch03/fig_ldst.tex}
+\caption{The single addressing mode: register $+$ 12-bit immediate.}
+\label{fig:ldst03}
+\end{figure}
+
+\begin{example}[An array sum, real output]
+\label{ex:arrsum03}
+\texttt{code/ch03\_arrsum.S} stores \{1,2,3,4,5\} at \texttt{0x100},
+then walks it: \texttt{lw t4, 0(t0)} / \texttt{addi t0,t0,4} per
+element. The interpreter (\texttt{ch03\_rv32sim.py}, a $\sim$60-line
+RV32I simulator with a memory-mapped output register at
+\texttt{0x10000000} --- the same trick Book~5 ch16's UART used) runs
+the assembled words and prints the real result:
+
+\begin{lstlisting}[basicstyle=\ttfamily\scriptsize]
+15
+# 56 instructions retired
+\end{lstlisting}
+\end{example}
+
+\begin{checkpoint}
+After \texttt{lw t4, 4(t0)} with \texttt{t0=0x100}, which byte
+addresses are read, and what changes if you wrote \texttt{lb} instead?
+\end{checkpoint}
+\begin{solution}
+\texttt{lw} reads \texttt{0x104}--\texttt{0x107} (one aligned word).
+\texttt{lb} reads only \texttt{0x104} and sign-extends its byte ---
+same base, different width, different sign rule.
+\end{solution}
+
+\section{Branches and comparisons}
+\label{sec:branch03}
+
+\index{conditional branch}
+Six conditional branches: \texttt{beq}, \texttt{bne}, \texttt{blt},
+\texttt{bge}, \texttt{bltu}, \texttt{bgeu} --- compare two registers,
+jump by a signed immediate if true. There is no flags register: the
+compare happens inside the branch, and the ``set'' pseudo-ops
+(\texttt{slt}, \texttt{sltu}) exist only when you need the boolean as
+data. Each branch is one decision: taken $\to$ \texttt{pc $+$ imm},
+not taken $\to$ \texttt{pc $+$ 4}.
+
+\begin{figure}[htbp]
+\centering
+\input{figures/ch03/fig_pcnext.tex}
+\caption{A branch picks the next pc: $+4$ or $+$imm --- one mux.}
+\label{fig:pcnext03}
+\end{figure}
+
+\begin{example}[\texttt{max(17, 42)} with \texttt{bge}]
+\label{ex:max03}
+\texttt{code/ch03\_max.S}: if \texttt{a0 $\geq$ a1} the answer is
+\texttt{a0}, else \texttt{a1}. The branch is one instruction; the
+interpreter's run:
+
+\begin{lstlisting}[basicstyle=\ttfamily\scriptsize]
+42
+# 27 instructions retired
+\end{lstlisting}
+\end{example}
+
+\begin{checkpoint}
+In \texttt{bge t2, t0, loop} at \texttt{pc=0x14} with \texttt{t2=10},
+\texttt{t0=5}: is the branch taken, and to which pc?
+\end{checkpoint}
+\begin{solution}
+Taken: $10 \geq 5$, so \texttt{pc} becomes $0x14 + (-8) = 0x0c$ ---
+the loop header.
+\end{solution}
+
+\section{Assembler directives and running it}
+\label{sec:run03}
+
+\index{directives}\index{CPUlator}
+Directives are instructions to the assembler, not to the machine:
+\texttt{.text}/\texttt{.data} pick the section, \texttt{.word}/\texttt{.byte}
+plant data, \texttt{.globl} exports a symbol, labels name addresses.
+The chapter's programs print through a memory-mapped output register,
+which is what a bare-metal UART driver looks like before an OS arrives.
+Two ways to run the same bytes: \textbf{CPUlator} (browser, free) draws
+the register file and memory live while single-stepping ---
+Figure~\ref{fig:cpulator03} maps its panels; and the book's own
+\texttt{ch03\_rv32sim.py} runs the identical words headless (all
+outputs in this chapter are from it). Spike is the canonical
+command-line emulator; either way the bytes are the same.
+
+\begin{figure}[htbp]
+\centering
+\input{figures/ch03/fig_cpulator.tex}
+\caption{CPUlator's four panels, schematically. Described, not
+captured --- the tool is a browser app.}
+\label{fig:cpulator03}
+\end{figure}
+
+\subsection{Measurement: dynamic instruction count}
+\label{sec:measure03}
+
+The same sum-1..10 loop written two ways: register variables vs the
+``$-O0$ habit'' of keeping \texttt{i} and \texttt{s} in memory. Real
+counts from \texttt{ch03\_rv32sim.py}:
+
+\begin{lstlisting}[basicstyle=\ttfamily\scriptsize]
+memory-bound (i, s in RAM):     110 instructions retired
+register version (i, s in t0/t1): 57 instructions retired
+\end{lstlisting}
+
+\begin{figure}[htbp]
+\centering
+\input{figures/ch03/fig_insn.tex}
+\caption{Real dynamic counts: registers vs memory for the same loop.}
+\label{fig:insn03}
+\end{figure}
+
+Predicted $\sim$2$\times$ before running (3-instr loop body vs
+7-instr); measured $110/57 = 1.93\times$. The gap is the loads and
+stores themselves: memory-keeping adds \texttt{lw}/\texttt{sw} traffic
+that computes nothing --- bookkeeping billed as instructions. That is
+the -O0/-O2 difference you will meet in ch4, visible here without a
+compiler.
+
+\begin{wins}
+\begin{itemize}
+\item You can read any RV32I line and name its format, its fields and
+its effect --- and write the 32-bit word for a handful of them.
+\item You know the register file's two contracts: hardware
+(\texttt{x0}=0) and ABI (\texttt{a}-args, \texttt{t}-temps,
+\texttt{s}-saved).
+\item You can trace a loop's pc through a branch and predict the next
+fetch.
+\item You can run RV32I here (book simulator) or in the browser
+(CPUlator) and count what it costs.
+\item You can point at an instruction stream and say which 4 bytes the
+CPU will fetch next, and why.
+\end{itemize}
+\end{wins}
+
+\section{Common mistakes}
+\label{sec:mistakes03}
+
+\begin{itemize}
+  \item \textbf{Counting pseudoinstructions.} \texttt{li}/\texttt{mv}/
+        \texttt{nop} are sugar: what retires is the expansion. Dynamic
+        counts only see real instructions.
+  \item \textbf{Forgetting \texttt{x0} eats writes.}
+        \texttt{addi x0, x5, 0} does nothing; the register file is
+        honest that way.
+  \item \textbf{Immediates are 12 bits.} \texttt{addi t0, t0, 4096}
+        won't assemble --- big constants need \texttt{lui}$+$\texttt{addi}
+        or \texttt{li} (which expands).
+  \item \textbf{Branches move the pc, not flags.} There is no carry
+        flag to ``check'' --- each branch recomputes its compare.
+  \item \textbf{\texttt{lw} where \texttt{lb} belonged.} Byte vs word
+        is a correctness issue on packed data, not a performance one.
+  \item \textbf{``Memory ops are free.''} The 110-vs-57 measurement is
+        the counterexample: the tax is the instruction count itself.
+\end{itemize}
+
+\section*{Exercises}
+\label{sec:exercises03}
+\addcontentsline{toc}{section}{Exercises}
+
+\begin{exercise}\label{ex:e03a}
+\texttt{addi x0, x5, 0} --- what does this write, and why is it a
+useful instruction anyway?
+\end{exercise}
+\begin{solution}[hint]
+Nothing: \texttt{x0} discards writes. It's \texttt{nop} --- a 4-byte
+``do nothing'' that real pipelines need.
+\end{solution}
+
+\begin{exercise}\label{ex:e03b}
+\texttt{lw a0, 8(sp)} decodes to \texttt{0x00812503}? Verify or
+correct, field by field.
+\end{exercise}
+\begin{solution}[hint]
+I-type: imm=8$\ll$20=\texttt{0x00800000}; rs1=\texttt{sp}=x2$\ll$15;
+f3=2; rd=\texttt{a0}=x10$\ll$7; op=\texttt{0x03}. The shown word is
+right.
+\end{solution}
+
+\begin{exercise}\label{ex:e03c}
+In the register/ABI table: which two register groups may a callee
+freely destroy, and which must it restore?
+\end{exercise}
+\begin{solution}[hint]
+Caller-saved: \texttt{t0}--\texttt{t6} (and args). Callee-saved:
+\texttt{s0}--\texttt{s11}. The \texttt{t}/\texttt{s} split is the
+whole discipline.
+\end{solution}
+
+\begin{exercise}\label{ex:e03d}
+\texttt{beq} targets are limited to about $\pm4$~KB. Why, and what
+real instruction escapes the limit?
+\end{exercise}
+\begin{solution}[hint]
+B-type holds a 13-bit signed byte offset. Long jumps use \texttt{jal}
+(J-type, $\pm1$~MB) or \texttt{jalr} (register-indirect, anywhere).
+\end{solution}
+
+\begin{exercise}\label{ex:m03a}
+Hand-decode \texttt{0xfe53dce3} (the loop branch) into fields and
+offset.
+\end{exercise}
+\begin{solution}[hint]
+B-type; f3=5 (\texttt{bge}); imm bits give $-8$; rs1=\texttt{t2},
+rs2=\texttt{t0}. At \texttt{pc=0x14} the target is \texttt{0x0c}.
+\end{solution}
+
+\begin{exercise}\label{ex:m03b}
+The array-sum walks words with \texttt{addi t0,t0,4}. Rewrite one
+iteration to use the immediate instead of the pointer bump, and name
+the trade-off.
+\end{exercise}
+\begin{solution}[hint]
+\texttt{lw t4, 4(t0)}... unrolls offsets but keeps the base fixed ---
+fewer instructions per element, more code bytes, and it caps at
+imm=2048 words. Classic size-vs-count trade.
+\end{solution}
+
+\begin{exercise}\label{ex:m03c}
+\texttt{slt a0, a1, a2} is ``set if less-than''. Write the two-line
+sequence that implements \texttt{max} \emph{without} any branch.
+\end{exercise}
+\begin{solution}[hint]
+\texttt{slt t0, a0, a1} then select: branchless needs arithmetic on
+the flag (\texttt{sub}/mask trick) or a conditional move RV32I
+doesn't have --- branchless \texttt{max} on base RV32I costs a
+multiply or a bit-trick; name it.
+\end{solution}
+
+\begin{exercise}\label{ex:m03d}
+The memory-bound loop runs 7 instructions per iteration. Count them
+from the listing and identify which two are pure bookkeeping.
+\end{exercise}
+\begin{solution}[hint]
+lw i, lw s, add, sw s, addi i, sw i, bge = 7. The two
+\texttt{sw}s (and arguably the \texttt{lw}s) compute nothing ---
+they only persist state registers would have held for free.
+\end{solution}
+
+\begin{exercise}\label{ex:m03e}
+\texttt{li a7, 0x10000000} won't fit \texttt{addi}. Write the
+two-instruction reality the assembler expands to.
+\end{exercise}
+\begin{solution}[hint]
+\texttt{lui a7, 0x10000} $+$ \texttt{addi a7, a7, 0} --- U-type
+plants the top 20 bits, I-type patches the bottom 12.
+\end{solution}
+
+\begin{exercise}[hard]\label{ex:h03a}
+Implement \texttt{strlen}, \texttt{memcpy} and \texttt{memset} in
+RV32I and self-check on the book simulator: fill a buffer, copy it,
+measure it, print the length.
+\end{exercise}
+\begin{solution}[hint]
+All three are the same loop skeleton: \texttt{lb}/\texttt{sb} plus a
+pointer bump and a compare. \texttt{strlen} counts until 0;
+\texttt{memcpy} copies until $n$; \texttt{memset} fills until $n$.
+Watch for the NUL byte in the length count.
+\end{solution}
+
+\begin{exercise}[hard]\label{ex:h03b}
+Extend \texttt{ch03\_rv32asm.py} with \texttt{jal}/\texttt{jalr}
+(the J-type format). Encode \texttt{jal ra, +8} and decode it back.
+\end{exercise}
+\begin{solution}[hint]
+J-type packs the immediate in bit-order pieces like B but shifted;
+the adder-tree trick is the same. Verify $+8$ lands in the right
+fields.
+\end{solution}
+
+\begin{exercise}[hard]\label{ex:h03c}
+Write a program that prints the first 10 Fibonacci numbers on the
+book simulator's MMIO output. Count retired instructions for the
+register version vs a memory version.
+\end{exercise}
+\begin{solution}[hint]
+Fib($n$)=Fib($n{-}1$)+Fib($n{-}2$) needs two live registers and one
+temp per step --- the register win is bigger than the sum loop's
+because there are no array loads at all.
+\end{solution}
+
+\section*{Summary}
+\label{sec:summary03}
+\addcontentsline{toc}{section}{Summary}
+
+\begin{center}
+\begin{tabularx}{\linewidth}{lX}
+\toprule
+\textbf{Idea} & \textbf{One-line version} \\
+\midrule
+register file & 32$\times$32; \texttt{x0}=0; ABI names split caller-/
+callee-saved \\
+six formats & rd/rs/f3/op fixed; only immediate fields shuffle \\
+addressing & one mode: reg $+$ 12-bit signed immediate \\
+branches & compare+offset in one; pc $+$ 4 or pc $+$ imm \\
+pseudoinstructions & sugar; count the expansion, not the line \\
+measurement & memory-bound loop: 110 vs 57 retired --- the -O0 tax \\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+\section*{Further reading}
+\label{sec:fr03}
+\addcontentsline{toc}{section}{Further reading}
+
+\begin{itemize}
+  \item RISC-V unprivileged ISA specification --- the authoritative
+        encoding tables this chapter compresses.
+        \url{https://riscv.org/specifications/}
+  \item Hennessy \& Patterson, \emph{Computer Organization and Design},
+        RISC-V edition, ch.\,2 --- the classic ISA walk-through.
+  \item Bryant \& O'Hallaron, \emph{CS:APP}, ch.\,3 --- structure of
+        machine code (x86, but the ideas transfer).
+  \item CPUlator (browser RISC-V simulator) --- run every program in
+        this chapter interactively.
+        \url{https://cpulator.01xz.net/}
+  \item Spike (RISC-V ISA simulator) --- the canonical command-line
+        reference implementation.
+        \url{https://github.com/riscv-software-src/riscv-isa-sim}
+\end{itemize}
+
+\section*{Watch instead}
+\label{sec:watch03}
+\addcontentsline{toc}{section}{Watch instead}
+
+\begin{rulebox}
+\textbf{Watch instead.}
+\begin{itemize}
+  \item ``DDCA Ch6 --- Part 2: RISC-V Instructions'' --- Sarah
+        Harris, 2:48. The instructions-first pitch that matches this
+        chapter's structure; the book's own DDCA source, on camera.
+        \url{https://youtu.be/SdjPQtMPPmo}
+  \item ``RISC-V Assembly Hello World (Part 1)'' --- LaurieWired,
+        11:42. A first full program assembled and run --- the same
+        journey ch03\_sum.S takes on the book's simulator.
+        \url{https://youtu.be/0IeOaiKszLk}
+\end{itemize}
+\end{rulebox}
+
+\chapternotes

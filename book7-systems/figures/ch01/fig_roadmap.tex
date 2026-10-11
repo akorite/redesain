@@ -1,0 +1,28 @@
+\begin{tikzpicture}[font=\scriptsize, >=latex]
+% book map
+\foreach \x/\t/\d in {
+  0.2/{Part I (ch1--4)}/{source $\to$ machine code},
+  3.4/{Part II (ch5--8)}/{the RV32I capstone},
+  6.6/{Part III (ch9--11)}/{memory hierarchy}}{
+  \draw[thick, fill=accentsoft] (\x,3.4) rectangle (\x+2.9,4.8);
+  \node[align=center, font=\footnotesize] at (\x+1.45,4.4) {\t};
+  \node[align=center, font=\tiny] at (\x+1.45,3.9) {\d};
+}
+\foreach \x/\t/\d in {
+  1.8/{Part IV (ch12--14)}/{the OS: processes, files},
+  5.0/{Part V (ch15--17)}/{performance craft},
+  8.2/{Part VI (ch18)}/{runtimes}}{
+  \draw[thick, fill=graybg] (\x,1.6) rectangle (\x+2.9,3.0);
+  \node[align=center, font=\footnotesize] at (\x+1.45,2.6) {\t};
+  \node[align=center, font=\tiny] at (\x+1.45,2.1) {\d};
+}
+\draw[->, thick] (3.1,4.1) -- (3.4,4.1);
+\draw[->, thick] (6.3,4.1) -- (6.6,4.1);
+\draw[->, thick] (7.9,3.4) -- (6.8,3.0);
+\draw[->, thick] (4.7,3.0) -- (4.0,3.4);
+\draw[->, thick] (6.5,3.0) -- (6.6,3.4);
+\node[align=left, text=slate, text width=10cm] at (5.2,0.6)
+{The path this chapter starts: build the real machine around the
+toy CPU you already made, then measure what the folklore got
+wrong.};
+\end{tikzpicture}

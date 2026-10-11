@@ -1,0 +1,19 @@
+\begin{tikzpicture}[font=\scriptsize, >=latex]
+% array vs pointer codegen
+\draw[thick, fill=accentsoft] (0.3,2.8) rectangle (4.6,4.6);
+\node[font=\footnotesize] at (2.45,4.2) {\ttfamily int a[4]};
+\node[align=left, font=\tiny, text width=3.9cm] at (2.45,3.4)
+  {\texttt{a[i]} $\to$ base $+$ i$\times$4,\\
+   one load from a fixed offset ---\\
+   the array \emph{is} its address};
+\draw[thick, fill=graybg] (5.5,2.8) rectangle (9.8,4.6);
+\node[font=\footnotesize] at (7.65,4.2) {\ttfamily int *p};
+\node[align=left, font=\tiny, text width=3.9cm] at (7.65,3.4)
+  {\texttt{p[i]} $\to$ load p first,\\
+   then base $+$ i$\times$4 ---\\
+   two memory trips where the array needed one};
+\node[align=left, text=slate, text width=10cm] at (5.05,2.0)
+  {``Arrays are pointers'' is a half-truth: the array's address is
+   compile-time, the pointer's is runtime --- the generated code keeps
+   the receipt.};
+\end{tikzpicture}

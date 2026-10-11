@@ -1,0 +1,17 @@
+\begin{center}
+\begin{tabularx}{0.95\linewidth}{llX}
+\toprule
+\textbf{ABI name} & \textbf{x-name} & \textbf{Job} \\
+\midrule
+\texttt{zero} & x0 & wired to 0 --- the register that isn't \\
+\texttt{ra} & x1 & return address \\
+\texttt{sp} & x2 & stack pointer \\
+\texttt{gp}, \texttt{tp} & x3, x4 & globals, thread pointer \\
+\texttt{t0}--\texttt{t2} & x5--x7 & temporaries (caller-saved) \\
+\texttt{s0}/\texttt{fp}, \texttt{s1} & x8, x9 & saved / frame pointer \\
+\texttt{a0}--\texttt{a7} & x10--x17 & args + return values \\
+\texttt{s2}--\texttt{s11} & x18--x27 & saved (callee-saved) \\
+\texttt{t3}--\texttt{t6} & x28--x31 & more temporaries \\
+\bottomrule
+\end{tabularx}
+\end{center}

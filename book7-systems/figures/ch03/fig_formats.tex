@@ -1,0 +1,22 @@
+\begin{tikzpicture}[font=\tiny, >=latex]
+% six formats: each row = name + six labelled boxes
+\newcommand{\fmtrow}[8]{%
+  \node[anchor=east, font=\scriptsize\bfseries] at (0.5,#1) {#2};
+  \draw[thick, fill=graybg]     (0.6,#1-0.27) rectangle ++(1.55,0.55) node[midway]{#3};
+  \draw[thick, fill=accentsoft] (2.15,#1-0.27) rectangle ++(1.55,0.55) node[midway]{#4};
+  \draw[thick, fill=accentsoft] (3.7,#1-0.27) rectangle ++(1.55,0.55) node[midway]{#5};
+  \draw[thick, fill=graybg]     (5.25,#1-0.27) rectangle ++(1.55,0.55) node[midway]{#6};
+  \draw[thick, fill=goodbg]     (6.8,#1-0.27) rectangle ++(1.55,0.55) node[midway]{#7};
+  \draw[thick, fill=accentsoft] (8.35,#1-0.27) rectangle ++(1.55,0.55) node[midway]{#8};}
+\fmtrow{5.0}{R}{f7}{rs2}{rs1}{f3}{rd}{op}
+\fmtrow{4.0}{I}{imm[11:0]}{}{rs1}{f3}{rd}{op}
+\fmtrow{3.0}{S}{imm[11:5]}{rs2}{rs1}{f3}{imm[4:0]}{op}
+\fmtrow{2.0}{B}{imm[12|10:5]}{rs2}{rs1}{f3}{imm[4:1|11]}{op}
+\fmtrow{1.0}{U}{imm[31:12]}{}{}{}{rd}{op}
+\fmtrow{0.0}{J}{imm[20|10:1|11|19:12]}{}{}{}{rd}{op}
+\node[align=left, text=slate, text width=10cm] at (5.2,-0.8)
+  {Same 32 bits, six layouts. Notice the discipline: rd, rs1, rs2, f3
+   and opcode sit in the same places in every format --- only the
+   immediate fields move, and even they keep their bit order. The
+   encoding exists to make the decoder cheap.};
+\end{tikzpicture}

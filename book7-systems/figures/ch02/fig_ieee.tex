@@ -1,0 +1,23 @@
+\begin{tikzpicture}[font=\scriptsize, >=latex]
+% IEEE-754 single anatomy for pi = 0x40490FDB
+\node[align=left, font=\footnotesize\bfseries] at (4.0,4.6)
+  {IEEE-754 single: \texttt{0x40490FDB} ($\pi$, to 7 digits)};
+\draw[thick, fill=accentsoft] (0.6,3.8) rectangle (1.6,4.4);
+\node at (1.1,4.1) {S};
+\node[font=\tiny, text=slate] at (1.1,3.6) {bit 31};
+\draw[thick, fill=goodbg] (1.6,3.8) rectangle (4.6,4.4);
+\node at (3.1,4.1) {exponent $E$ (8 bits)};
+\node[font=\tiny, text=slate] at (3.1,3.6) {bits 30--23, bias 127};
+\draw[thick, fill=graybg] (4.6,3.8) rectangle (9.6,4.4);
+\node at (7.1,4.1) {fraction $F$ (23 bits)};
+\node[font=\tiny, text=slate] at (7.1,3.6) {bits 22--0, hidden leading 1};
+\node[align=left, font=\tiny, text width=9.6cm] at (5.1,2.9)
+  {value $= (-1)^S \times (1 + F/2^{23}) \times 2^{E-127}$.
+   For $\pi$: $S{=}0$, $E{=}128$, $F{=}$\texttt{0x490fdb}
+   $\to$ $1.5707964 \times 2^1 = 3.1415927$ --- the decoder in
+   \texttt{ch02\_float.c} prints exactly this.};
+\node[align=left, text=slate, text width=10cm] at (5.0,1.8)
+  {The ``$.5$ ulp'' idea: spacing between neighbours is
+   $2^{E-127}\times 2^{-23}$ --- round-to-nearest keeps error under
+   half a step, which is why floats lie less than you feared.};
+\end{tikzpicture}
