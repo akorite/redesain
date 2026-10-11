@@ -309,6 +309,44 @@ when the perp trades under index. Venue-rule statements like this
 one are date-stamped --- re-verify before sizing.
 \end{example}
 
+\section{Isolated vs.\ cross margin}\label{sec:marginmodes}
+The leverage slider chooses a number; the margin mode chooses a
+\emph{budget}. Under \emph{isolated} margin each position posts
+its own collateral and liquidates on its own --- the worst case is
+capped at that position's initial margin. Under \emph{cross}
+margin every position draws from one shared pool: a losing trade
+can eat collateral you meant for something else, but it survives
+much deeper drawdowns before liquidation. Same position, same
+leverage --- two different failure geometries.
+
+\begin{example}[Same position, two liquidation prices]\label{ex:margmodes}
+\textbf{Strategy.} A $10{,}000$ BTC long at $50{,}000$ with 5x
+leverage posts $2{,}000$ initial margin; the account holds another
+$3{,}000$ free. Compute the liquidation price under both modes with
+maintenance margin $0.5\%$.
+
+\textbf{Solution.} \texttt{margin\_modes.py} prints:
+\begin{verbatim}
+position: long 10000 @ 50000, 5x, IM=2000, free acct=3000, MM=0.5%
+isolated liq px 40250 (-19.5%)
+cross    liq px 25250 (-49.5%)
+cross buys 15000 more room -- but ALL collateral is at risk, not just 2000
+cross risk: a second losing pos drains the same pool -> both liq together; isolation caps loss at IM each
+\end{verbatim}
+Cross margin stretches the liquidation point from $-19.5\%$ to
+$-49.5\%$ --- the whole $5{,}000$ pool absorbs losses instead of
+the position's $2{,}000$ alone. The trade: under cross, a second
+losing position drains the same pool and \emph{both} liquidate
+together.
+
+\textbf{Significance.} Isolation is blast-radius control; cross is
+drawdown tolerance. Choose cross when positions hedge each other
+(shared pool shares their P\&L correctly); choose isolation when a
+position is allowed to die without orphans. And the standing rule
+applies: venue margin semantics are venue rules --- date-stamped
+\texttt{[unverified]}, re-check before relying on them.
+\end{example}
+
 \section{Common mistakes}
 \begin{itemize}
 \item \textbf{``$1/\text{leverage}$ is my liquidation distance.''} Maintenance margin pulls it

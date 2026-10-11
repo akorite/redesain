@@ -230,6 +230,35 @@ the floor --- if it exceeds what a Sharpe-2 world can deliver, the
 says.
 \end{example}
 
+\begin{example}[Probability of backtest overfitting]\label{ex:pbo}
+\textbf{Strategy.} Deflated Sharpe asks ``was the best Sharpe high
+enough?''; combinatorially-symmetric CV asks a different question:
+\emph{does the IS winner keep winning out-of-sample?} Split 720
+days into 4 folds; each fold trains on 3 and measures where the
+IS-best strategy ranks on the held-out one. $PBO$ is the fraction
+of folds where it lands below the OOS median.
+
+\textbf{Solution.} \texttt{pbo\_check.py} prints (60 strategies,
+one weak real edge of Sharpe $0.15$):
+\begin{verbatim}
+fold 0: IS pick strat  3 -> OOS rank 3/59 (0.05)
+fold 1: IS pick strat  3 -> OOS rank 0/59 (0.00)
+fold 2: IS pick strat  3 -> OOS rank 7/59 (0.12)
+fold 3: IS pick strat  3 -> OOS rank 3/59 (0.05)
+PBO = 0.00  (IS-best lands below OOS median this often)
+no-edge control PBO = 0.25
+\end{verbatim}
+Even a weak consistent edge is found by every fold and stays
+near the top OOS ($PBO=0$). With \emph{no} edge at all, the
+IS-best is pure luck: it falls below the OOS median a quarter of
+the time already at 4 folds, and $\sim\tfrac12$ asymptotically.
+
+\textbf{Significance.} The two methods are complementary:
+deflated Sharpe prices the multiplicity of the search, PBO audits
+the winner's persistence. A grid can clear the deflated bar on a
+lucky fold; it cannot fake fold-after-fold OOS ranks. Run both.
+\end{example}
+
 \section{Common mistakes}
 \begin{itemize}
 \item \textbf{Counting only documented trials.} Every parameter you eyeballed and dropped
