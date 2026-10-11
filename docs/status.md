@@ -75,3 +75,9 @@ Pending a GitHub PAT: issue creation (pinned "Status" issue + `needs-user` label
 - 6c linalg ch14 KKT: complementary slackness now λ(g(x)-c)=0 for g(x)≤c, prose "active (g=c)" consistent. Direct push.
 - Additional catches this cycle: disc "IMO 2026 P5/P1/P3/P4" cites removed (nonexistent contest, logged unverified.md); elec ln→log harmonization (D-2026-10-11c); disc consistency sweep clean (no dup labels, no unmatched refs, no \ln).
 - Page ledger: cp 200 ✓v0.1 · disc 182 · linalg 190 · elec 153 · ml/quant writing · physics suspended · systems unassigned.
+
+## 2026-10-11 — linalg depth retrofit landed (208pp)
+- book1's 3-batch retrofit merged (ch01-13): FR+Watch+WEs+figs+exercises to contract. Spot-verified ch01 (5ex/19ex/7fig/6listings/4tripwire). ch14-16 already at contract. Book at 208pp, 0 err/undef/overfull.
+- book1 now authoring textbook-physics ch01→18 (session cap full — authored in-session rather than spawning).
+- Owed reviews: linalg-depth re-review ch01-13 (→ elec-0006 queue after disc re-review); cp-depth re-review (ml-f668, queued); disc-depth re-review (elec-0006, queued); ml chapters (TBD); elec ch14-19 (TBD).
+- Page ledger: cp 200 ✓v0.1 · disc 182 · linalg 208 · elec 153 · ml writing · quant writing · physics starting · systems unassigned.
