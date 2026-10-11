@@ -1,0 +1,25 @@
+\begin{tikzpicture}[font=\scriptsize, >=latex]
+% hazard timing diagram: addi a0 then addi a1,a0
+\node[font=\footnotesize\bfseries] at (5.4,5.0)
+  {the dependent pair, in time};
+\foreach \r/\insn in {
+  0/{\texttt{addi a0,zero,5}}, 1/{\texttt{addi a1,a0,3}}}{
+  \node[left, font=\tiny] at (0.6,4.3-\r*0.9) {\insn};}
+\foreach \i in {0,...,6}{
+  \draw[thick] (1.0+\i*0.7,4.05) -- (1.0+\i*0.7,3.0)
+    node[below, font=\tiny] {c\i};}
+\foreach \r/\i/\st in {
+  0/0/{IF}, 0/1/{ID}, 0/2/{EX}, 0/3/{MEM}, 0/4/{WB},
+  1/1/{IF}, 1/2/{ID}, 1/3/{EX}, 1/4/{MEM}, 1/5/{WB}}{
+  \draw[thick, fill=accentsoft] (1.0+\i*0.7,3.55-\r*0.9)
+    rectangle (1.7+\i*0.7,3.95-\r*0.9);
+  \node[font=\tiny] at (1.35+\i*0.7,3.75-\r*0.9) {\st};}
+\draw[->, very thick, red] (4.5,3.75) -- (3.45,2.9)
+  node[midway, right, font=\tiny, align=left]{a0 written\\here (WB)};
+\draw[->, very thick, red] (2.4,2.9) -- (3.1,2.5);
+\node[font=\tiny, red] at (2.0,2.35) {a0 read HERE (ID) --- too early};
+\node[align=left, text=slate, text width=11cm] at (5.4,1.0)
+  {ID for the second \texttt{addi} reads the register file three
+   cycles before the first one's WB lands the new a0. The machine
+   answers with the OLD value --- our tb measured a1 = 3, not 8.};
+\end{tikzpicture}

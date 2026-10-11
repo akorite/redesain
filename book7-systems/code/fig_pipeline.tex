@@ -1,0 +1,25 @@
+\begin{tikzpicture}[font=\scriptsize, >=latex]
+% the four-stage journey
+\foreach \i/\t/\d/\o in {
+  0/{preprocess}/{\#include, \#define}/{.c},
+  1/{compile}/{parse, optimise, emit asm}/{.s},
+  2/{assemble}/{mnemonics $\to$ bytes}/{.o},
+  3/{link}/{resolve symbols, lay out}/{ELF exec}}{
+  \pgfmathsetmacro{\x}{0.2+\i*2.5}
+  \draw[thick, fill=accentsoft] (\x,3.0) rectangle (\x+2.2,4.3);
+  \node[align=center] at (\x+1.1,3.9) {\t};
+  \node[align=center, font=\tiny, text=slate] at (\x+1.1,3.35) {\d\\\ttfamily \o};
+}
+\foreach \i in {0,...,2}{
+  \pgfmathsetmacro{\x}{2.4+\i*2.5}
+  \draw[->, thick] (\x,3.65) -- (\x+0.3,3.65);}
+% load stage
+\draw[thick, fill=goodbg] (8.2,1.0) rectangle (10.4,2.3);
+\node[align=center] at (9.3,1.9) {load (\texttt{execve})};
+\node[align=center, font=\tiny, text=slate] at (9.3,1.4) {map text/data,\\jump to entry};
+\draw[->, thick] (9.3,3.0) -- (9.3,2.3);
+\node[align=left, text=slate, text width=10.3cm] at (5.2,0.2)
+{Four tool invocations, one machine read of the result. The .o is
+already ELF --- linking only decides where each byte goes; loading
+only decides which page it lands on.};
+\end{tikzpicture}

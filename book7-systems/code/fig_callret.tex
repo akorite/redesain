@@ -1,0 +1,18 @@
+\begin{tikzpicture}[font=\scriptsize, >=latex]
+% call/ret pc flow
+\draw[thick, fill=accentsoft] (0.4,2.8) rectangle (3.0,4.0);
+\node[align=center, font=\tiny] at (1.7,3.6) {caller};
+\node[align=center, font=\tiny] at (1.7,3.1) {\ttfamily call fib\\ra $\leftarrow$ pc+4};
+\draw[thick, fill=goodbg] (6.6,2.8) rectangle (9.2,4.0);
+\node[align=center, font=\tiny] at (7.9,3.6) {fib};
+\node[align=center, font=\tiny] at (7.9,3.1) {\ttfamily ret\\pc $\leftarrow$ ra};
+\draw[->, very thick, accent] (3.0,3.4) -- (6.6,3.4)
+  node[midway, above, font=\tiny]{pc jumps, ra = return link};
+\draw[->, very thick, good] (6.6,3.0) -- (3.0,3.0)
+  node[midway, below, font=\tiny]{pc jumps back};
+\node[align=left, text=slate, text width=10cm] at (5.0,2.0)
+  {Two instructions of mechanism: \ttfamily call\rmfamily\ writes
+   ra and jumps; \ttfamily ret\rmfamily\ jumps to ra. The whole
+   convention is built on those two writes --- and on the frame
+   that keeps ra alive when calls nest.};
+\end{tikzpicture}

@@ -1,0 +1,25 @@
+\begin{tikzpicture}[font=\scriptsize, >=latex]
+% critical path: lw is the longest single-cycle journey
+\node[font=\footnotesize\bfseries] at (5.8,4.9) {critical path ---
+\texttt{lw} has to do everything};
+\draw[thick, fill=accentsoft] (0.5,3.6) rectangle (2.1,4.3);
+\node[font=\tiny, align=center] at (1.3,3.95){PC + imem};
+\draw[thick, fill=goodbg] (2.9,3.6) rectangle (4.5,4.3);
+\node[font=\tiny, align=center] at (3.7,3.95){decode + regfile};
+\draw[thick, fill=amberbg] (5.3,3.6) rectangle (6.9,4.3);
+\node[font=\tiny, align=center] at (6.1,3.95){ALU (address)};
+\draw[thick, fill=graybg] (7.7,3.6) rectangle (9.3,4.3);
+\node[font=\tiny, align=center] at (8.5,3.95){data mem read};
+\draw[thick, fill=accentsoft] (10.1,3.6) rectangle (11.7,4.3);
+\node[font=\tiny, align=center] at (10.9,3.95){WB mux + setup};
+\draw[->, very thick] (2.1,3.95)--(2.9,3.95);
+\draw[->, very thick] (4.5,3.95)--(4.9,3.95);
+\draw[->, very thick] (6.9,3.95)--(7.7,3.95);
+\draw[->, very thick] (9.3,3.95)--(10.1,3.95);
+\node[align=left, text=slate, text width=11cm] at (6.2,2.6)
+  {Five hardware stops in ONE period: fetch, decode+regread, ALU,
+   memory, writeback. \texttt{add} skips the memory stop;
+   \texttt{sw} skips writeback. The clock must be slow enough for
+   the worst case, so every cheaper instruction waits at the end of
+   its own cycle --- that idle tail is what pipelining reclaims.};
+\end{tikzpicture}

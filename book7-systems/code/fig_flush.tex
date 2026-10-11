@@ -1,0 +1,17 @@
+\begin{tikzpicture}[font=\scriptsize, >=latex]
+\node[font=\footnotesize\bfseries] at (5.6,4.6) {control hazard:
+predict-then-flush};
+\draw[thick, fill=accentsoft] (0.8,3.2) rectangle (4.0,4.0);
+\node[font=\tiny, align=center] at (2.4,3.6) {predict not-taken:\\
+fetch pc+4 anyway};
+\draw[thick, fill=amberbg] (5.6,3.2) rectangle (9.6,4.0);
+\node[font=\tiny, align=center] at (7.6,3.6) {wrong? squash IF/ID +
+ID/EX, redirect pc};
+\draw[->, very thick] (4.0,3.6) -- (5.6,3.6)
+  node[midway, above, font=\tiny]{EX resolves};
+\node[align=left, text=slate, text width=10.5cm] at (5.4,2.4)
+  {The simplest predictor --- always not-taken --- is free when
+   right and costs the two wrong-path slots when wrong. Our
+   \texttt{flush} wire does exactly that: NOP into IF/ID, bubble
+   into ID/EX, pc to the real target.};
+\end{tikzpicture}

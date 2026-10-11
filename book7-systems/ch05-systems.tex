@@ -1,0 +1,369 @@
+% ch05-systems.tex -- single-cycle RV32I core in Verilog (capstone part 1)
+\chapter{A Single-Cycle RV32I Core}
+\label{ch:sc05}
+
+Assembly language is the contract; this chapter builds the machine
+that honours it. Everything so far --- the encodings of ch03, the
+frames of ch04, the cpu8 of Book 5 --- meets in one Verilog module:
+a single-cycle RV32I core that fetches, decodes, executes, touches
+memory, and writes back in one clock tick. Book 5 built the blocks
+(an 8-bit ALU, a register file, a control decoder); here they are
+re-derived at 32 bits against the real ISA --- compute-all-then-mux
+ALU, two-read one-write regfile with \texttt{x0} hardwired, and a
+decoder that is literally a truth table in Verilog. The core runs a
+real program in Icarus: thirteen hand-assembled instructions,
+architectural state checked afterward. CPI is 1 by construction ---
+the point of the chapter is seeing \emph{why that is a waste of time},
+which is the whole argument for the pipeline of ch06.
+
+\section{Fetch--decode--execute, properly}
+\label{sec:fde05}
+\index{single-cycle processor}\index{datapath}\index{RV32I core}
+
+Ch03 drew the loop as fetch $\to$ decode $\to$ execute $\to$ next.
+The honest version splits execute into three: read operands, compute
+in the ALU, touch data memory, write the result back --- five acts,
+all inside one clock period. The program counter is the only state
+element outside the register file and memories: an \texttt{insn} wire
+from instruction memory, a \texttt{pc} register, and a next-pc mux.
+Everything else is combinational logic evaluating the current
+instruction \emph{right now}. That is the definition of
+single-cycle: latency of one instruction $=$ one clock period.
+
+\begin{figure}[t]
+\centering
+\input{figures/ch05/fig_datapath}
+\caption[Single-cycle datapath]{The whole machine. PC feeds
+instruction memory; decode splits the word; the register file and
+immediate generator feed the ALU; data memory and the writeback mux
+finish the journey; the next-PC mux closes the loop.}
+\label{fig:datapath05}
+\end{figure}
+
+\section{Decode and the immediate generator}
+\label{sec:decode05}
+\index{immediate generator}\index{decoder}
+
+\begin{example}[decode is a table]\label{ex:ctrl05}
+\texttt{ch05\_rv32i\_decode.v} has no cleverness: a \texttt{case}
+on the 7-bit opcode, defaults that make an unknown word a NOP. For
+\texttt{sw} ($\texttt{op}=0100011$): \texttt{alusrc=1, memwrite=1,
+aluop=add} --- base register plus immediate for the address,
+\texttt{rd2} already carries the value to store. The truth-table
+figure below is the same table drawn.
+\end{example}
+
+\begin{figure}[t]
+\centering
+\input{figures/ch05/fig_control}
+\caption[Control truth table]{The decoder as a table. Each row is a
+\texttt{case} arm; each column is a control wire. Reading hardware
+like this is a transferable skill --- real processors' ``control''
+is a much bigger version of the same idea.}
+\label{fig:control05}
+\end{figure}
+
+\begin{example}[the immediate mux]\label{ex:immgen05}
+The five formats of ch03 produce five bit-shuffles: \texttt{immI}
+sign-extends \texttt{insn[31:20]}; \texttt{immS} splices
+\texttt{[31:25]} and \texttt{[11:7]}; \texttt{immB} and
+\texttt{immJ} reorder the same window into jump offsets;
+\texttt{immU} just shifts. One mux selects among them on opcode ---
+the scrambler is about fifteen lines of wiring.
+\end{example}
+
+\begin{figure}[t]
+\centering
+\input{figures/ch05/fig_immgen}
+\caption[Immediate generator]{Five immediates from one word. The ISA
+keeps operand fields in fixed positions so the register file reads
+in parallel with this scrambler --- decode never serialises.}
+\label{fig:immgen05}
+\end{figure}
+
+\section{Register file and ALU --- Book 5, widened}
+\label{sec:reused05}
+\index{register file}\index{ALU}
+
+\begin{example}[the cpu8 mapping, honoured]\label{ex:mapping05}
+Book 5's ch14 ALU chose its result by mux after computing all ops;
+\texttt{ch05\_rv32i\_alu.v} is the same shape at 32 bits, nine ops
+(add, sub, and, or, xor, sll, srl, slt, sltu). The regfile keeps
+Book 5's
+two-read/one-write shape and adds the RV32I rule that made
+\texttt{x0} famous: \texttt{(ra1==0)\ ?\ 0\ :\ x[ra1]} \emph{and}
+\texttt{we \&\& wa!=0} --- write \texttt{x0} and the write is
+silently dropped, which is exactly how the ISA wants it.
+\end{example}
+
+\section{Loads, stores and the data-memory interface}
+\label{sec:mem05}
+\index{load/store}\index{data memory}
+
+Both \texttt{lw} and \texttt{sw} run the ALU as an address adder:
+\texttt{rd1} (base) plus the immediate. The difference is which end
+of data memory lights up --- \texttt{memread} routes
+\texttt{dmem\_rdata} through the writeback mux into \texttt{rd};
+\texttt{memwrite} drives \texttt{dmem\_we} with \texttt{rd2} on the
+data pins. Addressing mode coverage is deliberately tiny: RV32I has
+exactly one addressing mode (base+imm), which is why real ISAs are
+easier to teach than they look.
+
+\begin{checkpoint}[the one addressing mode]\label{cp:addr05}
+Every RV32I memory instruction is \texttt{offset(base)}. Indexed,
+auto-increment and PC-relative modes from bigger ISAs simply don't
+exist --- simplicity is the point of RISC. Predict how a C
+\texttt{p[i]} loop compiles: \texttt{lw} with a computed base, or
+\texttt{addi} the base between iterations. Ch03's arrsum did the
+second.
+\end{checkpoint}
+
+\section{Running it: 13 words, checked state}
+\label{sec:run05}
+
+\begin{example}[the first real program]\label{ex:run05}
+\texttt{ch05\_prog.hex} is thirteen words produced by the book's own
+assembler --- arithmetic, a store, a load back, a taken branch, a
+\texttt{lui}. The testbench plays instruction and data memory around
+\texttt{rv32i\_sc\_top}, runs to the terminal \texttt{jal self}, then
+inspects architectural state:
+\begin{lstlisting}
+ran 12 cycles, pc parked at 00000030
+  ok: a0 = 1
+  ok: a1 = 2
+  ok: a2 = a0+a1 = 3
+  ok: mem[8] = 3 (sw worked)
+  ok: a3 = lw back = 3
+  ok: a4 = a3+5 = 8 (beq skipped 99)
+  ok: a5 = a4-a2 = 5
+  ok: a6 = lui 0x12345000
+CPI check: 12 instrs retired in 12 cycles (CPI=1)
+ch05 PASS
+\end{lstlisting}
+Twelve retired in twelve cycles --- the branch skipped one. Real
+verilog, real execution, CPI=1 measured, not asserted.
+\end{example}
+
+\begin{example}[sim speed as a measurement]\label{ex:simspeed05}
+\texttt{ch05\_spin\_tb} runs a 256-iteration arithmetic loop ---
+2000 cycles of core. \texttt{time vvp} reports \textbf{9\,ms
+wall-clock}: $\approx$220\,k retired instructions per second under
+Icarus on this laptop. Simulation speed is why real CPU verification
+needs FPGA prototypes --- and why our testbenches stay small and
+self-checking.
+\end{example}
+
+\section{Why single-cycle wastes time}
+\label{sec:critpath05}
+\index{critical path}\index{CPI}
+
+\begin{example}[the \texttt{lw} tax]\label{ex:crit05}
+\texttt{lw} travels fetch $\to$ decode+regfile $\to$ ALU $\to$ data
+memory $\to$ writeback --- every hardware stop in one period. If each
+stage costs about the same delay, the clock period must be $5\tau$.
+\texttt{add} finishes in $3\tau$ and idles $2\tau$; \texttt{sw}
+idles one. The critical-path figure shows the idle tail: single-cycle
+CPI=1 is honest, but the \emph{clock} is five times slower than any
+stage needs. Pipelining's promise is exactly that reclaimed tail.
+\end{example}
+
+\begin{figure}[t]
+\centering
+\input{figures/ch05/fig_critpath}
+\caption[Critical path]{\texttt{lw} sets the clock period. Every
+cheaper instruction finishes early and waits --- the wasted tail is
+what five stages of pipeline registers turn into throughput.}
+\label{fig:critpath05}
+\end{figure}
+
+\begin{figure}[t]
+\centering
+\input{figures/ch05/fig_cycleflow}
+\caption[sw cycle flow]{One \texttt{sw} through the datapath: the
+control word is read once, then the data takes a fixed route.}
+\label{fig:cycleflow05}
+\end{figure}
+
+\begin{checkpoint}[predict CPI=1's cost]\label{cp:cpi05}
+If the five stages each cost $\tau$ and the register file adds
+$\delta$, what's the best achievable clock for the single-cycle core
+vs a 5-stage pipeline on the same blocks? $(5\tau+\delta)$ vs
+$(\tau+\delta)$: the pipeline's ceiling is the stage time plus
+register overhead --- the theme of ch06.
+\end{checkpoint}
+
+\section{Common mistakes}
+\label{sec:mistakes05}
+\begin{itemize}
+\item \textbf{Writing \texttt{x0}.} Forgetting \texttt{wa!=0} makes
+      \texttt{li x0,5} stick --- every ``hardwired'' invariant breaks.
+\item \textbf{Branch on the wrong field.} \texttt{immB} needs the
+      shifted splice, not \texttt{immI}: a \texttt{beq} that reads
+      \texttt{immI} lands two bytes off silently.
+\item \textbf{Muxing before reading.} Using \texttt{rd2} for the
+      ALU-B input unconditionally breaks \texttt{lw}/\texttt{sw} ---
+      the register file reads the address \emph{register}, the
+      immediate is the offset.
+\item \textbf{Testing only R-types.} A decode bug in \texttt{sw}
+      shows nothing until memory is checked --- the testbench inspects
+      \texttt{dmem}, not just registers.
+\item \textbf{Believing CPI=1 is fast.} It is honest and it is slow:
+      latency hidden by a slow clock is still latency.
+\end{itemize}
+
+\section{Summary}
+\label{sec:summary05}
+\begin{tabularx}{\linewidth}{@{}l X@{}}
+\toprule
+\textbf{Block} & \textbf{What it is} \\
+\midrule
+PC + next-pc mux & only state besides regfile/memories \\
+decode & opcode \texttt{case} $\to$ control-word table \\
+imm generator & five shuffles, one mux, parallel with regfile \\
+regfile + ALU & Book 5 blocks, widened, \texttt{x0} hardwired \\
+measured & 13-word program, 8 state checks, CPI=1; $\sim$220k instr/s \\
+next & five stage registers $\to$ pipeline (ch06) \\
+\bottomrule
+\end{tabularx}
+
+\section*{Further reading}
+\label{sec:further05}
+\begin{itemize}
+\item Harris \& Harris, \emph{Digital Design and Computer
+      Architecture, RISC-V ed.}, ch7 --- the single-cycle
+      datapath this chapter mirrors:\\
+      \url{https://pages.hmc.edu/harris/ddca/ddcarv.html}
+\item Patterson \& Hennessy, \emph{Computer Organization and Design},
+      ch4 (the processor):\\
+      \href{https://www.elsevier.com/books/computer-organization-and-design-risc-v-edition/patterson/978-0-12-820331-6}{elsevier.com --- COD RISC-V edition}
+\item RISC-V unprivileged ISA spec (the contract implemented):\\
+      \url{https://github.com/riscv/riscv-isa-manual}
+\item CS:APP ch4 (SEQ $\to$ PIPE pedagogical shape):\\
+      \url{https://csapp.cs.cmu.edu/}
+\item Book 5 ch14--16 (the ALU/regfile/control the code reuses).
+\end{itemize}
+
+\begin{rulebox}[Watch instead]
+\begin{itemize}
+\item \textbf{DDCA Ch7 Part 1: Microarchitecture Introduction} ---
+      Sarah Harris, 6:45 --- why the datapath looks the way it does.
+      \url{https://youtu.be/lrN-uBKooRY}
+\item \textbf{DDCA Ch7 Part 2: RISC-V Single-Cycle Processor
+      Datapath: lw} --- Sarah Harris, 7:25 --- the same critical-path
+      walk, drawn live. \url{https://youtu.be/AoBkibslRBM}
+\end{itemize}
+\end{rulebox}
+
+\section*{Notes}
+\label{sec:notes05}
+\begin{itemize}
+\item Datapath/control/imm-gen design follows COD ch4 and DDCA ch7;
+      adapted to our rv32i\_* module split.
+\item All simulation output captured from Icarus Verilog 13.0 on the
+      dev box (arm64 macOS); program bytes assembled by
+      \texttt{ch03\_rv32asm.py}.
+\item \texttt{bge}/\texttt{blt} not yet decoded --- the program uses
+      \texttt{beq}; wider branch support lands with ch07's hazard
+      work.
+\end{itemize}
+
+\section{Exercises}
+\label{sec:exercises05}
+
+\begin{exercise}[easy]\label{ex:e05a}
+Which control wires does \texttt{jal} assert, and why is
+\texttt{wbsel=pc+4}?
+\end{exercise}
+\begin{solution}[hint]
+regwrite + jump; the destination register must capture the return
+address.
+\end{solution}
+
+\begin{exercise}[easy]\label{ex:e05b}
+Why is \texttt{x0}'s write-enable explicitly masked in the regfile
+rather than trusted to software?
+\end{exercise}
+\begin{solution}[hint]
+Hardware invariant: a stray \texttt{sw}-style bug or bad codegen
+must not corrupt the constant zero.
+\end{solution}
+
+\begin{exercise}[medium]\label{ex:m05a}
+Trace \texttt{lw a3,8(zero)} through every block of the datapath:
+what does each output wire carry?
+\end{exercise}
+\begin{solution}[hint]
+PC=0x10; decode: alusrc=1, memread=1, wbsel=mem; rd1=0;
+ALU=8; dmem[2]=3; wb=3 $\to$ a3.
+\end{solution}
+
+\begin{exercise}[medium]\label{ex:m05b}
+The imm generator scrambles five shapes in parallel with the regfile
+read. Why is the parallelism safe even when an instruction doesn't
+need an immediate?
+\end{exercise}
+\begin{solution}[hint]
+The mux only selects when alusrc=1; wasted scrambling costs power,
+not correctness.
+\end{solution}
+
+\begin{exercise}[medium]\label{ex:m05c}
+\texttt{sub} and \texttt{beq} share \texttt{aluop=sub}. What differs
+in their control words and why can the ALU be shared?
+\end{exercise}
+\begin{solution}[hint]
+beq sets branch, no regwrite; the subtract output is used only as
+the zero flag --- ALU is a function of inputs, free to share.
+\end{solution}
+
+\begin{exercise}[medium]\label{ex:m05d}
+Our core ran 12 instructions in 12 cycles but the program was 13
+words. Reconcile.
+\end{exercise}
+\begin{solution}[hint]
+The taken \texttt{beq} skipped \texttt{addi a4,zero,99} --- fetched
+but never decoded... actually never fetched: branch redirect at
+execute. The self-loop \texttt{jal} keeps re-executing.
+\end{solution}
+
+\begin{exercise}[medium]\label{ex:m05e}
+Estimate the same-loop sim speed if the tb also dumped a VCD ---
+does the core get slower, or only the log?
+\end{exercise}
+\begin{solution}[hint]
+Both: event-driven sim slows with more dumped signals; the RTL is
+unchanged. Measurement vs mechanism.
+\end{solution}
+
+\begin{exercise}[hard]\label{ex:h05a}
+Add \texttt{slti} and \texttt{slt} to the decoder: which control
+fields change, which don't, and how would you test each?
+\end{exercise}
+\begin{solution}[hint]
+\texttt{slti}: I-type row, \texttt{f3=010$\to$aluop=slt}. Test:
+\texttt{slti a0,a0,0} should set a0=0 (1$\nless$0) then
+\texttt{slti a0,a0,2} = 1.
+\end{solution}
+
+\begin{exercise}[hard]\label{ex:h05b}
+The critical-path argument assumed equal stage delays. If decode is
+actually 2$\tau$, which instruction is now critical and does the
+single-cycle case get better or worse relative to pipelining?
+\end{exercise}
+\begin{solution}[hint]
+Still \texttt{lw} (it's the superset path); single-cycle gets
+\emph{worse} --- its period grows while the pipeline's is set by the
+slowest stage.
+\end{solution}
+
+\begin{exercise}[hard]\label{ex:h05c}
+Design a self-checking test that proves \texttt{x0} is hardwired:
+write to it via \texttt{addi x0,x0,7} then read it. What else must
+the tb check to catch a lazy \texttt{we}?
+\end{exercise}
+\begin{solution}[hint]
+x0 must still read 0 after the write; also check a real write to a
+nonzero reg landed (proving we wasn't masked globally).
+\end{solution}
+
+% chapter end

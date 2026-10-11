@@ -1,0 +1,21 @@
+\begin{tikzpicture}[font=\scriptsize, >=latex]
+% immediate generator bit-field diagram
+\node[font=\footnotesize\bfseries, align=left] at (5.6,5.2)
+  {immediate generator: five shapes from one instruction word};
+\foreach \y/\name/\defn in {
+  4.4/{I}/{sext insn[31:20]},
+  3.6/{S}/{sext insn[31:25]$|$insn[11:7]},
+  2.8/{B}/{sign $\times$19 $|$ insn[31] $|$ insn[7] $|$
+   insn[30:25] $|$ insn[11:8] $|$ 0},
+  2.0/{U}/{insn[31:12]$|$12$\times$0},
+  1.2/{J}/{sign $\times$11 $|$ insn[31] $|$
+   insn[19:12] $|$ insn[20] $|$ insn[30:21] $|$ 0}}{
+  \draw[thick, fill=accentsoft] (0.6,\y-0.28) rectangle (1.6,\y+0.28);
+  \node[font=\footnotesize] at (1.1,\y) {\name};
+  \node[anchor=west, font=\tiny] at (1.8,\y) {\defn};}
+\node[align=left, text=slate, text width=11cm] at (6.2,0.2)
+  {Every field borrows bits from fixed positions --- the ISA keeps
+   rs1/rs2/rd in place across formats so decode can split off while
+   the imm-gen scrambles this wiring in parallel. One mux, five
+   inputs, selected by opcode: that is the whole module.};
+\end{tikzpicture}

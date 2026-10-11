@@ -1,0 +1,17 @@
+\begin{figure}[htbp]
+\centering
+\begin{tikzpicture}
+\begin{axis}[width=10cm,height=5.5cm, ybar, bar width=8mm,
+  xtick={1,2,3,4,5}, xticklabels={naive,blk8,blk16,blk32,blk64},
+  ylabel={ms per 2048$^2$ transpose (real wall clock)}, ymin=0, ymax=60,
+  grid=major, grid style={gray!20},
+  tick label style={font=\scriptsize}, label style={font=\small}]
+\addplot[fill=red!50] table[x=x,y=ms]{code/ch10_time.dat};
+\end{axis}
+\end{tikzpicture}
+\caption{On real hardware: the same ranking the simulator
+predicted. Naive 14.3\,ms, block-8 5.0\,ms (2.9$\times$),
+block-32+ collapses to 45\,ms --- the model's cliff shows up in
+wall time, not just counts.}
+\label{fig:timing10}
+\end{figure}

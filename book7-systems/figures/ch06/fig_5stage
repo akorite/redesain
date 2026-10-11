@@ -1,0 +1,25 @@
+\begin{tikzpicture}[font=\scriptsize, >=latex]
+% 5-stage datapath with pipeline registers
+\foreach \x/\t/\c in {
+  0.8/{IF}/{accentsoft}, 2.9/{ID}/{goodbg}, 5.0/{EX}/{amberbg},
+  7.1/{MEM}/{graybg}, 9.2/{WB}/{accentsoft}}{
+  \draw[thick, fill=\c] (\x-0.75,2.9) rectangle (\x+0.75,4.1);
+  \node[font=\footnotesize] at (\x,3.5) {\t};}
+\foreach \x in {2.0,4.0,6.0,8.0}{
+  \draw[thick, fill=white] (\x-0.14,2.4) rectangle (\x+0.14,4.6);}
+\node[font=\tiny] at (2.0,2.1) {IF/ID};
+\node[font=\tiny] at (4.0,2.1) {ID/EX};
+\node[font=\tiny] at (6.0,2.1) {EX/MEM};
+\node[font=\tiny] at (8.0,2.1) {MEM/WB};
+\draw[->, very thick] (1.55,3.5)--(2.25,3.5);
+\draw[->, very thick] (3.55,3.5)--(4.25,3.5);
+\draw[->, very thick] (5.55,3.5)--(6.25,3.5);
+\draw[->, very thick] (7.55,3.5)--(8.25,3.5);
+\draw[->, dashed, accent] (9.2,2.8) .. controls (5,1.4) .. (2.9,2.8)
+  node[midway, below, font=\tiny]{WB writes the regfile};
+\node[align=left, text=slate, text width=11cm] at (6,0.5)
+  {Four registers slice the single-cycle path into five stages.
+   Each carries everything the later stages need: the instruction,
+   the operands, the control bits, the pc+4. The registers are the
+   whole difference --- and the whole hazard.};
+\end{tikzpicture}

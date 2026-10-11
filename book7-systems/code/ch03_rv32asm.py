@@ -29,7 +29,9 @@ INS = {
   "beq":  (B, 0, 0, 0x63),    "bne":  (B, 0, 1, 0x63),
   "blt":  (B, 0, 4, 0x63),    "bge":  (B, 0, 5, 0x63),
   "nop":  (None, 0, 0, 0),    # pseudoinstruction: addi x0,x0,0
-  "lui":  ("U", 0, 0, 0x37),
+  "lui":  ("U", 0, 0, 0x37),    "jal":  ("J", 0, 0, 0x6F),
+  "jalr": ("JALR", 0, 0, 0x67), "j":    ("PJ", 0, 0, 0),
+  "call": ("CALL", 0, 0, 0),    "ret":  ("RET", 0, 0, 0),
   "li":   ("LI", 0, 0, 0),    # pseudoinstruction: addi rd,x0,imm
 }
 
@@ -45,6 +47,25 @@ def enc(mn, ops, pc, labels):
         return U(int(ops[1], 0) << 12, reg(ops[0]), op)
     if kind == "LI":                            # li rd, imm -> addi
         return I(int(ops[1], 0), 0, 0, reg(ops[0]), 0x13)
+    if kind == "J":                             # jal rd, label/imm
+        imm = (labels[ops[1]] - pc) if ops[1] in labels else int(ops[1], 0)
+        return (((imm >> 20) & 1) << 31 | ((imm >> 1) & 0x3FF) << 21 |
+                ((imm >> 11) & 1) << 20 | ((imm >> 12) & 0xFF) << 12 |
+                reg(ops[0]) << 7 | op)
+    if kind == "JALR":                          # jalr rd, off(rs1)
+        m = re.match(r"(-?\d+)\((\w+\d*)\)", ops[1])
+        return I(int(m.group(1)), reg(m.group(2)), 0, reg(ops[0]), op)
+    if kind == "PJ":                            # j label -> jal x0,label
+        imm = labels[ops[0]] - pc
+        return (((imm >> 20) & 1) << 31 | ((imm >> 1) & 0x3FF) << 21 |
+                ((imm >> 11) & 1) << 20 | ((imm >> 12) & 0xFF) << 12 | 0x6F)
+    if kind == "CALL":                          # call label -> jal ra,label
+        imm = labels[ops[0]] - pc
+        return (((imm >> 20) & 1) << 31 | ((imm >> 1) & 0x3FF) << 21 |
+                ((imm >> 11) & 1) << 20 | ((imm >> 12) & 0xFF) << 12 |
+                1 << 7 | 0x6F)
+    if kind == "RET":                           # ret -> jalr x0,0(ra)
+        return I(0, 1, 0, 0, 0x67)
     if kind is R:
         return R(f7, reg(ops[2]), reg(ops[1]), f3, reg(ops[0]), op)
     if kind is I:

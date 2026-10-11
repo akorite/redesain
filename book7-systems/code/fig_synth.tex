@@ -1,0 +1,22 @@
+\begin{figure}[htbp]
+\centering
+\begin{tabular}{lr}
+\toprule
+cell class & count (real \texttt{synth\_gowin} run) \\
+\midrule
+LUT1--LUT4           & 2\,021 \\
+MUX2\_LUT5--LUT8     & 1\,103 \\
+ALU (fast carry)     & 186 \\
+DFF variants         & 527 \\
+RAM16SDP4            & 32 \\
+IO buffers           & 166 \\
+\midrule
+\textbf{total}       & $\approx$4\,035 \\
+\bottomrule
+\end{tabular}
+\caption{Real \texttt{yosys-0.69 synth\_gowin} output for the whole
+SoC (core + UART + trap CSRs). The GW1NR-LV9 offers 8\,640 LUT4 ---
+this machine plus its peripherals uses about half. The 32
+RAM16SDP4 blocks are the register file inferred as LUT-RAM.}
+\label{fig:synth08}
+\end{figure}

@@ -1,0 +1,25 @@
+\begin{figure}[htbp]
+\centering
+\begin{tikzpicture}
+\begin{axis}[width=11.5cm, height=6.5cm,
+  xlabel={working set size, $\log_2$ bytes},
+  ylabel={ns per dependent load},
+  ymin=0, ymax=130, grid=major, grid style={gray!20},
+  tick label style={font=\scriptsize}, label style={font=\small}]
+\addplot[thick, mark=*, mark size=1.4pt, color=blue!70!black]
+  table[x=log2bytes, y=ns] {code/ch09_mountain.dat};
+\draw[dashed, red!60] (axis cs:17.5,0) -- (axis cs:17.5,130)
+  node[pos=0.9, anchor=west, font=\scriptsize, rotate=0] {L2 knee};
+\draw[dashed, red!60] (axis cs:24,0) -- (axis cs:24,130)
+  node[pos=0.15, anchor=west, font=\scriptsize] {DRAM knee};
+\node[font=\scriptsize, anchor=west] at (axis cs:12.2,8) {L1/L2 $\approx$1.4\,ns};
+\node[font=\scriptsize, anchor=west] at (axis cs:18.2,14) {SLC $\approx$5--10\,ns};
+\node[font=\scriptsize, anchor=east] at (axis cs:27,110) {DRAM $\approx$120\,ns};
+\end{axis}
+\end{tikzpicture}
+\caption{The memory mountain, measured on this machine with
+\texttt{ch09\_mem\_mountain.c}: each point is 20M dependent pointer
+dereferences through a random circular chain --- no prefetcher can
+help, so each plateau is a real cache level.}
+\label{fig:mountain09}
+\end{figure}

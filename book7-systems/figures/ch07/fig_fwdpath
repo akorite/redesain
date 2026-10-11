@@ -1,0 +1,19 @@
+\begin{tikzpicture}[font=\scriptsize, >=latex, x=0.82cm, y=0.9cm]
+\node[font=\footnotesize\bfseries] at (5.6,4.8) {forwarding: the
+value never waits for WB};
+\draw[thick, fill=amberbg] (6.8,3.4) rectangle (8.4,4.4);
+\node[font=\tiny] at (7.6,3.9) {EX/MEM};
+\draw[thick, fill=accentsoft] (9.2,3.4) rectangle (10.8,4.4);
+\node[font=\tiny] at (10,3.9) {MEM/WB};
+\draw[thick, fill=goodbg] (4.0,3.4) rectangle (5.6,4.4);
+\node[font=\tiny, align=center] at (4.8,3.9) {ALU in\\EX};
+\draw[->, very thick, accent] (7.6,3.4) -- (5.6,3.2)
+  node[midway, below, font=\tiny]{newest result};
+\draw[->, thick, accent] (10,3.4) -- (6.2,2.9)
+  node[midway, below, font=\tiny]{one-cycle-older result};
+\node[align=left, text=slate, text width=10.5cm] at (5.8,1.6)
+  {Two muxes on the ALU inputs pick, newest-first: EX/MEM's
+   just-computed value, else MEM/WB's returning value, else the
+   register file. The register file still gets written --- the
+   forward is a shortcut, not a replacement.};
+\end{tikzpicture}

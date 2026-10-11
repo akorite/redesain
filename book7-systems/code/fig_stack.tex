@@ -1,0 +1,19 @@
+\begin{tikzpicture}[font=\scriptsize, >=latex]
+% two-layer stack, exploded
+\draw[thick, fill=accentsoft] (0,3.8) -- (8.0,3.8) -- (9.0,4.6) -- (1.0,4.6) -- cycle;
+\node[above] at (4.5,4.6) {F.Cu --- signals + pads (top)};
+\draw[thick, fill=graybg] (0.4,2.8) -- (8.4,2.8) -- (9.4,3.6) -- (1.4,3.6) -- cycle;
+\node[below] at (4.9,2.8) {FR4 core, 1.6\,mm};
+\draw[thick, fill=goodbg] (0.8,1.8) -- (8.8,1.8) -- (9.8,2.6) -- (1.8,2.6) -- cycle;
+\node[below] at (5.3,1.8) {B.Cu --- ground pour (bottom)};
+% via
+\draw[thick, slate, dashed] (5.8,4.4) -- (5.8,2.1);
+\node[right, font=\tiny] at (5.9,3.1) {via};
+% mask legend
+\draw[thick, fill=white] (9.4,0.6) rectangle (11.6,1.4);
+\node[align=left, font=\tiny] at (10.5,1.0) {soldermask over both\\faces (green in photos)};
+\node[align=left, text=slate, text width=10.5cm] at (5.3,0.3)
+{Two copper layers and a core: signal and parts on top, one big
+ground pour underneath --- the cheapest board fabs sell and the
+easiest to lay out honestly.};
+\end{tikzpicture}

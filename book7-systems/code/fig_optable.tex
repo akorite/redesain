@@ -1,0 +1,23 @@
+\begin{tikzpicture}[font=\small]
+\node[anchor=north west, inner sep=0] at (0,0) {%
+\begin{tabular}{llll}
+\toprule
+\texttt{i\_op} & name & result \texttt{o\_y} & flags that can move\\
+\midrule
+\texttt{000} & \texttt{ADD} & $a+b$ & Z N \textbf{C V}\\
+\texttt{001} & \texttt{SUB} & $a-b$ & Z N \textbf{C V}\\
+\texttt{010} & \texttt{AND} & $a\mathbin{\&}b$ & Z N\\
+\texttt{011} & \texttt{OR}  & $a\mathbin{|}b$ & Z N\\
+\texttt{100} & \texttt{XOR} & $a\mathbin{\hat{}}b$ & Z N\\
+\texttt{101} & \texttt{SHL} & $a\ll1$ & Z N \textbf{C}\\
+\texttt{110} & \texttt{SHR} & $a\gg1$ & Z N \textbf{C}\\
+\texttt{111} & \texttt{CMP} & $a-b$ & Z N \textbf{C V}\\
+\bottomrule
+\end{tabular}};
+\node[anchor=north west, text width=6.2cm, font=\scriptsize, text=slate]
+  at (0,-5.6) {The encoding is a contract, not a preference: the ch16
+  instruction set drives arithmetic through these three bits, so the
+  table is written in stone for the rest of the book. \texttt{CMP}
+  shares the subtracter's datapath but the difference it computes is
+  thrown away --- the flags are the verdict.};
+\end{tikzpicture}

@@ -1,0 +1,41 @@
+\begin{tikzpicture}[font=\scriptsize, >=latex, scale=0.9, transform shape]
+% datapath (left, shaded as the ch15 box)
+\draw[thick, fill=graybg] (0,0.6) rectangle (7.2,6.2);
+\node[font=\small\bfseries] at (3.6,5.9) {datapath (ch15)};
+\draw[thick, fill=white] (0.5,4.4) rectangle (2.0,5.4);
+\node[align=center] at (1.25,4.9) {PC /8};
+\draw[thick, fill=white] (3.0,4.4) rectangle (5.0,5.4);
+\node[align=center] at (4.0,4.9) {ROM 256x8};
+\draw[->, thick] (2.0,4.9) -- (3.0,4.9) node[midway,above]{\texttt{pc}};
+\draw[thick, fill=white] (0.5,1.6) rectangle (2.9,3.4);
+\node[align=center] at (1.7,2.9) {regfile 8x8\\1W+2R};
+\draw[thick, fill=accentsoft] (3.6,1.6) rectangle (6.0,3.0);
+\node[align=center] at (4.8,2.6) {\texttt{alu8}};
+\draw[->, thick] (2.9,2.5) -- (3.6,2.2) node[pos=0.5,below]{\texttt{A}};
+\draw[->, thick] (2.9,2.0) -- (3.2,1.9) -- (4.2,1.9) -- (4.2,1.6);
+\draw[thick, fill=goodbg] (5.0,3.6) rectangle (6.4,4.3);
+\node[align=center] at (5.7,3.95) {flags};
+\draw[->, thick] (4.8,3.0) -- (5.7,3.6);
+\draw[thick, fill=goodbg] (6.2,1.0) rectangle (7.0,1.9);
+\node[align=center, font=\tiny] at (6.6,1.45) {OUT};
+\draw[->, thick] (6.6,1.9) -- (6.6,2.4) -- (6.0,2.4);
+% decoder (right)
+\draw[thick, fill=amberbg] (8.0,1.4) rectangle (10.6,5.6);
+\node[align=center, font=\small\bfseries] at (9.3,5.2) {decoder};
+\node[align=left] at (9.3,3.4) {\texttt{op[7:4] + flags}\\
+$\to$ \texttt{alu\_op, wb\_sel,}\\
+\texttt{dst\_sel, we,}\\
+\texttt{flags\_we, out\_we,}\\
+\texttt{pc\_mode}};
+\draw[->, thick] (5.0,5.2) -- (5.6,5.2) -- (5.6,5.9) -- (8.8,5.9) -- (8.8,5.6);
+\node[above] at (7.0,5.9) {\texttt{instr}};
+\foreach \x/\y in {1.25/4.4, 1.7/1.6, 5.7/3.6, 6.6/1.0}{
+  \draw[<-, dashed, slate] (\x,\y) -- (\x,\y-0.6);}
+\foreach \x/\y in {1.25/4.4, 1.7/3.4, 4.8/3.0, 5.7/4.3, 6.6/1.9}{
+  \draw[-, dashed, slate] (\x,\y) -- (8.0,\y);}
+\draw[->, thick] (9.3,1.4) -- (9.3,0.4) -- (1.25,0.4) -- (1.25,0.6);
+\node[align=center, text=slate, text width=10.4cm] at (5.1,-0.6)
+{The centrepiece: every dashed line is a control-word tap. The decoder
+is combinational --- fetch, decode and execute all happen inside one
+cycle, which is why our ``master FSM'' has only two states.};
+\end{tikzpicture}

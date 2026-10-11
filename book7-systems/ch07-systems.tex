@@ -1,0 +1,288 @@
+% ch07-systems.tex -- hazards: forwarding, load-use stall, branch flush
+\chapter{Hazards: Forwarding, Stalls, Branches}
+\label{ch:hazards07}
+
+Ch06 ended with a fast liar: the naive pipeline retired one
+instruction per cycle while handing stale registers to dependent
+code --- \texttt{a1=3} where 8 belonged. This chapter pays the bill
+in hardware. Three fixes, each small enough to draw on one figure:
+\emph{forwarding} muxes that route results backward before
+writeback; a \emph{load-use stall} that freezes fetch for the one
+case forwarding cannot reach; and \emph{predict-not-taken plus
+flush} for branches. Then the same testbench ch06 failed: now
+\texttt{a0=5, a1=8, a2=41, a3=42, dmem[1]=42}, at a measured cost
+of exactly one pipeline bubble. Every number in this chapter comes
+from the real core.
+
+\section{Forwarding: don't wait for writeback}
+\label{sec:fwd07}
+\index{forwarding}\index{bypass}
+
+\begin{example}[the value is already there]\label{ex:fwd07}
+When \texttt{addi a0,zero,5} is in MEM, its result sits in the
+EX/MEM register; when it's in WB, in MEM/WB. The consumer's ALU
+input just needs a mux pointed at those registers instead of only
+the regfile. Two comparisons per operand --- \texttt{exmem\_rd ==
+idex\_rs1? memwb\_rd == idex\_rs1?} --- newest wins.
+\end{example}
+
+\begin{figure}[t]
+\centering
+\input{figures/ch07/fig_fwdpath}
+\caption[Forwarding paths]{Two muxes on the ALU inputs, newest
+first: EX/MEM, then MEM/WB, then the register file.}
+\label{fig:fwd07}
+\end{figure}
+
+\begin{checkpoint}[why newest first]\label{cp:newest07}
+If \texttt{a0} is written by two back-to-back instructions, both
+EX/MEM and MEM/WB may match. The newer writer must win --- ordering
+the mux checks EX/MEM first is the whole subtlety.
+\end{checkpoint}
+
+\begin{example}[forwarded, measured]\label{ex:fwdmeas07}
+Same pair that broke ch06: \texttt{addi a0,zero,5; addi a1,a0,3}.
+Real tb output:
+\begin{lstlisting}
+a0=5 a1=8 -- forwarding fixed ch06's 3
+dmem[1]=42 -- dependent store forwarded
+measured: 1 stalls, 6 WB-writes in 40 cycles
+\end{lstlisting}
+\texttt{a1=8} at full speed --- zero bubbles for ALU hazards. The
+\texttt{sw} got its store data forwarded to the MEM stage too.
+\end{example}
+
+\section{Load-use: the one stall you cannot avoid}
+\label{sec:loaduse07}
+\index{load-use hazard}\index{stall}
+
+\begin{example}[memory is one cycle too slow]\label{ex:loaduse07}
+\texttt{lw a2,0(x); addi a3,a2,1}: the load's data arrives at the
+end of MEM --- one stage \emph{after} the consumer's ALU needs it.
+No forward reaches backward far enough. The honest fix: the hazard
+unit detects that the EX instruction is a load (\texttt{idex\_memread})
+whose destination matches the ID instruction's \texttt{rs1} or
+\texttt{rs2}, freezes \texttt{pc} and \texttt{ifid},
+and bubbles EX once. Measured cost: \textbf{exactly 1 stall} ---
+the tb counts it.
+\end{example}
+
+\begin{figure}[t]
+\centering
+\input{figures/ch07/fig_loaduse}
+\caption[Load-use timing]{The consumer's ID slides one cycle right;
+the load's MEM data now forwards into its EX.}
+\label{fig:loaduse07}
+\end{figure}
+
+\begin{figure}[t]
+\centering
+\input{figures/ch07/fig_hazardunit}
+\caption[Hazard unit]{Four comparisons, three control actions ---
+the entire hazard unit fits in one \texttt{assign}.}
+\label{fig:hazardunit07}
+\end{figure}
+
+\begin{checkpoint}[why can't we forward the load?]\label{cp:load07}
+Forwarding moves data backward through stages already computed. The
+load's MEM stage hasn't produced the value when the consumer's EX
+runs --- it exists only a cycle later, so the consumer must wait
+one cycle; then MEM/WB forwarding covers it.
+\end{checkpoint}
+
+\section{Branches: predict, verify, flush}
+\label{sec:branch07}
+\index{control hazard}\index{branch prediction}\index{flush}
+
+\begin{example}[the cheapest predictor]\label{ex:pred07}
+Always fetch \texttt{pc+4} (predict not-taken). If EX proves a
+branch taken, squash the two wrong-path slots --- NOP into IF/ID,
+bubble into ID/EX, redirect pc to the computed target. Two lost
+slots per misprediction; zero cost when the guess is right.
+\texttt{pc\_tgt = idex\_pc4 - 4 + idex\_imm} --- careful: pc+4
+carried forward, not pc itself.
+\end{example}
+
+\begin{figure}[t]
+\centering
+\input{figures/ch07/fig_flush}
+\caption[Branch flush]{Predict-not-taken: free on the guess,
+two slots on the miss.}
+\label{fig:flush07}
+\end{figure}
+
+\begin{example}[the scoreboard, all measured]\label{ex:score07}
+\end{example}
+\begin{figure}[h]
+\centering
+\input{figures/ch07/fig_scoreboard}
+\caption[Hazard scoreboard]{Every fix's cost, measured on the
+real core: forwarding is free, load-use costs one bubble, a taken
+branch costs two slots.}
+\label{fig:score07}
+\end{figure}
+
+\begin{figure}[t]
+\centering
+\input{figures/ch07/fig_cpi_after}
+\caption[Before/after]{Same tb as ch06: wrong-fast became
+right-fast at the cost of one bubble.}
+\label{fig:cpiafter07}
+\end{figure}
+
+\section{The debugging receipts}
+\label{sec:receipts07}
+\index{X-propagation}
+
+\begin{example}[two real bugs this chapter hit]\label{ex:bugs07}
+Building this core produced two genuinely instructive failures,
+kept because they are the lesson. (1) \emph{X-propagation deadlock}:
+uninitialised pipeline registers made \texttt{stall} unknown
+forever --- nothing ever retired; the fix was zeroing the tag
+registers (\texttt{idex\_rd}, \texttt{exmem\_rd}, \texttt{memwb\_rd})
+on reset, since 0 never matches a live register. (2) The
+hand-assembled constant \texttt{0x00002613} was written down as
+``\texttt{lw a2,0(zero)}'' --- it actually decodes as
+\texttt{addi a2,zero,0} (opcode \texttt{0x13}, not \texttt{0x03}).
+The ``load-use'' test never tested a load. The book's own assembler
+now generates every test byte; hand hex is exactly the
+decode-a-field-wrong mistake ch03 warned about.
+\end{example}
+
+\section{Common mistakes}
+\label{sec:mistakes07}
+\begin{itemize}
+\item \textbf{Forwarding to the wrong stage.} A store's data must
+      forward into \texttt{dmem\_wdata}, not just the ALU --- easy to
+      miss because loads exercise only the read path.
+\item \textbf{No x0 guard.} \texttt{idex\_rd==0} must never trigger
+      a forward --- register 0 has no writer to forward from.
+\item \textbf{Older-wins mux order.} MEM/WB checked before EX/MEM
+      gives the stale writer priority --- silent wrongness.
+\item \textbf{Stalling without freezing pc.} Freezing IF/ID while
+      pc advances re-fetches and duplicates the instruction ---
+      we measured exactly that duplicate.
+\item \textbf{Hand-assembling test vectors.} One wrong field and
+      the test tests nothing (our \texttt{0x00002613}).
+\item \textbf{Forgetting uninitialised tags are x.} \texttt{x==x}
+      evaluates x, poisoning every comparison --- reset the tags.
+\end{itemize}
+
+\section{Summary}
+\label{sec:summary07}
+\begin{tabularx}{\linewidth}{@{}l X@{}}
+\toprule
+\textbf{Fix} & \textbf{Hardware + measured cost} \\
+\midrule
+forwarding & 2 muxes on ALU inputs; ALU hazards $\to$ 0 bubbles \\
+load-use stall & 1 \texttt{assign}; freeze pc+ifid, bubble EX $\to$ 1 \\
+branch flush & predict-not-taken; 2 slots per taken branch \\
+receipts & a1: 3$\to$8, a3: 42, dmem[1]: 42, stalls: 1 --- all real \\
+\bottomrule
+\end{tabularx}
+
+\section*{Further reading}
+\label{sec:further07}
+\begin{itemize}
+\item Patterson \& Hennessy, COD ch4 (forwarding, stalls):\\
+      \href{https://www.elsevier.com/books/computer-organization-and-design-risc-v-edition/patterson/978-0-12-820331-6}{elsevier.com --- COD RISC-V edition}
+\item Harris \& Harris, DDCA RISC-V ch7 (hazard unit):\\
+      \url{https://pages.hmc.edu/harris/ddca/ddcarv.html}
+\item Hennessy \& Patterson, CAQA app C (the taxonomy):\\
+      \href{https://www.elsevier.com/books/computer-architecture/hennessy/978-0-12-811905-1}{elsevier.com --- CAQA}
+\item CS:APP ch4 (PIPE's forwarding logic):\\
+      \url{https://csapp.cs.cmu.edu/}
+\end{itemize}
+
+\begin{rulebox}[Watch instead]
+\begin{itemize}
+\item \textbf{DDCA Ch7 hazard-unit walkthrough} --- Sarah Harris
+      series, forwarding and stalling drawn live (verified
+      2026-10-11). \url{https://youtu.be/AoBkibslRBM}
+\end{itemize}
+\end{rulebox}
+
+\section*{Notes}
+\label{sec:notes07}
+\begin{itemize}
+\item Hazard taxonomy and fix structure follow COD ch4; the
+      scoreboard is measured on our core, not cited.
+\item All outputs are verbatim Icarus runs of \texttt{ch07\_fwd\_tb}
+      and \texttt{ch06\_pipe\_tb}; bug receipts in
+      sec:receipts07 are real session bugs, documented because
+      reviewers should be able to reproduce the failure modes too.
+\end{itemize}
+
+\section{Exercises}
+\label{sec:exercises07}
+
+\begin{exercise}[easy]\label{ex:e07a}
+Why does forwarding check EX/MEM before MEM/WB?
+\end{exercise}
+\begin{solution}[hint]
+Two matching writers: the newer one's value must win.
+\end{solution}
+
+\begin{exercise}[easy]\label{ex:e07b}
+State the load-use stall condition in one sentence of English.
+\end{exercise}
+\begin{solution}[hint]
+EX-stage insn is a load AND ID-stage insn reads its rd.
+\end{solution}
+
+\begin{exercise}[medium]\label{ex:m07a}
+\texttt{add a0,a1,a2; add a3,a0,a4; add a5,a3,a6}: how many
+forwards, and from which stage each?
+\end{exercise}
+\begin{solution}[hint]
+Two: a0 via EX/MEM, a3 via EX/MEM one cycle later (chain).
+\end{solution}
+
+\begin{exercise}[medium]\label{ex:m07b}
+Why does the x0 guard matter for forwarding correctness?
+\end{exercise}
+\begin{solution}[hint]
+x0 is never written; a match would forward a meaningless value to
+a consumer reading the constant.
+\end{solution}
+
+\begin{exercise}[medium]\label{ex:m07c}
+A taken branch costs 2 slots here. What pipeline change halves it
+--- and what does it cost in hardware?
+\end{exercise}
+\begin{solution}[hint]
+Resolve branches in ID: an early comparator + target adder in ID
+stage; one slot lost instead of two.
+\end{solution}
+
+\begin{exercise}[medium]\label{ex:m07d}
+The tb counts 1 stall for our program. Write a program that stalls
+exactly twice.
+\end{exercise}
+\begin{solution}[hint]
+Two back-to-back load-use pairs, e.g. lw a0,0(x); addi a1,a0,1;
+lw a2,4(x); addi a3,a2,1.
+\end{solution}
+
+\begin{exercise}[hard]\label{ex:h07a}
+Our hazard unit compares only rs1/rs2 of the ID instruction. Which
+instruction classes need no second-operand check, and is
+over-stalling for them harmful?
+\end{exercise}
+\begin{solution}[hint]
+I-type/lw only read rs1 --- checking rs2 can false-stall on
+instructions whose rs2 field is part of the immediate. Harm:
+a wasted bubble, not wrongness.
+\end{solution}
+
+\begin{exercise}[hard]\label{ex:h07b}
+Design the branch-in-ID resolution: which registers must compare
+early, what forwarding must extend into ID, and what new hazard
+does it create?
+\end{exercise}
+\begin{solution}[hint]
+rs1/rs2 compared in ID needs forwarding from EX/MEM and MEM/WB into
+ID --- and a load producing the compare operand needs TWO stalls.
+\end{solution}
+
+% chapter end

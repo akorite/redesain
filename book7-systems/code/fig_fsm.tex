@@ -1,0 +1,14 @@
+\begin{tikzpicture}[font=\scriptsize, >=latex]
+\node[circle, draw, thick, fill=goodbg, minimum size=1.7cm] (run) at (0,0) {RUN};
+\node[circle, draw, thick, fill=amberbg, minimum size=1.7cm] (halt) at (5.4,0) {HALTED};
+\draw[->, thick] (-2.2,0) -- (run) node[midway, above]{\texttt{reset}};
+\draw[->, thick, loop above] (run) edge node[align=center]{fetch--decode--execute\\one cycle per instruction} ();
+\draw[->, thick] (run) -- (halt) node[midway, above]{\texttt{HALT} decoded};
+\draw[->, thick] (halt) .. controls (3.4,-2.2) and (2.0,-2.2) .. (run)
+  node[midway, below]{\texttt{reset}};
+\node[align=center, text=slate, text width=8.6cm] at (2.7,-3.4)
+{Two states are enough because the datapath is combinational: each RUN
+edge completes a whole instruction. A multi-cycle design (a memory
+load that takes two beats, say) would add states per instruction phase
+--- same FSM pattern, more nodes.};
+\end{tikzpicture}

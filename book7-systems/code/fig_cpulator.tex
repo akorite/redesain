@@ -1,0 +1,20 @@
+\begin{tikzpicture}[font=\scriptsize, >=latex]
+% CPUlator panel map (schematic, not screenshot)
+\draw[thick, rounded corners] (0.3,0.6) rectangle (9.9,4.8);
+\node[font=\footnotesize\bfseries] at (5.1,4.5) {CPUlator (browser RV32 simulator) --- panel map};
+\draw[thick, fill=accentsoft] (0.6,1.4) rectangle (3.0,4.2);
+\node[align=center, font=\tiny, text width=2.2cm] at (1.8,3.8) {editor:\\your .S here};
+\node[align=center, font=\tiny, text width=2.2cm] at (1.8,2.4) {compile\\errors land here};
+\draw[thick, fill=goodbg] (3.3,1.4) rectangle (5.6,4.2);
+\node[align=center, font=\tiny, text width=2.1cm] at (4.45,3.8) {register file:\\x0--x31 live};
+\node[align=center, font=\tiny, text width=2.1cm] at (4.45,2.4) {watch t0 count\\to 11, t1 to 55};
+\draw[thick, fill=graybg] (5.9,1.4) rectangle (8.2,4.2);
+\node[align=center, font=\tiny, text width=2.1cm] at (7.05,3.8) {memory view:\\text + data hex};
+\node[align=center, font=\tiny, text width=2.1cm] at (7.05,2.4) {find the loop\\bytes you assembled};
+\draw[thick, fill=amberbg] (8.5,1.4) rectangle (9.6,4.2);
+\node[align=center, font=\tiny, text width=0.9cm] at (9.05,2.8) {step\\run\\reset};
+\node[align=left, text=slate, text width=10cm] at (5.1,0.4)
+  {Schematic of the CPUlator layout (CPUlator runs in a browser ---
+   described, not captured). Single-step the sum loop and watch the
+   same registers this chapter uses change one word at a time.};
+\end{tikzpicture}

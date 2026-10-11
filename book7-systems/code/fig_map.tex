@@ -1,0 +1,19 @@
+\begin{tikzpicture}[font=\scriptsize, >=latex]
+% the eight-book learning map
+\foreach \x/\y/\t in {0.6/3.6/{Book 5 --- this book:\\circuits to a CPU},3.8/3.6/{Book 6:\\OS on real hardware},7.0/3.6/{Book 7:\\pipelined RISC-V}}{
+  \draw[thick, fill=accentsoft] (\x,\y) rectangle (\x+2.6,\y+1.0);
+  \node[align=center, font=\tiny] at (\x+1.3,\y+0.5) {\t};
+}
+\draw[->, thick] (3.2,4.1) -- (3.8,4.1);
+\draw[->, thick] (6.4,4.1) -- (7.0,4.1);
+\draw[thick, fill=goodbg] (2.2,1.4) rectangle (5.0,2.7);
+\node[align=center, font=\tiny] at (3.6,2.05) {the road continues:\\AoE + H\&H for analog craft,\\HDLBits for daily drills,\\RISC-V spec for the real ISA};
+\draw[->, thick] (4.9,3.6) -- (4.2,2.7);
+\draw[thick, fill=amberbg] (6.2,1.4) rectangle (9.2,2.7);
+\node[align=center, font=\tiny] at (7.7,2.05) {Book 7 picks up where\\cpu8 stops: pipelines,\\hazards, caches, branch\\prediction --- real chips};
+\draw[->, thick] (8.3,3.6) -- (7.9,2.7);
+\node[align=left, text=slate, text width=10cm] at (4.8,0.5)
+{Where this book hands you off: the sensor board and cpu8 are the
+bridge --- Book 7 takes the same instruction-fetch machine to a
+real RV32I, and the side texts carry the analog and drill work.};
+\end{tikzpicture}

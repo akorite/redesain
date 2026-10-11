@@ -1,0 +1,33 @@
+\begin{tikzpicture}[font=\scriptsize, >=latex]
+% --- left: the tri-state idea ---
+\node[font=\small\bfseries] at (1.9,6.6) {tri-state idea (breadboard)};
+\draw[thick] (-0.4,1.2) -- (4.2,1.2);
+\node[below] at (1.9,1.2) {shared bus /8};
+\foreach \x/\nm in {0.2/{reg A},2.0/{reg B},3.6/{ALU}}{
+  \draw[thick, fill=graybg] (\x-0.35,2.4) rectangle (\x+0.35,3.4);
+  \node at (\x,2.9) {\nm};
+  \draw[thick, accent] (\x,2.4) -- (\x,1.75);
+  \draw[thick, accent] (\x,1.2) -- (\x,1.75);
+  \draw[thick, fill=amberbg] (\x-0.28,1.75) rectangle (\x+0.28,2.05);
+  \node[font=\tiny] at (\x,1.9) {OE};
+}
+\node[align=center, text=slate] at (1.9,0.4) {each driver \emph{electrically disconnects}\\
+when off --- two drivers on = smoke};
+% --- right: the mux reality ---
+\node[font=\small\bfseries] at (8.2,6.6) {mux reality (FPGA fabric)};
+\draw[thick, fill=graybg] (6.6,2.4) rectangle (7.3,3.4);
+\node at (6.95,2.9) {A};
+\draw[thick, fill=graybg] (7.9,2.4) rectangle (8.6,3.4);
+\node at (8.25,2.9) {B};
+\draw[thick, fill=graybg] (9.2,2.4) rectangle (9.9,3.4);
+\node[font=\tiny] at (9.55,2.9) {ALU};
+\draw[thick, fill=accentsoft] (7.4,1.0) rectangle (8.8,1.9);
+\node[align=center] at (8.1,1.45) {3:1 mux\\\texttt{sel}};
+\draw[->, thick] (6.95,2.4) -- (6.95,1.45) -- (7.4,1.45);
+\draw[->, thick] (8.25,2.4) -- (8.1,1.9);
+\draw[->, thick] (9.55,2.4) -- (9.55,1.45) -- (8.8,1.45);
+\draw[->, thick, accent] (8.1,1.0) -- (8.1,0.4);
+\node[below, font=\small] at (8.1,0.4) {bus};
+\node[align=center, text=slate] at (8.2,-0.5) {no third state exists: a select\\
+line picks exactly one driver};
+\end{tikzpicture}

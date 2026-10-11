@@ -1,0 +1,19 @@
+\begin{tikzpicture}[font=\scriptsize, >=latex]
+% caller vs callee saved ownership
+\draw[thick, fill=accentsoft] (0.4,2.6) rectangle (4.6,4.4);
+\node[font=\footnotesize] at (2.5,4.0) {caller-saved (t0--t6, a0--a7, ra)};
+\node[align=left, font=\tiny, text width=3.9cm] at (2.5,3.1)
+  {the CALLER must save these if it still needs them --- the callee
+   may trash them freely};
+\draw[thick, fill=goodbg] (5.4,2.6) rectangle (9.6,4.4);
+\node[font=\footnotesize] at (7.5,4.0) {callee-saved (s0--s11, sp)};
+\node[align=left, font=\tiny, text width=3.9cm] at (7.5,3.1)
+  {the CALLEE must restore these before ret --- the caller is allowed
+   to believe they're unchanged};
+\node[align=left, text=slate, text width=10cm] at (5.0,1.9)
+  {One line each way: whoever \emph{loses} the value saves it.
+   \ttfamily sw ra,12(sp)\rmfamily\ is the caller... no wait ---
+   fib saves its own ra because \emph{fib's} return address dies
+   when fib calls itself. Ownership follows the overwrite, not the
+   register.};
+\end{tikzpicture}

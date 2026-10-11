@@ -1,0 +1,295 @@
+% ch06-systems.tex -- pipelining the core, hazards shown honestly
+\chapter{Pipelining: One Per Cycle (Usually)}
+\label{ch:pipe06}
+
+The single-cycle core of ch05 was honest and slow: one instruction
+per very long clock, every instruction priced at \texttt{lw}'s
+journey through five hardware stops. This chapter cuts that path
+into five stages with four pipeline registers --- IF, ID, EX, MEM,
+WB --- and discovers the machine's first real lie. The pipeline
+retires one instruction per cycle whether the instructions depend
+on each other or not. On independent code it is correct and fast;
+on dependent code it is fast and \emph{wrong}: our testbench shows
+\texttt{a1} come back 3 instead of 8 because the second
+\texttt{addi} reads \texttt{a0} three cycles before it is written.
+Hazards are not an edge case --- they are the price of admission.
+This chapter builds the broken machine on purpose, measures the
+breakage, and hands the fix to ch07.
+
+\section{Why pipeline}
+\label{sec:why06}
+\index{pipelining}\index{throughput}\index{latency}
+
+Two numbers, not one. \emph{Latency} is how long one instruction
+takes end to end --- pipelining does not improve it (pipeline
+registers add a little). \emph{Throughput} is how many finish per
+unit time --- pipelining multiplies it by the stage count, ideally.
+Ch05's $5\tau$ clock becomes a $\tau$ clock; five instructions in
+flight finish one per $\tau$ instead of one per $5\tau$. The
+\texttt{lw} tax disappears not because \texttt{lw} got cheaper but
+because its slack is now occupied by four other instructions.
+
+\begin{figure}[t]
+\centering
+\input{figures/ch06/fig_timeline}
+\caption[Laundry timeline]{Same five instructions on both machines.
+Single-cycle serialises; the pipeline overlaps --- throughput, not
+latency, is what changed.}
+\label{fig:timeline06}
+\end{figure}
+
+\section{The five stages and what the registers carry}
+\label{sec:stages06}
+\index{pipeline register}\index{IF/ID/EX/MEM/WB}
+
+\begin{example}[cut the path, keep the semantics]\label{ex:regs06}
+\texttt{ch06\_rv32i\_pipe\_top.v} reuses ch05's decoder, regfile and
+ALU unmodified --- the stages are the same combinational blocks,
+separated by registers. \texttt{IF/ID} carries the instruction word
+and \texttt{pc+4}; \texttt{ID/EX} carries the read operands, the
+immediate, the destination index, and every control bit decode
+produced; \texttt{EX/MEM} carries the ALU result, the store value,
+and the surviving control bits; \texttt{MEM/WB} carries whichever
+of ALU-result / memory-data / pc+4 the writeback needs. Nothing is
+forgotten: a control bit that dies early is a bug with a wire width.
+\end{example}
+
+\begin{figure}[t]
+\centering
+\input{figures/ch06/fig_5stage}
+\caption[Five-stage datapath]{Four pipeline registers slice ch05's
+path. Each register carries data \emph{and} control --- the control
+bits travel with their instruction as far as they are needed.}
+\label{fig:5stage06}
+\end{figure}
+
+\begin{checkpoint}[the invariant]\label{cp:invariant06}
+A correct pipeline must be observationally equivalent to the
+single-cycle machine: same final register file, same memory, same
+order of effects, just faster. Everything in ch07 exists to
+\emph{restore} that equivalence where the naive split breaks it.
+\end{checkpoint}
+
+\section{Timing diagrams}
+\label{sec:timing06}
+\index{timing diagram}
+
+The convention: rows are instructions, columns are cycles, each
+cell names the stage that instruction occupies. A pipeline of depth
+$k$ needs $k$ cycles to fill; afterward, one completes per cycle
+--- the steady state everything is measured against.
+
+\begin{example}[fill the diagram]\label{ex:fill06}
+For five instructions: cycle 1 has I1 in IF; cycle 2 has I1 in ID,
+I2 in IF; \ldots; cycle 5 has I1 in WB and I5 in IF --- the first
+completion; cycles 6--9 complete I2--I5. Nine cycles for five
+instructions: 5 single-cycle periods would have been $5\times
+5\tau$ worth of throughput 5$\times$ slower.
+\end{example}
+
+\section{Where it breaks: hazards, shown}
+\label{sec:hazard06}
+\index{hazard}\index{data hazard}
+
+\begin{example}[the wrong answer, measured]\label{ex:wrong06}
+\texttt{ch06\_pipe\_tb} runs two streams on the naive core. The
+dependent pair \texttt{addi a0,zero,5; addi a1,a0,3}:
+\begin{lstlisting}
+dependent: a0=5 (want 5)  a1=3 (want 8)
+  ^^ a1 read the OLD a0 -- data hazard, REAL and wrong
+independent: a0..a4 = 1 2 3 4 5 (want 1..5)
+ch06 SHOWN: pipeline retires ~1/cyc when independent,
+lies when dependent
+\end{lstlisting}
+\texttt{a1=3}: the second \texttt{addi} was in ID during cycle 3,
+reading the register file \emph{before} the first one's WB in
+cycle 5. The machine is perfectly fast and perfectly wrong ---
+and no warning prints, because hardware never warns.
+\end{example}
+
+\begin{figure}[t]
+\centering
+\input{figures/ch06/fig_hazard}
+\caption[Data hazard timing]{Why a1 = 3: the reader's ID lands
+three cycles before the writer's WB. The register file answers
+honestly --- with a stale value.}
+\label{fig:hazard06}
+\end{figure}
+
+\begin{figure}[t]
+\centering
+\input{figures/ch06/fig_cpi}
+\caption[Measured CPI outcome]{The naive core's real results:
+correct and fast on independent streams, fast and wrong on
+dependent ones. Throughput masks the bug --- that is what makes
+hazards dangerous.}
+\label{fig:cpi06}
+\end{figure}
+
+\begin{example}[name the three hazards]\label{ex:haznames06}
+What we just measured is a \emph{data hazard}: an operand not yet
+written. A \emph{control hazard} is the same story on the pc:
+a branch resolves in EX but two wrong-path instructions are already
+in IF/ID. A \emph{structural hazard} is a resource fought over:
+our unified testbench memory would fight IF and MEM if it were
+one port --- real machines split i-cache/d-cache partly for this.
+Ch06's core takes all three on the chin; ch07 pays them off.
+\end{example}
+
+\begin{checkpoint}[ideal CPI vs honest CPI]\label{cp:cpi06}
+Ideal pipelined CPI is 1. Our measured CPI is also $\approx$1 ---
+on the independent stream. Predict the dependent stream's
+\emph{effective} CPI if we forced correctness with stalls: each
+dependent pair costs bubbles. Ch07 measures exactly this.
+\end{checkpoint}
+
+\section{Common mistakes}
+\label{sec:mistakes06}
+\begin{itemize}
+\item \textbf{Believing throughput = correctness.} The dependent
+      stream retires one per cycle too --- wrong values at full
+      speed.
+\item \textbf{Dropping control bits early.} A control signal that
+      dies at ID/EX when MEM needs it is a silent misroute.
+\item \textbf{Forgetting the fill/drain.} CPI$\approx$1 claims
+      assume steady state; a 5-instruction program spends most of
+      its life filling.
+\item \textbf{Testing independent code only.} It passes beautifully
+      and proves nothing about hazards --- our tb runs both on
+      purpose.
+\item \textbf{Reading the regfile on the wrong edge.} Write-first
+      vs read-first ordering inside a cycle decides whether one
+      hazard vanishes for free.
+\end{itemize}
+
+\section{Summary}
+\label{sec:summary06}
+\begin{tabularx}{\linewidth}{@{}l X@{}}
+\toprule
+\textbf{Idea} & \textbf{The truth} \\
+\midrule
+stages & IF ID EX MEM WB; 4 registers carry data+control \\
+win & throughput $\times$5 ideally; latency unchanged \\
+lie & retires 1/cycle even when wrong (measured: a1=3$\neq$8) \\
+hazards & data, control, structural --- named, shown, deferred \\
+next & forwarding, stalls, branch prediction (ch07) \\
+\bottomrule
+\end{tabularx}
+
+\section*{Further reading}
+\label{sec:further06}
+\begin{itemize}
+\item Patterson \& Hennessy, COD ch4 (pipelining, hazards):\\
+      \href{https://www.elsevier.com/books/computer-organization-and-design-risc-v-edition/patterson/978-0-12-820331-6}{elsevier.com --- COD RISC-V edition}
+\item Harris \& Harris, DDCA RISC-V ch7 (pipelined processor):\\
+      \url{https://pages.hmc.edu/harris/ddca/ddcarv.html}
+\item CS:APP ch4 (SEQ $\to$ PIPE):\\
+      \url{https://csapp.cs.cmu.edu/}
+\item Hennessy \& Patterson, CAQA appendix C (the classic):\\
+      \href{https://www.elsevier.com/books/computer-architecture/hennessy/978-0-12-811905-1}{elsevier.com --- CAQA}
+\end{itemize}
+
+\begin{rulebox}[Watch instead]
+\begin{itemize}
+\item \textbf{DDCA Ch7 pipelined-processor walkthrough} --- Sarah
+      Harris series, the same five-stage decomposition drawn live
+      (verified 2026-10-11). \url{https://youtu.be/AoBkibslRBM}
+\end{itemize}
+\end{rulebox}
+
+\section*{Notes}
+\label{sec:notes06}
+\begin{itemize}
+\item Stage decomposition and hazard taxonomy follow COD ch4 and
+      DDCA ch7; CS:APP ch4 for the SEQ$\to$PIPE pedagogy.
+\item The ``a1=3'' result is a real Icarus run of
+      \texttt{ch06\_pipe\_tb} --- not a stylised example. Both
+      streams captured verbatim.
+\end{itemize}
+
+\section{Exercises}
+\label{sec:exercises06}
+
+\begin{exercise}[easy]\label{ex:e06a}
+Latency vs throughput: which does a pipeline improve, and by how
+much ideally?
+\end{exercise}
+\begin{solution}[hint]
+Throughput, by the stage count; latency slightly worsens.
+\end{solution}
+
+\begin{exercise}[easy]\label{ex:e06b}
+List what IF/ID must carry vs what MEM/WB must carry, and why the
+difference.
+\end{exercise}
+\begin{solution}[hint]
+IF/ID: insn+pc4 (everything flows forward). MEM/WB: only the
+writeback payload --- control died with use.
+\end{solution}
+
+\begin{exercise}[medium]\label{ex:m06a}
+Draw the timing diagram for our dependent pair and mark the exact
+cells where the write and the read happen.
+\end{exercise}
+\begin{solution}[hint]
+Write: WB cell of insn1 (c5). Read: ID cell of insn2 (c3). Two
+cycles too early.
+\end{solution}
+
+\begin{exercise}[medium]\label{ex:m06b}
+Why does the naive core need no flush logic yet still get branches
+wrong? What would flushing cost in bubbles?
+\end{exercise}
+\begin{solution}[hint]
+Branches resolve in EX --- two wrong-path insns already fetched;
+flushing = discarding those two cells.
+\end{solution}
+
+\begin{exercise}[medium]\label{ex:m06c}
+The regfile reads in ID and writes in WB. If we made writes visible
+to reads in the \emph{same} cycle, which hazards disappear for free?
+\end{exercise}
+\begin{solution}[hint]
+The WB-to-ID same-cycle case --- write-then-read ordering inside the
+clock edge buys one free forwarding hop.
+\end{solution}
+
+\begin{exercise}[medium]\label{ex:m06d}
+Our tb checked registers, not memory. Construct a dependent
+\texttt{sw} that would store a stale value and say what signature
+you'd check in dmem.
+\end{exercise}
+\begin{solution}[hint]
+addi a0,zero,7; sw a0,0(zero) --- dmem[0] gets OLD a0; check
+dmem[0]==7 fails.
+\end{solution}
+
+\begin{exercise}[medium]\label{ex:m06e}
+With 5-stage delay profile $\tau$=2ns + register overhead
+$\delta$=0.1ns, compute ideal speedup vs the ch05 single-cycle.
+\end{exercise}
+\begin{solution}[hint]
+10.1ns vs 2.1ns $\to$ ~4.8$\times$, not 5 --- overhead is why real
+speedup is always sublinear.
+\end{solution}
+
+\begin{exercise}[hard]\label{ex:h06a}
+Derive optimal stage count minimax-style: total speedup =
+$T/((T/k)+d)$. Find $k$ that maximises it for $T$=10, $d$=0.1.
+\end{exercise}
+\begin{solution}[hint]
+Differentiate or tabulate: $k=\sqrt{T/d}\approx10$ stages; past
+that, register overhead eats the gain.
+\end{solution}
+
+\begin{exercise}[hard]\label{ex:h06b}
+Three instructions: \texttt{lw a0,0(x); add a1,a0,a2; sw a1,4(x)}.
+On the naive core trace every wrong register read and say how many
+independent nops would fix each.
+\end{exercise}
+\begin{solution}[hint]
+a0's load lands WB at c5; add reads at c3 $\to$ 2 nops. Then a1 is
+an ALU result, WB c6, read c4 $\to$ 2 more nops.
+\end{solution}
+
+% chapter end

@@ -1,0 +1,20 @@
+\begin{figure}[htbp]
+\centering
+\begin{tabular}{llll}
+\toprule
+level & typical size & our measured latency & managed by \\
+\midrule
+registers & 32 words     & 0.3\,ns  & ISA / compiler \\
+L1        & 128--192\,KB & 1.4\,ns  & hardware \\
+L2        & a few MB     & 4.7\,ns  & hardware \\
+SLC/LLC   & 8--16\,MB    & 6--10\,ns & hardware \\
+DRAM      & GBs          & 120\,ns  & hardware + OS \\
+storage   & TBs          & $\mu$s--ms & OS \\
+\bottomrule
+\end{tabular}
+\caption{The levels as a contract: each is managed by the one above
+and services the one below. Latency column is this chapter's own
+measurement, not a data-sheet citation --- your numbers will differ
+and the shape will not.}
+\label{fig:contract09}
+\end{figure}

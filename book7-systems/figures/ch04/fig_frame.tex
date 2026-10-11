@@ -1,0 +1,21 @@
+\begin{tikzpicture}[font=\scriptsize, >=latex]
+% fib stack frame anatomy
+\node[align=left, font=\footnotesize\bfseries] at (4.5,4.7)
+  {one \ttfamily fib\rmfamily\ frame (16 B), sp $\to$ low};
+\foreach \y/\t/\c/\d in {
+  3.8/{ra (12(sp))}/{accentsoft}/{who called \emph{me}},
+  3.0/{s0 (8(sp))}/{goodbg}/{caller's saved register},
+  2.2/{fib(n-1) (4(sp))}/{graybg}/{parked result},
+  1.4/{(unused pad)}/{white}/{16-alignment}}{
+  \draw[thick, fill=\c] (0.8,\y-0.3) rectangle (3.2,\y+0.3);
+  \node[font=\tiny] at (2.0,\y) {\t};
+  \node[right, font=\tiny, text=slate] at (3.4,\y) {\d};
+}
+\draw[->, thick] (0.5,4.0) -- (0.5,1.0)
+  node[midway, left, font=\tiny, rotate=90]{sp grows down};
+\node[align=left, text=slate, text width=10cm] at (5.3,0.3)
+  {Every non-leaf call pays this: ra saved because the inner
+   \ttfamily call\rmfamily\ overwrites it, s0 saved because the
+   caller promised to preserve it, a slot for the result the second
+   call would clobber. fib(7) builds 13 of these at its deepest.};
+\end{tikzpicture}

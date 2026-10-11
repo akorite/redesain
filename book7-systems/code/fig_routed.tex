@@ -1,0 +1,32 @@
+\begin{tikzpicture}[font=\scriptsize, >=latex]
+% routed board, top view
+\draw[thick, fill=graybg] (0,0.6) rectangle (9.0,4.4);
+\node[font=\small\bfseries] at (4.5,4.15) {the routed 40$\times$30 board};
+% header
+\foreach \y in {1.2,1.9,2.6,3.3}{
+  \draw[fill=white] (0.6,\y) circle (0.14);}
+\node[left, font=\tiny] at (0.55,2.25) {J1};
+% LDO + caps
+\draw[fill=accentsoft] (2.6,1.1) rectangle (3.8,1.7);
+\node[font=\tiny] at (3.2,1.4) {U1};
+\draw[fill=white] (4.4,1.1) rectangle (4.9,1.5);
+\draw[fill=white] (4.4,1.8) rectangle (4.9,2.2);
+% sensor
+\draw[fill=white] (7.4,2.6) circle (0.6);
+\node[font=\tiny] at (7.4,2.6) {TMP36};
+% RC
+\draw[fill=white] (6.2,3.4) rectangle (6.8,3.8);
+\node[font=\tiny] at (6.5,3.6) {R1};
+\draw[fill=white] (7.0,3.4) rectangle (7.6,3.8);
+\node[font=\tiny] at (7.3,3.6) {C1};
+% tracks
+\draw[thick, accent] (0.6,1.2) -- (2.6,1.2);
+\draw[thick, accent] (3.8,1.4) -- (6.5,1.4) -- (6.5,3.4);
+\draw[thick, accent] (7.4,3.2) -- (7.4,2.0) -- (8.4,2.0);
+\draw[thick, good] (7.0,3.6) -- (6.8,3.6);
+\node[align=left, text=slate, text width=10cm] at (4.6,-0.2)
+{Placement rationale: header on the left edge (cable exits), the LDO
+near the input with its decouplers tight, the sensor far from the
+LDO's warm side, and the analog path short --- SENSE to R1 to FILT
+in one clean run. The bottom face is one unbroken ground pour.};
+\end{tikzpicture}
