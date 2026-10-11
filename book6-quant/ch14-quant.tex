@@ -157,6 +157,33 @@ Vol target & size $\propto$ tgt/$\hat\sigma$ & lags the crash\\
 \end{tabular}
 \end{table}
 
+\begin{example}[Backtesting the VaR itself]\label{ex:varbt}
+\textbf{Strategy.} A 95\% VaR model says ``you lose more than
+this one day in twenty''. Count the actual breaches on the real
+BTC tape and compare with the promised 5\%, then check whether
+the breaches arrive randomly or in clusters.
+
+\textbf{Solution.} \texttt{var\_backtest.py} runs a rolling
+250-day historical VaR forward over the rest of the tape:
+\begin{verbatim}
+95% VaR backtest, 470 days after 250-day warmup
+expected exceedances: 23.5   observed: 23
+exceedance rate: 4.9% (target 5%)
+consecutive-day exceedance pairs: 8 (clustering of bad days)
+worst breach: -9.9% vs its VaR -2.8%
+\end{verbatim}
+The count is right on target --- 23 breaches vs 23.5 expected ---
+yet 8 of them arrive as \emph{consecutive-day pairs}: bad days
+bunch. And the worst breach took $-9.9\%$ through a $-2.8\%$
+line --- the size, not the count, is where the model fails.
+
+\textbf{Significance.} Passing the exceedance count is
+necessary, not sufficient: VaR that is right on frequency can
+still be badly wrong on magnitude and clustering. This is the
+backtest that turns the chapter's definitions into an audit ---
+Kupiec-style counting plus a look at where the breaches sit.
+\end{example}
+
 \section{Common mistakes}
 \begin{itemize}
 \item \textbf{Normal VaR on fat tails.} This dataset shows $4.7\times$ too few $3\sigma$
@@ -168,7 +195,13 @@ Vol target & size $\propto$ tgt/$\hat\sigma$ & lags the crash\\
   size.
 \item \textbf{Stress on benign scenarios.} Pick the day that actually hurt.
 \item \textbf{Risk measured per-position.} The book's risk is the interaction, not the sum.
-\end{itemize}
+\item \textbf{Passing the count test, failing the size.}
+23 vs 23.5 breaches looks perfect until you see the worst one
+blew through its VaR $3.5\times$
+(Example~\ref{ex:varbt}). Frequency is not severity.
+\item \textbf{Assuming breaches are independent.} 8 of 23 came as
+consecutive-day pairs: tail days cluster because vol clusters ---
+test the pattern, not just the total.\end{itemize}
 
 \section{Exercises}
 \begin{exercise}[easy]
@@ -285,6 +318,36 @@ why that is a fair trade.
 \begin{solution}
 $w_t=\sigma_t/\hat\sigma_t$ removes the need to forecast direction; vol clusters so
 $\hat\sigma$ is estimable---returns are not.
+\end{solution}
+
+\begin{exercise}[easy]
+A 95\% VaR over 470 days sees 23 breaches. Compute the
+exceedance rate and the verdict on frequency.
+\end{exercise}
+\begin{solution}
+$23/470 = 4.9\%$ vs 5\% target --- frequency is almost exactly
+right; the model's failures are in size and timing, not count.
+\end{solution}
+\begin{exercise}[medium]
+What does ``8 consecutive-day exceedance pairs'' imply about the
+independence assumption inside a binomial VaR test?
+\end{exercise}
+\begin{solution}
+Breaches aren't i.i.d.\ --- under independence, consecutive
+pairs should be rare ($\sim23\cdot0.05\approx1$). Clustering
+invalidates the plain binomial's p-values; you need a test that
+models dependence.
+\end{solution}
+\begin{exercise}[hard]
+Design the two-sided backtest: pass/fail on (a) breach count,
+(b) breach clustering, (c) breach magnitude. For (c), name the
+quantity that replaces VaR when size is what matters.
+\end{exercise}
+\begin{solution}
+(a) Kupiec proportion-of-failures; (b) Christoffersen-style
+independence test on the breach sequence; (c) ES breach ratio ---
+mean loss given breach vs the ES forecast --- because ES owns the
+tail VaR only counts.
 \end{solution}
 
 \section*{Notes}

@@ -198,6 +198,29 @@ Leakage & no input may see the future & +2.76 Sharpe of fiction\\
 \end{tabular}
 \end{table}
 
+\begin{example}[Fee-stressing the same backtest]\label{ex:feestress}
+\textbf{Strategy.} The SMA result was quoted at 5bp fees. Rerun
+the identical harness at 0, 10, 25 and 50bp and watch where the
+edge dies --- the cheapest sensitivity test a backtest owns.
+
+\textbf{Solution.} \texttt{fee\_sens.py} prints:
+\begin{verbatim}
+fee  0bp: ret    +9.5%  sharpe +0.30  mdd -30.5%  trades 15
+fee  5bp: ret    +7.9%  sharpe +0.28  mdd -31.1%  trades 15
+fee 10bp: ret    +6.4%  sharpe +0.26  mdd -31.7%  trades 15
+fee 25bp: ret    +1.8%  sharpe +0.19  mdd -33.4%  trades 15
+fee 50bp: ret    -5.4%  sharpe +0.07  mdd -36.2%  trades 15
+\end{verbatim}
+A $+9.5\%$ free-trading strategy loses $\sim$15 points of return
+by 50bp and turns negative --- the 15 round-trips each pay spread
+and fee twice.
+
+\textbf{Significance.} The edge was never large; the fee table
+just shows you where it lives. Report the base case \emph{and} the
+50bp stress in the same breath: a strategy that needs $<$10bp to
+survive is a strategy that needs the venue's goodwill.
+\end{example}
+
 \section{Common mistakes}
 \begin{itemize}
 \item \textbf{Filling at the signal close.} The most common fabrication: you cannot buy at
@@ -210,7 +233,14 @@ Leakage & no input may see the future & +2.76 Sharpe of fiction\\
   product than +7.9\% with $-5$\% dd.
 \item \textbf{``The leak is small so it is fine.''} One bar of foresight was worth +1343\%;
   small leaks scale invisibly.
-\end{itemize}
+\item \textbf{Quoting one fee tier.} The same SMA prints
+$+9.5\%$ at 0bp and $-5.4\%$ at 50bp (Example~\ref{ex:feestress}).
+A single-fee backtest is a marketing document; ship the stress
+table.
+\item \textbf{Fee as a percentage of profit.} Fees charge on
+\emph{notional}, not edge: 15 trades $\times$ 50bp on \$1 of
+exposure is a 15-point drag regardless of how small the gross
+return is.\end{itemize}
 
 \section{Exercises}
 \begin{exercise}[easy]
@@ -342,6 +372,38 @@ foresight window is worth that much on daily bars.
 Daily crypto vol $\sim3\%$: knowing tomorrow's sign removes the one thing that makes
 returns a martingale---your expected daily win is the full $\sim$3\% sd, compounding into
 the observed 13$\times$ over 720 bars.
+\end{solution}
+
+\begin{exercise}[easy]
+The 0bp run prints $+9.5\%$; the 50bp run $-5.4\%$. Compute the
+per-trade fee drag and explain the arithmetic.
+\end{exercise}
+\begin{solution}
+$\approx 15$ points over 15 round-trips = $\sim$1pt/trade: each
+leg pays 50bp and a round trip is two legs, so each trade costs
+$\approx 100$bp of equity.
+\end{solution}
+\begin{exercise}[medium]
+Your venue advertises 2bp maker / 6bp taker. Which number belongs
+in a market-order backtest, and what does using the maker price
+implicitly assume?
+\end{exercise}
+\begin{solution}
+Taker (6bp): a market order lifts the book. Using maker assumes
+every fill rests passively and is never adversely selected ---
+two privileges the tape will not grant.
+\end{solution}
+\begin{exercise}[hard]
+A strategy trades 200$\times$/yr at 40bp round-trip cost. What
+annualised gross Sharpe must its signal hold just to break even on
+a 20\%-vol book, and what does that imply about its plausible
+timeframe?
+\end{exercise}
+\begin{solution}
+Cost drag $=200\times0.4\%=80\%$/yr of notional: needs Sharpe
+$\approx 80/20 = 4.0$ gross just to net zero --- i.e.\ only
+higher-frequency edges can afford high turnover; daily signals
+cannot.
 \end{solution}
 
 \section*{Notes}

@@ -82,11 +82,11 @@ Pending a GitHub PAT: issue creation (pinned "Status" issue + `needs-user` label
 - Owed reviews: linalg-depth re-review ch01-13 (→ elec-0006 queue after disc re-review); cp-depth re-review (ml-f668, queued); disc-depth re-review (elec-0006, queued); ml chapters (TBD); elec ch14-19 (TBD).
 - Page ledger: cp 200 ✓v0.1 · disc 182 · linalg 208 · elec 153 · ml writing · quant writing · physics starting · systems unassigned.
 
-## 2026-10-11 — elec ch14-16 landed (194pp); ml/quant/physics writing
+## 2026-10-11 — elec ch14-16 landed (194pp); ml 158 (ch01-11, 9 artifacts pending) · quant 146 depth-passed (<180 floor, round-2 queued) · physics 141 · systems 45 (ch01-04)
 - elec ch14 (ALU), ch15 (regfile/datapath), ch16 (CPU capstone: cpu8 + asm8 + fib/count/mult/uart + synth reports) merged — full Verilog+tb+asm+hex+vcd artifact set. 194pp clean.
 - elec remaining: ch17-19 + consistency pass → v0.1.
 - Session notes: book2 (quant) + book1 (physics) auto-paused on SWE-2 transient — resumed manually.
-- Page ledger: cp 200 v0.1 · disc 182 · linalg 208 · elec 194 · ml/quant/physics writing · systems unassigned.
+- Page ledger: cp 200 v0.1 · disc 182 · linalg 208 · elec 224 v0.1 · ml 158 (ch01-11, 9 artifacts pending) · quant 146 depth-passed (<180 floor, round-2 queued) · physics 141 · systems 45 (ch01-04) · systems unassigned.
 
 ## 2026-10-11 — book2 v0.2 TAGGED; elec complete at 224pp (ch17 file en route)
 - book2-discrete v0.2 tagged+pushed: 182pp, all 17 chapters independently re-reviewed PASS (elec session, 89/89 links live).
@@ -119,3 +119,7 @@ Pending a GitHub PAT: issue creation (pinned "Status" issue + `needs-user` label
 - ml-f668 delivered elec ch14-19 independent review: 6/6 ACCEPT (sims/uart/ngspice/gerbers all live-verified). 3 floor flags → author patch queued (ch17/18 WE 3→5, ch19 ex 13→15).
 - ml-f668 delivered cp ch01-13 depth re-review: 11 ACCEPT / 3 REVISE-lite (CPH chapter refs ch04/05/07 + Makefile sh→bash) — verbatim fixes applied+verified, 200pp.
 - Tags now: book1-cp-v0.1, book2-discrete-v0.2, book3-linalg-ml-v0.1, book5-electronics-v0.1 (4/8).
+
+## 2026-10-11 — quant depth pass landed (146pp); ml review dispatched
+- quant depth pass 132→146pp merged on main (PR#18 updated). Contract met everywhere; still <180 floor — book2 queued for round-2 on thin chapters after its ml review.
+- Reviews: ml ch01-11 reviewing now (book2); quant ch01-15 review queued (book1); systems/physics TBD.

@@ -45,3 +45,4 @@ book8-physics,ch01-17-land,141,102 fig,~17 lst,~255 ex,pending,main.tex reconstr
 book5-electronics,v0.1-tag,224,,,,6/6 ACCEPT ch14-19,3 floor flags→author patch,ml-f668
 book4-ml,ch01-11-land,158,~66 fig,~33 lst,~165 ex,pending,9 fig artifacts missing→resend requested,ml-f668+coordinator
 book1-cp,depth-rereview-fix,200,,,,11 ACCEPT+3 REVISE-lite,CPH chapter refs + Makefile bash fixed,ml-f668+coordinator
+book6-quant,depth1,"all ch01-15 depth pass",146,~6/ch,~3/ch,+3/ch,1,0,0,0,1,~120,1

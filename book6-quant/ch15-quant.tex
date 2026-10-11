@@ -169,6 +169,34 @@ Deck$\to$memo & honesty is the rewrite & same numbers, fuller truth\\
 \end{tabular}
 \end{table}
 
+\begin{example}[Linting the memo itself]\label{ex:memolint}
+\textbf{Strategy.} Apply the book's own machinery to the writeup:
+scan the findings section and require that every line containing a
+number \emph{or} a verdict-word (``robust'', ``significant'',
+``consistent'') carries a script reference in parentheses.
+
+\textbf{Solution.} \texttt{memo\_lint.py} on a toy findings block:
+\begin{verbatim}
+memo lint: claims and their provenance
+  line 1: OK   SMA(20,60) Sharpe +0.28 on 721 bars (run_sma.py, 5bp/2bp).
+  line 2: OK   2024 slice Sharpe +4.08 (yearly_sharpe.py).
+  line 3: MISS The edge is robust across regimes.
+  line 4: OK   Kelly f* = 0.10 (kelly_sims.py).
+3/4 claims cite a script
+  FIX line 3: 'robust' is a claim --
+     attach the regime table or delete the word
+\end{verbatim}
+The lint catches what a friendly reader misses: ``robust'' is a
+claim, and it has no artifact behind it. The fix is mechanical ---
+attach the regime table (ch12's per-year numbers) or delete the
+word.
+
+\textbf{Significance.} Reviewers trust claims they can re-run;
+this lint is the automated form of the chapter's central rule.
+Run it on your memo the way you run tests on code --- the findings
+section is the only part of the book that \emph{is} its evidence.
+\end{example}
+
 \section{Common mistakes}
 \begin{itemize}
 \item \textbf{Claim without the number.} ``Works well'' is marketing, not research.
@@ -179,7 +207,13 @@ Deck$\to$memo & honesty is the rewrite & same numbers, fuller truth\\
 \item \textbf{Repro instructions that are aspirational.} If a fresh clone can't run it,
   it doesn't reproduce.
 \item \textbf{Concluding from the deck.} The deck is the pitch; the memo is the audit.
-\end{itemize}
+\item \textbf{Verdict words without artifacts.}
+``Robust'', ``consistent'', ``significant'' are claims too ---
+the lint flags them (Example~\ref{ex:memolint}). Attach the
+table or delete the word.
+\item \textbf{Evidence in the appendix only.} If the claim sits
+in findings and its number sits in an appendix, the reader never
+joins them --- keep claim and citation in the same paragraph.\end{itemize}
 
 \section{Exercises}
 \begin{exercise}[easy]
@@ -297,6 +331,37 @@ Markets are measurable but not honest. Every tool that reports a number has a fa
 mode that manufactures a number, so the research discipline is the chain: honest fills,
 counted trials, purged folds, deflated bars, fractional sizing, and a memo that says
 where it breaks.
+\end{solution}
+
+\begin{exercise}[easy]
+Which two patterns does the memo lint search for before demanding
+a script citation?
+\end{exercise}
+\begin{solution}
+A numeric literal (decimal or signed percent) and a verdict word
+(``robust'', ``significant'', ``consistent'', ``stable'',
+``strong'') --- quantity or claim, either needs provenance.
+\end{solution}
+\begin{exercise}[medium]
+Write the fix for ``The edge is robust across regimes'' without
+deleting the claim.
+\end{exercise}
+\begin{solution}
+``Per-year Sharpe ranged $-0.20$ to $+4.08$
+(\texttt{yearly\_sharpe.py}) --- the edge lives in one regime''
+--- keep the claim, attach the table, and let the numbers carry
+the verdict.
+\end{solution}
+\begin{exercise}[hard]
+Extend the lint to catch a subtler failure: a claim that cites a
+script whose committed output no longer matches the number in the
+memo. What metadata makes this checkable?
+\end{exercise}
+\begin{solution}
+The script's pinned output hash / the data pin (sha256 of
+\texttt{code/data/*}) plus the test that greps the quoted number
+verbatim --- the memo cites the test file, not just the code, so
+drift breaks the build.
 \end{solution}
 
 \section*{Notes}

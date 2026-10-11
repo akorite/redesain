@@ -17,3 +17,4 @@
 | ch13 Kelly sizing | shipped | ~8 | 2026-10-11 |
 | ch14 Risk | shipped | ~8 | 2026-10-11 |
 | ch15 Writing it up | shipped | ~8 | 2026-10-11 |
+| depth pass ch01-15 | +14pp (132->146): +1 WE, +3 ex, +2 mistakes per chapter | 2026-10-11 |

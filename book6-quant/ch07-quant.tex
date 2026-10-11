@@ -203,6 +203,31 @@ Pinning & hash + sidecar metadata & unpinned numbers are anecdotes\\
 \end{tabular}
 \end{table}
 
+\begin{example}[A 10-$\sigma$ move that is not a bad tick]\label{ex:sigmaflag}
+\textbf{Strategy.} Run the chapter's $\sigma$-threshold rule
+verbatim on the real print file and see how many flags it raises
+at $2\sigma$, $5\sigma$, $10\sigma$.
+
+\textbf{Solution.} \texttt{sigma\_flags.py} prints:
+\begin{verbatim}
+print-to-print moves: n=1005  std=0.22bp  max=2.34bp
+|dp|>2sigma: 57 prints flagged
+|dp|>3sigma: 16 prints flagged
+|dp|>5sigma: 9 prints flagged
+|dp|>10sigma: 1 prints flagged
+largest move = 10.7 sigma but only 2.34bp -- not a bad tick
+\end{verbatim}
+The largest print-to-print move is $10.7\sigma$ yet only
+$2.34$bp --- a normal price step at print granularity. The rule
+``flag $>5\sigma$'' here quarantines nine good prints per 1006.
+
+\textbf{Significance.} $\sigma$-thresholds are scale-fragile:
+$10\sigma$ is enormous on daily bars ($\sim$30bp) and nothing on
+prints. A bad-tick screen must be denominated in \emph{price
+terms} (bp or ticks) with the sampling rate attached, then
+$\sigma$ can assist --- never lead.
+\end{example}
+
 \section{Common mistakes}
 \begin{itemize}
 \item \textbf{Forward-filling prices across gaps.} Manufactures fake flat data and corrupts
@@ -217,7 +242,13 @@ Pinning & hash + sidecar metadata & unpinned numbers are anecdotes\\
   localise at display.
 \item \textbf{Recomputing instead of pinning.} Data you fetched live yesterday is
   unreproducible today; pin raw bytes before touching them.
-\end{itemize}
+\item \textbf{$\sigma$-flags without a unit.} A $10\sigma$
+print-to-print move is $2.3$bp --- real, not bad data
+(Example~\ref{ex:sigmaflag}). Bad-tick screens need a price
+denomination first.
+\item \textbf{Cleaning before pinning.} Any filter applied before
+the raw file is frozen destroys the evidence for why a value was
+dropped --- pin first, clean on a copy, log every decision.\end{itemize}
 
 \section{Exercises}
 \begin{exercise}[easy]
@@ -348,6 +379,35 @@ the suspect tick. Why does the suspect tick camouflage itself, and what is the f
 The tick inflates the very sd used to flag it---the denominator eats the signal. Exclude the
 candidate from the sd estimate (leave-one-out), or use a robust scale (median absolute
 deviation).
+\end{solution}
+
+\begin{exercise}[easy]
+A print-to-print move of $2.34$bp was flagged at $10.7\sigma$.
+Explain in one line why the flag is wrong.
+\end{exercise}
+\begin{solution}
+$\sigma$ is computed on the same micro-scale distribution ---
+$10\sigma$ of $0.22$bp is $2.3$bp, a normal step; the threshold
+ignored the unit.
+\end{solution}
+\begin{exercise}[medium]
+Write a bad-tick rule for this print file that flags $0$ of the
+1006 real prints yet still catches a 50bp glitch.
+\end{exercise}
+\begin{solution}
+E.g.\ flag $|dp| > 20$bp \emph{or} price deviating $>0.1\%$ from a
+5-print rolling median --- denominated in price terms, not
+$\sigma$ of the print distribution.
+\end{solution}
+\begin{exercise}[hard]
+Your feed timestamps prints in local time and the venue in UTC.
+Design the dedup rule that survives a daylight-saving change, and
+say what breaks if you dedupe on (price, local-time) instead.
+\end{exercise}
+\begin{solution}
+Dedupe on (price, volume, UTC-ms) and re-anchor any local
+timestamp to UTC before joining --- otherwise the DST hour-shift
+duplicates every print in the overlap window.
 \end{solution}
 
 \section*{Notes}

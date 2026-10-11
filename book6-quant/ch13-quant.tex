@@ -170,6 +170,32 @@ Caps & the formula is the scale & the cap is the survival\\
 \end{tabular}
 \end{table}
 
+\begin{example}[The fraction ladder]\label{ex:fracladder}
+\textbf{Strategy.} Fix the 55/45 coin and sweep the betting
+fraction from quarter-Kelly to $5\times$Kelly. At each step, show
+the growth rate, the median final wealth over 2000 tosses, and the
+median path drawdown --- the full cost curve, not just the peak.
+
+\textbf{Solution.} \texttt{frac\_ladder.py} runs 200 seeds:
+\begin{verbatim}
+f=0.025: G +0.0022/toss  med final       71.9  med dd  23%  ruin<1: 0%
+f=0.050: G +0.0038/toss  med final     1487.8  med dd  41%  ruin<1: 0%
+f=0.100: G +0.0050/toss  med final    18325.8  med dd  70%  ruin<1: 2%
+f=0.200: G -0.0001/toss  med final        0.6  med dd 100%  ruin<1: 52%
+f=0.300: G -0.0162/toss  med final        0.0  med dd 100%  ruin<1: 99%
+f=0.500: G -0.0889/toss  med final        0.0  med dd 100%  ruin<1: 100%
+\end{verbatim}
+Full Kelly ($f=0.10$) pays $18{,}326\times$ at the cost of a
+median $70\%$ drawdown; double Kelly ($0.20$) already has
+\emph{negative} growth and a 100\%-dd median path.
+
+\textbf{Significance.} The growth curve is asymmetric around
+$f^*$: left of it you trade return for sleep, right of it you
+trade \emph{everything} for nothing. The cliff at $2f^*$ ---
+where the median path visits ruin --- is why desks quote
+``half-Kelly'' as the standard rather than the optimum.
+\end{example}
+
 \section{Common mistakes}
 \begin{itemize}
 \item \textbf{Quoting Kelly without its CI.} The edge estimate carries the whole bet.
@@ -183,7 +209,13 @@ Caps & the formula is the scale & the cap is the survival\\
   any human's utility.
 \item \textbf{Recomputing $f^\star$ per trade on stale $\hat\mu$.} The input estimate is
   the strategy.
-\end{itemize}
+\item \textbf{Optimising the peak, ignoring the path.}
+Full Kelly pays best \emph{median} growth but a 70\% median
+drawdown (Example~\ref{ex:fracladder}) --- an investor who cannot
+hold the drawdown never collects the median.
+\item \textbf{``A bit more can't hurt.''} Growth goes negative at
+$2f^*$ --- the cost of overbetting is not a flatter curve but a
+cliff.\end{itemize}
 
 \section{Exercises}
 \begin{exercise}[easy]
@@ -304,6 +336,35 @@ $N{=}300$ trial count---what does each layer do?
 Estimate $\hat\mu$; apply $N$-uncertainty (CI on $\mu$); take fractional $f=1$;
 apply drawdown cap $\to$ final fraction. Each layer converts a different error source
 into a smaller bet.
+\end{solution}
+
+\begin{exercise}[easy]
+From the ladder: growth at $f=0.05$ is $+0.0038$ and at $f=0.20$
+is $-0.0001$. Which is $f^*$ and which is $2f^*$?
+\end{exercise}
+\begin{solution}
+$f^*=0.10$ sits between them: half-Kelly still grows
+($+0.0038$), double-Kelly has already crossed zero growth ---
+the signature of the cliff.
+\end{solution}
+\begin{exercise}[medium]
+Your investor will quit at a 50\% drawdown. Which fraction from
+the ladder respects the constraint, and what growth does it
+cost?
+\end{exercise}
+\begin{solution}
+$f\approx0.05$ (median dd $41\%<50\%$): you give up
+$\sim0.0012$/toss of growth vs $f^*$ to stay inside the mandate.
+\end{solution}
+\begin{exercise}[hard]
+Show why the ruin column jumps to $\sim$50\% exactly at $2f^*$:
+prove $G(2f^*)\le0$ for the even-payoff coin, i.e.\
+$p\ln(1+2f^*)+(1-p)\ln(1-2f^*)\le0$.
+\end{exercise}
+\begin{solution}
+$f^*=2p-1$: at $2f^*$, $G=(1-p)\ln(1-2(2p-1))+p\ln(1+2(2p-1))$.
+For $p=0.55$: $0.45\ln0.8+0.55\ln1.2 = -0.1004+0.1003\approx0$
+--- the cliff edge is algebraic, not a simulation artifact.
 \end{solution}
 
 \section*{Notes}
