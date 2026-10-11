@@ -96,6 +96,13 @@ constraint gave the bound, the bound gave the loops.
 \end{solution}
 \end{example}
 
+
+\begin{figure}[htbp]\centering
+\input{figures/fig98-subsets}
+\caption{The subset tree: each level fixes one element, leaves are the $2^{n}$ subsets.}
+\label{fig:subsets}
+\end{figure}
+
 \section{Enumerating subsets}\label{sec:subsets}
 \index{subset!enumerating}
 
@@ -212,6 +219,13 @@ because the search was already cheap --- but the \emph{technique} is the
 point: before exploiting a symmetry, verify the objective is actually
 invariant under it, or you have deleted half your answer space for nothing.
 \end{remark}
+
+
+\begin{figure}[htbp]\centering
+\input{figures/fig99-permtree}
+\caption{The permutation tree: each branch picks the next unused symbol; $n!$ leaves.}
+\label{fig:permtree}
+\end{figure}
 
 \section{Enumerating permutations}\label{sec:perms}
 \index{permutation!enumerating}
@@ -357,6 +371,38 @@ they deleted 98\% of its work. That is what a pruning rule is for.
 \end{solution}
 \end{example}
 
+\begin{example}[WE 2.5 --- CSES \emph{Gray Code}: construction as enumeration]
+\label{ex:gray}
+Print all $2^n$ bit strings of length $n$ such that consecutive strings
+differ in exactly one bit --- including the last versus the first.
+\emph{Input:} \texttt{2}. \emph{Output:} \texttt{00 01 11 10}.
+\par\smallskip
+\textbf{Strategy.} Backtracking works --- walk the hypercube visiting
+every vertex --- but the structure offers something cleaner: recursion
+\emph{as} the construction. A length-$n$ Gray code is the length-$(n{-}1)$
+code written twice: first with a \texttt{0} prefix in the same order,
+then with a \texttt{1} prefix in \emph{reverse} order. The join is safe
+because the middle pair differ only in the new bit, and the wrap-around
+holds because the two ends were one bit apart already. This is the same
+``build the list, recurse on a smaller list'' pattern as
+\ref{ex:creating} --- except here the recursion \emph{is} the algorithm,
+not a search you prune.
+\par\smallskip
+\begin{solution}
+\texttt{code/gray\_code.cpp} runs the reflection and prints
+\begin{lstlisting}[numbers=none]
+$ echo 2 | ./gray_code
+00
+01
+11
+10
+\end{lstlisting}
+For $n{=}16$ it emits all $65\,536$ codes in well under a second ---
+the output itself is the exponential, exactly the
+Section~\ref{sec:exhaustive} trade: the list \emph{is} the work.
+\end{solution}
+\end{example}
+
 Figure~\ref{fig:queentree} draws the same story on the small board.
 
 \begin{figure}[ht]\centering
@@ -463,10 +509,6 @@ Named archive problems are cited by name only; look them up on
 sequence for $n$ disks. [implement --- this is a recursive walk that emits
 its own search tree]
 \end{exercise}
-\begin{exercise}[easy] CSES \emph{Gray Code}: list all $2^n$ bit strings so
-adjacent strings differ in one bit. [implement --- one recursive flip order
-produces the whole list]
-\end{exercise}
 \begin{exercise}[easy] USACO-B \emph{Diamond Collector}: choose the two
 largest diamonds whose sizes differ by at most $k$. Trains bounded nested
 loops and the ``sort then think'' reflex.
@@ -494,6 +536,10 @@ nested loops bounded by the constraints.
 axis-aligned right triangles in a point set. Enumeration over $\binom{n}{2}$
 or $\binom{n}{3}$ --- choose which.
 \end{exercise}
+\begin{exercise}[easy] CSES \emph{Two Sets} --- partition by residue; when does a solution exist? \end{exercise}
+\begin{exercise}[easy] USACO-B \emph{Livestock Lineup} --- permutations filtered by constraints. \end{exercise}
+\begin{exercise}[medium] CSES \emph{Grid Paths} --- the $7\times7$ walk; your pruning from \S2 pays here. \end{exercise}
+\begin{exercise}[medium] USACO-B \emph{Cow Gymnastics} --- all-pairs consistency check over rankings. \end{exercise}
 \begin{exercise}[hard] CSES \emph{Digit Queries}: find the $k$-th digit of
 the concatenated sequence $1, 2, 3, \dots$ --- the search space is far past
 enumeration, so derive the block containing $k$ instead. [derive --- a lesson
@@ -524,43 +570,37 @@ ratios, not the numbers, carry the argument. Halim's text~\cite{halimcp4}
 organises the same material around UVa problem families --- cited here, not
 consulted for content.
 
+\begin{exercise}[hard] Extend the queens solver to $n=14$: report your runtime and the first pruning that halves it. \end{exercise}
 
 \section*{Further reading}
 \begin{itemize}
 \item Laaksonen, \emph{Competitive Programmer's Handbook}, ch.~5
-``Complete search'' (beginner). \url{https://cses.fi/book/book.pdf} ---
-subset/permutation generation and pruning, the backbone of this chapter.
-\item USACO Guide, ``Complete Search'' (beginner).
-\url{https://usaco.guide/bronze/intro-complete} --- the enumerative half of
-the chapter in more exercises.
-\item USACO Guide, ``Complete Search with Recursion'' (beginner).
-\url{https://usaco.guide/bronze/complete-rec} --- the recursive half,
-including the same subset/queen idioms.
-\item USACO Guide, ``Introduction to Greedy Algorithms'' (beginner).
-\url{https://usaco.guide/bronze/intro-greedy} --- when enumeration is too
-big: the Ch~3 bridge.
-\item CSES 1623 \emph{Apple Division} (practice).
-\url{https://cses.fi/problemset/task/1623} --- the canonical subset-sum
-search used in \ref{ex:apple} and a good first archive submission.
-\item cp-algorithms, ``Generating all $k$-combinations'' (reference).
-\url{https://cp-algorithms.com/combinatorics/generating_combinations.html}
---- bitmask iteration idioms beyond the two shown here.
-\item Wikipedia, ``Backtracking'' (reference).
-\url{https://en.wikipedia.org/wiki/Backtracking} --- the general
+``Complete search'' (beginner) ---
+subset/permutation generation and pruning, the backbone of this chapter. \newline\url{https://cses.fi/book/book.pdf}
+\item USACO Guide, ``Complete Search'' (beginner) --- the enumerative half of
+the chapter in more exercises. \newline\url{https://usaco.guide/bronze/intro-complete}
+\item USACO Guide, ``Complete Search with Recursion'' (beginner) --- the recursive half,
+including the same subset/queen idioms. \newline\url{https://usaco.guide/bronze/complete-rec}
+\item USACO Guide, ``Introduction to Greedy Algorithms'' (beginner) --- when enumeration is too
+big: the Ch~3 bridge. \newline\url{https://usaco.guide/bronze/intro-greedy}
+\item CSES 1623 \emph{Apple Division} (practice) --- the canonical subset-sum
+search used in \ref{ex:apple} and a good first archive submission. \newline\url{https://cses.fi/problemset/task/1623}
+\item cp-algorithms, ``Generating all $k$-combinations'' (reference). (article: ``Generating all $k$-combinations)
+--- bitmask iteration idioms beyond the two shown here. \newline\url{https://cp-algorithms.com/}
+\item Wikipedia, ``Backtracking'' (reference) --- the general
 vocabulary (state space tree, constraint propagation) this chapter
-specializes.
-\end{itemize}
+specializes. \newline\url{https://en.wikipedia.org/wiki/Backtracking}\end{itemize}
 
 \begin{rulebox}[Watch instead]
 \smallskip\noindent\textbf{Best first.}
 ``6.2 Sum Of Subsets Problem - Backtracking'' --- Abdul Bari, 12 min ---
-\url{https://www.youtube.com/watch?v=kyLxTdsT8ws}. The state-space tree and
+\url{https://youtu.be/kyLxTdsT8ws}. The state-space tree and
 prune-on-dead-end of \S\ref{sec:exhaustive}, worked on the same problem
 shape as \ref{ex:apple}; hand-drawn trees, code-agnostic.
 \smallskip\noindent
 ``The N Queens Problem using Backtracking/Recursion - Explained'' ---
 Back To Back SWE, 14 min ---
-\url{https://www.youtube.com/watch?v=wGbuCyNpxIg}. Covers
+\url{https://youtu.be/wGbuCyNpxIg}. Covers
 \S\ref{sec:backtracking} end-to-end (place/backtrack on the diagonal
 constraints); Java-flavoured code, same recursion shape as the book's C++.
 Access date 2026-10-10.

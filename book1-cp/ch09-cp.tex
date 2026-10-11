@@ -105,6 +105,13 @@ frontier.},label={lst:prim}]
 \end{lstlisting}
 \lstinputlisting{code/prim.h}
 
+
+\begin{figure}[htbp]\centering
+\input{figures/fig103-reverse}
+\caption{Offline reversal: a deletion log replayed backwards is a build log.}
+\label{fig:reverse}
+\end{figure}
+
 \section{Worked examples}
 \begin{example}[CSES \emph{Road Construction}]\label{ex:constr}
 After each new road: component count, largest component.
@@ -157,6 +164,32 @@ YES
 YES
 YES
 \end{lstlisting}
+\end{solution}
+\end{example}
+
+\begin{example}[CSES \emph{Network Breakdown}: read the removals backwards]
+\label{ex:breakdown}
+A network has $n$ nodes and $m$ links; $q$ links break one at a time.
+After \emph{each} break, report how many connected components remain
+($n, m, q \le 10^5$).
+\par\smallskip
+\textbf{Strategy.} Union-find only \emph{adds} edges --- it cannot
+unmerge a split, so simulating breaks forward is impossible with DSU
+alone. Read the whole input first. The key observation: removing edges
+$e_1, e_2, \dots, e_q$ in order is the same process as \emph{adding}
+them back in reverse order. Start from the end state --- every edge
+that is never removed is already in the structure --- then replay the
+removal list backwards: before ``un-removing'' query $i$, the current
+component count is exactly the answer \emph{after} break $i$.
+Recording backwards then printing forwards converts a deletion problem
+into the union problem DSU solves. Closing the Farm (\ref{ex:farm})
+used the same time-reversal trick; here it is the whole algorithm.
+\par\smallskip
+\begin{solution}
+\texttt{code/network\_breakdown.cpp} on the sample (5 nodes, 5 edges,
+breaks $3$-$4$, $2$-$3$, $4$-$5$) prints \texttt{2 2 3}: the two
+offline passes are $O((n+m+q)\,\alpha(n))$ total, while a forward BFS
+re-check after every break would cost $O(q\,(n+m))$.
 \end{solution}
 \end{example}
 \begin{figure}[ht]\centering
@@ -225,6 +258,8 @@ input --- \texttt{mst.size() < n-1} is the IMPOSSIBLE check.
 \begin{exercise}[medium] USACO-G \emph{Moocast} --- MST-style radii. \end{exercise}
 \begin{exercise}[medium] USACO-G \emph{I Would Walk 500 Miles} --- implicit-edge Kruskal. \end{exercise}
 \begin{exercise}[medium] CF \emph{Design Tutorial: Inverse the Problem} --- reconstruct from MST. \end{exercise}
+\begin{exercise}[medium] Implement \texttt{find} with path splitting vs.\ path halving; time both on $10^6$ unions. \end{exercise}
+\begin{exercise}[medium] CSES \emph{Necessary Cities} --- articulation points, the connectivity question DSU cannot answer. \end{exercise}
 \begin{exercise}[hard] CSES \emph{New Roads Queries} --- online MST edge questions. \end{exercise}
 \begin{exercise}[hard] USACO-G \emph{Portals} --- MST on portal+cost edges. \end{exercise}
 \begin{exercise}[hard] USACO-G \emph{Fenced In} --- boundary-strip Kruskal. \end{exercise}
@@ -239,41 +274,37 @@ USACO Guide's DSU module~\cite{usacoguide}; cp-algorithms carries the
 charged-ranks proof sketch and MST variants~\cite{cpalgorithms};
 Halim supplies the named variants~\cite{halimcp4}; archive problems
 are official CSES/USACO~\cite{cses}.
+\begin{exercise}[hard] Offline variant: edges both appear and disappear; write the segment-tree-on-time DSU sketch. \end{exercise}
 
 \section*{Further reading}
 \begin{itemize}
-\item USACO Guide, ``Disjoint Set Union'' (intermediate).
-\url{https://usaco.guide/gold/dsu} --- the union-by-size structure of
-\S\ref{sec:conn} with more Gold problems.
-\item USACO Guide, ``Minimum Spanning Trees'' (intermediate).
-\url{https://usaco.guide/gold/mst} --- Kruskal/Prim with the same
-cut-property framing as \S\ref{sec:cut}.
-\item cp-algorithms, ``Disjoint Set Union'' (reference).
-\url{https://cp-algorithms.com/data_structures/disjoint_set_union.html}
+\item USACO Guide, ``Disjoint Set Union'' (intermediate) --- the union-by-size structure of
+\S\ref{sec:conn} with more Gold problems. \newline\url{https://usaco.guide/gold/dsu}
+\item USACO Guide, ``Minimum Spanning Trees'' (intermediate) --- Kruskal/Prim with the same
+cut-property framing as \S\ref{sec:cut}. \newline\url{https://usaco.guide/gold/mst}
+\item cp-algorithms, ``Disjoint Set Union'' (reference). (article: ``Disjoint Set Union)
 --- full proof of the near-constant union bound behind
-\S\ref{sec:ack}.
-\item cp-algorithms, ``Kruskal's algorithm'' (reference).
-\url{https://cp-algorithms.com/graph/mst_kruskal.html} ---
-\S\ref{sec:kruskal} with correctness and implementation variants.
+\S\ref{sec:ack}. \newline\url{https://cp-algorithms.com/}
+\item cp-algorithms, ``Kruskal's algorithm'' (reference) ---
+\S\ref{sec:kruskal} with correctness and implementation variants. \newline\url{https://cp-algorithms.com/graph/mst_kruskal.html}
 \item CSES 1675 \emph{Road Reparation} and 1676 \emph{Road
-Construction} (practice). \url{https://cses.fi/problemset/task/1675} ---
-\ref{ex:reparation}/\ref{ex:roads} verbatim.
+Construction} (practice) ---
+\ref{ex:reparation}/\ref{ex:roads} verbatim. \newline\url{https://cses.fi/problemset/task/1675}
 \item Laaksonen, \emph{Competitive Programmer's Handbook}, ch.~15
-``Spanning trees'' (beginner). \url{https://cses.fi/book/book.pdf} ---
-the whole MST half in twenty pages.
-\end{itemize}
+``Spanning trees'' (beginner) ---
+the whole MST half in twenty pages. \newline\url{https://cses.fi/book/book.pdf}\end{itemize}
 
 \begin{rulebox}[Watch instead]
 \smallskip\noindent\textbf{Best first.}
 ``1.12 Disjoint Sets Data Structure - Weighted Union and Collapsing
 Find'' --- Abdul Bari, 26 min ---
-\url{https://www.youtube.com/watch?v=wU6udHRIkcc}. Array-based union
+\url{https://youtu.be/wU6udHRIkcc}. Array-based union
 by weight + find with path halving --- exactly \S\ref{sec:conn} and
 \S\ref{sec:ack}; Bari calls them ``weighted union''/``collapsing
 find'', the book calls them union by size/path compression.
 \smallskip\noindent
 ``Lec 8'' --- MIT OpenCourseWare 6.042J, 83 min ---
-\url{https://www.youtube.com/watch?v=GJpt_3ie4WU}. Spanning trees and
+\url{https://youtu.be/GJpt_3ie4WU}. Spanning trees and
 the gray-zone/grow-where-you-can MST method matching
 \S\ref{sec:kruskal}--\S\ref{sec:prim}; more proof depth than the book
 needs, worth it for \S\ref{sec:cut}. Access date 2026-10-10.

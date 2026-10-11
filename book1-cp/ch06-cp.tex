@@ -149,6 +149,13 @@ monotonic stack of Section~\ref{sec:monostack}? Which operation does
 the window force that the stack never needed?
 \end{exercise}
 
+
+\begin{figure}[htbp]\centering
+\input{figures/fig102-fenwquery}
+\caption{Fenwick decomposition: prefix($7$) touches nodes $7,6,4$ --- strip the lowbit each step.}
+\label{fig:fenwquery}
+\end{figure}
+
 \section{Sparse tables: idempotent queries in \texorpdfstring{$O(1)$}{O(1)}}\label{sec:sparse}
 \index{sparse table}\index{idempotent}
 
@@ -183,6 +190,30 @@ Real output (CSES sample):
 1
 4
 \end{lstlisting}
+\end{solution}
+\end{example}
+
+\begin{example}[CSES \emph{Josephus Problem I}: the queue does the rotating]
+\label{ex:joseph}
+Children $1..n$ stand in a circle; walking clockwise, every second
+remaining child leaves. Print the removal order ($n \le 2\cdot10^5$).
+\emph{Input:} \texttt{7}. \emph{Output:} \texttt{2 4 6 1 5 3 7}.
+\par\smallskip
+\textbf{Strategy.} Simulate the circle directly with the structure built
+for it: a \texttt{queue}. Pop the front child; if the step is ``skip'',
+push him to the back (he survives this round); if ``eliminate'', print
+and drop. Every queue operation is $O(1)$ and each of the $n$ children
+is pushed at most $n$ times across the whole run --- amortized linear
+work, the theme of this chapter applied to a data structure you already
+own. A \texttt{vector} version needs an index walk and wrap-around; the
+queue version needs none of it because the circle \emph{is} the
+enqueue/dequeue discipline.
+\par\smallskip
+\begin{solution}
+\texttt{code/josephus1.cpp} prints \texttt{2 4 6 1 5 3 7} on the
+sample: odd positions leave first in order, then the rotation
+re-eliminates among survivors. No arithmetic beyond a toggle flag ---
+the amortized cost of ``rotate and inspect'' is the point.
 \end{solution}
 \end{example}
 
@@ -275,10 +306,7 @@ two-cell query.
 CSES \emph{Towers} --- longest non-increasing run per cube
 (\texttt{upper\_bound} or monotonic multiset).
 \end{exercise}
-\begin{exercise}[easy]
-CSES \emph{Concert Tickets} --- ordered multiset, one predecessor
-query per ticket.
-\end{exercise}
+
 \begin{exercise}[easy]
 USACO-S \emph{Convention II} --- sorted queue mechanics.
 \end{exercise}
@@ -297,6 +325,10 @@ USACO-S \emph{Milk Measurement} --- ordered leaderboard updates.
 \begin{exercise}[medium]
 CF \emph{William and Robot} --- greedy selection structure.
 \end{exercise}
+\begin{exercise}[easy] CSES \emph{Playlist} --- the sliding window with a set membership test. \end{exercise}
+\begin{exercise}[easy] CSES \emph{Range Xor Queries} --- xor prefix; why does the same trick work? \end{exercise}
+\begin{exercise}[medium] Derive the amortized bound for a queue built from two stacks: assign each element a potential. \end{exercise}
+\begin{exercise}[medium] Implement sliding-window minimum with a plain array + head index (no \texttt{deque}); verify against the deque version. \end{exercise}
 \begin{exercise}[hard]
 CSES \emph{Stick Division} --- heap-of-two-smallest merges (Huffman).
 \end{exercise}
@@ -316,41 +348,36 @@ cp-algorithms documents the sparse table's idempotency
 requirement~\cite{cpalgorithms}. Halim~\cite{halimcp4} covers the
 same set with contest IDs; the archive problems are official
 CSES/USACO tasks~\cite{cses}.
+\begin{exercise}[hard] USACO-G \emph{Haybale Feast} --- monotonic deque with a sum constraint. \end{exercise}
 
 \section*{Further reading}
 \begin{itemize}
-\item cp-algorithms, ``Sparse table'' (intermediate).
-\url{https://cp-algorithms.com/data_structures/sparse-table.html} ---
+\item cp-algorithms, ``Sparse table'' (intermediate) ---
 the static RMQ structure of \S\ref{sec:sparse} with disjoint-range
-queries beyond min.
+queries beyond min. \newline\url{https://cp-algorithms.com/data_structures/sparse-table.html}
 \item cp-algorithms, ``Modifying stack/queue for minimum queries''
-(intermediate).
-\url{https://cp-algorithms.com/data_structures/stack_queue_modification.html}
+(intermediate). (article: ``Minimum stack / minimum queue)
 --- the monotonic queue of \S\ref{sec:monodeque} derived twice over
-(stack-pair and deque).
+(stack-pair and deque). \newline\url{https://cp-algorithms.com/}
 \item Laaksonen, \emph{Competitive Programmer's Handbook}, ch.~8
-``Amortized analysis'' (beginner). \url{https://cses.fi/book/book.pdf}
---- the accounting argument behind \S\ref{sec:amort}.
-\item CSES 1645 \emph{Nearest Smaller Values} (practice).
-\url{https://cses.fi/problemset/task/1645} --- \ref{ex:nsv} verbatim;
-the canonical monotonic-stack submission.
-\item CSES 1647 \emph{Static Range Minimum Queries} (practice).
-\url{https://cses.fi/problemset/task/1647} --- where the sparse table
-of \ref{ex:rmq} earns its keep.
-\item Wikipedia, ``Amortized analysis'' (reference).
-\url{https://en.wikipedia.org/wiki/Amortized_analysis} --- aggregate /
-accounting / potential methods; the book uses the aggregate version.
-\end{itemize}
+``Amortized analysis'' (beginner).
+--- the accounting argument behind \S\ref{sec:amort}. \newline\url{https://cses.fi/book/book.pdf}
+\item CSES 1645 \emph{Nearest Smaller Values} (practice) --- \ref{ex:nsv} verbatim;
+the canonical monotonic-stack submission. \newline\url{https://cses.fi/problemset/task/1645}
+\item CSES 1647 \emph{Static Range Minimum Queries} (practice) --- where the sparse table
+of \ref{ex:rmq} earns its keep. \newline\url{https://cses.fi/problemset/task/1647}
+\item Wikipedia, ``Amortized analysis'' (reference) --- aggregate /
+accounting / potential methods; the book uses the aggregate version. \newline\url{https://en.wikipedia.org/wiki/Amortized_analysis}\end{itemize}
 
 \begin{rulebox}[Watch instead]
 \smallskip\noindent\textbf{Best first.}
 ``Monotonic Stack Data Structure Explained'' --- AlgoMonster, 6 min ---
-\url{https://www.youtube.com/watch?v=Dq_ObZwTY_Q}. The
+\url{https://youtu.be/Dq_ObZwTY_Q}. The
 pop-while-monotone loop of \S\ref{sec:monostack} on next-greater-element;
 pseudocode-style, no language dependency.
 \smallskip\noindent
 ``Sparse Table | Range Minimum Query in O(1)'' --- Kartik Arora,
-17 min --- \url{https://www.youtube.com/watch?v=iaRvydtqLV4}. Builds
+17 min --- \url{https://youtu.be/iaRvydtqLV4}. Builds
 exactly the $k$-level table of \S\ref{sec:sparse} then answers
 $[\ell,r]$ via the two overlapping power-of-2 blocks; uses
 $\lfloor\log_2(r-\ell+1)\rfloor$ like the book. Access date 2026-10-10.

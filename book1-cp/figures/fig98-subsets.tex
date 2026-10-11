@@ -1,0 +1,21 @@
+\begin{tikzpicture}[font=\scriptsize,level distance=10mm,
+level 1/.style={sibling distance=42mm},
+level 2/.style={sibling distance=21mm},
+level 3/.style={sibling distance=10.5mm}]
+\node {$\{\}$}
+  child {node {$\{1\}$}
+    child {node {$\{1,2\}$}
+      child {node[fill=accent!15] {$\{1,2,3\}$}}
+      child {node[fill=accent!15] {$\{1,2\}$}}}
+    child {node {$\{1\}$}
+      child {node[fill=accent!15] {$\{1,3\}$}}
+      child {node[fill=accent!15] {$\{1\}$}}}}
+  child {node {$\{\}$}
+    child {node {$\{2\}$}
+      child {node[fill=accent!15] {$\{2,3\}$}}
+      child {node[fill=accent!15] {$\{2\}$}}}
+    child {node {$\{\}$}
+      child {node[fill=accent!15] {$\{3\}$}}
+      child {node[fill=accent!15] {$\{\}$}}}};
+\node[align=left] at (0,-3.6) {$2^{3}=8$ leaves: include/exclude per element};
+\end{tikzpicture}
