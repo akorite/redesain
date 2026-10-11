@@ -1,0 +1,9 @@
+# Makefile sim targets for ch11 (run inside code/)
+SIM = iverilog
+all: mux counter traffic
+%_sim: %.v %_tb.v
+	$(SIM) -o $@ $^
+mux:     ; iverilog -o /tmp/mux4_sim  ch11_mux4.v ch11_mux4_tb.v  && vvp /tmp/mux4_sim
+counter: ; iverilog -o /tmp/cnt2_sim  ch11_counter2.v ch11_counter2_tb.v && vvp /tmp/cnt2_sim
+wave:    ; iverilog -o /tmp/tr2_sim   ch11_traffic2.v ch11_traffic2_tb.v && vvp /tmp/tr2_sim
+traffic: wave

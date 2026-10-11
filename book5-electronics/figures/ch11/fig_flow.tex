@@ -1,0 +1,12 @@
+% fig_flow.tex -- the sim -> wave pipeline
+\begin{tikzpicture}[font=\footnotesize, >=latex]
+  \node[draw, thick, fill=blue!6] (src) at (0,0) {\texttt{mux4.v + mux4\_tb.v}};
+  \node[draw, thick, fill=blue!6] (ivl) at (2.9,0) {\texttt{iverilog -o sim}};
+  \node[draw, thick, fill=blue!6] (vvp) at (5.6,0) {\texttt{vvp sim}};
+  \node[draw, thick, fill=amber!15] (vcd) at (8.4,0) {\texttt{.vcd} + trace};
+  \node[draw, thick, fill=good!15] (wave) at (11.2,0) {wave / grep};
+  \draw[->] (src) -- (ivl); \draw[->] (ivl) -- (vvp);
+  \draw[->] (vvp) -- (vcd); \draw[->] (vcd) -- (wave);
+  \node[align=center] at (2.9,-0.9) {compiler: syntax,\\ builds the model};
+  \node[align=center] at (8.4,-0.9) {runtime executes\\ \texttt{always/assign} events};
+\end{tikzpicture}

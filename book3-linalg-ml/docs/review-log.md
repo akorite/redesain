@@ -15,3 +15,5 @@
 | ch11 gradients/Jacobians/Hessians | book3 session | ACCEPTED 2026-10-10 — PASS (FD U-shape byte-exact; proofs sound)| PENDING — 0 overfull>3pt/0 undef, 131pp 2026-10-10 | |
 | ch12 probability/RVs | book3 session | ACCEPTED 2026-10-10 — PASS (all 4 scripts byte-exact; tag-case drift fixed)| PENDING — 0/0, 142pp 2026-10-10 | |
 | ch13 statistics/Bayes | book3 session | book5 session | ACCEPTED 2026-10-10 — PASS (all 4 .py byte-exact; Beta post-mean 0.500→0.646 verified) | |
+| ch13 statistics/Bayes (re-review, byte-identical file) | book5 session | ACCEPTED 2026-10-11 — PASS re-confirmed (diff vs accepted file = identical; full-book recompile 167pp, 0/0/0) | |
+| ch14 optimization/GD/Lagrange | book5 session | RESOLVED→ACCEPTED 2026-10-11 — REVISE item (ex:gdstep "~4"→"~5", actual factor 5.2) applied verbatim + grep-verified by coordinator; rest of review passed as logged (all 4 .py byte-exact, Lagrange/Newton hand-verified, contract met), 167pp 0/0/0 | |

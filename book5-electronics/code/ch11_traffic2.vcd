@@ -1,0 +1,115 @@
+$date
+	Sun Oct 11 06:03:56 2026
+$end
+$version
+	Icarus Verilog
+$end
+$timescale
+	1ps
+$end
+$scope module traffic2_tb $end
+$var wire 2 ! ns [1:0] $end
+$var wire 2 " ew [1:0] $end
+$var reg 1 # clk $end
+$var reg 1 $ rst $end
+$scope module u $end
+$var wire 1 # clk $end
+$var wire 1 $ rst $end
+$var parameter 32 % EWG $end
+$var parameter 32 & EWY $end
+$var parameter 2 ' GRN $end
+$var parameter 32 ( NSG $end
+$var parameter 32 ) NSY $end
+$var parameter 2 * RED $end
+$var parameter 2 + YEL $end
+$var reg 2 , ew [1:0] $end
+$var reg 2 - ns [1:0] $end
+$var reg 2 . nx [1:0] $end
+$var reg 2 / st [1:0] $end
+$upscope $end
+$upscope $end
+$enddefinitions $end
+$comment Show the parameter values. $end
+$dumpall
+b1 +
+b0 *
+b1 )
+b0 (
+b10 '
+b11 &
+b10 %
+$end
+#0
+$dumpvars
+bx /
+bx .
+bx -
+bx ,
+1$
+0#
+bx "
+bx !
+$end
+#5000
+b0 "
+b0 ,
+b10 !
+b10 -
+b1 .
+b0 /
+1#
+#10000
+0#
+#15000
+b10 .
+b1 !
+b1 -
+b1 /
+1#
+0$
+#20000
+0#
+#25000
+b10 "
+b10 ,
+b0 !
+b0 -
+b11 .
+b10 /
+1#
+#30000
+0#
+#35000
+b0 .
+b1 "
+b1 ,
+b11 /
+1#
+#40000
+0#
+#45000
+b0 "
+b0 ,
+b10 !
+b10 -
+b1 .
+b0 /
+1#
+#50000
+0#
+#55000
+b10 .
+b1 !
+b1 -
+b1 /
+1#
+#60000
+0#
+#65000
+b10 "
+b10 ,
+b0 !
+b0 -
+b11 .
+b10 /
+1#

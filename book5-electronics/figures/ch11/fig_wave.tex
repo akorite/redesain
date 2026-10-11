@@ -1,0 +1,18 @@
+% fig_wave.tex -- waveform pane from the real VCD rows (like GTKWave)
+\begin{tikzpicture}[font=\footnotesize]
+\begin{axis}[width=12.4cm, height=6.4cm, xlabel={time (ns)},
+  xmin=0, xmax=66, ymin=-0.3, ymax=4.9,
+  ytick={0.4,1.4,2.4,3.4,4.4},
+  yticklabels={ew,ns,st,nx,rst},
+  y tick label style={font=\ttfamily\footnotesize},
+  x tick label style={font=\footnotesize}, grid=both, grid style={gray!20}]
+\addplot[const plot, very thick, accent] table[x=t, y expr=0.4+\thisrow{ew}*0.22] {figures/ch11/ch11_traffic.dat};
+\addplot[const plot, very thick, good] table[x=t, y expr=1.4+\thisrow{ns}*0.22] {figures/ch11/ch11_traffic.dat};
+\addplot[const plot, very thick, blue] table[x=t, y expr=2.4+\thisrow{st}*0.22] {figures/ch11/ch11_traffic.dat};
+\addplot[const plot, very thick, slate] table[x=t, y expr=3.4+\thisrow{nx}*0.22] {figures/ch11/ch11_traffic.dat};
+\addplot[const plot, very thick, red] table[x=t, y expr=4.4+\thisrow{rst}*0.66] {figures/ch11/ch11_traffic.dat};
+\draw[dashed, slate] (axis cs:15,-0.2) -- (axis cs:15,4.9);
+\node[anchor=west, font=\footnotesize, align=left] at (axis cs:16,4.2)
+  {rst releases; st walks\\ 1→2→3→0, nx one ahead};
+\end{axis}
+\end{tikzpicture}
