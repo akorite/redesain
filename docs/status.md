@@ -68,3 +68,10 @@ Pending a GitHub PAT: issue creation (pinned "Status" issue + `needs-user` label
 - cp tagged v0.1 (all 18 chapters independently reviewed, PR#6 merged).
 - book2 session now authoring textbook-quant ch01→15.
 - Open: disc depth re-review ch01-17 (needs reviewer ≠ book2); cp depth ch01-13 re-review; linalg depth retrofit in flight (book1); elec ch14-19 (elec-0006); ml ch01+ (ml-f668); physics suspended; systems unassigned.
+
+## 2026-10-11 — standing-order first-loop fixes verified
+- 6a fresh-clone make: all 4 active books build clean from git clone (cp 200, disc 182, linalg 190, elec 153; 0 err/0 undef each).
+- 6b review logging: cp-ch14, linalg-ch14, elec-ch10 review rows logged (earlier cycle).
+- 6c linalg ch14 KKT: complementary slackness now λ(g(x)-c)=0 for g(x)≤c, prose "active (g=c)" consistent. Direct push.
+- Additional catches this cycle: disc "IMO 2026 P5/P1/P3/P4" cites removed (nonexistent contest, logged unverified.md); elec ln→log harmonization (D-2026-10-11c); disc consistency sweep clean (no dup labels, no unmatched refs, no \ln).
+- Page ledger: cp 200 ✓v0.1 · disc 182 · linalg 190 · elec 153 · ml/quant writing · physics suspended · systems unassigned.
