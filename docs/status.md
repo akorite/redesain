@@ -38,3 +38,4 @@ Pending a GitHub PAT: issue creation (pinned "Status" issue + `needs-user` label
 - needs-user: none. Pending PAT for issues/releases (not blocking).
 - 2026-10-11T13Z: book5 ch11 landed (127pp clean); linalg ch14 REVISE resolved (~4→~5); linalg ch13 review ACCEPTED. Book 3 ch14 review-log ✓ (order 6b partial). Open: book1-ch14 + book5-ch10 reviews (queued book2/book3); elec-ch11 post-merge review queued.
 - 2026-10-11T13Z+: book1 ch15 strings landed (162pp clean, 5 test suites pass) + nit batch ch07/08/11/12; PR#4 open pending book2 review. Dispatched: book1→cp-ch16/17, book5→elec-ch12. Queues: book2=reviews cp-13/06/14/15→depth pass; book3=elec-09/10/11 reviews→linalg-ch15.
+- 2026-10-11T13:30Z: book2 cp reviews LOGGED — ch06/ch13 ACCEPTED, nit batch VERIFIED, ch15 ACCEPTED (contract met), ch14 RESOLVED (apples convention fixed: n=children, "4 3"→20, test PASS). PR#4 merged (ch15+nit+ch14fix+review-log). All standing-order §6b reviews now logged.
