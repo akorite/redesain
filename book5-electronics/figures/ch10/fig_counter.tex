@@ -1,0 +1,14 @@
+% counter structure
+\begin{tikzpicture}[font=\footnotesize, cell/.style={draw, minimum width=1.3cm, minimum height=0.8cm}]
+\node[cell] (t0) at (0,0) {TFF0};
+\node[cell] (t1) at (1.9,0) {TFF1};
+\node[cell] (t2) at (3.8,0) {TFF2};
+\node[cell] (t3) at (5.7,0) {TFF3};
+\draw[->, red, thick] (-1,0) node[left] {clk} -- (t0.west);
+\draw[->, thick] (t0.east) -- node[above, font=\scriptsize] {$q_0$} (t1.west);
+\draw[->, thick] (t1.east) -- node[above, font=\scriptsize] {$q_1$} (t2.west);
+\draw[->, thick] (t2.east) -- node[above, font=\scriptsize] {$q_2$} (t3.west);
+\draw[->, thick] (t3.east) -- ++(0.5,0) node[right, font=\scriptsize] {$q_3$};
+\draw[->, ink] (0,-0.8) node[left] {en} -- ++(0.4,0) |- (t0.south);
+\node[gray] at (2.8,-1.7) {each T flip-flop toggles only when all lower bits are 1};
+\end{tikzpicture}
