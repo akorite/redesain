@@ -1,0 +1,44 @@
+\documentclass[11pt,a4paper,twoside,openany]{book}
+\usepackage{lifeos}
+\usepackage{pgfplots}\pgfplotsset{compat=1.17}
+\usepackage{circuitikz}
+\usepackage{graphicx}
+\usepackage[font=small,labelfont=bf]{caption}
+\usepackage{subcaption}
+\usepackage{makeidx}\makeindex
+\setlifeostitle{Discrete Mathematics and Proofs}
+\setcounter{tocdepth}{1}
+% shared notation macros (see docs/notation.md)
+\newcommand{\N}{\mathbb{N}}\newcommand{\Z}{\mathbb{Z}}
+\newcommand{\Q}{\mathbb{Q}}\newcommand{\R}{\mathbb{R}}
+\newcommand{\C}{\mathbb{C}}
+
+\begin{document}
+\frontmatter
+\pagestyle{empty}
+\makecover{Discrete Mathematics and Proofs}{Logic, proofs and olympiad}{Study textbook}
+\newpage\pagestyle{fancy}
+\tableofcontents
+\mainmatter
+\input{ch01-logic}
+\input{ch02-discrete}
+\input{ch03-discrete}
+\input{ch04-discrete}
+\input{ch05-discrete}
+\input{ch06-discrete}
+\input{ch07-discrete}
+\input{ch08-discrete}
+\input{ch09-discrete}
+\input{ch10-discrete}
+\input{ch11-discrete}
+\input{ch12-discrete}
+\input{ch13-discrete}
+\input{ch14-discrete}
+\input{ch15-discrete}
+\input{ch16-discrete}
+\input{ch17-discrete}
+\backmatter
+\input{backmatter}
+\input{bib}
+\printindex
+\end{document}

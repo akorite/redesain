@@ -1,0 +1,17 @@
+% Figure: partition of Z mod 4 --- four residue classes as bars.
+% Source for Figure~\ref{fig:classes}. TikZ only; regenerable by compiling main.tex.
+\begin{tikzpicture}[
+  bar/.style={draw=rulegray,minimum height=7mm,font=\scriptsize,align=left},
+  lab/.style={font=\footnotesize\sffamily,text=slate},
+]
+\node[bar,anchor=west,fill=accentsoft,text width=11.5cm] at (0,0)
+  {$[0]_4=\{\dots,-8,-4,\mathbf{0},4,8,12,16,\dots\}$};
+\node[bar,anchor=west,text width=11.5cm] at (0,-0.8)
+  {$[1]_4=\{\dots,-7,-3,\mathbf{1},5,9,13,17,\dots\}$};
+\node[bar,anchor=west,fill=accentsoft,text width=11.5cm] at (0,-1.6)
+  {$[2]_4=\{\dots,-6,-2,\mathbf{2},6,10,14,18,\dots\}$};
+\node[bar,anchor=west,text width=11.5cm] at (0,-2.4)
+  {$[3]_4=\{\dots,-5,-1,\mathbf{3},7,11,15,19,\dots\}$};
+\node[lab] at (6.2,-3.2) {four classes, zero overlap, covering all of $\Z$ ---
+ $a\equiv b\pmod4$ iff they sit in the same bar};
+\end{tikzpicture}

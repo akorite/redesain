@@ -1,0 +1,22 @@
+% Figure: the implication family. Diagonal pairs are equivalent;
+% horizontal/vertical neighbours are different claims.
+% Source for Figure~\ref{fig:family}. TikZ only; regenerable by compiling main.tex.
+\begin{tikzpicture}[
+  box/.style={draw,inner sep=5pt,font=\small,rounded corners=1pt},
+  equiv/.style={double,double distance=1.5pt,-,accent},
+  diff/.style={-,dashed,rulegray},
+  lab/.style={font=\footnotesize\sffamily,text=slate},
+]
+\node[box] (imp)  at (0,2.2) {$P \Rightarrow Q$};
+\node[box] (conv) at (5.4,2.2) {$Q \Rightarrow P$};
+\node[box] (inv)  at (0,0) {$\lnot P \Rightarrow \lnot Q$};
+\node[box] (contra) at (5.4,0) {$\lnot Q \Rightarrow \lnot P$};
+\node[lab,anchor=south] at (0,2.45) {implication};
+\node[lab,anchor=south] at (5.4,2.45) {converse};
+\node[lab,anchor=north] at (0,-0.25) {inverse};
+\node[lab,anchor=north] at (5.4,-0.25) {contrapositive};
+\draw[equiv] (imp) -- (contra) node[midway,lab,sloped,above=-0.5pt]{same truth value};
+\draw[equiv] (conv) -- (inv) node[midway,lab,sloped,above=-0.5pt]{same truth value};
+\draw[diff] (imp) -- (conv) node[midway,lab,above]{different claims};
+\draw[diff] (imp) -- (inv) node[midway,lab,left]{different claims};
+\end{tikzpicture}

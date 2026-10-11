@@ -1,0 +1,399 @@
+\chapter{The Chinese remainder theorem and Fermat--Euler}\label{ch:crt}
+\index{Chinese remainder theorem}\index{Fermat's little theorem}
+
+Chapter~6 solved one congruence at a time. This chapter joins them ---
+the Chinese remainder theorem says a system of congruences with coprime
+moduli always has exactly one solution class mod the product --- and then
+proves the two big structure theorems of prime moduli: Fermat's little
+theorem and Euler's totient theorem. These are the workhorses behind
+almost every ``compute a huge power mod $m$'' problem in the archive.
+After this chapter you will be able to solve CRT systems by construction,
+reduce exponents by the right period ($\varphi$, not $m$), and recognise
+when a congruence problem is really asking for an order.
+
+\section{The Chinese remainder theorem}\label{sec:crt}
+\index{CRT|see{Chinese remainder theorem}}
+
+\begin{theorem}[CRT]\label{thm:crt}
+If $m_1, \dots, m_k$ are pairwise coprime, the system $x \equiv r_i
+\pmod{m_i}$ has exactly one solution modulo $M = m_1 m_2 \cdots m_k$.
+\end{theorem}
+
+Existence \emph{is} the construction, and the construction is the two-
+modulus case repeated: to merge $x \equiv r_1 \pmod{m_1}$ with
+$x \equiv r_2 \pmod{m_2}$, write $x = r_1 + m_1 t$ and demand
+$m_1 t \equiv r_2 - r_1 \pmod{m_2}$ --- solvable because
+$\gcd(m_1, m_2) = 1$ gives $m_1$ an inverse (Theorem~\ref{thm:cancel}).
+Uniqueness: two solutions differ by a multiple of every $m_i$, and
+pairwise coprimality makes that a multiple of $M$.
+
+\begin{example}\label{ex:crt}
+Solve $x \equiv 2 \pmod 3$, $x \equiv 3 \pmod 5$, $x \equiv 2 \pmod 7$.
+\par\smallskip
+\textbf{Strategy.} Satisfy one modulus, then \emph{add multiples} to
+satisfy the next: parametrise the current solution as $x = r + mt$ and
+solve the linear congruence for $t$ --- Chapter~6's entire toolbox inside
+Chapter~7's loop.
+\par\smallskip
+\begin{solution}
+$x \equiv 2 \pmod 3$: write $x = 2 + 3t$. Mod $5$: $2 + 3t \equiv 3$,
+$3t \equiv 1$, $t \equiv 2$ --- so $x \equiv 8 \pmod{15}$. Fold again:
+$x = 8 + 15s$; mod $7$: $8 + 15s \equiv 2$, i.e.\ $15s \equiv -6 \equiv 1 \pmod 7$ ---
+and $15 \equiv 1 \pmod 7$, so $s \equiv 1$.
+Hence $x \equiv 23 \pmod{105}$ --- the unique class, verified in the
+listing below ($23 \bmod 3 = 2$, $\bmod 5 = 3$, $\bmod 7 = 2$).
+\end{solution}
+\end{example}
+
+Figure~\ref{fig:rulers} draws the two-modulus view: residues on two
+different rulers, and the solution is the tick where both land.
+
+\begin{figure}[ht]\centering
+\input{figures/ch07-rulers}
+\caption{CRT as sliding rulers: $x \equiv 2 \pmod 3$ (top dots) and
+$x \equiv 3 \pmod 5$ (bottom dots) meet at $x = 8$, and again every $15$
+--- the period is the \emph{product}, which is why coprimality matters.}
+\label{fig:rulers}
+\end{figure}
+
+\begin{checkpoint}[Predict before you run]
+Listing~\ref{lst:crt} solves the system two ways --- brute scan and the
+folding construction. Predict the intermediate fold $x \equiv ? \pmod{15}$
+before reading the output.
+\end{checkpoint}
+
+\begin{lstlisting}[language=Python,caption={\texttt{crt\_solver.py}: fold
+two congruences at a time via B\'ezout (full script in
+\texttt{code/crt\_solver.py}).},label={lst:crt}]
+def crt_pair(r1, m1, r2, m2):
+    g, s, _ = egcd(m1, m2)
+    t = (s * (r2 - r1) // g) % (m2 // g)
+    return (r1 + m1 * t) % (m1 * m2 // g), m1 * m2 // g
+\end{lstlisting}
+Real output:
+\begin{lstlisting}[numbers=none]
+system: x == 2 (mod 3), x == 3 (mod 5), x == 2 (mod 7)
+brute force scan: [23]
+  folded: x == 8 (mod 15)
+  folded: x == 23 (mod 105)
+constructive: x == 23 (mod 105)
+unique mod 105: 23; check [2, 3, 2]
+\end{lstlisting}
+
+\begin{exercise}[easy]\label{exr:crt2}
+Solve $x \equiv 1 \pmod 4$, $x \equiv 4 \pmod 9$ by the folding method,
+and verify against \texttt{crt\_solver.py}.
+\end{exercise}
+
+\section{Three ways to hold the theorem}\label{sec:lenses}
+\index{CRT!three views}
+
+Chen's handout presents CRT as three lenses on the same fact, and each
+lens wins a different fight~\cite{chen-crt}:
+\begin{itemize}
+\item \textbf{Construction} (what we just did): given target residues,
+\emph{build} an $x$ with them. Use when the problem asks ``find an
+integer such that \dots'' --- the theorem licenses your assembly.
+\item \textbf{Lifting}: if $x \equiv r$ holds mod every part, it holds
+mod the product. $x \equiv 1$ mod $2,3,5$ means $x \equiv 1 \pmod{30}$ ---
+surprising congruences often decompose this way.
+\item \textbf{Destruction}: a congruence mod $M$ can be \emph{split} into
+its prime-power parts, which are easier to reason about one at a time.
+``$a^2 \equiv 1 \pmod{24}$'' is really ``mod $8$ and mod $3$
+simultaneously'' --- and each half is nearly free.
+\end{itemize}
+The skill is recognising which direction the problem is already facing:
+systems want construction, big moduli want destruction, and ``show it
+holds for all $n$'' often wants lifting.
+
+\section{Systems in practice}\label{sec:crtpractice}
+\index{CRT!non-coprime moduli}
+
+The theorem's hypothesis is load-bearing. With $\gcd(m_1, m_2) = d > 1$,
+a solution exists \emph{iff} $r_1 \equiv r_2 \pmod d$ --- the consistency
+check --- and then the class is unique only mod
+$\mathrm{lcm}(m_1, m_2)$. $x \equiv 1 \pmod 4$, $x \equiv 3 \pmod 6$:
+consistent ($1 \equiv 3 \pmod 2$), solutions $x \equiv 9 \pmod{12}$ ($9 \bmod 4 = 1$, $9 \bmod 6 = 3$). But
+$x \equiv 1 \pmod 4$, $x \equiv 4 \pmod 6$ is inconsistent: no solution,
+and no amount of B\'ezout saves it. The gate is cheap --- always run it
+before constructing.
+
+\begin{exercise}[easy]\label{exr:crtgate}
+Decide, without solving: is $x \equiv 2 \pmod 6$, $x \equiv 5 \pmod 9$
+consistent? If yes, solve it; if no, say what the gate detected.
+\end{exercise}
+
+\section{Fermat's little theorem, two ways}\label{sec:flt}
+\index{Fermat's little theorem}
+
+\begin{theorem}[Fermat's little theorem]\label{thm:flt}
+For prime $p$ and $p \nmid a$: $a^{p-1} \equiv 1 \pmod p$. Equivalently
+$a^p \equiv a \pmod p$ for all $a$.
+\end{theorem}
+
+\begin{example}\label{ex:flt}
+Prove it by the multiplication-permutation argument.
+\par\smallskip
+\textbf{Strategy.} Multiply the nonzero residues $1, 2, \dots, p-1$ by
+$a$: because $a$ is coprime to $p$, that map is a \emph{bijection} ---
+the same set reshuffled (Figure~\ref{fig:perm}). Two lists with the same
+members have the same product; the rest is cancellation.
+\par\smallskip
+\begin{solution}
+$\{a \cdot 1, a \cdot 2, \dots, a\cdot(p-1)\} \pmod p$ are the nonzero
+residues in some order (no two collide: $ai \equiv aj$ would cancel $a$
+--- coprimality again). Hence
+$a \cdot 2a \cdots (p-1)a \equiv 1 \cdot 2 \cdots (p-1) \pmod p$, i.e.\
+$a^{p-1} (p-1)! \equiv (p-1)!$. Since $\gcd((p-1)!, p) = 1$, cancel:
+$a^{p-1} \equiv 1 \pmod p$.
+\end{solution}
+\end{example}
+
+\begin{figure}[ht]\centering
+\input{figures/ch07-perm}
+\caption{$\times 3$ mod $7$ is a bijection --- here a single 6-cycle.
+Notice the proof hiding in the picture: the products of all arrows'
+endpoints and origins are the same set, so $3^6 \cdot 6! \equiv 6!$.}
+\label{fig:perm}
+\end{figure}
+
+\begin{example}[FLT by counting]
+Prove $a^p \equiv a \pmod p$ by a combinatorial argument.
+\par\smallskip
+\textbf{Strategy.} Count $a^p$ strings over $a$ colours, remove the $a$
+monochrome ones, and partition the rest into rotation classes ---
+primality is what forces every class to have full size $p$.
+\par\smallskip
+\begin{solution}
+Of the $a^p$ strings on an alphabet of size $a$, exactly $a$ are
+monochrome. Every other string has all $p$ of its rotations distinct
+(a smaller orbit would give a nontrivial divisor of $p$ --- see
+Figure~\ref{fig:necklace}), so the remaining $a^p - a$ strings split
+into classes of size $p$. Hence $p \mid a^p - a$.
+\end{solution}
+\end{example}
+
+\begin{figure}[ht]\centering
+\input{figures/ch07-necklace}
+\caption{The necklace proof of $a^p \equiv a \pmod p$. Notice why $p$
+must be prime: only then does every non-monochrome string rotate into
+\emph{exactly} $p$ distinct strings --- a composite modulus would allow
+smaller orbits and break the count.}
+\label{fig:necklace}
+\end{figure}
+
+\begin{exercise}[medium]\label{exr:flt}
+Compute $2^{100} \bmod 13$ and $7^{222} \bmod{11}$ by Fermat reduction;
+then verify with \texttt{powers\_cycle.py}.
+\end{exercise}
+
+\section{Euler's totient and Euler's theorem}\label{sec:euler}
+\index{totient}\index{Euler's theorem}
+
+\begin{definition}
+$\varphi(n)$ counts the integers in $\{1, \dots, n\}$ coprime to $n$.
+For $n = \prod p_i^{e_i}$: $\varphi(n) = n \prod (1 - 1/p_i) =
+\prod p_i^{e_i-1}(p_i - 1)$.
+\end{definition}
+
+\begin{theorem}[Euler]\label{thm:euler}
+If $\gcd(a, n) = 1$: $a^{\varphi(n)} \equiv 1 \pmod n$.
+\end{theorem}
+
+The proof is Fermat's verbatim, with ``nonzero residues'' replaced by
+``units'' --- the $\varphi(n)$ residues coprime to $n$ form a group under
+multiplication, and multiplying by a unit permutes them exactly as in
+Figure~\ref{fig:perm}. Fermat is the special case $\varphi(p) = p - 1$.
+Figure~\ref{fig:totient} charts $\varphi$ to $36$: the primes are the
+spikes where $n-1$ is achieved.
+
+\begin{figure}[ht]\centering
+\input{figures/ch07-totient}
+\caption{$\varphi(n)$ for $n \le 36$. Notice the records: $\varphi(p) =
+p-1$ at primes (dark bars), and values like $\varphi(30) = 8$ show the
+product discount $30(1-\tfrac12)(1-\tfrac13)(1-\tfrac15)$ at work.}
+\label{fig:totient}
+\end{figure}
+
+\begin{example}\label{ex:last3}
+Find the last three digits of $3^{400}$.
+\par\smallskip
+\textbf{Strategy.} Last three digits is mod $1000$; Euler reduces the
+exponent mod $\varphi(1000)$. Compute $\varphi(1000) = 1000(1 -
+\tfrac12)(1 - \tfrac15) = 400$ --- the exponent \emph{is} the order's
+multiple.
+\par\smallskip
+\begin{solution}
+$\gcd(3, 1000) = 1$, so $3^{400} = 3^{\varphi(1000)} \equiv 1
+\pmod{1000}$: the last three digits are \textbf{001}.
+\end{solution}
+\end{example}
+
+\begin{exercise}[medium]\label{exr:euler}
+Find the last three digits of $7^{1000}$ and of $3^{401}$ (reduce each
+exponent mod the period from WE~\ref{ex:last3} first; mind the
+remainder this time).
+\end{exercise}
+
+\section{Orders modulo $p$}\label{sec:orders}
+\index{order!multiplicative}
+
+Euler gives \emph{an} exponent that returns $1$; the \emph{order} of $a$
+mod $m$ is the \emph{smallest} positive one, written $\operatorname{ord}_m(a)$.
+Two facts carry the theory: $\operatorname{ord}$ always divides
+$\varphi(m)$ (long division of the exponent), and $a^k \equiv 1$ iff the
+order divides $k$. Chapter~6's power cycles were orders in plain clothes
+--- $7$ has order $4$ mod $100$, and $4 \mid \varphi(100) = 40$. A unit
+whose order is $\varphi(m)$ is a \emph{primitive root}; mod primes one
+always exists (proved in the olympiad track~\cite{zhao}).
+
+\begin{exercise}[medium]\label{exr:ord}
+Find $\operatorname{ord}_{11}(2)$ and $\operatorname{ord}_{11}(10)$;
+both divide $10$ --- which hits the bound, and what does that mean?
+\end{exercise}
+
+\section{Wilson's theorem (enrichment)}\label{sec:wilson}
+\index{Wilson's theorem}
+
+\begin{theorem}
+$(p-1)! \equiv -1 \pmod p$ for prime $p$.
+\end{theorem}
+
+The proof pairs each residue with its inverse: mod $p$, the only
+self-inverse units are $\pm 1$ ($x^2 \equiv 1$ factors as
+$p \mid (x-1)(x+1)$, and primality gives no zero divisors). Every other
+unit cancels in pairs, leaving $1 \cdot (-1)$. The converse is also true
+--- the congruence \emph{characterises} primes --- but useless as a
+primality test ($p!$ is huge); its real job is inside other proofs.
+
+\section{Applications: last digits again, check digits}\label{sec:apps}
+\index{check digit}
+
+Chapter~6 computed last digits by hunting periods; Euler supplies the
+upper bound on the hunt. And the same machinery hides in every checkout
+line: the ISBN-10 check digit $d_{10} = \sum_{i=1}^{9} i \cdot d_i \bmod
+{11}$ catches \emph{any} single-digit error and any transposition of
+adjacent digits --- the second claim is exactly that the weights
+$i$ are distinct mod $11$.
+
+\begin{example}\label{ex:usamo}
+Show that $t^2 + t + 1$ has arbitrarily many distinct prime divisors as
+$t$ ranges over the positive integers.
+\par\smallskip
+\textbf{Strategy.} Euclid's infinitude argument, lifted onto the
+value-set: given any finite list of primes hitting the values, evaluate
+$f$ at their product --- every listed prime divides the argument, so the
+value is $\equiv f(0) = 1$ at each one, and every prime factor of the
+value is new.
+\par\smallskip
+\begin{solution}
+Suppose only $p_1, \dots, p_k$ ever divide values of
+$f(t) = t^2 + t + 1$. Set $Q = p_1 p_2 \cdots p_k$ and evaluate
+$f(Q) = Q^2 + Q + 1$. For each listed $p_i$: $Q \equiv 0 \pmod{p_i}$, so
+$f(Q) \equiv f(0) = 1 \pmod{p_i}$ --- no listed prime divides $f(Q)$.
+But $f(Q) > 1$ has some prime factor $q$, which is therefore a new prime
+dividing a value of $f$: contradiction. The same trick works for any
+nonconstant polynomial with $f(0) = \pm 1$ (USAMO 2008 P1 builds the full
+construction on this idea~\cite{chen-crt}).
+\end{solution}
+\end{example}
+
+\section{Chapter summary}
+\begin{table}[ht]\centering
+\begin{tabularx}{\linewidth}{@{}lYY@{}}
+\toprule
+\tablehead\thead{Tool} & \thead{Condition} & \thead{Delivers}\\
+\midrule
+CRT (coprime) & $m_i$ pairwise coprime & one class mod $\prod m_i$\\
+CRT (general) & consistent iff $r_i \equiv r_j \pmod{\gcd}$ & class mod $\mathrm{lcm}$\\
+Fermat & $p$ prime, $p \nmid a$ & $a^{p-1} \equiv 1 \pmod p$\\
+Euler & $\gcd(a,n)=1$ & $a^{\varphi(n)} \equiv 1 \pmod n$\\
+totient & $n = \prod p^e$ & $n\prod(1-1/p)$; never trial-count\\
+order & $\operatorname{ord} \mid \varphi(m)$ & exact period, divides $\varphi$\\
+last digits of $a^N$ & reduce $N$ mod $\operatorname{ord}$, not $m$ & finite loop\\
+\bottomrule
+\end{tabularx}
+\caption{The chapter in one page: every tool is a gate plus a formula.
+The second column is where the proofs actually check you.}
+\label{tab:crt}
+\end{table}
+
+\section{Common mistakes}
+\index{common mistakes}
+\begin{itemize}
+\item \textbf{CRT on non-coprime moduli.} The construction proceeds
+whether or not the system is consistent --- and returns a confident wrong
+answer. Gate first: $r_i \equiv r_j \pmod{\gcd(m_i, m_j)}$ for every
+pair, else the system is just unsatisfiable.
+\item \textbf{Fermat off-by-one.} $a^{p-1} \equiv 1$ needs $p \nmid a$
+\emph{and} exponent $p-1$ --- writing $a^p \equiv 1$ is the classic slip
+(the correct all-$a$ form is $a^p \equiv a$). Reduce exponents mod
+$p-1$, not mod $p$.
+\item \textbf{Totient by trial.} Counting coprimes to $n$ by hand is
+$O(n)$ and error-prone; the product $n\prod(1-1/p)$ needs only the
+factorisation. $\varphi(1000) = 400$ in one line, not 400 checks.
+\end{itemize}
+
+\section{Additional exercises}
+\begin{exercise}[easy]
+Solve $x \equiv 1 \pmod 2$, $x \equiv 2 \pmod 3$, $x \equiv 3 \pmod 5$
+by folding; verify with \texttt{crt\_solver.py}.
+\end{exercise}
+\begin{exercise}[easy]
+Show $n^5 \equiv n \pmod{30}$ for every $n$ --- split into the three
+moduli (destruction lens) and use Fermat on each.
+\end{exercise}
+\begin{exercise}[easy]
+Compute $\varphi(360)$ and $\varphi(97)$; list the units of $\Z/8\Z$ and
+verify each squares to $1$.
+\end{exercise}
+\begin{exercise}[easy]
+Find the last two digits of $3^{100}$ via Euler ($\varphi(100)$) and via
+the cycle picture of Chapter~6 --- confirm they agree.
+\end{exercise}
+\begin{exercise}[medium]
+Prove the totient product formula for prime powers first:
+$\varphi(p^e) = p^e - p^{e-1}$ by direct count; then argue
+multiplicativity from CRT (a unit mod $mn$ is a pair of units).
+\end{exercise}
+\begin{exercise}[medium]
+Solve $x \equiv 4 \pmod 6$, $x \equiv 2 \pmod 8$ after checking
+consistency; state the modulus of the answer class.
+\end{exercise}
+\begin{exercise}[medium]
+Prove $n^{13} \equiv n \pmod{2730}$ for all $n$ --- the lcm of
+$\{p-1 : p \mid 2730\}$ is the engine.
+\end{exercise}
+\begin{exercise}[medium]
+Show that if $\operatorname{ord}_m(a) = k$, then $a^i \equiv a^j$ iff
+$i \equiv j \pmod k$ --- the power cycle is exactly a cycle.
+\end{exercise}
+\begin{exercise}[hard]
+Find all $n \le 60$ with $\varphi(n) = 12$, and prove your list is
+complete (what does $p - 1 \mid 12$ force?).
+\end{exercise}
+\begin{exercise}[hard]
+Prove that $x^2 \equiv 1 \pmod p$ has \emph{only} the solutions
+$x \equiv \pm 1$ --- and that this fails mod $8$: find all four.
+\end{exercise}
+\begin{exercise}[hard]
+Extend \texttt{crt\_solver.py} to non-coprime systems: run the
+consistency gate, emit the class mod $\mathrm{lcm}$, and report
+inconsistent systems explicitly. Verify on $x \equiv 4 \pmod 6$,
+$x \equiv 2 \pmod 8$ and a deliberately broken system.
+\end{exercise}
+
+\chapternotes
+The three-lenses framing (construction, lifting, destruction) and the
+USAMO~2008~P1 connection follow Chen's CRT handout~\cite{chen-crt}. The
+folding construction and non-coprime consistency gate follow 6.042J's
+CRT sections~\cite{mcs}; Velleman supplied the residue-system
+proofs~\cite{velleman}; Berkeley CS70's notes push on into RSA from
+exactly this point~\cite{cs70}, and Zhao's handouts carry orders and
+primitive roots to olympiad depth~\cite{zhao}. The necklace proof of
+Fermat is the standard counting argument (cf.\ OTIS~\cite{otis}).
+Contest items this chapter powers --- CRT systems (AIME~2023~I~P7,
+AIME~2025~II~P2), Euler reductions (AIME~2024~I~P13), remainder cycles
+(AIME~2020~I~P12), orders and $\varphi$ (AIME~2010~I~P14,
+AIME~2021~I~P7), plus USAJMO~2024~P3 and USAMO~2008~P1 --- are on the
+AoPS archive~\cite{aops-amc}.

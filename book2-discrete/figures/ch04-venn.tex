@@ -1,0 +1,29 @@
+% Figure: Venn diagrams for the identities --- two-set and three-set.
+% Source for Figure~\ref{fig:venn}. TikZ only; regenerable by compiling main.tex.
+\begin{tikzpicture}[
+  circ/.style={draw=rulegray,thick},
+  lab/.style={font=\footnotesize\sffamily,text=slate},
+]
+% ---- two-set ----
+\begin{scope}
+\draw[circ] (0,0) circle (0.75);
+\draw[circ] (0.85,0) circle (0.75);
+\node[lab] at (-0.5,0.45) {$A$};
+\node[lab] at (1.35,0.45) {$B$};
+\node[lab] at (0.425,0) {\scriptsize $A\cap B$};
+\node[lab] at (-0.42,-0.42) {\scriptsize $A\setminus B$};
+\node[lab] at (1.27,-0.42) {\scriptsize $B\setminus A$};
+\node[lab,align=center] at (0.425,-1.35) {two sets: every point\\sits in one of four regions};
+\end{scope}
+% ---- three-set ----
+\begin{scope}[xshift=48mm]
+\draw[circ] (0,0.15) circle (0.7);
+\draw[circ] (-0.55,-0.45) circle (0.7);
+\draw[circ] (0.55,-0.45) circle (0.7);
+\node[lab] at (0,0.85) {$A$};
+\node[lab] at (-1.0,-0.95) {$B$};
+\node[lab] at (1.0,-0.95) {$C$};
+\node[lab] at (0,-0.18) {\scriptsize $A\cap B\cap C$};
+\node[lab,align=center] at (0,-1.6) {three sets: eight regions ---\\one per membership pattern};
+\end{scope}
+\end{tikzpicture}

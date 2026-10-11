@@ -1,0 +1,32 @@
+% Figure: fixed-point indicator table for permutations of 4 (compact).
+% Source for Figure~\ref{fig:indicator}. TikZ only; regenerable by compiling main.tex.
+\begin{tikzpicture}[
+  lab/.style={font=\footnotesize\sffamily,text=slate},
+  hd/.style={font=\footnotesize\bfseries},
+  cell/.style={font=\scriptsize},
+]
+% 4x4 header + a few rows of the 24
+\node[hd] at (0,0.7) {$\sigma$};
+\node[hd] at (0.9,0.7) {$\mathbb{1}_1$};
+\node[hd] at (1.6,0.7) {$\mathbb{1}_2$};
+\node[hd] at (2.3,0.7) {$\mathbb{1}_3$};
+\node[hd] at (3.0,0.7) {$\mathbb{1}_4$};
+\node[hd] at (3.9,0.7) {$X$};
+\foreach \r/\s/\a/\b/\c/\dd/\x in {
+  0/{1234}/1/1/1/1/4,
+  1/{1243}/1/1/0/0/2,
+  2/{1324}/1/0/1/0/2,
+  3/{2143}/0/0/0/0/0,
+  4/{4321}/0/0/0/0/0
+}
+{
+  \node[cell] at (0,{0.3-\r*0.4}) {\s};
+  \node[cell] at (0.9,{0.3-\r*0.4}) {\a};
+  \node[cell] at (1.6,{0.3-\r*0.4}) {\b};
+  \node[cell] at (2.3,{0.3-\r*0.4}) {\c};
+  \node[cell] at (3.0,{0.3-\r*0.4}) {\dd};
+  \node[cell] at (3.9,{0.3-\r*0.4}) {\x};
+}
+\node[lab] at (0.5,-1.9) {$\vdots$ 24 rows};
+\node[lab] at (2.0,-2.5) {column sums: each $\mathbb{1}_i$ totals $3! = 6$; $\sum X = 4 \cdot 6 = 24$; $E[X] = 24/24 = 1$};
+\end{tikzpicture}

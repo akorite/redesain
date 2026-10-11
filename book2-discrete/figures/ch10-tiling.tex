@@ -1,0 +1,20 @@
+% Figure: 2 x n domino tiling split on the last tile's shape.
+% Source for Figure~\ref{fig:tiling}. TikZ only; regenerable by compiling main.tex.
+\begin{tikzpicture}[
+  gd/.style={draw=rulegray},
+  tile/.style={draw=accent,very thick},
+  lab/.style={font=\footnotesize\sffamily,text=slate},
+]
+% case 1: vertical domino at end  -> a_{n-1}
+\draw[gd] (0,0) rectangle (4,1);
+\draw[gd] (0,0.5) -- (4,0.5);
+\draw[tile] (3.5,0) rectangle (4,1);
+\node[lab] at (2,-0.4) {ending in a vertical domino: $a_{n-1}$};
+% case 2: two horizontal at end -> a_{n-2}
+\draw[gd] (0,-1.4) rectangle (4,-0.4);
+\draw[gd] (0,-0.9) -- (4,-0.9);
+\draw[tile] (3.0,-0.4) rectangle (4,-0.9);
+\draw[tile] (3.0,-0.9) rectangle (4,-1.4);
+\node[lab] at (2,-1.9) {ending in a horizontal pair: $a_{n-2}$};
+\node[lab] at (2,-2.5) {$a_n = a_{n-1} + a_{n-2}$ --- the split is on the \emph{last} tile};
+\end{tikzpicture}

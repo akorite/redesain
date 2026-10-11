@@ -1,0 +1,328 @@
+\chapter{Inclusion--exclusion and generating functions}\label{ch:piegf}
+\index{inclusion--exclusion}\index{generating function}
+
+Chapter~8 counted objects by naming them. This chapter handles the two
+situations where naming fails: when the condition is a \emph{union}
+of overlapping bad events (count the complement by
+inclusion--exclusion), and when the constraint is a \emph{sum}
+(track it as an exponent in a generating function, where multiplication
+does the bookkeeping). After this chapter you can derive derangements
+and surjection counts from one formula, extract $\varphi$ as a PIE
+special case, and turn ``how many ways to make $n$'' into a coefficient
+extraction.
+
+\section{Two sets, three sets, then the formula}\label{sec:pie}
+\index{principle of inclusion--exclusion}
+
+$|A \cup B| = |A| + |B| - |A\cap B|$: the overlap was counted twice, so
+subtract it once. For three sets, pairwise subtractions over-remove the
+triple overlap, which is added back (Figure~\ref{fig:pievenn}).
+
+\begin{theorem}[Inclusion--exclusion]
+For finite sets $A_1, \dots, A_n$,
+\[
+\Bigl|\bigcup_{i=1}^{n} A_i\Bigr|
+= \sum_i |A_i| - \sum_{i<j} |A_i \cap A_j|
+  + \sum_{i<j<k} |A_i \cap A_j \cap A_k| - \cdots
+  + (-1)^{n+1} |A_1 \cap \cdots \cap A_n|.
+\]
+\end{theorem}
+
+\begin{example}\label{ex:pieproof}
+Prove the general PIE formula.
+\par\smallskip
+\textbf{Strategy.} Show every element's total contribution is exactly
+$+1$: an element in $t$ of the sets contributes
+$\binom{t}{1} - \binom{t}{2} + \binom{t}{3} - \cdots = 1 - (1-1)^t = 1$ ---
+algebra as bookkeeping. (The indicator-function version: expand
+$1 - \prod_i (1 - \mathbb{1}_{A_i})$.)
+\par\smallskip
+\begin{solution}
+Fix an element $x$ lying in exactly $t \ge 1$ of the sets. In the
+$j$-th alternating sum it is counted $\binom{t}{j}$ times, so its total
+weight is $\sum_{j \ge 1} (-1)^{j+1}\binom{t}{j}
+= 1 - \sum_{j=0}^{t}(-1)^j\binom{t}{j} = 1 - (1-1)^t = 1$. Every
+element contributes exactly once, hence the formula.
+\end{solution}
+\end{example}
+
+\begin{figure}[ht]\centering
+\input{figures/ch09-venn}
+\caption{PIE's alternating correction on three sets. Notice the sign of
+each region equals the parity of how many sets cover it --- the formula
+is not subtracting ``mistakes'' but assigning each element weight $+1$.}
+\label{fig:pievenn}
+\end{figure}
+
+\section{Derangements}\label{sec:derange}
+\index{derangement}
+
+\begin{example}\label{ex:derange}
+Count derangements of $4$: permutations with no fixed point.
+\par\smallskip
+\textbf{Strategy.} Count the complement: let $A_i$ = permutations
+fixing $i$. Then $|A_{i_1} \cap \cdots \cap A_{i_k}| = (n-k)!$ for every
+$k$-fold intersection --- the bad events are easy to intersect, which is
+the whole reason PIE works here.
+\par\smallskip
+\begin{solution}
+Figure~\ref{fig:piebar} shows the bar stack:
+$D_4 = 4! - \binom{4}{1}3! + \binom{4}{2}2! - \binom{4}{3}1!
++ \binom{4}{4}0! = 24 - 24 + 12 - 4 + 1 = 9$.
+Generally $D_n = n!\sum_{k=0}^{n} \frac{(-1)^k}{k!} \approx n!/e$ ---
+about a third of all permutations are derangements.
+\end{solution}
+\end{example}
+
+\begin{figure}[ht]\centering
+\input{figures/ch09-derange}
+\caption{PIE for $D_4$ as a bar stack. Notice the $k$-fold intersections
+shrink factorially while their counts $\binom{4}{k}$ grow --- the two
+effects nearly cancel at the top, which is why derangements stay a
+constant fraction of $n!$.}
+\label{fig:piebar}
+\end{figure}
+
+\section{Surjections}\label{sec:surj}
+\index{surjection!counting}
+Same machine, different bad events: onto maps $[n] \to [k]$ are counted
+by excluding the maps that miss a chosen point. $A_i$ = maps missing
+target $i$; then $|A_{i_1}\cap\cdots\cap A_{i_j}| = (k-j)^n$, giving
+\[
+\#\{\text{surjections}\} = \sum_{j=0}^{k} (-1)^j \binom{k}{j} (k-j)^n
+\;=\; \sum_{j=0}^{k} (-1)^{k-j} \binom{k}{j} j^n .
+\]
+(The second form reindexes $j \mapsto k-j$; the sign it carries is
+$(-1)^{k-j}$, not $(-1)^j$.)
+
+\section{Euler's totient by PIE}\label{sec:phipie}
+\index{Euler's totient!by inclusion--exclusion}
+
+\begin{example}\label{ex:phipie}
+Compute $\varphi(360)$ by PIE.
+\par\smallskip
+\textbf{Strategy.} Coprimality is ``no prime factor shared'' --- the bad
+events are the primes $2, 3, 5$ of $360 = 2^3 \cdot 3^2 \cdot 5$:
+exclude multiples of each, add back pairwise multiples.
+\par\smallskip
+\begin{solution}
+$\varphi(360) = 360 - \frac{360}{2} - \frac{360}{3} - \frac{360}{5}
++ \frac{360}{6} + \frac{360}{10} + \frac{360}{15} - \frac{360}{30}
+= 360 - 180 - 120 - 72 + 60 + 36 + 24 - 12 = 96$.
+This matches Chapter~7's product formula $360 \cdot \frac{1}{2} \cdot
+\frac{2}{3} \cdot \frac{4}{5} = 96$ --- PIE \emph{is} the proof of that
+formula: the alternating expansion factors as
+$n \prod_{p \mid n}\bigl(1 - \frac{1}{p}\bigr)$.
+\end{solution}
+\end{example}
+
+\section{Ordinary generating functions}\label{sec:ogf}
+\index{generating function!ordinary}\index{coefficient extraction}
+
+\begin{definition}
+The ordinary generating function of a sequence $(a_n)$ is the formal
+series $A(x) = \sum_{n \ge 0} a_n x^n$; $[x^n]A(x)$ denotes the
+coefficient $a_n$.
+\end{definition}
+
+``Formal'' is the licence: $x$ is never evaluated, so convergence is
+irrelevant --- the series is a coat-hanger for the coefficients, and
+$[x^n]$ is extraction, not evaluation.
+
+\section{The catalog and the convolution rule}\label{sec:catalog}
+\index{convolution!of generating functions}
+Workhorses: $\frac{1}{1-x} = \sum x^n$; $\frac{1}{1-ax} = \sum a^n x^n$;
+$\frac{1}{(1-x)^2} = \sum (n+1)x^n$; $\frac{1}{1-x^k}$ counts multiples
+of $k$; $(1+x)^n = \sum \binom{n}{k}x^k$ (the binomial theorem is a GF).
+The key move: \textbf{multiplication convolves} --- if $C = A \cdot B$
+then $[x^n]C = \sum_k a_k b_{n-k}$, which is exactly the sum rule
+applied to splitting a total between two independent parts.
+
+\section{GFs for counting}\label{sec:gfcount}
+
+\begin{example}\label{ex:coin}
+Count ways to make $30$ with coins of $5, 10, 25$ (order irrelevant,
+unlimited supply).
+\par\smallskip
+\textbf{Strategy.} Model each coin type as the geometric factor
+$1 + x^c + x^{2c} + \cdots = \frac{1}{1-x^c}$ --- choosing how many of
+that coin. The product's coefficient $[x^{30}]$ counts triples
+$(a,b,c)$ with $5a + 10b + 25c = 30$: the convolution does the
+bookkeeping.
+\par\smallskip
+\begin{solution}
+$\frac{1}{(1-x^5)(1-x^{10})(1-x^{25})}
+= 1 + x^5 + 2x^{10} + 2x^{15} + 3x^{20} + 4x^{25} + 5x^{30} + \cdots$
+(Figures~\ref{fig:gfflow}, \ref{fig:cointable}), so $[x^{30}] = 5$.
+Listing~\ref{lst:gf} computes this by truncated-series multiplication
+and brute-force verifies it.
+\end{solution}
+\end{example}
+
+\begin{figure}[ht]\centering
+\input{figures/ch09-gfflow}
+\caption{Coefficient extraction as a pipeline. Notice $x$ is a formal
+placeholder --- the coefficient \emph{is} the count, and no value is
+ever substituted.}
+\label{fig:gfflow}
+\end{figure}
+
+\begin{figure}[ht]\centering
+\input{figures/ch09-cointable}
+\caption{Partial products for the coin GF through $x^{30}$. Notice each
+new factor adds the previous row shifted by the coin's step --- the
+table \emph{is} the convolution, run by hand.}
+\label{fig:cointable}
+\end{figure}
+
+\begin{checkpoint}[Predict before you run]
+Before looking at Listing~\ref{lst:gf}'s output: predict whether
+$[x^{30}]$ for coins $\{5,10,25\}$ is odd or even, and name one of the
+five solutions.
+\end{checkpoint}
+
+\begin{lstlisting}[language=Python,caption={\texttt{gf\_coin.py}: GF
+coefficients by truncated-series multiplication + brute-force check
+(script in \texttt{code/gf\_coin.py}).},label={lst:gf}]
+for c in coins:
+    ng = g[:]            # convolve with the coin's series
+    for k in range(c, n + 1, c):
+        for j in range(n - k + 1):
+            ng[j + k] += g[j]
+\end{lstlisting}
+Real output:
+\begin{lstlisting}[numbers=none]
+GF product for coins {5,10,25}, terms through x^30:
+  coefficients [x^0..x^30] nonzero: {0: 1, 5: 1, 10: 2, 15: 2, 20: 3, 25: 4, 30: 5}
+[x^30] by GF:  5
+[x^30] by brute force: 5
+\end{lstlisting}
+
+Constrained integer solutions are the same shape:
+$x_1 + x_2 + x_3 = n$ with $x_i \le c_i$ is $[x^n]$ of
+$\prod_i (1 + x + \cdots + x^{c_i}) = \prod_i \frac{1-x^{c_i+1}}{1-x}$ ---
+the stars-and-bars count corrected by PIE, with the correction factors
+already built into the numerator.
+
+\section{GFs meet recurrences}\label{sec:gfrec}
+\index{generating function!and recurrences}
+A recurrence is a GF equation: Fibonacci $f_{n} = f_{n-1} + f_{n-2}$
+translates to $F(x) = x + xF(x) + x^2F(x)$, hence
+$F(x) = \frac{x}{1-x-x^2}$ --- coefficients recoverable by partial
+fractions. That is Chapter~10's machinery; the point here is the
+conversion habit: recurrence in, rational function out, coefficients
+back.
+
+\begin{exercise}[easy]\label{exr:pie2}
+How many integers in $1..1000$ are divisible by 3 or 5? By neither?
+\end{exercise}
+\begin{exercise}[medium]\label{exr:d5}
+Compute $D_5$ from the general formula; check that $D_5/5!$ is closer
+to $1/e$ than $D_4/4!$ was.
+\end{exercise}
+\begin{exercise}[medium]\label{exr:gf}
+What is $[x^{12}]$ of $\frac{1}{(1-x^2)(1-x^3)}$? Interpret it as a
+coin count.
+\end{exercise}
+\begin{exercise}[medium]\label{exr:surj}
+Count surjections $[4] \to [3]$ and verify against $3^4$ minus the
+miss-a-point cases by hand.
+\end{exercise}
+
+\section{Chapter summary}
+\begin{table}[ht]\centering
+\begin{tabularx}{\linewidth}{@{}lYY@{}}
+\toprule
+\tablehead\thead{Want} & \thead{Tool} & \thead{Shape}\\
+\midrule
+union of bad events & PIE & alternating intersections\\
+no fixed point & derangement & $n!\sum(-1)^k/k!$\\
+onto maps $[n]\to[k]$ & surjection count & $\sum(-1)^j\binom{k}{j}j^n$\\
+coprimes in $[n]$ & $\varphi$ via PIE & $n\prod_{p|n}(1-1/p)$\\
+constrained sums & generating function & $[x^n]\prod(\cdot)$\\
+recurrences & GF algebra & solve for $F$, extract $[x^n]$\\
+\bottomrule
+\end{tabularx}
+\caption{One page: bad events $\to$ PIE; sum constraints $\to$
+coefficient extraction; recurrences $\to$ GF algebra.}
+\label{tab:piegf}
+\end{table}
+
+\section{Common mistakes}
+\index{common mistakes}
+\begin{itemize}
+\item \textbf{Stopping PIE at single sets.} $|A\cup B\cup C| \ne
+|A|+|B|+|C|$ even when pairs are subtracted --- the triple overlap must
+come back. Sign discipline: subtract intersections of \emph{even}
+order, add \emph{odd} order, and check a single element's weight is
+$+1$.
+\item \textbf{Treating $[x^n]$ as evaluation.} $[x^{30}]$ is the
+coefficient of the series, not the value at $x = 30$. GFs are formal:
+$x$ is a bookkeeping placeholder, never a number.
+\item \textbf{Reading the wrong coefficient.} After multiplying
+factors, the answer lives at the \emph{combined} exponent ---
+$[x^{n}]$ of the product, where $n$ is the total being made, not at any
+factor's own exponent.
+\end{itemize}
+
+\section{Additional exercises}
+\begin{exercise}[easy]
+Of 200 students, 120 take maths, 90 take physics, 50 take both. How
+many take neither?
+\end{exercise}
+\begin{exercise}[easy]
+Compute $\varphi(1000)$ by PIE (prime factors $2, 5$) and check against
+Chapter~7's product formula.
+\end{exercise}
+\begin{exercise}[easy]
+Extract $[x^6]$ from $\frac{1}{1-x} \cdot \frac{1}{1-x^3}$ and name
+the counting problem it answers.
+\end{exercise}
+\begin{exercise}[easy]
+List the 9 derangements of 4 elements explicitly (or write the
+generator) and verify a sample of three fix nothing.
+\end{exercise}
+\begin{exercise}[medium]
+Count ways to make $40$ with coins $\{5,10,25\}$ using the partial-
+product method; verify against \texttt{gf\_coin.py}.
+\end{exercise}
+\begin{exercise}[medium]
+Prove the derangement recurrence $D_n = (n-1)(D_{n-1} + D_{n-2})$
+directly (where does element 1 go?), then reconcile with the PIE
+formula.
+\end{exercise}
+\begin{exercise}[medium]
+Show $\varphi(n) = n\prod_{p\mid n}(1-1/p)$ by PIE over the distinct
+prime factors --- why do only the \emph{distinct} primes enter?
+\end{exercise}
+\begin{exercise}[medium]
+Count solutions of $x_1+x_2+x_3 = 12$ with each $x_i \le 5$, once by
+PIE-on-stars-and-bars and once as $[x^{12}](1+x+\cdots+x^5)^3$.
+\end{exercise}
+\begin{exercise}[hard]
+Prove the surjection formula $\sum_j(-1)^j\binom{k}{j}j^n$ gives $0$
+when $n < k$ --- explain combinatorially why it \emph{must}.
+\end{exercise}
+\begin{exercise}[hard]
+Derive the GF for partitions into distinct parts and into odd parts,
+and prove the two counts are equal by manipulating the products.
+\end{exercise}
+\begin{exercise}[hard]
+Extend \texttt{gf\_coin.py} to print the coefficient table for any coin
+list and any $n$, then use it to find the largest amount that cannot be
+made with $\{6, 10, 15\}$ (answer: $29$; prove it is largest by
+induction on residues mod 5 --- and first check why the question only
+makes sense when $\gcd = 1$).
+\end{exercise}
+
+\chapternotes
+PIE's indicator-function proof and the derangement treatment follow
+Hammack's counting chapter~\cite{hammack} and 6.042J's counting
+sections~\cite{mcs}; the GF-as-bookkeeping viewpoint is CS70's
+combinatorial-proofs note~\cite{cs70} and Chen's summation handout's GF
+section~\cite{chen-summ}; Engel supplies the hard-end drill~\cite{engel}.
+Contest items powered by this chapter --- PIE counts (AIME~2024~II~P1,
+AIME~2010~I~P7), derangements and surjections (AIME~2022~I~P12--13,
+AIME~2015~I~P12, AIME~2018~I~P12), GF extractions (AIME~2023~II~P7,
+AIME~2023~II~P11, AMC~12~2023~A~P24, AIME~2025~II~P8) --- are on the
+AoPS archive~\cite{aops-amc}.

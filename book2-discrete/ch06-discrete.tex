@@ -1,0 +1,391 @@
+\chapter{Modular arithmetic}\label{ch:mod}
+\index{modular arithmetic}
+
+Chapter~5 ended on a remainder. This chapter makes remainders the whole
+number system: when ``$a$ and $b$ leave the same remainder mod $m$'' becomes
+an equality --- congruence --- arithmetic collapses to a finite clock where
+enormous questions (the last digits of $7^{2026}$; the day of week of any
+date; which congruences have solutions at all) have finite answers. After
+this chapter you will be able to compute powers by cycle, solve linear
+congruences by the gcd-gate you already own, and read every AMC ``last
+digit'' item as a period-hunting problem.
+
+\section{Congruence as an equivalence}\label{sec:cong}
+\index{congruence}
+
+\begin{definition}
+For a modulus $m \ge 1$, write $a \equiv b \pmod m$ (``$a$ is congruent to
+$b$ mod $m$'') when $m \mid (a - b)$ --- equivalently, when $a$ and $b$
+leave the same remainder under the division algorithm.
+\end{definition}
+
+Both clauses matter: the $m \mid (a-b)$ form is what proofs unfold; the
+same-remainder form is what intuition runs on. Congruence is an equivalence
+relation on $\Z$ (reflexive: $m \mid 0$; symmetric: $m \mid (a-b)
+\Rightarrow m \mid (b-a)$; transitive: $m$ divides a sum of multiples) ---
+and Figure~\ref{fig:classes} draws what that bought us for $m = 4$: a
+partition of all of $\Z$.
+
+\begin{figure}[ht]\centering
+\input{figures/ch06-classes}
+\caption{$\Z$ partitioned mod $4$ into residue classes
+$[r]_4 = \{n : n \equiv r\}$. Notice the shape of equivalence itself: four
+classes, no overlap, nothing left out --- Chapter~4's machinery doing real
+work.}
+\label{fig:classes}
+\end{figure}
+
+\begin{theorem}[Arithmetic respects congruence]\label{thm:ops}
+If $a \equiv a' \pmod m$ and $b \equiv b' \pmod m$, then
+$a + b \equiv a' + b'$, $a - b \equiv a' - b'$, and $ab \equiv a'b'
+\pmod m$.
+\end{theorem}
+
+The proof is one element-chase ($a - a' = mk$, expand) --- but the content
+is the license: \emph{inside any $+$, $-$, $\times$ computation you may swap
+any number for anything congruent to it.} Reduce first, compute second,
+always.
+
+\begin{remark}
+Division is conspicuously absent from Theorem~\ref{thm:ops}. That is not an
+oversight --- it is the subject of Section~\ref{sec:cancel}, and forgetting
+it is this chapter's most expensive mistake.
+\end{remark}
+
+Figure~\ref{fig:clock} makes the arithmetic physical: mod $12$ is the clock
+face you already know, and adding $5$ hours is an arrow around it.
+
+\begin{figure}[ht]\centering
+\input{figures/ch06-clock}
+\caption{The residue clock mod $12$. Notice the wrap: $7 + 5$ lands on $0$,
+then continues to $5$ --- and a $+7$ step from $10$ lands back on $5$ again.
+Two different step sizes reaching the same class is the whole idea of
+``solutions mod $m$''.}
+\label{fig:clock}
+\end{figure}
+
+\begin{exercise}[easy]\label{exr:congdef}
+Prove transitivity from the definition: $a \equiv b$ and $b \equiv c
+\pmod m$ imply $a \equiv c \pmod m$.
+\end{exercise}
+
+\section{The residue system $\Z/m\Z$}\label{sec:zm}
+\index{ZmZ@$\Z/m\Z$}
+
+\begin{definition}
+The \emph{least residue} of $a$ mod $m$ is the unique $r \in
+\{0,1,\dots,m-1\}$ with $a \equiv r \pmod m$ --- the division-algorithm
+remainder. The \emph{residue class} $[r]_m = \{n : n \equiv r \pmod m\}$,
+and $\Z/m\Z$ is the set of all $m$ classes with the induced arithmetic.
+\end{definition}
+
+Computing ``mod $m$'' then means: do integer arithmetic, drop to least
+residue at the end --- or, better, reduce \emph{as you go}, since
+Theorem~\ref{thm:ops} says the answer never changes. $7^{100}$'s last digit
+never requires the 85-digit number.
+
+\begin{exercise}[easy]\label{exr:reduce}
+Compute the least residue of $2^{10} + 3^{10}$ mod $5$ without evaluating
+either power fully.
+\end{exercise}
+
+\section{Cancellation and multiplicative inverses}\label{sec:cancel}
+\index{inverse!multiplicative}
+
+Here is where $\Z/m\Z$ stops being a field in disguise and starts being a
+ring worth studying. In $\Q$, $ab = ac$ implies $b = c$ for $a \ne 0$. Mod
+$m$, it does not: $2 \cdot 3 \equiv 2 \cdot 0 \pmod 6$, yet $3 \not\equiv
+0$. Figure~\ref{fig:units} shows why --- the multiplication table is a
+permutation exactly when the row's factor is coprime to the modulus.
+
+\begin{theorem}\label{thm:cancel}
+$c$ has a multiplicative inverse mod $m$ --- some $x$ with $cx \equiv 1
+\pmod m$ --- iff $\gcd(c, m) = 1$. Then $ca \equiv cb \pmod m$ implies
+$a \equiv b \pmod m$.
+\end{theorem}
+
+\begin{proof}
+Existence is B\'ezout, verbatim: $\gcd(c,m)=1 \Rightarrow cx + my = 1$, and
+reading mod $m$ gives $cx \equiv 1$. Failure direction: if $d = \gcd(c,m)
+> 1$, then $cx \equiv 1$ would force $d \mid 1$. For cancellation,
+$ca \equiv cb$ means $m \mid c(a-b)$; with $\gcd(m,c)=1$, Euclid's lemma
+gives $m \mid (a-b)$.
+\end{proof}
+
+\begin{figure}[ht]\centering
+\input{figures/ch06-mult}
+\caption{Multiplication mod $5$ vs mod $6$. Notice what coprimality buys:
+mod $5$ every nonzero row is a permutation (a 1 in every row: inverses for
+all). Mod $6$, only the $\gcd = 1$ rows permute; the row of $2$ repeats
+$\{0,2,4\}$ with no 1 --- and the $0$-entries are zero divisors, the reason
+cancellation fails.}
+\label{fig:units}
+\end{figure}
+
+Inverses are computed, not guessed: run Euclid backwards
+(Example~\ref{ex:bezout}) and take the coefficient of $c$.
+
+\begin{exercise}[medium]\label{exr:inverse}
+Find $7^{-1} \pmod{10}$ and $8^{-1} \pmod{13}$ by extended Euclid; verify
+each by multiplying back.
+\end{exercise}
+
+\section{Linear congruences}\label{sec:lincong}
+\index{linear congruence}
+
+\begin{theorem}
+$ax \equiv b \pmod m$ has solutions iff $\gcd(a,m) \mid b$; then it has
+exactly $\gcd(a,m)$ solutions mod $m$: divide through by $d =
+\gcd(a,m)$ to reach $\frac{a}{d}x \equiv \frac{b}{d} \pmod{\frac{m}{d}}$
+(coprime now), invert, and lift the answer back by $+k\cdot\frac{m}{d}$.
+\end{theorem}
+
+This \emph{is} Theorem~\ref{thm:dioph} in disguise --- $ax \equiv b
+\pmod m$ literally means $ax - my = b$.
+
+\begin{example}\label{ex:lincong}
+Solve $14x \equiv 6 \pmod{20}$.
+\par\smallskip
+\textbf{Strategy.} Gcd first --- never cancel before checking.
+$\gcd(14,20)=2$ and $2 \mid 6$, so solutions exist and there are exactly
+two mod $20$. Divide the \emph{whole} congruence (modulus included) by $2$,
+then invert the now-coprime coefficient.
+\par\smallskip
+\begin{solution}
+Divide: $7x \equiv 3 \pmod{10}$. Since $7 \cdot 3 = 21 \equiv 1
+\pmod{10}$, $7^{-1} \equiv 3$, so $x \equiv 3 \cdot 3 = 9 \pmod{10}$.
+Lifting back, the two solutions mod $20$ are $x \equiv 9$ and $x \equiv
+19$. Check: $14 \cdot 9 = 126 \equiv 6$ and $14 \cdot 19 = 266 \equiv 6
+\pmod{20}$.
+\end{solution}
+\end{example}
+
+\section{Modular patterns: last digits, power cycles, casting out
+nines}\label{sec:patterns}
+\index{power cycle}\index{casting out nines}
+
+Powers of $a$ mod $m$ can produce at most $m$ residues, so the sequence
+$a^1, a^2, a^3, \dots \pmod m$ eventually repeats --- and once it returns to
+$1$ it loops with some \emph{period}: exponents differing by the period give equal powers.
+``Last digit(s) of $a^N$'' is never a big-number problem: it is ``find the
+period, then reduce $N$ mod the period.''
+
+\begin{example}\label{ex:powers}
+Find the last two digits of $7^{2026}$.
+\par\smallskip
+\textbf{Strategy.} Hunt the period first: compute $7^k \bmod 100$ until it
+returns to $1$. Then the exponent only matters mod the period --- $2026$
+reduces, $7^{2026}$ never has to exist.
+\par\smallskip
+\begin{solution}
+$7^1 \equiv 07$, $7^2 \equiv 49$, $7^3 \equiv 343 \equiv 43$,
+$7^4 \equiv 301 \equiv 01 \pmod{100}$. Period $= 4$. Since
+$2026 = 4\cdot506 + 2$, $7^{2026} \equiv 7^2 \equiv 49 \pmod{100}$: the
+last two digits are \textbf{49}.
+\end{solution}
+\end{example}
+
+\begin{figure}[ht]\centering
+\input{figures/ch06-cycle}
+\caption{The power cycle of $7$ mod $100$: four residues on a loop. Notice
+where the exponent lives --- not on the circle but \emph{counting laps
+around it}: $a^k$ depends only on $k \bmod 4$, which is why $2026 \equiv 2$
+settles the question.}
+\label{fig:cycle}
+\end{figure}
+
+\begin{checkpoint}[Predict before you run]
+Listing~\ref{lst:cycle} finds that same cycle mechanically. Predict the
+period for $(a,m) = (3,7)$ before reading the output below --- then check
+what Fermat's little theorem (the olympiad-track version is in~\cite{zhao}) predicts.
+\end{checkpoint}
+
+\begin{lstlisting}[language=Python,caption={\texttt{powers\_cycle.py}:
+multiply until a residue repeats (full script in
+\texttt{code/powers\_cycle.py}).},label={lst:cycle}]
+seen = {}; cur = 1 % m; k = 0
+while cur not in seen:
+    seen[cur] = k; cur = (cur * a) % m; k += 1
+\end{lstlisting}
+Real output (defaults $a=7$, $m=100$; then $3 \bmod 7$):
+\begin{lstlisting}[numbers=none]
+powers of 7 mod 100:
+  7^0 == 1
+  7^1 == 7
+  7^2 == 49
+  7^3 == 43
+  7^4 == 1  (repeat)
+cycle starts at k=0, period = 4
+so 7^2026 mod 100 = 7^2 mod 100 = 49
+---
+powers of 3 mod 7:
+  3^0 == 1
+  3^1 == 3
+  3^2 == 2
+  3^3 == 6
+  3^4 == 4
+  3^5 == 5
+  3^6 == 1  (repeat)
+cycle starts at k=0, period = 6
+so 3^2026 mod 7 = 3^4 mod 7 = 4
+\end{lstlisting}
+
+\begin{example}\label{ex:n3n}
+Prove $n^3 - n$ is divisible by $6$ for every integer $n$.
+\par\smallskip
+\textbf{Strategy.} A residue bash is a \emph{finite} verification: there
+are only six classes mod $6$, so check each once and the statement is
+settled for all $n$ at once --- no inductive step to invent, no
+factorisation to spot. The bash is the dumbest method in the chapter and
+also the most reliable.
+\par\smallskip
+\begin{solution}
+Read $n^3 - n \bmod 6$ for $n \equiv 0,1,2,3,4,5$:
+$0 - 0 = 0$; $1 - 1 = 0$; $8 - 2 = 6 \equiv 0$; $27 - 3 = 24 \equiv 0$;
+$64 - 4 = 60 \equiv 0$; $125 - 5 = 120 \equiv 0$.
+Every class gives $0$, so $6 \mid n^3 - n$ for all $n$. (The structural
+reason: $n^3 - n = (n-1)n(n+1)$, three consecutive integers --- one
+divisible by $3$, at least one even.)
+\end{solution}
+\end{example}
+
+Casting out nines is the same mechanism a level up: $10 \equiv 1 \pmod 9$
+makes every integer congruent to its digit sum (Chapter~5 proved the
+criterion); the checksum survives addition, so ``check the multiplication
+by digit-summing both sides'' catches most slip errors. Note $9$'s blind
+spot: it cannot see a transposition of digits that changes the answer by a
+multiple of $9$ --- a checksum, not a proof.
+
+\begin{exercise}[medium]\label{exr:cycle}
+Find the last two digits of $3^{2026}$ (hint: the period mod $100$ is
+longer than $4$ --- hunt it with \texttt{powers\_cycle.py}, then explain
+why $\varphi(100) = 40$ is an upper bound).
+\end{exercise}
+
+\section{Two moduli at once: a CRT preview}\label{sec:crt}
+\index{Chinese remainder theorem}
+
+What if a number must satisfy \emph{two} congruences, $x \equiv 2 \pmod 3$
+and $x \equiv 3 \pmod 5$? Hunting the finite list mod $15$ finds $x \equiv
+8$ --- and the Chinese remainder theorem (Chapter~5's B\'ezout coefficients
+are its engine; the olympiad track develops it in full~\cite{zhao}) says the
+solution is unique mod $3\cdot5$ whenever the moduli are coprime. Chapter~5
+solved one equation in integers; this is two conditions at once, and the
+same gcd-gate decides existence.
+
+\begin{example}\label{ex:calendar}
+What day of the week was October 10, 2026?
+\par\smallskip
+\textbf{Strategy.} Count in mod $7$: January~1, 2026 was a Thursday (a
+verifiable anchor). Count the day-of-year of October~10 --- a sum of month
+offsets, not a loop through the calendar --- reduce mod $7$, and step that
+many days from the anchor.
+\par\smallskip
+\begin{solution}
+2026 is not a leap year. Days before October:
+$31+28+31+30+31+30+31+31+30 = 273$, so October~10 is day $283$ of the year,
+offset $282$ days from January~1. $282 = 7\cdot40 + 2$, so
+$282 \equiv 2 \pmod 7$ and the day is Thursday $+ 2 =$
+\textbf{Saturday}.
+\end{solution}
+\end{example}
+
+\section{Chapter summary}
+\begin{table}[ht]\centering
+\begin{tabularx}{\linewidth}{@{}lYY@{}}
+\toprule
+\tablehead\thead{Object} & \thead{Rule} & \thead{Watch}\\
+\midrule
+$a \equiv b \pmod m$ & $m \mid (a-b)$; equivalence on $\Z$ & statement, not equation\\
+$+, -, \times$ & substitute freely, reduce early & exponent is NOT reduced mod $m$\\
+$ca \equiv cb$ & cancel iff $\gcd(c,m)=1$ & else divide modulus too\\
+$c^{-1} \bmod m$ & B\'ezout coefficient of $c$ & exists iff coprime\\
+$ax \equiv b$ & $\gcd \mid b$ gate; $\gcd$ solutions & divide modulus by $d$ as well\\
+$a^N \bmod m$ & find period, reduce $N$ mod period & period $\le m$, usually $\varphi$\\
+digit sum & $n \equiv$ digits mod $9$ & checksum, not proof\\
+\bottomrule
+\end{tabularx}
+\caption{The chapter in one page. Every rule is a Chapter-5 theorem wearing
+a clock face --- the gcd still decides everything.}
+\label{tab:mod}
+\end{table}
+
+\section{Common mistakes}
+\index{common mistakes}
+\begin{itemize}
+\item \textbf{Dividing by a non-unit.} $2x \equiv 4 \pmod 6$ ``solves'' to
+$x \equiv 2$ --- but $x \equiv 5$ also works, and the real solution set is
+$\{2,5\}$. Cancelling $2$ without dividing the modulus deleted half the
+answer. Check $\gcd(c,m)$ \emph{before} cancelling.
+\item \textbf{Writing $x = 3 \pmod 5$ inside algebra.} Congruence is a
+relation between \emph{two} integers, not a decoration on one. The $x$
+that equals $3$ is an integer; the $x$ congruent to $3 \bmod 5$ is a class.
+Mixing them produces ``$3 = 8$'' nonsense that quietly poisons a proof.
+\item \textbf{Reducing the exponent by the modulus.} $a^N \bmod m$ cycles
+with the \emph{period} of $a$'s powers --- period $4$ for $7 \bmod{100}$,
+not $100$. $7^{2026}$ is not $7^{26}$. Find the period first; only then
+does the exponent get reduced.
+\end{itemize}
+
+\section{Additional exercises}
+\begin{exercise}[easy]
+Show $a \equiv b \pmod m$ iff $a$ and $b$ have the same least residue ---
+and check whether $-7 \equiv 5 \pmod{12}$ (careful with the definition).
+\end{exercise}
+\begin{exercise}[easy]
+Compute $17 \cdot 23 \pmod 5$, $9^{3} \pmod 7$, and
+$2026 \cdot 10^{10} \pmod 9$ by early reduction.
+\end{exercise}
+\begin{exercise}[easy]
+Which elements of $\Z/12\Z$ have inverses? List them with their inverses.
+\end{exercise}
+\begin{exercise}[easy]
+Use casting out nines to catch the error in $47 \times 83 = 3911$ --- then
+produce a wrong answer the check \emph{cannot} catch.
+\end{exercise}
+\begin{exercise}[medium]
+Solve $12x \equiv 8 \pmod{28}$ completely, and prove $15x \equiv 7
+\pmod{21}$ has no solutions --- state the gate that decides each.
+\end{exercise}
+\begin{exercise}[medium]
+Prove $n^3 - n$ is divisible by $6$ for every integer $n$ by checking the
+six residue classes --- then prove it again by factoring. Which proof does
+the checker trust more, and why?
+\end{exercise}
+\begin{exercise}[medium]
+Find the last digit of $2026^{2026}$ and the last two digits of
+$9^{100}$ (period mod $4$ vs mod $100$).
+\end{exercise}
+\begin{exercise}[medium]
+Prove the ``rule of $11$'' as a congruence ($10 \equiv -1$) and use it to
+test $121\,121$ and $9\,876\,543$.
+\end{exercise}
+\begin{exercise}[hard]
+Prove that the powers of $a \bmod m$ are \emph{purely} periodic exactly when
+$\gcd(a,m)=1$; otherwise a tail precedes the cycle (find the tail for
+$2 \bmod{12}$ and state the general rule).
+\end{exercise}
+\begin{exercise}[hard]
+Solve $x \equiv 2 \pmod 3$, $x \equiv 3 \pmod 5$, $x \equiv 2 \pmod 7$
+simultaneously. (Build it one congruence at a time --- this is the CRT
+construction in embryo.)
+\end{exercise}
+\begin{exercise}[hard]
+Extend \texttt{powers\_cycle.py} to print, for each base $a = 2,\dots,9$
+and modulus $m$, the tail length and period --- and conjecture the rule
+connecting them to $\gcd(a,m)$. Verify on $m = 12, 20, 100$.
+\end{exercise}
+
+\chapternotes
+The equivalence-first presentation and the cancellation theorem follow
+MIT 6.042J's modular-arithmetic sections~\cite{mcs}; Velleman's congruence
+chapter supplied the residue-partition viewpoint~\cite{velleman}, and
+Hammack's the clock-face intuition~\cite{hammack}. Berkeley CS70's
+modular note is the recommended next read (it pushes straight into
+Fermat--Euler, CRT and RSA~\cite{cs70}); Zhao's olympiad handout covers the
+orders/primitive-roots continuation~\cite{zhao}. Contest items powered by
+this chapter's machinery are on the AoPS archive~\cite{aops-amc}: power
+cycles (AMC~12~2024~B~P14, AIME~2024~I~P13), last-digit and remainder
+problems (AIME~2020~I~P10--12, AIME~2010~I~P2, AIME~2018~I~P11), linear
+congruences (AIME~2023~I~P7, AIME~2025~II~P2) and CRT-flavoured counting
+(AIME~2023~II~P15).

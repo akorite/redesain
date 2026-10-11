@@ -1,0 +1,523 @@
+\chapter{How to write a proof}\label{ch:proof}
+\index{proof}
+% chapter-local: amber defect marker used in Figure~\ref{fig:markup} and text
+\newcommand{\defect}[1]{\textcolor{amber}{\sffamily\bfseries\textsuperscript{[#1]}}}
+
+Chapter~\ref{ch:logic} gave you the grammar claims are written in. This chapter
+gives you the machinery that establishes them: a small inventory of proof
+techniques --- direct, cases, contrapositive, contradiction, two directions for
+an iff, witnesses for existence, counterexamples for disproof --- and, just as
+important, the writing habits that make a proof readable and checkable. After
+this chapter you will be able to look at a claim, name the technique its shape
+asks for, and produce a proof a grader can verify line by line. Every later
+chapter is practice on this one; the techniques here never change, only the
+raw material does.
+
+\section{What a proof is}\label{sec:whatproof}
+\index{axiom}\index{inference}
+
+\begin{definition}[Proof]\index{proof!formal definition}
+A \emph{proof} of a statement is a finite chain of assertions ending at that
+statement, where each assertion is either an axiom, a definition, a hypothesis,
+or a consequence of earlier lines by a rule of inference.
+\end{definition}
+
+Three kinds of raw material can appear in the chain.
+\emph{Axioms}\index{axiom} are the ground rules you do not prove: for this book,
+the arithmetic laws of $\Z$, $\Q$ and $\R$ (addition, multiplication, order),
+plus the definitions Chapter~\ref{ch:logic} fixed. \emph{Definitions} unfold on
+demand: ``even'' always expands to ``$=2k$ for some integer $k$''.
+\emph{Theorems}\index{theorem} are claims already proved; once proved, a theorem
+becomes a tool you may cite by name instead of re-proving it.
+
+The legal moves between lines are the rules of \emph{inference}, which are just
+Chapter~\ref{ch:logic} applied: from $P$ and $P \Rightarrow Q$ you may write $Q$
+(\emph{modus ponens}\index{modus ponens}); from $\forall x\,P(x)$ you may write
+$P(a)$ for a specific $a$; from $P \land Q$ you may write $P$. If a line of your
+proof cannot name its licence --- ``by definition of even'', ``by modus ponens on
+lines 2 and 4'' --- the line does not belong yet.
+
+\begin{remark}
+``Axioms vs.\ proven tools'' is worth keeping straight for one practical reason:
+in an exam you may cite theorems you have proved or been given, but not the
+claim you are currently proving. Citing your own goal is the circularity trap
+of Section~\ref{sec:mistakes2}.
+\end{remark}
+
+\section{Direct proof and the template}\label{sec:direct}
+\index{direct proof}
+
+The workhorse. To prove $P \Rightarrow Q$: assume $P$, derive $Q$. Almost every
+proof you write this year will carry this skeleton, often with other techniques
+nested inside.
+
+\begin{principle}[The assume--derive--conclude template]
+\index{proof!template}
+Write the first and last lines before the middle:
+\emph{Assume} the hypothesis (unfolded to definitions), \emph{conclude} the goal
+(restated), then \emph{derive} the gap. Figure~\ref{fig:prooftemplate} shows the
+shape; the middle is where the problem lives, but the two ends are free.
+\end{principle}
+
+\begin{figure}[ht]\centering
+\input{figures/ch02-template}
+\caption{The direct-proof template. Notice that the creative part is confined to
+the middle stage --- the assume line and the conclude line are determined by the
+claim itself, so writing them down first costs nothing and fixes the target.}
+\label{fig:prooftemplate}
+\end{figure}
+
+\begin{theorem}\label{thm:evensum}
+If $m$ and $n$ are even integers, then $m + n$ is even.
+\end{theorem}
+
+\begin{proof}
+Let $m$ and $n$ be even integers. By definition of even, $m = 2j$ and $n = 2k$
+for some integers $j$ and $k$. Then $m + n = 2j + 2k = 2(j + k)$, and $j + k$ is
+an integer, so $m + n$ is even.
+\end{proof}
+
+Read the proof again against the template: the assume line unfolds ``even'' on
+both inputs at once; the derivation is a single algebraic rewrite; the conclude
+line checks the definition's existential (``for some integer'') by exhibiting
+$j+k$. That last detail --- the new object $j+k$ must be shown to be an integer
+--- is what separates a proof from a gesture.
+
+\begin{remark}
+\index{fresh names}
+Two even numbers need two names: $m = 2j$, $n = 2k$. Writing $m = 2k$ and
+$n = 2k$ forces $m = n$, a silent extra assumption. Fresh objects get fresh
+names --- one of the cheapest correctness rules in this book.
+\end{remark}
+
+\begin{exercise}[easy]\label{exr:oddsum}
+Prove that the sum of two odd integers is even, using the template. (Odd means
+$2k+1$ for some integer $k$.)
+\end{exercise}
+
+\section{Proof by cases}\label{sec:cases}
+\index{proof!by cases}
+
+Sometimes the hypothesis does not unfold into one usable form, but the universe
+splits into a few shapes that each do. \emph{Proof by cases} handles every shape
+separately; it is valid exactly when the cases are \emph{exhaustive} --- every
+object falls into at least one case.
+
+\begin{theorem}\label{thm:n2n}
+For every integer $n$, the number $n^2 + n$ is even.
+\end{theorem}
+
+\begin{proof}
+Every integer is even or odd (Section~\ref{sec:parity}), so the two cases cover
+all $n$.
+\emph{Case 1: $n$ even.} Write $n = 2k$. Then $n^2 + n = 4k^2 + 2k = 2(2k^2 + k)$,
+and $2k^2 + k$ is an integer, so $n^2 + n$ is even.
+\emph{Case 2: $n$ odd.} Write $n = 2k + 1$. Then
+$n^2 + n = 4k^2 + 6k + 2 = 2(2k^2 + 3k + 1)$, again even.
+\end{proof}
+
+\begin{wins}[Cases done right]
+\index{cases!exhaustiveness}
+Before the cases, \textbf{say why they are exhaustive} (``every integer is even
+or odd''). A third case you forgot is not a gap in style --- it is a hole in the
+proof. When the split is by residues ($n \bmod 4 \in \{0,1,2,3\}$), exhaustiveness
+is automatic; when it is by geometry or sign, state it explicitly.
+\end{wins}
+
+\begin{exercise}[medium]\label{exr:three}
+Prove that for every integer $n$, the product $n(n+1)(n+2)$ is divisible by $6$.
+(Cases on $n \bmod 6$? Or: is one factor always divisible by $2$, and one by $3$?)
+For the contest version of divisibility-by-casework, see
+AMC~12~2023~A~P3~\cite{aops-amc}.
+\end{exercise}
+
+\section{Contrapositive}\label{sec:contrapositive}
+\index{contrapositive!proof by}
+
+Chapter~\ref{ch:logic} showed $P \Rightarrow Q$ and $\lnot Q \Rightarrow \lnot P$
+carry the same truth value (Figure~\ref{fig:family}). So they are the same job:
+prove whichever unfolds more usefully. The contrapositive earns its keep exactly
+when the \emph{hypothesis} has no handle but the \emph{negated conclusion} does.
+
+\begin{example}\label{ex:n2even}
+Prove: for every integer $n$, if $n^2$ is even then $n$ is even.
+\par\smallskip
+\textbf{Strategy.} Try it directly first and watch where it stalls: $n^2$ even
+gives $n^2 = 2k$, and now you must say something about $n$ --- but $n$ is
+$\sqrt{2k}$, and square roots of integers need not be integers. The hypothesis
+talks about $n^2$; nothing in it unfolds $n$. Flip to the contrapositive, where
+the hypothesis is ``$n$ is odd'' --- a form of $n$ itself, which is exactly the
+handle we lacked.
+\par\smallskip
+\begin{solution}
+We prove the contrapositive: if $n$ is odd, then $n^2$ is odd. Let $n$ be odd,
+so $n = 2k + 1$ for some integer $k$. Then
+\[
+n^2 = (2k+1)^2 = 4k^2 + 4k + 1 = 2(2k^2 + 2k) + 1,
+\]
+and $2k^2 + 2k$ is an integer, so $n^2$ is odd. By the contrapositive, if $n^2$
+is even then $n$ is even.
+\end{solution}
+\end{example}
+
+Two habits to copy from Example~\ref{ex:n2even}: the proof \emph{says out loud}
+that it is proving the contrapositive (a reader cannot guess your route), and
+the strategy block shows the stalled direct attempt --- knowing why the obvious
+route fails is how you learn to pick the right one.
+
+\begin{exercise}[easy]\label{exr:sumge2}
+Prove by contrapositive: for real numbers $x, y$, if $x + y \ge 2$ then
+$x \ge 1$ or $y \ge 1$.
+\end{exercise}
+
+\section{Contradiction}\label{sec:contradiction}
+\index{proof!by contradiction}
+
+To prove $P$ by contradiction: assume $\lnot P$ and derive an impossibility ---
+something colliding with a definition, an axiom, or arithmetic itself. It is the
+technique of last resort and of necessity: for claims of the form ``no object
+satisfies\dots'' it is often the only door, since a universal negative gives you
+nothing to construct.
+
+\begin{principle}[Contradiction template]
+\index{contradiction}
+``Assume, for contradiction, that \emph{the claim fails}.'' Then treat the
+negated claim --- usually $\exists$ of something forbidden --- as a new object
+in hand and squeeze it until it breaks.
+\end{principle}
+
+\begin{example}[$\sqrt{2}$ is irrational]\label{ex:sqrt2}
+Prove: there are no integers $p, q$ with $q \ne 0$ and $(p/q)^2 = 2$.
+\par\smallskip
+\textbf{Strategy.} The claim is a non-existence claim --- the natural habitat of
+contradiction. Suppose a fraction $p/q$ in lowest terms squares to $2$ (``lowest
+terms'' is the extra lever: it makes the witness \emph{minimal}, and minimal
+objects can be forced below themselves). Unfolding $p^2 = 2q^2$ shows $p$ is
+even; that forces $q$ even too; and two even numbers were never in lowest terms.
+\par\smallskip
+\begin{solution}
+Assume, for contradiction, that $\sqrt{2} = p/q$ for integers $p, q$ with
+$q \ne 0$, written in lowest terms, so $p$ and $q$ share no common factor.
+Then $p^2 = 2q^2$, so $p^2$ is even, so by Example~\ref{ex:n2even} $p$ is even:
+write $p = 2a$. Substituting, $4a^2 = 2q^2$, hence $q^2 = 2a^2$ is even, so $q$
+is even too. Then $p$ and $q$ share the factor $2$, contradicting lowest terms.
+Therefore no such $p, q$ exist: $\sqrt{2}$ is irrational.
+\end{solution}
+\end{example}
+
+\begin{example}[Working modulo $4$]\label{ex:mod4}
+Prove: there are no integers $a, b$ with $a^2 - 4b = 2$.
+\par\smallskip
+\textbf{Strategy.} Again a non-existence claim, so contradiction. But squeeze
+\emph{where}? The term $4b$ is invisible modulo $4$: reducing the equation mod
+$4$ erases $b$ entirely and leaves the finite question ``can $a^2$ be $2$ mod
+$4$?'' --- checkable by cases on $a$. Modular arithmetic is a lens: it discards
+the parts of a statement that cannot obstruct you and keeps the part that can.
+\par\smallskip
+\begin{solution}
+Assume integers $a,b$ satisfy $a^2 - 4b = 2$. Reducing mod $4$ gives
+$a^2 \equiv 2 \pmod{4}$. But $a$ is even or odd: if $a = 2k$ then
+$a^2 = 4k^2 \equiv 0$; if $a = 2k+1$ then $a^2 = 4k^2 + 4k + 1 \equiv 1$. So
+$a^2 \bmod 4 \in \{0,1\}$, never $2$ --- contradiction. No such $a,b$ exist.
+\end{solution}
+\end{example}
+
+Notice the proof inside Example~\ref{ex:mod4} is a two-case argument nested in
+a contradiction: techniques compose. The mod-$4$ lens will return throughout the
+number theory chapters; remainders problems in this style appear constantly on
+contests (see AMC~12~2024~B~P14 on the AoPS archive~\cite{aops-amc}).
+
+\begin{exercise}[medium]\label{exr:sqrt3}
+Adapt Example~\ref{ex:sqrt2} to prove $\sqrt{3}$ is irrational. (Where does the
+argument use that $2$ is prime? What goes wrong for $\sqrt{4}$?)
+\end{exercise}
+
+\section{If and only if}\label{sec:iff}
+\index{iff!proof of}
+
+A biconditional $P \iff Q$ is two jobs stapled together, and you must do both:
+the forward direction $P \Rightarrow Q$ and the reverse $Q \Rightarrow P$ ---
+each by whichever technique suits it. Label them ($\Rightarrow$) and
+($\Leftarrow$) so the reader can audit both.
+
+\begin{theorem}\label{thm:neveniff}
+For every integer $n$: $n$ is even if and only if $n^2$ is even.
+\end{theorem}
+
+\begin{proof}
+($\Rightarrow$) If $n = 2k$, then $n^2 = 4k^2 = 2(2k^2)$, which is even.
+($\Leftarrow$) This is Example~\ref{ex:n2even}, proved there by contrapositive.
+\end{proof}
+
+\begin{tripwire}
+\index{iff!proving one direction}
+Proving one direction and stopping is the single most common broken
+biconditional. ``$n$ even iff $n^2$ even'' needs \emph{both} halves; a proof of
+($\Rightarrow$) alone leaves the claim unproved --- and in contests, an unproved
+direction usually hides the interesting half. See Common mistakes.
+\end{tripwire}
+
+\section{Existence and uniqueness}\label{sec:existence}
+\index{existence}\index{uniqueness}
+
+An existential claim $\exists x\,P(x)$ has the cheapest proof of all: exhibit
+one $x$ and check it. This is a \emph{constructive}\index{constructive proof}
+proof --- you hand over the object. To prove \emph{unique} existence
+$\exists!x\,P(x)$, add a second act: any two candidates $x_1, x_2$ with
+$P(x_1), P(x_2)$ must satisfy $x_1 = x_2$ (existence $+$ uniqueness, the two
+halves from Chapter~\ref{ch:logic}).
+
+Not every existence proof constructs. The classic counterexample: there exist
+irrational numbers $a, b$ such that $a^b$ is rational. Consider
+$\sqrt{2}^{\sqrt{2}}$: if it is rational, take $a = b = \sqrt{2}$. If it is
+irrational, take $a = \sqrt{2}^{\sqrt{2}}$ and $b = \sqrt{2}$ --- then
+$a^b = (\sqrt{2}^{\sqrt{2}})^{\sqrt{2}} = \sqrt{2}^2 = 2$, rational. Either way
+some pair works; the proof never says which, and it is still a complete proof.
+\emph{Non-constructive}\index{non-constructive proof} existence is legal ---
+just know which kind you are writing, since only constructive proofs produce
+objects you can compute with.
+
+\begin{exercise}[easy]\label{exr:witness}
+Prove $\exists!x \in \Z$ with $3x - 7 = 2$: exhibit the witness, then prove any
+two witnesses are equal.
+\end{exercise}
+
+\section{Disproof and counterexamples}\label{sec:disproof}
+\index{disproof}\index{counterexample}
+
+To refute $\forall x\,P(x)$ you owe one thing only: a single $x$ where $P$
+fails. The negation is $\exists x\,\lnot P(x)$, and existentials cost one
+witness. Where proofs get long, disproofs get short --- \emph{if} the
+counterexample is real. Convention: hunt the \emph{smallest} candidate where the
+claim could break, and check it honestly.
+
+\begin{example}[Euler's polynomial]\label{ex:euler}
+For which integers $x \ge 0$ is $f(x) = x^2 + x + 41$ prime?
+\par\smallskip
+\textbf{Strategy.} Evaluate the first values and you get a famous run: $f(0) =
+41$, $f(1) = 43$, $f(2) = 47$, all prime --- and the run continues far past
+where most people stop checking. The trap is to call the claim proved by
+accumulated evidence; the discipline is to ask where it \emph{must} break. Since
+$f(x) = x(x+1) + 41$, the value is a multiple of $41$ whenever $41$ divides
+$x(x+1)$ --- first at $x = 40$ (and $x = 41$). That is the smallest forced
+failure. Check it before believing the streak.
+\par\smallskip
+\begin{solution}
+$f(40) = 40\cdot 41 + 41 = 41^2 = 1681$, composite. So the claim ``$f(x)$ is
+prime for all $x \ge 0$'' is false; the counterexample is $x = 40$.
+Figure~\ref{fig:euler} and Listing~\ref{lst:euler} show how far the run actually
+goes.
+\end{solution}
+\end{example}
+
+\begin{figure}[ht]\centering
+\input{figures/ch02-euler-strip}
+\caption{The streak that is not a theorem. Notice the first composite lands at
+the first $x$ with $41 \mid x(x+1)$, exactly where the algebra says it must ---
+forty consecutive primes proved nothing on their own.}
+\label{fig:euler}
+\end{figure}
+
+\begin{checkpoint}[Predict before you run]
+Listing~\ref{lst:euler} tests $x = 0$ through $50$. Before running: predict the
+first composite $x$, predict how many composites appear in $0..50$, and predict
+the smallest factor at $x = 40$ and $x = 41$ without dividing anything ---
+use $f(x) = x(x+1) + 41$.
+\end{checkpoint}
+
+\begin{lstlisting}[language=Python,caption={\texttt{check\_prime\_run.py}:
+where does the $x^2 + x + 41$ prime streak break?},
+label={lst:euler}]
+f = lambda x: x*x + x + 41
+composites = [(x, f(x)) for x in range(51) if not is_prime(f(x))]
+\end{lstlisting}
+The full script (in \texttt{code/check\_prime\_run.py}) defines \texttt{is\_prime}
+and \texttt{least\_factor} and prints every composite. Its real output:
+\begin{lstlisting}[numbers=none]
+f(x) = x^2 + x + 41
+x = 0..39: all prime (40 consecutive values)
+x = 40: f(40) = 1681 = 41 * 41  <-- first composite
+x = 41: f(41) = 1763 = 41 * 43
+x = 44: f(44) = 2021 = 43 * 47
+x = 49: f(49) = 2491 = 47 * 53
+4 composites in x = 0..50
+\end{lstlisting}
+
+The machine confirms the algebra: $x \equiv 0$ or $-1 \pmod{41}$ forces
+$41 \mid f(x)$ (that is $x = 40, 41$; the $x = 44$ and $x = 49$ failures
+arrive through other prime factors). Forty examples built the conjecture;
+one number killed it. That is the division of labour between examples and
+proofs for the rest of this book: \textbf{examples inform, proofs establish,
+counterexamples demolish.}
+
+\section{Mathematical writing}\label{sec:writing}
+\index{mathematical writing}
+
+A proof is read by a person, and graded by one too. The rules that make it
+checkable are few and mechanical:
+
+\begin{rulebox}[Writing rules]
+\index{proof!writing rules}
+\begin{enumerate}
+\item \textbf{Complete sentences.} A proof is English with symbols inside the
+sentences, not a pile of symbols. Every line parses as a sentence.
+\item \textbf{State the claim and the technique first.} ``We prove the
+contrapositive.'' ``Assume, for contradiction, that\dots'' One sentence of
+orientation replaces a paragraph of guessing.
+\item \textbf{Name every object.} ``Let $n = 2k$ for an integer $k$.'' An
+unnamed letter is an uncontrolled assumption.
+\item \textbf{Displayed math for anything long.} Multi-line algebra goes
+\[ \text{on its own line} \]
+so the reader can verify it out of the prose flow.
+\item \textbf{Ban unjustified ``clearly/obviously''.} If it is obvious, proving
+it takes one line --- write the line. If it is not, you were about to lose the
+reader (or the point).
+\end{enumerate}
+\end{rulebox}
+
+Figure~\ref{fig:markup} applies the rules to a real flawed paragraph --- the
+kind that loses marks not because the idea is wrong but because nothing in it
+is licensed.
+
+\begin{figure}[ht]\centering
+\input{figures/ch02-markup}
+\caption{A flawed ``proof'' of the claim of Example~\ref{ex:n2even}, with four
+defects marked and explained. Notice that three of the four defects are about
+\emph{licence} --- steps nobody gave the writer permission to take --- and the
+fourth is evidence posing as argument. The corrected proof is
+Example~\ref{ex:n2even}.}
+\label{fig:markup}
+\end{figure}
+
+\section{Strategy before proof}\label{sec:strategyfirst}
+\index{strategy before proof}
+
+One convention of this book deserves its own section. Every worked example here
+opens with a \textbf{Strategy} paragraph --- what to try, why this technique
+fits the claim's shape --- and only then the \textbf{Solution}, the cleaned
+proof. The strategy is scaffolding: it is how the solution was found, and it is
+the part no polished textbook ever shows you. In your own write-ups (contests,
+the portfolio of Chapter~17) you submit only the proof --- but you should still
+be writing the strategy somewhere, on scratch paper or in your head, because
+choosing the technique \emph{is} most of the problem. Figure~\ref{fig:flowchart}
+is the book's choosing procedure in one diagram.
+
+\begin{figure}[ht]\centering
+\input{figures/ch02-flowchart}
+\caption{Choosing a technique by the goal's shape. Notice what is \emph{not} on
+the chart: ``proof by induction'' and friends arrive in Chapter~3, and every
+shape still lands on a technique --- there is no ``I don't know where to start''
+branch. When stuck, write the negation: the shape you see there often names the
+route.}
+\label{fig:flowchart}
+\end{figure}
+
+\section{Chapter summary}
+\begin{table}[ht]\centering
+\begin{tabularx}{\linewidth}{@{}lYYY@{}}
+\toprule
+\tablehead\thead{Goal shape} & \thead{Technique} & \thead{First line to write} & \thead{Killer detail}\\
+\midrule
+$P \Rightarrow Q$, hypothesis unfolds & direct & ``Assume $P$.'' & unfold definitions\\
+$P \Rightarrow Q$, hypothesis has no handle & contrapositive & ``We prove the contrapositive: assume $\lnot Q$.'' & say the route aloud\\
+``no object satisfies\dots''; $\lnot P$ & contradiction & ``Assume the claim fails.'' & find the collision\\
+hypothesis splits into shapes & cases & ``Every $x$ is \dots\ or \dots; cases cover all.'' & prove exhaustiveness\\
+$P \iff Q$ & two directions & ``($\Rightarrow$) \dots'' then ``($\Leftarrow$) \dots'' & both halves, each labelled\\
+$\exists x\,P(x)$ & witness & ``Take $x = \dots$'' & check it works\\
+$\exists! x\,P(x)$ & witness + uniqueness & ``Take $x = \dots$; now let $x_1,x_2$ both work.'' & force $x_1 = x_2$\\
+refute $\forall x\,P(x)$ & counterexample & ``$x = \dots$ fails.'' & smallest candidate first\\
+\bottomrule
+\end{tabularx}
+\caption{The technique menu on one page: the shape of the goal names the proof.
+The last column is where each technique most often breaks in student work.}
+\label{tab:techniques}
+\end{table}
+
+\section{Common mistakes}\label{sec:mistakes2}
+\index{common mistakes}
+\begin{itemize}
+\item \textbf{Half a biconditional.} ``$P$ iff $Q$'' proved only in the direction
+that was convenient. The other direction is a separate claim --- and usually the
+one that carries the content. Label ($\Rightarrow$) and ($\Leftarrow$) so a
+missing half cannot hide (Section~\ref{sec:iff}).
+\item \textbf{Circular argument.} Using the goal --- or a statement that secretly
+contains it --- as a step. Marked \defect{2} in
+Figure~\ref{fig:markup}: ``since $n^2$ is even, $n$ is even'' asserts exactly
+what was to be shown. Every line needs a licence from \emph{earlier} lines.
+\item \textbf{Proof by example.} Checking $x = 0,1,2,\dots,39$ proves $x = 40$
+nothing --- Figure~\ref{fig:euler}'s streak died at exactly $x = 40$. Examples
+inform conjectures; they never close a universal claim.
+\item \textbf{Unfounded ``clearly''.} ``Clearly $n$ is even'' is where proofs go
+to hide the one step they cannot justify. Replace each ``clearly'' with its
+one-line justification, or admit the step is not there.
+\end{itemize}
+
+\section{Additional exercises}
+\begin{exercise}[easy]
+Prove directly: for every integer $n$, if $n$ is odd then $3n + 1$ is even.
+\end{exercise}
+\begin{exercise}[easy]
+Prove directly: the product of two odd integers is odd.
+\end{exercise}
+\begin{exercise}[easy]
+Disprove: for every $n \ge 0$, $n^2 - n + 11$ is prime. (Find the smallest
+counterexample --- it arrives sooner than Euler's did.)
+\end{exercise}
+\begin{exercise}[easy]
+Prove $\exists\, x, y \in \Z$ with $x^2 - y^2 = 9$; then prove the solution with
+$x > y > 0$ and $x + y = 9$ is unique.
+\end{exercise}
+\begin{exercise}[medium]
+Prove by cases: for all real $x, y$, $|x + y| \le |x| + |y|$.
+(Split on the signs of $x + y$, or of $x$ and $y$; AMC~12~2024~A~P6 is a
+contest instance of sign-casework~\cite{aops-amc}.)
+\end{exercise}
+\begin{exercise}[medium]
+Prove by contrapositive: for integers $a, b$, if $a + b$ is odd then exactly one
+of $a, b$ is even. (Careful --- ``exactly one'' is two claims.)
+\end{exercise}
+\begin{exercise}[medium]
+Prove there are no integers $x, y$ with $6x + 9y = 1$. Which single lens does
+all the work? (AIME~2010~I~P5 applies the same one~\cite{aops-amc}.)
+\end{exercise}
+\begin{exercise}[medium]
+Prove: for every integer $n$, $n$ is odd if and only if $n^2$ is odd.
+State the technique used in each direction.
+\end{exercise}
+\begin{exercise}[hard]
+Prove, by two different methods, that no integers $x, y$ satisfy
+$x^2 - 4y = 2$: (i) modulo $4$ as in Example~\ref{ex:mod4}, and (ii) a parity
+argument that never mentions residues. Then state in one sentence which method
+generalises to $x^2 - 9y = 3$ and why.
+\end{exercise}
+\begin{exercise}[hard]
+Extend \texttt{code/check\_prime\_run.py} to test other prime-producing
+polynomials: $g(x) = x^2 + x + 17$ on $x = 0..40$ and $h(x) = 2x^2 + 29$ on
+$x = 0..60$. Report each first composite and explain --- by factoring like
+$f(40) = 41^2$ --- why it was forced.
+\end{exercise}
+\begin{exercise}[hard]
+Euclid's argument. Assume there are only finitely many primes
+$p_1, p_2, \dots, p_k$, and let $N = p_1 p_2 \cdots p_k + 1$. Prove that $N$
+has a prime factor not among $p_1,\dots,p_k$, conclude infinitely many primes
+exist, and explain why ``$N$ is prime'' is \emph{not} the right claim to make.
+\end{exercise}
+
+\chapternotes
+The technique-per-chapter architecture (direct, contrapositive, contradiction,
+then the non-conditional shapes) follows Hammack's proof chapters, whose
+``Mathematical Writing'' section inspired Section~\ref{sec:writing} and whose
+disproof chapter put counterexamples on equal footing with
+proofs~\cite{hammack}. Velleman's third chapter organises the same material by
+the logical form of the goal --- our Figure~\ref{fig:flowchart} is a compressed
+version of his summary tables~\cite{velleman}. MIT 6.042J's opening chapters
+supplied the ``axioms vs.\ proven tools'' framing and the
+squares-mod-$4$ lens~\cite{mcs}. The writing rules of
+Section~\ref{sec:writing} and the strategy/solution split of
+Section~\ref{sec:strategyfirst} follow Chen's \emph{Remarks on English}, whose
+side-by-side marked-up solutions modelled Figure~\ref{fig:markup}~\cite{chen-english},
+and the mistakes list in OTIS Excerpts ch.~1~\cite{otis}; Cut-the-Knot's
+fallacy pages supply the gallery this section samples~\cite{cuttheknot}.
+Euler's polynomial example is standard lore (Euler, 1772); problem citations
+(AMC~12~2024~B~P14, AMC~12~2023~A~P3, AIME~2010~I~P5, AMC~12~2024~A~P6) point to
+the AoPS archive~\cite{aops-amc}.

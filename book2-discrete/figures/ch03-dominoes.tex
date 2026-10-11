@@ -1,0 +1,32 @@
+% Figure: the induction machine --- base case plus a step that never fails.
+% Source for Figure~\ref{fig:dominoes}. TikZ only; regenerable by compiling main.tex.
+\begin{tikzpicture}[
+  dom/.style={draw,rounded corners=1.5pt,fill=graybg,minimum width=4mm,minimum height=9mm,inner sep=0pt},
+  fell/.style={draw,rounded corners=1.5pt,fill=accentsoft,minimum width=4mm,minimum height=9mm,inner sep=0pt,rotate=-28},
+  arr/.style={->,accent,thick},
+  lab/.style={font=\footnotesize\sffamily,text=slate},
+]
+% first domino already falling, the rest standing
+\node[fell] (d1) at (0,0) {};
+\node[dom] (d2) at (1.1,0) {};
+\node[dom] (d3) at (2.2,0) {};
+\node[dom] (d4) at (3.3,0) {};
+\node[dom] (d5) at (4.4,0) {};
+\node[dom] (d6) at (5.5,0) {};
+\node[font=\large,text=slate] at (6.6,0.15) {\dots};
+% labels
+\node[lab,anchor=north] at (-0.1,-0.62) {$P(1)$};
+\node[lab,anchor=north] at (1.1,-0.55) {$P(2)$};
+\node[lab,anchor=north] at (2.2,-0.55) {$P(3)$};
+\node[lab,anchor=north] at (3.3,-0.55) {$P(4)$};
+\node[lab,anchor=north] at (4.4,-0.55) {$P(5)$};
+\node[lab,anchor=north] at (5.5,-0.55) {$P(6)$};
+\node[lab,anchor=east] at (-0.5,-0.62) {base:};
+\draw[arr] (0.45,0.62) .. controls (0.75,0.8) .. (1.0,0.62);
+\draw[arr] (1.55,0.62) .. controls (1.85,0.8) .. (2.1,0.62);
+\draw[arr] (2.65,0.62) .. controls (2.95,0.8) .. (3.2,0.62);
+\draw[arr] (3.75,0.62) .. controls (4.05,0.8) .. (4.3,0.62);
+\draw[arr] (4.85,0.62) .. controls (5.15,0.8) .. (5.4,0.62);
+\node[lab,anchor=south] at (2.9,0.95) {step: $P(n) \Rightarrow P(n+1)$, every $n$};
+\node[lab,anchor=south west] at (4.6,-0.6) {};
+\end{tikzpicture}

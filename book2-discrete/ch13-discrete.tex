@@ -1,0 +1,385 @@
+\chapter{Inequalities}\index{inequality}
+
+Half of olympiad algebra is inequalities --- and almost all of it grows
+from one seed: a real square is nonnegative. This chapter builds the
+classical toolkit ($x^2 \ge 0$, AM-GM, Cauchy--Schwarz, Schur, Muirhead),
+and just as importantly, the \emph{discipline}: an inequality claim is
+incomplete until you name the equality case. After this chapter you can
+pick a tool for a target, prove the bound, and exhibit the case where it
+is sharp.
+
+\section{What's allowed: the algebra of $<$}\index{inequality!algebra}
+
+From the axioms of an ordered field\index{ordered field}: adding the
+same quantity preserves $<$; multiplying by a \emph{positive} quantity
+preserves it; multiplying by a \emph{negative} quantity \emph{flips} it;
+taking reciprocals of positive quantities flips it; $<$ is transitive.
+Every step of an inequality proof must be one of these --- the most
+common beginner error is multiplying both sides by an expression whose
+sign was never fixed.
+
+\section{Squares are nonnegative}\index{squares, nonnegative}
+
+$(a-b)^2 \ge 0$ with equality iff $a=b$. Expanding gives
+$a^2 + b^2 \ge 2ab$: the entire classical apparatus is this fact wearing
+cleverer clothes.
+
+\begin{example}[AM--GM for $n=4$, from scratch]\index{AM--GM!for four}
+\textbf{Strategy.} We may not assume AM--GM --- we are proving it. The
+only ``free'' inequality is the square. Build up: $n=2$, then bootstrap
+four at once, and look at the pattern that generalizes.
+
+\textbf{Solution.} $n=2$: $(x-y)^2\ge0$ gives
+$\frac{x+y}{2}\ge\sqrt{xy}$, equality iff $x=y$. For $n=4$:
+\[
+\frac{a+b+c+d}{4} = \frac{\frac{a+b}{2}+\frac{c+d}{2}}{2}
+\ge \frac{\sqrt{ab}+\sqrt{cd}}{2} \ge \sqrt{\sqrt{ab}\sqrt{cd}}
+= (abcd)^{1/4},
+\]
+each step an instance of $n=2$. Equality forces $a=b$, $c=d$, and
+$\sqrt{ab}=\sqrt{cd}$, i.e.\ $a=b=c=d$. The shape (``pair up, apply
+$n=2$ twice'') is exactly Cauchy's argument: prove $n=2$, prove
+$n \Rightarrow 2n$, and \emph{backwards}-fill any $n$ by augmenting with
+copies of the mean\index{Cauchy induction}. This is a second specimen
+of forward--backward induction (compare \S3).
+\end{example}
+
+\section{AM--GM}\index{AM--GM!theorem}
+
+\begin{theorem}[AM--GM]
+For $a_1,\dots,a_n \ge 0$,
+$\frac{a_1+\cdots+a_n}{n} \ge (a_1\cdots a_n)^{1/n}$, with equality iff
+all $a_i$ are equal.
+\end{theorem}
+
+Figure~\ref{fig:amgm} shows the classical picture for $n=2$: a chord of
+length $a$ then $b$ subtends a semicircle; the radius $(a+b)/2$ always
+clears the chord-height $\sqrt{ab}$.
+\begin{figure}[ht]\centering
+\input{figures/ch13-semicircle}
+\caption{AM--GM as geometry. Notice the dashed radius $(a+b)/2$ is never
+shorter than the perpendicular $\sqrt{ab}$ --- and they coincide exactly
+when $a=b$.}
+\label{fig:amgm}
+\end{figure}
+
+\begin{example}[Minimize $x+\frac1x$ on $x>0$]\index{minimum}
+\textbf{Strategy.} Equality cases guide proofs. Guess the symmetric
+candidate: $x = 1/x$, i.e.\ $x=1$, value $2$. Now \emph{prove} it ---
+which means exhibiting an inequality sharp exactly at $x=1$.
+
+\textbf{Solution.} $x + \frac1x - 2 = \frac{(x-1)^2}{x} \ge 0$ since
+$x>0$. Equality iff $x=1$. Two halves: (a) bound $x+1/x \ge 2$ for all
+$x>0$; (b) attainability, at $x=1$. Drop either half and the claim is
+incomplete --- ``the minimum is 2'' requires both a proof \emph{and} a
+witness.
+\end{example}
+
+\section{The power-mean chain}\index{power mean}
+
+For $a,b>0$: $\underbrace{\sqrt{\frac{a^2+b^2}{2}}}_{\text{QM}} \ge
+\underbrace{\frac{a+b}{2}}_{\text{AM}} \ge \underbrace{\sqrt{ab}}_{\text{GM}}
+\ge \underbrace{\frac{2}{1/a+1/b}}_{\text{HM}}$, all equal iff $a=b$.
+Figure~\ref{fig:ladder} evaluates the whole ladder at $(2,8)$.
+\begin{figure}[ht]\centering
+\input{figures/ch13-ladder}
+\caption{The power-mean ladder on $(2,8)$: QM $5.83 \ge$ AM $5 \ge$ GM $4
+\ge$ HM $3.2$. Notice the four rungs collapse to one exactly when $a=b$.}
+\label{fig:ladder}
+\end{figure}
+
+\section{Cauchy--Schwarz}\index{Cauchy--Schwarz}
+
+\begin{theorem}[Cauchy--Schwarz]
+$(\sum a_i^2)(\sum b_i^2) \ge (\sum a_ib_i)^2$, with equality iff the
+vectors are proportional.
+\end{theorem}
+
+Proof: $\sum (a_i t + b_i)^2 \ge 0$ is a quadratic in $t$ with no sign
+change, so its discriminant is nonpositive --- that discriminant is
+exactly the claim. The \emph{Engel form}\index{Engel form}: for $b_i>0$,
+$\sum \frac{a_i^2}{b_i} \ge \frac{(\sum a_i)^2}{\sum b_i}$ --- ``Titu's
+lemma'' --- obtained by Cauchy on $(a_i/\sqrt{b_i})^2$ and
+$(\sqrt{b_i})^2$.
+
+\begin{example}[Nesbitt's inequality]\index{Nesbitt}
+For $a,b,c>0$: $\frac{a}{b+c}+\frac{b}{c+a}+\frac{c}{a+b}\ge\frac32$.
+
+\textbf{Strategy.} The Engel form eats exactly this shape: write each
+term as $a^2/(a(b+c))$ so denominators combine.
+
+\textbf{Solution.}
+\[
+\sum_{cyc}\frac{a^2}{a(b+c)} \ge
+\frac{(a+b+c)^2}{2(ab+bc+ca)} \ge \frac32
+\iff (a+b+c)^2 \ge 3(ab+bc+ca),
+\]
+which is $\frac12\sum(a-b)^2\ge0$. Equality iff $a=b=c$.
+\end{example}
+
+\section{Equality conditions}\index{equality case}
+
+Every optimization problem is two problems: prove the bound, then find
+where it binds. The second half is skipped constantly --- and it is the
+half that tells you \emph{which} inequality to use. Apply AM--GM only
+where its equality case ($a_i$ all equal) is attainable in the problem's
+constraints; otherwise the ``minimum'' you found is unattainable and the
+answer is wrong.
+
+\section{Muirhead and Schur}\index{Muirhead}\index{Schur}
+
+For symmetric sums use the bracket notation\index{symmetric sum!notation}:
+$[3,0,0] = \sum_{sym} x^3/2$ conventions vary; we use
+$\sum_{cyc} x^3$ style --- spelled out when ambiguity looms. Muirhead:
+if exponent vector $\alpha$ \emph{majorizes}\index{majorization} $\beta$
+(partial sums of sorted components), then
+$\sum_{sym}x^{\alpha} \ge \sum_{sym}x^{\beta}$ for $x_i>0$.
+Figure~\ref{fig:major} pictures $[3,0,0]$ majorizing $[2,1,0]$.
+
+\begin{example}[Schur, derived not stated]\index{Schur!derived}
+\textbf{Strategy.} Don't invoke Schur as a black box --- manufacture it.
+$\sum (a-b)(a-c)(a+b-c)$-type thinking aside, the honest derivation:
+expand the nonnegativity of $\sum a(a-b)(a-c)$.
+
+\textbf{Solution.} For $a,b,c\ge0$, claim
+$\sum_{cyc} a(a-b)(a-c) \ge 0$: WLOG $a\ge b\ge c$; group the first two
+terms: $a(a-b)(a-c)+b(b-c)(b-a) = (a-b)^2(a+b-c) \ge 0$ since $a\ge b$
+and $a+b\ge c$; the last term $c(c-a)(c-b) \ge 0$ since both factors are
+nonpositive. The full check is exr:i2. Expanding:
+\[
+\sum_{cyc} a^3 + 3abc \;\ge\; \sum_{sym} a^2 b
+\quad\text{(Schur of degree 3),}
+\]
+equality iff $a=b=c$ or two are equal and the third is $0$. This is the
+standard repair for ``AM--GM won't reach'' symmetric cubics.
+\end{example}
+
+\begin{figure}[ht]\centering
+\input{figures/ch13-major}
+\caption{Majorization: $[3,0,0]$'s bars dominate $[2,1,0]$'s cumulatively.
+Notice this is a statement about exponent \emph{distribution}, not values.}
+\label{fig:major}
+\end{figure}
+
+\section{Strategy selection}\index{strategy!inequalities}
+
+\begin{itemize}
+\item \emph{Homogenize}: scale until a free parameter (a sum, a product)
+is a fixed value --- legitimate when the inequality is homogeneous.
+\item \emph{Normalize}: assume $a+b+c=1$ (or $abc=1$) to eliminate a
+constraint before the real work.
+\item \emph{Tangent line}: guess where equality hits, fit the tangent of
+each summand there, prove $\text{summand} \ge \text{tangent}$ pointwise
+(Figure~\ref{fig:tangent}). Sharpness is built in at the touching point.
+\end{itemize}
+\begin{figure}[ht]\centering
+\input{figures/ch13-tangent}
+\caption{Tangent-line method: the curve sits above its tangent, touching
+at the equality point. Notice sharpness is \emph{designed in} by choosing
+the tangent at the equality case.}
+\label{fig:tangent}
+\end{figure}
+
+\section{Summary}
+
+\begin{center}\small
+\begin{tabular}{@{}lll@{}}
+\toprule
+\textbf{Tool} & \textbf{Statement} & \textbf{Equality} \\
+\midrule
+$x^2\ge0$ & $a^2+b^2\ge2ab$ & $a=b$ \\
+AM--GM & $\bar a \ge \sqrt[n]{\prod a_i}$ & all equal \\
+Power-mean & QM$\ge$AM$\ge$GM$\ge$HM & all equal \\
+Cauchy--Schwarz & $\sum a_i^2\sum b_i^2 \ge (\sum a_ib_i)^2$ & proportional \\
+Engel & $\sum a_i^2/b_i \ge (\sum a_i)^2/\sum b_i$ & $a_i \propto b_i$ \\
+Schur & $\sum a^3 + 3abc \ge \sum_{sym}a^2b$ & equal, or $a=b,c=0$ \\
+Muirhead & majorized exponents $\Rightarrow$ bigger sym sum & all equal \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\section{Code: numerical sanity checks}\index{ineq\_scan}
+
+An inequality you ``believe'' should survive a Monte-Carlo scan ---
+\texttt{ineq\_scan.py} checks Nesbitt and AM-GM on $10\,000$ random
+positive triples and grid-searches the $x+1/x$ minimum.
+\begin{checkpoint}
+Predict: what value will the Nesbitt minimum hover just above, and at
+which kind of triple? Then run \texttt{python3 ineq\_scan.py}.
+\end{checkpoint}
+\begin{lstlisting}
+Nesbitt over 10000 random triples: min = 1.5003 >= 1.5
+  at (a,b,c) = (3.81, 3.848, 3.951)
+AM-GM held on all 10000 triples: True
+x + 1/x minimizer on grid: x = 1.0, value = 2.0000
+theory: equality at x = 1, minimum value = 2
+\end{lstlisting}
+The empirical minimum sits just above $1.5$ at a nearly-equal triple ---
+exactly the theorem's equality case, found by the experiment rather than
+assumed. Sampling never proves, but a violated sample would disprove;
+here $10\,000$ samples land where theory says they must.
+\texttt{test\_13\_ineq.sh} re-runs and greps the summary lines.
+
+\section{Common mistakes}\index{inequality!mistakes}
+
+\begin{itemize}
+\item \emph{Flipping on an unsigned multiplier.} Multiplying by
+``$a-b$'' without fixing its sign silently reverses $<$. Fix signs
+first --- or add, which never flips.
+\item \emph{Bound without witness.} ``Minimum is $2$'' needs both
+$x+1/x\ge2$ \emph{and} an $x$ attaining it. Most lost marks are the
+missing second half.
+\item \emph{AM--GM where equality is impossible.} If the constraint
+forces $a\ne b$, AM--GM's equality case is unattainable and the bound
+doesn't bind --- pick a tool whose equality case \emph{is} feasible.
+\end{itemize}
+
+\section*{Exercises}
+\subsection*{Inline}
+\begin{exercise}[easy]\label{exr:i1}
+Prove $\frac{a+b}{2}\le\sqrt{\frac{a^2+b^2}{2}}$ for $a,b>0$, and state
+the equality case, using only $(a-b)^2\ge0$.
+\end{exercise}
+\begin{solution}
+Squaring: equivalent to $(a+b)^2\le2(a^2+b^2)$, i.e.\
+$0\le(a-b)^2$. Equality iff $a=b$.
+\end{solution}
+\begin{exercise}[easy]\label{exr:i2}
+Complete the WLOG argument in Schur's inequality: for $a\ge b\ge c\ge0$,
+show $\sum_{cyc} a(a-b)(a-c) \ge 0$.
+\end{exercise}
+\begin{solution}
+Group the first two terms:
+$a(a-b)(a-c)+b(b-c)(b-a) = (a-b)\bigl[a(a-c)-b(b-c)\bigr] =
+(a-b)\bigl[a^2-ac-b^2+bc\bigr] = (a-b)^2(a+b-c) \ge 0$
+since $a\ge b$ and $a+b\ge c$. The last term $c(c-a)(c-b) \ge 0$ because
+$c-a\le0$ and $c-b\le0$. Total $\ge0$.
+\end{solution}
+\begin{exercise}[medium]\label{exr:i3}
+For $x,y>0$ with $x+y=1$, prove $(1+\frac1x)(1+\frac1y)\ge9$.
+\end{exercise}
+\begin{solution}
+Expand: $1 + \frac{x+y}{xy} + \frac1{xy} = 1 + \frac{2}{xy}$, and
+$xy\le\bigl(\frac{x+y}{2}\bigr)^2=\frac14$ by AM--GM, so
+$1+\frac2{xy}\ge1+8=9$; equality at $x=y=\frac12$.
+\end{solution}
+\begin{exercise}[medium]\label{exr:i4}
+By Engel's form, prove for $a,b,c>0$:
+$\frac{a^2}{b}+\frac{b^2}{c}+\frac{c^2}{a}\ge a+b+c$.
+\end{exercise}
+\begin{solution}
+$\sum a^2/b \ge (a+b+c)^2/(a+b+c) = a+b+c$; equality at $a=b=c$.
+\end{solution}
+\subsection*{Additional}
+\begin{exercise}[easy]\label{exr:a1}
+Show $x^2+y^2+z^2\ge xy+yz+zx$; find the equality case.
+\end{exercise}
+\begin{solution}
+Multiply by 2: $(x-y)^2+(y-z)^2+(z-x)^2\ge0$; equality iff $x=y=z$.
+\end{solution}
+\begin{exercise}[easy]\label{exr:a2}
+Prove $\frac{2ab}{a+b}\le\sqrt{ab}$ for $a,b>0$ (HM$\le$GM on two
+variables).
+\end{exercise}
+\begin{solution}
+Equivalent to $2\sqrt{ab}\le a+b$, i.e.\ $(\sqrt a-\sqrt b)^2\ge0$.
+\end{solution}
+\begin{exercise}[easy]\label{exr:a3}
+Prove or disprove: if $a\ge b$ then $a^2\ge b^2$ --- and repair the
+false version.
+\end{exercise}
+\begin{solution}
+False without signs ($-1\ge-2$). True for $a\ge b\ge0$, or with $|a|\ge|b|$.
+\end{solution}
+\begin{exercise}[easy]\label{exr:a4}
+Minimize $\frac{x^2+2}{\sqrt{x^2+1}}$ on real $x$.
+\end{exercise}
+\begin{solution}
+Let $u=\sqrt{x^2+1}\ge1$: $u+1/u\ge2$ but equality $u=1$ forces $x=0$ ---
+it \emph{is} attainable; minimum $2$ at $x=0$.
+\end{solution}
+\begin{exercise}[medium]\label{exr:a5}
+Prove for $a,b,c>0$ with $abc=1$: $a+b+c\ge3$, and extend: minimize
+$a+b+c+d$ given $abcd=1$ ---
+what does the equality case look like?
+\end{exercise}
+\begin{solution}
+AM--GM directly: $a+b+c\ge3\sqrt[3]{abc}=3$, equality at $a=b=c=1$;
+likewise $a+b+c+d\ge4$ with all $=1$.
+\end{solution}
+\begin{exercise}[medium]\label{exr:a6}
+Prove Schur of degree 3 implies: for $a,b,c>0$,
+$(a+b-c)(b+c-a)(c+a-b)\le abc$.
+\end{exercise}
+\begin{solution}
+Expand the left minus right; it rearranges exactly to the negation of
+Schur's form. (This is the substitution trick behind Ravi.)
+\end{solution}
+\begin{exercise}[medium]\label{exr:a7}
+Minimize $\frac1x+\frac1y$ subject to $x+y=2$, $x,y>0$, and state the
+minimizer.
+\end{exercise}
+\begin{solution}
+$\frac{x+y}{xy}=\frac2{xy}\ge\frac2{1}=2$ since $xy\le1$; minimizer
+$x=y=1$, value $2$.
+\end{solution}
+\begin{exercise}[medium]\label{exr:a8}
+Verify Muirhead's smallest case on two variables: $[2,0]$ majorizes
+$[1,1]$, and show $\sum_{sym}x^2 \ge \sum_{sym}xy$ recovers a familiar
+inequality.
+\end{exercise}
+\begin{solution}
+On $(x,y)$: $\sum_{sym}x^2 = 2x^2+2y^2$, $\sum_{sym}xy = 2xy$, so the
+claim is $x^2+y^2\ge2xy$ --- the square. Check the majorization:
+$2\ge1$ and $2+0=1+1$.
+\end{solution}
+\begin{exercise}[hard]\label{exr:a9}
+Prove the tangent-line method on one summand: show
+$\frac{x^3}{1+x^2}\ge x-\frac12$ for $x>0$, equality at $x=1$, and
+assemble a proof that for $a+b+c=3$, $a,b,c>0$,
+$\sum \frac{a^3}{1+a^2}\ge\frac32$.
+\end{exercise}
+\begin{solution}
+$\frac{x^3}{1+x^2} - \bigl(x-\frac12\bigr) =
+\frac{x^3 - (x-\frac12)(1+x^2)}{1+x^2} =
+\frac{\frac12(x-1)^2}{1+x^2} \ge 0$ on expanding the numerator:
+$x^3 - x - x^3 + \frac12 + \frac12x^2 = \frac12(x^2-2x+1)$. Equality iff
+$x=1$. Sum over $a,b,c$ with $a+b+c=3$:
+$\sum \frac{a^3}{1+a^2} \ge \sum\bigl(a-\frac12\bigr) = 3-\frac32 =
+\frac32$, equality at $a=b=c=1$ --- the tangent was fitted exactly
+there.
+\end{solution}
+\begin{exercise}[hard]\label{exr:a10}
+Implement-or-derive: extend \texttt{ineq\_scan.py} to scan the
+Schur inequality $\sum a^3+3abc\ge\sum_{sym}a^2b$ on $10^4$ random
+triples, and print the minimum of LHS$-$RHS.
+\end{exercise}
+\begin{solution}
+One loop; the scan's minimum should approach $0$ at near-equal triples,
+matching the equality case --- a falsification would show up as a
+strictly negative minimum.
+\end{solution}
+\begin{exercise}[hard]\label{exr:a11}
+Prove Cauchy's backward step: if AM--GM holds for $2n$ it holds for
+$n$, by taking the $n$ numbers plus $n$ copies of their arithmetic mean.
+\end{exercise}
+\begin{solution}
+Let $m=\bar a$. Apply the $2n$ case to
+$(a_1,\dots,a_n,m,\dots,m)$: mean is still $m$, geometric mean
+$\sqrt[2n]{\prod a_i \cdot m^n}\le m$; squaring out $m^n$ gives
+$\prod a_i \le m^n$.
+\end{solution}
+
+\section*{Notes}
+The AM--GM forward--backward induction is Cauchy's original argument
+\cite{otis}; the power-mean ladder and equality discipline follow the
+Excerpts' chapter on sharpness-vs-tractability \cite{otis}. The
+discriminant proof of Cauchy--Schwarz and the Engel form are standard
+\cite{engel}; Schur and Muirhead statements follow \cite{otis}. Tangent-line
+and normalization strategies are catalogued in \cite{chen-ineq}. For the
+``prove the bound + exhibit the case'' two-half structure see
+\cite{velleman}. Contest uses: 2024 AIME II P4; 2022 AIME I P15;
+2022 AIME I P7; 2024 AMC 12B P13; 2010 AIME I P9; 2025 AIME II P15;
+2024 AMC 12B P3; 2025 AIME I P14; 2023 AIME I P2.
+
+\chapternotes

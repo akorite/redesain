@@ -1,0 +1,18 @@
+% Figure: pointwise trap -- a piecewise ±x counterexample.
+% Source for Figure~\ref{fig:trap}. TikZ only; regenerable by compiling main.tex.
+\begin{tikzpicture}[
+  lab/.style={font=\footnotesize\sffamily,text=slate,align=center},
+  dot/.style={circle,fill=accent,inner sep=1.6pt},
+]
+\draw[rulegray,->] (-2.4,0) -- (2.4,0);
+\draw[rulegray,->] (0,-2.2) -- (0,2.2);
+% f(x)=x on x<=0 part drawn solid right-half, f(x)=-x on x>0:
+\draw[ink,thick] (-2,2) -- (0,0);
+\draw[ink,thick] (0,0) -- (2,-2);
+\draw[accent,dashed,thick] (-2,-2) -- (0,0);
+\draw[accent,dashed,thick] (0,0) -- (2,2);
+\node[lab] at (2.15,1.9) {$+x$};
+\node[lab] at (2.15,-1.9) {$-x$};
+\node[lab] at (0,-2.7) {each point obeys $f(t)=\pm t$ --- the sign\\
+may change by point, so the global claim fails};
+\end{tikzpicture}

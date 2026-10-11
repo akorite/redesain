@@ -1,0 +1,19 @@
+% Figure: characteristic-equation decision diagram for order-2 recurrences.
+% Source for Figure~\ref{fig:chareq}. TikZ only; regenerable by compiling main.tex.
+\begin{tikzpicture}[
+  bx/.style={draw=rulegray,rounded corners=3pt,inner sep=4pt,align=center,font=\footnotesize},
+  dm/.style={draw=accent,inner sep=3pt,align=center,font=\footnotesize},
+  ar/.style={->,thick,draw=ink},
+  lab/.style={font=\footnotesize\sffamily,text=slate},
+]
+\node[bx,text width=3.1cm] (r) at (0,0) {$a_n = p\,a_{n-1} + q\,a_{n-2}$:\\try $a_n = r^n$};
+\node[bx,text width=3.1cm] (e) at (0,-1.5) {$r^2 = p\,r + q$\\(characteristic equation)};
+\node[dm] (c) at (0,-3.0) {roots?};
+\node[bx,text width=3.4cm] (d) at (-2.9,-4.5) {distinct $r_1 \ne r_2$:\\$a_n = A r_1^n + B r_2^n$};
+\node[bx,text width=3.4cm] (dd) at (2.9,-4.5) {double root $r$:\\$a_n = (A + Bn)\,r^n$};
+\draw[ar] (r) -- (e);
+\draw[ar] (e) -- (c);
+\draw[ar] (c) -- (d) node[midway,above,sloped,lab] {two};
+\draw[ar] (c) -- (dd) node[midway,above,sloped,lab] {one};
+\node[lab] at (0,-5.6) {$A, B$ are fixed by the two base cases};
+\end{tikzpicture}

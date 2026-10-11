@@ -1,0 +1,15 @@
+% Figure: nine-point circle as homothety image of the circumcircle at H, ratio 1/2.
+% Source for Figure~\ref{fig:ninept}. TikZ only; regenerable by compiling main.tex.
+\begin{tikzpicture}[
+  lab/.style={font=\footnotesize\sffamily,text=slate,align=center},
+  pt/.style={circle,fill=ink,inner sep=1.3pt},
+]
+\draw[ink] (0,0) circle (1.8);
+\draw[accent,dashed] (-0.3,-0.2) circle (0.9);
+\node[pt,label={[lab]left:$O$}] (O) at (0,0) {};
+\node[pt,label={[lab]right:$H$}] (H) at (0.9,-0.6) {};
+\node[pt,label={[accent]below:$N$}] (N) at (-0.3,-0.2) {};
+\draw[rulegray] (O) -- (H);
+\node[lab] at (0,-2.5) {homothety at $H$, ratio $\tfrac12$:\\
+circumcircle $\to$ nine-point circle; $N$ is midpoint of $OH$};
+\end{tikzpicture}

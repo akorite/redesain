@@ -1,0 +1,22 @@
+% Figure: multiplication by 3 permutes nonzero residues mod 7.
+% Source for Figure~\ref{fig:perm}. TikZ only; regenerable by compiling main.tex.
+\begin{tikzpicture}[
+  nd/.style={circle,draw,minimum size=6.5mm,font=\small},
+  ed/.style={->,accent,thick},
+  lab/.style={font=\footnotesize\sffamily,text=slate},
+]
+\foreach \i in {1,...,6}
+  \node[nd] (n\i) at ({90 - (\i-1)*60}:2.0) {\i};
+% times 3 mod 7: 1->3, 3->2, 2->6, 6->4, 4->5, 5->1
+\draw[ed,bend left=14] (n1) to (n3);
+\draw[ed,bend left=14] (n3) to (n2);
+\draw[ed,bend left=14] (n2) to (n6);
+\draw[ed,bend left=14] (n6) to (n4);
+\draw[ed,bend left=14] (n4) to (n5);
+\draw[ed,bend left=14] (n5) to (n1);
+\node[lab] at (3.0,0.4) {$\times 3 \bmod 7$: one 6-cycle};
+\node[lab] at (3.0,0.0) {a bijection $\Rightarrow$};
+\node[lab] at (3.0,-0.4) {products match:};
+\node[lab] at (3.0,-0.8) {$\prod (3r) \equiv \prod r$};
+\node[lab] at (0,-2.9) {that product equality is Fermat's little theorem};
+\end{tikzpicture}

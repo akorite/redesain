@@ -1,0 +1,17 @@
+% Figure: GF coefficient-extraction flowchart: factor -> expand -> read [x^n].
+% Source for Figure~\ref{fig:gfflow}. TikZ only; regenerable by compiling main.tex.
+\begin{tikzpicture}[
+  bx/.style={draw=rulegray,rounded corners=3pt,inner sep=4pt,align=center,font=\footnotesize},
+  ar/.style={->,thick,draw=ink},
+  lab/.style={font=\footnotesize\sffamily,text=slate},
+]
+\node[bx,text width=2.6cm] (f1) at (0,0) {each choice\\$= $ a geometric\\factor};
+\node[bx,text width=2.6cm] (f2) at (3.4,0) {multiply the\\series formally};
+\node[bx,text width=2.6cm] (f3) at (6.8,0) {read off the\\coefficient $[x^n]$};
+\draw[ar] (f1) -- (f2);
+\draw[ar] (f2) -- (f3);
+\node[lab] at (0,-1.2) {$\dfrac{1}{1-x^{5}}\cdot\dfrac{1}{1-x^{10}}\cdot\dfrac{1}{1-x^{25}}$};
+\node[lab] at (3.4,-1.2) {$1+x^{5}+2x^{10}+2x^{15}+3x^{20}+4x^{25}+5x^{30}+\cdots$};
+\node[lab] at (6.8,-1.2) {$[x^{30}] = 5$};
+\node[lab] at (3.4,-2.0) {the coefficient \emph{is} the count --- $x$ never gets a value};
+\end{tikzpicture}

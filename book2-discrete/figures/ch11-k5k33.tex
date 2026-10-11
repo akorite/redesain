@@ -1,0 +1,28 @@
+% Figure: K5 and K_{3,3} drawn with their forced crossings marked.
+% Source for Figure~\ref{fig:k5k33}. TikZ only; regenerable by compiling main.tex.
+\begin{tikzpicture}[
+  vx/.style={circle,draw=ink,fill=ink!10,inner sep=2pt,minimum size=4.5mm},
+  cr/.style={accent,font=\footnotesize\bfseries},
+  lab/.style={font=\footnotesize\sffamily,text=slate},
+]
+% K5 on pentagon
+\foreach \i in {0,...,4}
+  \node[vx] (k\i) at ({90+\i*72}:1.1) {};
+\draw[rulegray!60] (k0)--(k1) (k0)--(k2) (k0)--(k3) (k0)--(k4)
+                    (k1)--(k2) (k1)--(k3) (k1)--(k4)
+                    (k2)--(k3) (k2)--(k4) (k3)--(k4);
+\node[cr] at (0,0) {$\times$};
+\node[lab] at (0,-1.7) {$K_5$: $e = 10 > 3v - 6 = 9$};
+% K33 two columns
+\foreach \i in {0,1,2}
+{
+  \node[vx] (l\i) at (3.2,{0.9-\i*0.9}) {};
+  \node[vx] (r\i) at (4.8,{0.9-\i*0.9}) {};
+}
+\foreach \i in {0,1,2}
+  \foreach \j in {0,1,2}
+    \draw[rulegray!60] (l\i)--(r\j);
+\node[cr] at (4.0,0) {$\times$};
+\node[lab] at (4.0,-1.7) {$K_{3,3}$: $e = 9 > 2v - 4 = 8$};
+\node[lab] at (2.4,-2.4) {crossings drawn are heuristic --- the proofs are the edge-count contradictions};
+\end{tikzpicture}

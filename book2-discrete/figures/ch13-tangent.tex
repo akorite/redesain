@@ -1,0 +1,15 @@
+% Figure: tangent-line method -- curve touches its tangent at the equality point.
+% Source for Figure~\ref{fig:tangent}. TikZ only; regenerable by compiling main.tex.
+\begin{tikzpicture}[
+  lab/.style={font=\footnotesize\sffamily,text=slate},
+  dot/.style={circle,fill=accent,inner sep=1.8pt},
+]
+\draw[rulegray,->] (-0.2,0) -- (3.4,0);
+\draw[rulegray,->] (0,-0.2) -- (0,2.6);
+\draw[ink,thick] (0.25,2.4) parabola bend (1.5,0.9) (3.2,1.9);
+\draw[accent,thick,dashed] (0.5,1.45) -- (2.9,0.55);
+\node[dot] at (1.5,1.02) {};
+\node[lab] at (2.4,1.5) {curve};
+\node[lab] at (2.75,0.35) {tangent};
+\node[lab] at (1.5,-0.4) {the tangent \emph{touches} at the equality case -- sharpness lives there};
+\end{tikzpicture}

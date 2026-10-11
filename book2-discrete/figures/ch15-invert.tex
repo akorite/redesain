@@ -1,0 +1,14 @@
+% Figure: inversion image table (line<->circle through O etc.).
+% Source for Figure~\ref{fig:invert}. TikZ only; regenerable by compiling main.tex.
+\begin{tikzpicture}[
+  lab/.style={font=\footnotesize\sffamily,text=slate,align=center},
+]
+\draw[ink,dashed] (0,0) circle (0.8);
+\node[circle,fill=ink,inner sep=1.2pt,label={[lab]below:$O$}] (O) at (0,0) {};
+\draw[rulegray,thick] (-1.9,1.1) -- (1.9,1.1);
+\draw[accent,thick] (0,0.55) circle (0.28);
+\node[lab] at (-1.9,1.4) {line};
+\node[lab] at (1.5,0.55) {circle thru $O$};
+\node[lab] at (0,-1.3) {line $\not\ni O \;\leftrightarrow\;$ circle $\ni O$;\\
+circle $\not\ni O \;\leftrightarrow\;$ circle $\not\ni O$};
+\end{tikzpicture}

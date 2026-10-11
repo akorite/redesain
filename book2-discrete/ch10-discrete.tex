@@ -1,0 +1,288 @@
+\chapter{Recurrences}\label{ch:rec}
+\index{recurrence}
+
+A recurrence describes a sequence by its own past --- the natural output
+of the case splits from Chapter~8 and Chapter~3. This chapter is about
+turning that description into either a closed form (characteristic
+equations, generating functions) or at least a growth order. After this
+chapter you can set up a recurrence from a problem's own structure,
+solve the linear homogeneous ones, and predict how fast the answer
+grows.
+
+\section{Recurrence vs closed form}\label{sec:recvs}
+\index{closed form}
+A \emph{recurrence relation} gives $a_n$ in terms of earlier terms plus
+base cases; a \emph{closed form} gives $a_n$ as a function of $n$
+directly. The recurrence is usually what the problem gives you for
+free; the closed form is what you earn by solving it. Both are honest
+answers --- but a closed form that was never verified against the
+recurrence is just a conjecture.
+
+\section{Guessing, then proving}\label{sec:guess}
+\index{induction!closing a guess}
+The standard pipeline: unroll or compute a few values, conjecture a
+closed form, then prove it by induction --- the guess supplies the
+formula, induction supplies the licence.
+
+\begin{example}\label{ex:hanoi}
+Solve the Towers of Hanoi recurrence $H_n = 2H_{n-1} + 1$, $H_1 = 1$.
+\par\smallskip
+\textbf{Strategy.} Compute four values first --- never conjecture from
+one data point. $1, 3, 7, 15$ is $2^n - 1$; the recursion tree
+(Figure~\ref{fig:hanoi}) shows \emph{why}: each level doubles, and the
+$+1$ is the single real move of the biggest disk.
+\par\smallskip
+\begin{solution}
+Claim $H_n = 2^n - 1$. Base: $H_1 = 1 = 2^1 - 1$. Step:
+$H_n = 2H_{n-1} + 1 = 2(2^{n-1} - 1) + 1 = 2^n - 1$ by the induction
+hypothesis. Unwrapping gives the same sum directly:
+$H_n = 1 + 2 + 4 + \cdots + 2^{n-1} = 2^n - 1$.
+\end{solution}
+\end{example}
+
+\begin{figure}[ht]\centering
+\input{figures/ch10-hanoi}
+\caption{The Hanoi recursion tree, four levels deep ($1+2+4+8$ calls). Notice the shape is the
+proof: $1 + 2 + 4 + 8$ calls, one real move per call --- the doubling
+you see \emph{is} the $2^n - 1$.}
+\label{fig:hanoi}
+\end{figure}
+
+\section{Characteristic equations}\label{sec:chareq}
+\index{characteristic equation}
+\index{linear recurrence!homogeneous}
+For $a_n = p\,a_{n-1} + q\,a_{n-2}$, guess $a_n = r^n$ (geometric
+ansatz --- geometric sequences are the only ones where each term is a
+constant ratio of the previous two, and the recurrence is asking
+exactly that question). Substituting gives $r^n = p\,r^{n-1} + q\,r^{n-2}$,
+i.e.\ $r^2 = pr + q$ --- the \emph{characteristic equation}.
+
+\begin{example}\label{ex:chareq}
+Solve $a_n = 5a_{n-1} - 6a_{n-2}$ with $a_0 = 2$, $a_1 = 5$.
+\par\smallskip
+\textbf{Strategy.} The ansatz $r^n$ reduces the recurrence to algebra;
+two roots mean the general solution is a combination, and the base
+cases pin down the weights.
+\par\smallskip
+\begin{solution}
+$r^2 - 5r + 6 = 0$ gives $r = 2, 3$ (Figure~\ref{fig:chareq}).
+$a_n = A\cdot 2^n + B \cdot 3^n$; $a_0 = A + B = 2$, $a_1 = 2A + 3B = 5$
+gives $A = B = 1$, so $a_n = 2^n + 3^n$. Check: $a_2 = 5\cdot 5 - 6\cdot
+2 = 13 = 4 + 9$.
+\end{solution}
+\end{example}
+
+\begin{figure}[ht]\centering
+\input{figures/ch10-chareq}
+\caption{The characteristic-equation flowchart. Notice a double root
+doesn't halve the answer --- it buys an extra $n$ factor:
+$(A + Bn)r^n$, because $n r^n$ is a second independent solution.}
+\label{fig:chareq}
+\end{figure}
+
+\section{Fibonacci, tilings, and derangements}\label{sec:fib}
+\index{Fibonacci}\index{tiling!by recurrence}
+
+\begin{example}\label{ex:tiling}
+Count domino tilings of a $2 \times n$ strip.
+\par\smallskip
+\textbf{Strategy.} Split on the \emph{last} tile's shape, not the first
+--- the suffix of a tiling is a shorter tiling, which is exactly the
+form a recurrence needs.
+\par\smallskip
+\begin{solution}
+Figure~\ref{fig:tiling}: tilings of $2 \times n$ end either in a
+vertical domino (the rest is a $2 \times (n-1)$ tiling, $a_{n-1}$ ways)
+or in a horizontal pair ($a_{n-2}$ ways). So $a_n = a_{n-1} + a_{n-2}$
+with $a_1 = 1$, $a_2 = 2$ --- the Fibonacci numbers shifted, and
+Figure~\ref{fig:ratio} shows the ratio converging to
+$\varphi = \frac{1+\sqrt5}{2}$. Binet's formula
+$F_n = \frac{\varphi^n - \psi^n}{\sqrt5}$ (with
+$\psi = \frac{1-\sqrt5}{2}$) is exactly the two-root case of
+\S\ref{sec:chareq}.
+\end{solution}
+\end{example}
+
+\begin{figure}[ht]\centering
+\input{figures/ch10-tiling}
+\caption{The tiling split on the last domino. Notice only two endings
+are possible and they account for disjoint, exhaustive cases ---
+that is what licences $a_n = a_{n-1} + a_{n-2}$.}
+\label{fig:tiling}
+\end{figure}
+
+\begin{figure}[ht]\centering
+\input{figures/ch10-ratio}
+\caption{$F_{n+1}/F_n \to \varphi$. Notice the oscillation about the
+limit --- the shrinking second root $\psi \approx -0.618$ flips sign
+each step, which is the oscillation made visible.}
+\label{fig:ratio}
+\end{figure}
+
+\begin{example}\label{ex:derrec}
+Prove the derangement recurrence $D_n = (n-1)(D_{n-1} + D_{n-2})$.
+\par\smallskip
+\textbf{Strategy.} Classify derangements by where element $1$ lands:
+it goes to one of $n-1$ positions $k$; then ask where element $k$ goes.
+\par\smallskip
+\begin{solution}
+Fix where $1$ lands: $n-1$ choices of position $k$. Now element $k$
+either lands in position $1$ (the rest is a derangement of the
+remaining $n-2$ elements, $D_{n-2}$ ways) or anywhere else (element $k$
+still can't go home --- treat position $1$ as its forbidden spot; the
+rest is a derangement of $n-1$ elements, $D_{n-1}$ ways). Total
+$(n-1)(D_{n-1} + D_{n-2})$.
+\end{solution}
+\end{example}
+
+\begin{checkpoint}[Predict before you run]
+Listing~\ref{lst:fib} runs the recurrence against Binet's formula in
+floating point. Predict: does the closed form stay exactly right in
+floats, and if not, where does it first break?
+\end{checkpoint}
+
+\begin{lstlisting}[language=Python,caption={\texttt{fib\_closed.py}:
+recurrence vs Binet --- watch the floats (script in
+\texttt{code/fib\_closed.py}).},label={lst:fib}]
+def fib_binet(n):
+    return (PHI ** n - PSI ** n) / sqrt(5)
+\end{lstlisting}
+Real output:
+\begin{lstlisting}[numbers=none]
+n | recurrence | Binet (float) | round | ok?
+ 10 | 55 | 5.500000e+01 | 55 | True
+ 20 | 6765 | 6.765000e+03 | 6765 | True
+ 40 | 102334155 | 1.023342e+08 | 102334155 | True
+ 50 | 12586269025 | 1.258627e+10 | 12586269025 | True
+ 60 | 1548008755920 | 1.548009e+12 | 1548008755920 | True
+ 70 | 190392490709135 | 1.903925e+14 | 190392490709135 | True
+ 71 | 308061521170129 | 3.080615e+14 | 308061521170130 | False
+ 72 | 498454011879264 | 4.984540e+14 | 498454011879265 | False
+first float failure at n = 71 (double precision; exact answer needs ints)
+\end{lstlisting}
+
+Exact in real arithmetic, not in floats: Binet drifts by $n = 71$ in
+double precision. The closed form is a theorem about reals; the
+recurrence on integers never lies.
+
+\section{Solving by generating functions}\label{sec:recgf}
+\index{generating function!solving recurrences}
+Chapter~9's conversion, applied: for Fibonacci let
+$F(x) = \sum F_n x^n$. The recurrence $F_n = F_{n-1} + F_{n-2}$
+multiplied out gives $F(x) = x + xF(x) + x^2F(x)$, so
+$F(x) = \frac{x}{1 - x - x^2}$; partial fractions on the denominator's
+roots $\varphi, \psi$ recover Binet. The GF turns ``solve a
+recurrence'' into ``solve one equation, then do algebra''.
+
+\section{A feel for growth orders}\label{sec:growth}
+\index{growth order}
+You can often read the growth order off the recursion tree without
+solving: Hanoi splits one call into two calls each one size smaller ---
+$2^n$. A recurrence like $T(n) = 2T(n/2) + n$ (merge sort) splits into
+two half-size problems; the tree has $\log_2 n$ levels of $n$ work
+each, so $T(n) \approx n \log_2 n$. Chapter-17's algorithms live in
+this vocabulary; the discipline is to see the \emph{tree} before
+reaching for the \emph{formula}.
+
+\begin{exercise}[easy]\label{exr:rec1}
+Unroll $b_n = 3b_{n-1}$, $b_0 = 2$; closed form? Verify $b_4$.
+\end{exercise}
+\begin{exercise}[medium]\label{exr:rec2}
+Solve $a_n = 4a_{n-1} - 4a_{n-2}$, $a_0 = 1$, $a_1 = 4$ (double root ---
+use Figure~\ref{fig:chareq}'s second branch).
+\end{exercise}
+\begin{exercise}[medium]\label{exr:rec3}
+Set up the recurrence for climbing an $n$-stair taking 1 or 2 steps,
+solve it, and say which sequence this is.
+\end{exercise}
+\begin{exercise}[medium]\label{exr:rec4}
+From \texttt{fib\_closed.py}'s table: why does the float failure show
+up only near $n \approx 70$, not earlier? (How many significant digits
+does a double carry?)
+\end{exercise}
+
+\section{Chapter summary}
+\begin{table}[ht]\centering
+\begin{tabularx}{\linewidth}{@{}lYY@{}}
+\toprule
+\tablehead\thead{Shape} & \thead{Method} & \thead{Growth}\\
+\midrule
+$a_n = c\,a_{n-1} + d$ & unroll / geometric & $c^n$\\
+$a_n = pa_{n-1} + qa_{n-2}$ & characteristic eq. & $r_{\max}^n$\\
+first-order, side term, $c=1$ & unroll + sum & like the side term\\
+split on last object & set up + solve & per the roots\\
+linear, any order & generating function & partial fractions\\
+halving splits & recursion tree & $n\log n$-ish\\
+\bottomrule
+\end{tabularx}
+\caption{One page: name the shape, pick the method, predict the growth.}
+\label{tab:rec}
+\end{table}
+
+\section{Common mistakes}
+\index{common mistakes}
+\begin{itemize}
+\item \textbf{Off-by-one base cases.} $a_1 = 1, a_2 = 2$ for tilings is
+not $F_1 = 1, F_2 = 1$: the answer is Fibonacci \emph{shifted}. Solve
+with the problem's own bases, then reconcile the indices.
+\item \textbf{Circular proof.} ``Assume the closed form, plug it into
+itself'' proves nothing --- the induction must verify the form
+\emph{against the recurrence}, not against itself.
+\item \textbf{Formula where the count was the answer.} A closed form
+that doesn't evaluate to integers (Binet in floats past $n \approx 70$)
+is a liability; when the question wants a count, keep the integers and
+treat the formula as a description of growth.
+\end{itemize}
+
+\section{Additional exercises}
+\begin{exercise}[easy]
+Compute $a_5$ for $a_n = 2a_{n-1} + 3$, $a_0 = 1$; then find the closed
+form (hint: $a_n + c$ geometric for the right $c$).
+\end{exercise}
+\begin{exercise}[easy]
+Write the recurrence for ``binary strings with no two adjacent 1s'' of
+length $n$ and identify the sequence.
+\end{exercise}
+\begin{exercise}[easy]
+Solve $a_n = 7a_{n-1}$, $a_0 = 5$; what is the growth factor?
+\end{exercise}
+\begin{exercise}[easy]
+Solve $a_n = a_{n-1} + n$, $a_0 = 0$ by unwrapping; name the closed
+form.
+\end{exercise}
+\begin{exercise}[medium]
+Solve $a_n = 6a_{n-1} - 9a_{n-2}$, $a_0 = 0$, $a_1 = 3$.
+\end{exercise}
+\begin{exercise}[medium]
+Show the $2 \times n$ tiling count with dominoes \emph{and} $2\times2$
+squares allowed satisfies $b_n = b_{n-1} + 2b_{n-2}$, and solve it.
+\end{exercise}
+\begin{exercise}[medium]
+Use the derangement recurrence to compute $D_5, D_6$ from
+$D_3 = 2, D_4 = 9$, and check $D_6/6!$ against $1/e$.
+\end{exercise}
+\begin{exercise}[medium]
+Find the GF for $a_n = 2a_{n-1} + 3^n$, $a_0 = 1$: set $A(x)$, solve
+for it, and extract the closed form by partial fractions.
+\end{exercise}
+\begin{exercise}[hard]
+Prove Binet's formula by induction \emph{and} derive it from
+$F(x) = x/(1-x-x^2)$ --- show the two answers coincide term by term.
+\end{exercise}
+\begin{exercise}[hard]
+Extend \texttt{fib\_closed.py} to use \texttt{Decimal} at 50 digits:
+does Binet's failure move to a larger $n$, and does \emph{exact}
+arithmetic (algebraic form) ever fail? Explain.
+\end{exercise}
+
+\chapternotes
+The recursion-tree viewpoint and the characteristic-equation pipeline
+follow 6.042J's recurrences chapter~\cite{mcs}; the GF-solution section
+uses Chen's Summation handout~\cite{chen-summ} as the worked source;
+Velleman's recursion section supplied the guess-then-induct
+pipeline~\cite{velleman}, and Engel the drill level~\cite{engel}.
+Contest items powered by this chapter --- linear recurrences
+(AMC~12~2024~A~P21, AMC~12~2024~B~P18, AIME~2021~I~P10), tiling
+recurrences (AIME~2025~II~P13, AMC~12~2023~A~P20, AMC~12~2023~A~P25)
+and combined counting-recurrence items (AIME~2015~I~P9,
+AIME~2023~I~P10) --- are on the AoPS archive~\cite{aops-amc}.

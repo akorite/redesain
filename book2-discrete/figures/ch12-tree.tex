@@ -1,0 +1,26 @@
+% Figure: two-stage probability tree (prize draw).
+% Source for Figure~\ref{fig:ptree}. TikZ only; regenerable by compiling main.tex.
+\begin{tikzpicture}[
+  nd/.style={circle,draw=rulegray,minimum size=3mm,inner sep=0pt},
+  lab/.style={font=\footnotesize\sffamily,text=slate},
+  ed/.style={draw=rulegray},
+  el/.style={font=\scriptsize,text=slate},
+]
+\node[nd] (r) at (0,0) {};
+\node[nd] (a) at (1.8,0.9) {};
+\node[nd] (b) at (1.8,-0.9) {};
+\draw[ed] (r) -- (a) node[midway,above,el] {gold $1/4$};
+\draw[ed] (r) -- (b) node[midway,below,el] {plain $3/4$};
+\foreach \p/\n in {a/{c1,c2},b/{d1,d2}} {}
+\node[nd] (c1) at (3.6,1.5) {}; \node[nd] (c2) at (3.6,0.4) {};
+\node[nd] (d1) at (3.6,-0.4) {}; \node[nd] (d2) at (3.6,-1.5) {};
+\draw[ed] (a)--(c1) node[midway,above,el] {win $1/2$};
+\draw[ed] (a)--(c2) node[midway,below,el] {lose $1/2$};
+\draw[ed] (b)--(d1) node[midway,above,el] {win $1/6$};
+\draw[ed] (b)--(d2) node[midway,below,el] {lose $5/6$};
+\node[lab] at (5.0,1.5) {$1/8$};
+\node[lab] at (5.0,0.4) {$1/8$};
+\node[lab] at (5.0,-0.4) {$1/8$};
+\node[lab] at (5.0,-1.5) {$5/8$};
+\node[lab] at (2.5,-2.3) {$P(\text{gold} \mid \text{win}) = \frac{1/8}{1/8+1/8} = \frac{1}{2}$};
+\end{tikzpicture}

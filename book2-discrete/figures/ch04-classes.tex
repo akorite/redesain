@@ -1,0 +1,23 @@
+% Figure: partition of Z into the two parity classes.
+% Source for Figure~\ref{fig:classes}. TikZ only; regenerable by compiling main.tex.
+\begin{tikzpicture}[
+  ev/.style={circle,draw,fill=accentsoft,minimum size=5mm,font=\scriptsize},
+  od/.style={circle,draw,fill=amberbg,minimum size=5mm,font=\scriptsize},
+  bin/.style={draw=rulegray,rounded corners=3pt,minimum width=30mm,minimum height=8mm,font=\footnotesize\sffamily},
+  lab/.style={font=\footnotesize\sffamily,text=slate},
+]
+% number-line dots -4..5
+\foreach \x in {-4,-2,0,2,4}
+  \node[ev] at ({(\x+4)*0.62},0) {\x};
+\foreach \x in {-3,-1,1,3,5}
+  \node[od] at ({(\x+4)*0.62},0) {\x};
+\node[lab] at (2.8,0.55) {integers};
+% bins
+\node[bin] (be) at (1.2,-1.6) {$[0]$ = evens};
+\node[bin] (bo) at (4.4,-1.6) {$[1]$ = odds};
+\foreach \x in {0,1,2,3,4}
+  \draw[->,accent] ({(\x*1.24)},-0.35) -- ({0.55+\x*0.28},-1.25);
+\foreach \x in {0,1,2,3,4}
+  \draw[->,amber] ({(\x*1.24)+0.62},-0.35) -- ({3.9+\x*0.28},-1.25);
+\node[lab] at (2.8,-2.5) {every integer lands in exactly one class};
+\end{tikzpicture}

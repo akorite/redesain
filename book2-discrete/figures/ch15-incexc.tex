@@ -1,0 +1,20 @@
+% Figure: incenter/excenter lemma -- arc midpoint equidistant from B, I, C.
+% Source for Figure~\ref{fig:incexc}. TikZ only; regenerable by compiling main.tex.
+\begin{tikzpicture}[
+  lab/.style={font=\footnotesize\sffamily,text=slate,align=center},
+  pt/.style={circle,fill=ink,inner sep=1.4pt},
+]
+\draw[ink] (0,0) circle (1.6);
+\node[pt,label={[lab]above:$A$}] (A) at (90:1.6) {};
+\node[pt,label={[lab]left:$B$}] (B) at (200:1.6) {};
+\node[pt,label={[lab]right:$C$}] (C) at (-20:1.6) {};
+\node[pt,label={[accent]below:$M$}] (M) at (-90:1.6) {};
+\node[pt,label={[lab]0:$I$}] (I) at (0.1,0.15) {};
+\draw[rulegray] (A) -- (B) -- (C) -- cycle;
+\draw[accent,thick] (M) -- (B);
+\draw[accent,thick] (M) -- (I);
+\draw[accent,thick] (M) -- (C);
+\draw[rulegray,dashed] (A) -- (M);
+\node[lab] at (0,-2.4) {$MB = MI = MC$ (and $=MI_A$):\\
+the arc midpoint is a stealth circle's center};
+\end{tikzpicture}

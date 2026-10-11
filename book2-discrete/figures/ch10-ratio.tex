@@ -1,0 +1,18 @@
+% Figure: ratio F_{n+1}/F_n converging to the golden ratio.
+% Source for Figure~\ref{fig:ratio}. TikZ only; regenerable by compiling main.tex.
+\begin{tikzpicture}[
+  lab/.style={font=\footnotesize\sffamily,text=slate},
+  ax/.style={draw=rulegray},
+]
+\draw[ax,->] (0,0) -- (6.2,0) node[below left,font=\footnotesize] {$n$};
+\draw[ax,->] (0,0) -- (0,3.4) node[above left,font=\footnotesize] {$F_{n+1}/F_n$};
+% phi line at y=2.7 (scale: phi-1.6 ~ )
+\draw[accent,dashed] (0,2.7) -- (6.0,2.7) node[right,font=\footnotesize] {$\varphi \approx 1.618$};
+% ratios: 1,2,1.5,1.667,1.6,1.625,1.615,1.619 -> y = (r-1.55)*20
+\foreach \n/\r in {1/1.0,2/2.0,3/1.5,4/1.667,5/1.6,6/1.625,7/1.615,8/1.619}
+{
+  \pgfmathsetmacro{\y}{(\r-1.4)*1.9}
+  \fill[ink] (\n*0.62,\y) circle (1.6pt);
+}
+\node[lab] at (3.4,-0.5) {the ratio oscillates and converges --- growth factor of every $a_n=a_{n-1}+a_{n-2}$};
+\end{tikzpicture}

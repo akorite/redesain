@@ -1,0 +1,318 @@
+\chapter{Probability on finite spaces}\label{ch:prob}
+\index{probability}
+
+Probability on finite spaces is Chapter~8's counting with a
+denominator: $\#\text{good} / \#\text{all}$. The new content is what
+happens when events interact --- conditioning, independence, and
+expectation --- and the flagship result is that expected values add
+even when the events do not. After this chapter you can model a random
+experiment as a sample space, run conditional probabilities through a
+tree, and use linearity of expectation where a direct count would be
+hopeless.
+
+\section{Sample spaces and uniform models}\label{sec:sample}
+\index{sample space}
+A sample space $\Omega$ is the set of all outcomes; an event is a
+subset. Uniform model: every outcome equally likely, so
+$P(A) = |A|/|\Omega|$ --- probability becomes combinatorics. The
+uniformity must be \emph{verified} (``equally likely'' is a claim, not a
+decoration): dealing cards uniformly is fine; summing two dice is not
+uniform over the sums.
+
+\section{Events, complements, ``at least one''}\label{sec:complement}
+\index{complement rule}
+$P(\overline{A}) = 1 - P(A)$. The complement move converts ``at least
+one'' into ``none'', and ``none'' factorises
+(Figure~\ref{fig:complement}): $P(\text{at least one hit}) =
+1 - P(\text{all misses})$.
+
+\begin{figure}[ht]\centering
+\input{figures/ch12-complement}
+\caption{``At least one'' as a complement. Notice the white region is
+the only part counted --- and it factorises, which is why the
+complement is the computable side.}
+\label{fig:complement}
+\end{figure}
+
+\begin{example}\label{ex:birthday}
+How many people until a shared birthday is more likely than not?
+\par\smallskip
+\textbf{Strategy.} Compute the complement ``all distinct'' --- it is a
+falling product, easy to evaluate; the event itself is an awkward
+union.
+\par\smallskip
+\begin{solution}
+$P(\text{all distinct}) = \frac{365}{365}\cdot\frac{364}{365}\cdots
+\frac{365-k+1}{365}$; at $k = 23$ this first dips below $1/2$
+($\approx 0.493$), so the threshold is 23 people. The paradox is that
+pair-counting, not person-counting, drives it: $\binom{23}{2} = 253$
+pairs.
+\end{solution}
+\end{example}
+
+\section{Conditional probability}\label{sec:cond}
+\index{conditional probability}
+\begin{definition}
+$P(A \mid B) = \dfrac{P(A \cap B)}{P(B)}$ for $P(B) > 0$ ---
+the sample space shrinks to $B$; the four-step method is: draw the
+tree, compute the branch weights, take the intersection, divide.
+\end{definition}
+
+\begin{example}\label{ex:cond}
+A prize draw first picks a tier --- gold with probability $1/4$,
+plain $3/4$ --- then pays out with probability $1/2$ on gold, $1/6$ on
+plain. Given that a prize was won, what is the chance it came from the
+gold tier?
+\par\smallskip
+\textbf{Strategy.} Define the event algebra before touching numbers:
+want $P(\text{gold} \mid \text{win})$; build the tree, weight each
+leaf, then divide the gold-leaf weight by the win leaves' total
+(Figure~\ref{fig:ptree}).
+\par\smallskip
+\begin{solution}
+Leaves: gold-win $= \frac14\cdot\frac12 = \frac18$;
+plain-win $= \frac34\cdot\frac16 = \frac18$; the other two leaves
+(gold-lose $\frac18$, plain-lose $\frac58$) condition out --- they are
+not wins. So $P(\text{gold}\mid\text{win}) = \frac{1/8}{1/8+1/8}
+= \frac{1}{2}$: knowing a prize was won doubles the chance it was
+gold, since plain pays out at only a third of gold's rate.
+\end{solution}
+\end{example}
+
+\begin{figure}[ht]\centering
+\input{figures/ch12-tree}
+\caption{The four-step method on the prize draw. Notice the
+conditioning just deletes leaves: the answer lives entirely inside the
+win leaves' mass, and every leaf's weight is the product along its
+path.}
+\label{fig:ptree}
+\end{figure}
+
+\section{Independence, and when it fails}\label{sec:indep}
+\index{independence}
+$A$ and $B$ are independent iff $P(A\cap B) = P(A)P(B)$ ---
+equivalently $P(A\mid B) = P(A)$. It is a property to \emph{prove},
+not an assumption to reach for: two people sharing a birthday is
+roughly independent of \emph{another} pair sharing, but within one
+group the events collide. The test is always the product rule: does
+knowing $B$ change $A$'s probability?
+
+\section{Random variables and expectation}\label{sec:rv}
+\index{random variable}\index{expectation}
+A random variable is a function $X : \Omega \to \mathbb{R}$;
+$E[X] = \sum_\omega X(\omega)\,P(\omega)$. The definition is
+deceptively plain --- its power is in the next section's linearity.
+
+\section{Linearity of expectation}\label{sec:linexp}
+\index{linearity of expectation}
+\begin{theorem}
+$E[X_1 + X_2 + \cdots + X_n] = E[X_1] + \cdots + E[X_n]$
+--- always, with no independence hypothesis.
+\end{theorem}
+
+\begin{example}\label{ex:fixpts}
+Find the expected number of fixed points of a random permutation of
+$n$ elements.
+\par\smallskip
+\textbf{Strategy.} Do not count the distribution --- it depends
+horribly on $n$. Write $X = \sum_i \mathbb{1}\{\sigma(i) = i\}$;
+each indicator has $E = 1/n$ (position $i$ is fixed with probability
+$1/n$), and linearity needs nothing else (Figure~\ref{fig:indicator}).
+\par\smallskip
+\begin{solution}
+$E[X] = \sum_{i=1}^{n} \frac{1}{n} = 1$, for every $n$ --- exact, and
+Listing~\ref{lst:fixpts} confirms it empirically.
+\end{solution}
+\end{example}
+
+\begin{figure}[ht]\centering
+\input{figures/ch12-indicator}
+\caption{The indicator table idea ($n = 4$ shown compactly). Notice the
+proof is a column count: each $\mathbb{1}_i$ column sums to $3!$ over
+the $4!$ rows --- the indicators are nowhere near independent, and
+linearity does not care.}
+\label{fig:indicator}
+\end{figure}
+
+\begin{checkpoint}[Predict before you run]
+Listing~\ref{lst:fixpts} simulates permutations of $6$ for $10{,}000$
+trials. Predict the estimate to two decimals before reading the output
+--- and the size of the residual.
+\end{checkpoint}
+
+\begin{lstlisting}[language=Python,caption={\texttt{fixed\_points.py}:
+Monte Carlo vs exact theory (script in
+\texttt{code/fixed\_points.py}).},label={lst:fixpts}]
+total += sum(p[i] == i for i in range(n))
+\end{lstlisting}
+Real output:
+\begin{lstlisting}[numbers=none]
+permutations of n = 6, 10000 Monte Carlo trials
+estimated E[fixed points] = 1.0048
+exact value               = 1 (n * 1/n, linearity of expectation)
+relative error            = 0.48%
+\end{lstlisting}
+
+\section{Simpson's paradox}\label{sec:simpson}
+\index{Simpson's paradox}
+
+\begin{example}\label{ex:simpson}
+Drug A beats drug B separately among mild and severe cases, yet loses
+overall --- construct the table.
+\par\smallskip
+\textbf{Strategy.} Weighted sums on a $2\times2\times2$ table: rates
+can win per stratum and still lose when the groups' sizes skew the
+mixture. Arithmetic, not opinion.
+\par\smallskip
+\begin{solution}
+A wins both strata --- mild: $80/100 = .80$ vs B's $79/100 = .79$;
+severe: $20/100 = .20$ vs B's $5/50 = .10$ --- yet loses the pool:
+A $= 100/200 = .50$ against B $= 84/150 = .56$. The trick is the mix:
+B's patients were mostly mild, where everyone's rate is high, so B's
+pooled rate rides the mild stratum's weight. Weighted means move with
+the weights --- that is the whole paradox.
+\end{solution}
+\end{example}
+
+\section{Geometric probability preview}\label{sec:geo}
+\index{geometric probability}
+When the space is continuous, counts become areas or volumes:
+a uniform point in the unit square hits the quarter-circle
+with probability $\pi/4$ (Figure~\ref{fig:geo}) --- the same
+``favourable/total'' shape, measured instead of counted. The discrete
+habits (conditioning, complements, indicators) all carry over.
+
+\begin{figure}[ht]\centering
+\input{figures/ch12-geo}
+\caption{Geometric probability: the region's \emph{area} replaces the
+count. Notice nothing else changes --- favourable over total, just
+measured.}
+\label{fig:geo}
+\end{figure}
+
+\begin{exercise}[easy]\label{exr:p1}
+Two dice: $P(\text{sum} = 7)$? Explain why $1/11$ is wrong and what
+the sample space actually is.
+\end{exercise}
+\begin{exercise}[medium]\label{exr:p2}
+Three fair coin flips: find $P(\text{at least one head})$ by
+complement, then the probability of exactly one head.
+\end{exercise}
+\begin{exercise}[medium]\label{exr:p3}
+Expected number of aces in a 5-card hand --- by indicators, not by the
+hypergeometric formula.
+\end{exercise}
+\begin{exercise}[medium]\label{exr:p4}
+A test is $99\%$ accurate on a disease with prevalence $1/1000$.
+Compute $P(\text{disease} \mid \text{positive})$ --- the prosecutor's
+fallacy gap.
+\end{exercise}
+
+\section{Chapter summary}
+\begin{table}[ht]\centering
+\begin{tabularx}{\linewidth}{@{}lYY@{}}
+\toprule
+\tablehead\thead{Tool} & \thead{Formula} & \thead{When}\\
+\midrule
+uniform count & $|A|/|\Omega|$ & verify uniformity first\\
+complement & $1 - P(\overline{A})$ & ``at least one''\\
+conditioning & $P(A\cap B)/P(B)$ & tree + four steps\\
+independence & $P(A)P(B)$ & prove it, don't assume\\
+linearity & $\sum E[\mathbb{1}_i]$ & indicators, always\\
+geometric & area ratio & continuous spaces\\
+\bottomrule
+\end{tabularx}
+\caption{One page: counting with a denominator, plus the three rules
+that survive when events interact.}
+\label{tab:prob}
+\end{table}
+
+\section{Common mistakes}
+\index{common mistakes}
+\begin{itemize}
+\item \textbf{Assuming independence.} ``Looks unrelated'' is not a
+proof; the product rule is a theorem-level claim that must be verified.
+The birthday paradox is exactly the price of assuming it.
+\item \textbf{Adding where complements apply.} $P(A \cup B)$ is not
+$P(A) + P(B)$ in general --- that is Chapter~9's PIE correction again;
+``at least one'' wants $1 - P(\text{none})$.
+\item \textbf{Flipping the condition.} $P(A\mid B) \ne P(B\mid A)$:
+$P(\text{positive}\mid\text{disease}) = .99$ says nothing about
+$P(\text{disease}\mid\text{positive}) \approx .09$ at $1/1000$
+prevalence --- the prosecutor's fallacy, and it is arithmetic, not
+intuition.
+\end{itemize}
+
+\section{Additional exercises}
+\begin{exercise}[easy]
+$P(\text{both heads})$ in two fair flips; then
+$P(\text{both heads} \mid \text{at least one head})$. Same event ---
+different space.
+\end{exercise}
+\begin{exercise}[easy]
+Expected value of a fair die; then $E[X^2]$ and check that
+$E[X^2] \ne (E[X])^2$ --- what does the gap measure?
+\end{exercise}
+\begin{exercise}[easy]
+Draw four without replacement from $\{1,\dots,10\}$; find
+the probability all are even.
+\end{exercise}
+\begin{exercise}[easy]
+Rolls of two dice: is ``sum 7'' independent of ``first die 3''? Check
+by the product rule, not by feel.
+\end{exercise}
+\begin{exercise}[medium]
+Expected number of runs (maximal same-face blocks) in $n$ fair flips,
+via indicators on the boundaries.
+\end{exercise}
+\begin{exercise}[medium]
+Coupon collector for $n = 3$: expected draws to see all three types
+--- split into geometric phases and add.
+\end{exercise}
+\begin{exercise}[medium]
+Three prisoners and the jailer's reveal: compute
+$P(\text{spared} \mid \text{jailer names a prisoner})$ --- where does
+the naive $1/2$ go wrong?
+\end{exercise}
+\begin{exercise}[medium]
+Derive the birthday threshold estimate $k \approx \sqrt{2 \cdot 365
+\ln 2}$ from the product formula (take logs, approximate
+$\ln(1-x) \approx -x$).
+\end{exercise}
+\begin{exercise}[medium]
+Expected number of inversions in a random permutation of $n$ ---
+indicators on pairs.
+\end{exercise}
+\begin{exercise}[hard]
+Prove $\operatorname{Var}(X) = E[X^2] - (E[X])^2$ and compute the
+variance of the fixed-point count (hint: indicators plus pairwise
+products).
+\end{exercise}
+\begin{exercise}[hard]
+Simpson's paradox: give a $2\times2\times2$ table where A wins both
+strata by $\ge 10$ points but loses overall by $\ge 5$, and prove the
+sizes must be skewed for this to happen.
+\end{exercise}
+\begin{exercise}[hard]
+Extend \texttt{fixed\_points.py} to track the empirical \emph{maximum}
+fixed-point count per trial over growing $n$ and describe the
+maximum's behavior (conjecture: bounded in distribution with a slowly
+growing tail --- collect data and state what you actually see).
+\end{exercise}
+
+\chapternotes
+The four-step method, tree diagrams, linearity of expectation and the
+Simpson's-paradox setup follow 6.042J's probability
+chapters~\cite{mcs}; Berkeley CS70's probability note sequence carries
+the same material with more rigor~\cite{cs70}; Chen's \emph{Expected
+Uses of Probability} supplies the indicator-table worked
+pattern~\cite{chen-expected}, and Zhao's counting-adjacent handouts the
+olympiad drills~\cite{zhao}. Contest items powered by this chapter ---
+conditional probability and trees (AIME 2024 I P4, AIME 2023 I P6,
+AIME 2021 I P1, AIME 2015 I P2), expectation by linearity (AIME 2024 I
+P11, AIME 2021 I P12, AIME 2018 I P12, AIME 2023 II P6), complements
+and birthdays (AIME 2023 I P1, AIME 2020 I P9, AIME 2018 I P3, AIME
+2015 I P5), plus AMC items (AMC 12 2023 A P5, AMC 12 2023 A P17, AMC
+12 2024 A P16, AMC 12 2024 A P20, AMC 12 2024 B P9, AMC 12 2024 B
+P17, AIME 2010 I P1, AIME 2010 I P4, AIME 2025 II P7) --- are on the
+AoPS archive~\cite{aops-amc}.

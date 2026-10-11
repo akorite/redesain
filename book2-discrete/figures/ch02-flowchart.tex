@@ -1,0 +1,32 @@
+% Figure: which technique fits the goal's shape.
+% Source for Figure~\ref{fig:flowchart}. TikZ only; regenerable by compiling main.tex.
+\begin{tikzpicture}[
+  goal/.style={draw,rounded corners=6pt,inner sep=5pt,font=\small},
+  ask/.style={draw=accent,rounded corners=3pt,inner sep=3pt,font=\footnotesize,align=center},
+  tech/.style={draw,rounded corners=2pt,inner sep=5pt,font=\small,text width=44mm,align=flush left},
+  yes/.style={->,accent,thick},
+  no/.style={->,rulegray},
+  lab/.style={font=\footnotesize\sffamily,text=slate},
+]
+\node[goal] (start) at (0,0) {the claim you must prove};
+\node[ask] (q1) at (0,-1.7) {is it $P \Rightarrow Q$?};
+\node[ask] (q2) at (0,-4.3) {is it ``no object\dots''\\ or a negation?};
+\node[ask] (q3) at (0,-6.9) {is it $\exists x\,P(x)$?};
+\node[tech] (direct) at (5.9,-0.85) {\textbf{Direct / contrapositive.} If the
+hypothesis unfolds into usable information, assume $P$ and derive $Q$; if the
+\emph{conclusion} unfolds better, assume $\lnot Q$ and derive $\lnot P$.};
+\node[tech] (contra) at (5.9,-3.7) {\textbf{Contradiction.} Assume the claim
+fails and squeeze until it collides with a definition, an axiom, or arithmetic.};
+\node[tech] (wit) at (5.9,-6.5) {\textbf{Witness.} Exhibit one $x$ and check it.
+For $\exists!$, add a second act: any two witnesses must coincide.};
+\node[tech] (forall) at (5.9,-9.1) {\textbf{Otherwise} ($\forall$, $\iff$, ``for
+all but finitely many''): one argument covering every case, or two directions
+for an iff. To \emph{refute} a $\forall$, hunt one counterexample.};
+\draw[yes] (start) -- (q1);
+\draw[yes] (q1.east) -- node[lab,above]{yes} (direct.west);
+\draw[no] (q1) -- node[lab,right]{no} (q2);
+\draw[yes] (q2.east) -- node[lab,above]{yes} (contra.west);
+\draw[no] (q2) -- node[lab,right]{no} (q3);
+\draw[yes] (q3.east) -- node[lab,above]{yes} (wit.west);
+\draw[no] (q3.south) |- node[lab,pos=0.25,left]{no} (forall.west);
+\end{tikzpicture}

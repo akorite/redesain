@@ -1,0 +1,19 @@
+% Figure: handshake double counting -- each edge has two ends.
+% Source for Figure~\ref{fig:handshake}. TikZ only; regenerable by compiling main.tex.
+\begin{tikzpicture}[
+  vx/.style={circle,draw=ink,fill=ink!10,inner sep=2.4pt,minimum size=8mm},
+  lab/.style={font=\footnotesize\sffamily,text=slate},
+  tick/.style={accent,font=\footnotesize\bfseries},
+]
+\node[vx] (a) at (0,1) {a};
+\node[vx] (b) at (1.4,1.8) {b};
+\node[vx] (c) at (2.8,1) {c};
+\node[vx] (d) at (1.4,0) {d};
+\draw[rulegray,thick] (a)--(b) (b)--(c) (a)--(d) (c)--(d) (b)--(d);
+\node[tick] at (0.35,1.5) {+1}; \node[tick] at (0.95,1.62) {+1};
+\node[tick] at (1.85,1.62) {+1}; \node[tick] at (2.45,1.5) {+1};
+\node[tick] at (0.3,0.45) {+1}; \node[tick] at (1.1,0.28) {+1};
+\node[tick] at (2.5,0.45) {+1}; \node[tick] at (1.7,0.28) {+1};
+\node[tick] at (1.15,0.85) {+1}; \node[tick] at (1.65,0.85) {+1};
+\node[lab] at (1.4,-0.8) {$\sum_v \deg(v) = 2\lvert E\rvert$: five edges, ten ends counted};
+\end{tikzpicture}

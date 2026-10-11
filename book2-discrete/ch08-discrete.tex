@@ -1,0 +1,373 @@
+\chapter{Counting principles}\label{ch:count}
+\index{counting}
+
+Combinatorics is arithmetic with a story attached. Every formula in this
+chapter --- $\binom{n}{k}$, $n!$, the stars-and-bars count --- is a count of
+\emph{something concrete}, and the fastest proofs are the ones that name
+the object and count it two ways. After this chapter you will be able to
+read a counting problem, name the underlying set, pick the right model
+(ordered vs unordered, distinct vs repeated), and verify small cases
+against brute force before trusting a closed form.
+
+\section{Sum and product rules}\label{sec:rules}
+\index{sum rule}\index{product rule}
+
+Two rules generate every formula in the chapter:
+\begin{itemize}
+\item \textbf{Sum rule.} If the objects split into disjoint cases of sizes
+$a$ and $b$, there are $a + b$ objects. ``Disjoint'' is the licence ---
+shared cases get double-counted.
+\item \textbf{Product rule.} If an object is built by a sequence of
+independent choices of sizes $a_1, a_2, \dots, a_k$, there are
+$a_1 a_2 \cdots a_k$ objects --- one per root-to-leaf path in
+Figure~\ref{fig:dectree}'s decision tree.
+\end{itemize}
+
+\begin{figure}[ht]\centering
+\input{figures/ch08-tree}
+\caption{The product rule as a decision tree. Notice the multiplication
+is in the \emph{shape}: each level doubles the fan-out, and leaves are
+outcomes --- not choices. Counting \emph{paths}, not \emph{nodes}, is the
+discipline.}
+\label{fig:dectree}
+\end{figure}
+
+The mistakes are symmetric: multiplying when cases should be added
+(``3 shirts or 4 trousers'' is $3+4$, not $3\cdot4$), and adding where a
+build-process should multiply (``3 shirts then 4 trousers'' is an outfit
+count, $3\cdot4$). The diagnostic is always: is the second choice
+\emph{conditional on} the first?
+
+\section{Permutations and factorials}\label{sec:perms}
+\index{permutation}\index{factorial}
+
+Orderings of $n$ distinct objects: $n!$ --- the product rule applied
+$n$ times ($n$ choices for first, $n-1$ for second, \dots). A
+$k$-permutation (ordered selection of $k$ from $n$) is
+$n!/(n-k)!$: the last $n-k$ slots ``don't matter'', and dividing by
+their arrangements is honest cancellation, not a trick.
+
+\begin{exercise}[easy]\label{exr:perm}
+How many ways to award gold, silver, bronze in a 20-runner race? What if
+ties were allowed --- does the formula still apply?
+\end{exercise}
+
+\section{Binomial coefficients and Pascal's triangle}\label{sec:binom}
+\index{binomial coefficient}\index{Pascal's triangle}
+
+\begin{definition}
+$\binom{n}{k}$ (``$n$ choose $k$'') is the number of $k$-element subsets
+of an $n$-element set: $\binom{n}{k} = \frac{n!}{k!\,(n-k)!}$.
+\end{definition}
+
+Pascal's triangle builds the table by the rule
+$\binom{n}{k} = \binom{n-1}{k-1} + \binom{n-1}{k}$ --- itself a sum-rule
+proof (the subsets either contain element $n$ or don't).
+Figure~\ref{fig:pascal} highlights the hockey-stick identity, a workhorse
+for summing columns.
+
+\begin{figure}[ht]\centering
+\input{figures/ch08-pascal}
+\caption{Hockey-stick in Pascal's triangle. Notice the highlighted stick
+$1+3+6+10$ summing to the cell one step right-down, $20$: the identity
+$\sum_{i=r}^{n}\binom{i}{r} = \binom{n+1}{r+1}$ is the triangle's own
+shape.}
+\label{fig:pascal}
+\end{figure}
+
+\section{The binomial theorem, proved two ways}\label{sec:binthm}
+\index{binomial theorem}
+
+\begin{theorem}[Binomial theorem]
+$(x + y)^n = \sum_{k=0}^{n} \binom{n}{k} x^k y^{n-k}$.
+\end{theorem}
+
+\emph{Proof 1 (committee).} Expanding $(x+y)^n$ is a product-rule walk:
+from each of the $n$ factors pick $x$ or $y$. The term $x^k y^{n-k}$
+appears once for every way to choose which $k$ factors gave $x$ --- that
+is the definition of $\binom{n}{k}$.
+\emph{Proof 2 (induction).} Multiply $(x+y)^{n-1}$ by $(x+y)$ and collect
+$x^k y^{n-k}$: it arrives from $x \cdot x^{k-1}y^{n-k}$ (coefficient
+$\binom{n-1}{k-1}$) plus $y \cdot x^k y^{n-1-k}$ ($\binom{n-1}{k}$), and
+Pascal's rule completes it.
+
+Setting $x = y = 1$ gives $\sum_k \binom{n}{k} = 2^n$ --- the next
+example's committee argument proves the same identity directly.
+
+\begin{example}\label{ex:committee}
+Prove $\sum_{k=0}^{n} \binom{n}{k} = 2^n$ by counting in two ways.
+\par\smallskip
+\textbf{Strategy.} Count the same object by two different routes and set
+the counts equal: a subset of $[n]$ can be counted \emph{by size}
+($\binom{n}{k}$ per size, summed) or \emph{by membership} (each element
+independently in or out: $2^n$). Same set, two formulas.
+\par\smallskip
+\begin{solution}
+The left side counts subsets of $[n]$ partitioned by cardinality:
+$\binom{n}{0} + \binom{n}{1} + \cdots + \binom{n}{n}$. The right side
+counts the same subsets by the product rule: $n$ independent
+in/out decisions, $2^n$ outcomes. Equal by definition of ``counting the
+same thing'' --- that \emph{is} the proof.
+\end{solution}
+\end{example}
+
+\begin{exercise}[medium]\label{exr:committee}
+Prove $\sum_{k} k\binom{n}{k} = n\,2^{n-1}$ the same way (count
+``subsets with a marked element'' two ways).
+\end{exercise}
+
+\section{Bijection is counting}\label{sec:biject}
+\index{bijection!counting by}
+
+Chapter~4's bijections pay rent here: a bijection between two finite sets
+makes their sizes equal, so \emph{to count $A$, count an easier $B$}.
+That is why ``counting in two ways'' proves identities and why renaming
+the object is the first move on a hard problem.
+
+\begin{example}\label{ex:lattice}
+Count lattice paths on an $m \times n$ grid: paths from $(0,0)$ to
+$(m,n)$ using only right-steps R and up-steps U.
+\par\smallskip
+\textbf{Strategy.} Name the bijection: a path is a word over
+$\{R, U\}$ with exactly $m$ R's and $n$ U's --- length $m+n$, and the
+path is determined by which positions are R.
+\par\smallskip
+\begin{solution}
+Paths $\leftrightarrow$ words of length $m+n$ with $m$ R's is a
+bijection (Figure~\ref{fig:lattice}). Choosing which $m$ of the $m+n$
+positions are R determines the word, so the count is $\binom{m+n}{m}$.
+\end{solution}
+\end{example}
+
+\begin{figure}[ht]\centering
+\input{figures/ch08-lattice}
+\caption{The lattice-path bijection. Notice the word \texttt{RRURURU}
+drawn as the path it encodes --- the picture \emph{is} the bijection,
+not an illustration of it.}
+\label{fig:lattice}
+\end{figure}
+
+\section{Stars and bars}\label{sec:stars}
+\index{stars and bars}\index{multiset!counting}
+
+\begin{theorem}
+The equation $x_1 + x_2 + \cdots + x_k = n$ has $\binom{n+k-1}{k-1}$
+solutions in nonnegative integers ($\binom{n-1}{k-1}$ in positive).
+\end{theorem}
+
+\begin{example}\label{ex:stars}
+Solve $x_1 + x_2 + x_3 + x_4 = 12$ in nonnegative integers.
+\par\smallskip
+\textbf{Strategy.} Draw it before counting: write $n$ stars in a row,
+place $k-1$ bars among the $n + k - 1$ symbol positions --- the bars cut
+the stars into $k$ groups, and group sizes \emph{are} the solution.
+\par\smallskip
+\begin{solution}
+Figure~\ref{fig:stars} shows one arrangement:
+$\star\star\star\,\vert\,\star\star\,\vert\,\star\star\star\star\,\vert\,\star\star\star$
+for $(3,2,4,3)$. Placing 3 bars among $12 + 3 = 15$ positions gives
+$\binom{15}{3} = 455$ solutions.
+\end{solution}
+\end{example}
+
+\begin{figure}[ht]\centering
+\input{figures/ch08-stars}
+\caption{Stars and bars for $x_1 + x_2 + x_3 + x_4 = 12$. Notice what a
+``solution'' looks like physically: $k-1$ bars carving $n$ stars into
+ordered piles --- order is free because the piles have names.}
+\label{fig:stars}
+\end{figure}
+
+Positive solutions are the same picture with one star pre-committed per
+group: put $1$ in each $x_i$ first, distribute $n - k$ stars freely.
+
+\begin{exercise}[medium]\label{exr:stars}
+Count solutions of $x_1 + x_2 + x_3 = 10$ with all $x_i \ge 2$. (Shift
+variables first --- then stars and bars.)
+\end{exercise}
+
+\section{The pigeonhole principle}\label{sec:pigeon}
+\index{pigeonhole principle}
+
+\begin{theorem}[Pigeonhole]
+If $n + 1$ objects go into $n$ boxes, some box gets at least two. More
+generally, $N$ objects in $k$ boxes put at least $\lceil N/k \rceil$ in
+one box.
+\end{theorem}
+
+Trivially true --- and load-bearing in olympiad proofs because the
+\emph{boxes are a design choice}: partition the objects cleverly and
+``two in one box'' becomes ``two objects sharing a property''.
+
+\begin{example}\label{ex:pigeon}
+Show that among any $51$ numbers from $\{1, \dots, 100\}$, two differ by
+a factor of $2$.
+\par\smallskip
+\textbf{Strategy.} The boxes must make ``differing by a power of two''
+mean ``same box''. Every integer is (odd part) $\times$ (a power of two);
+numbers with the \emph{same odd part} differ only by powers of two.
+\par\smallskip
+\begin{solution}
+Write each number as $2^e \cdot o$ with $o$ odd; there are exactly $50$
+odd parts in $\{1, \dots, 100\}$, hence $50$ boxes
+(Figure~\ref{fig:pigeon}). $51$ numbers force two into one class:
+$a = 2^e o$ and $b = 2^f o$ with $e \ne f$, so one divides the other by
+a factor of $2^{|e-f|} \ge 2$. Sharp bound: the $50$ odd numbers are a
+$50$-element set with no such pair.
+\end{solution}
+\end{example}
+
+\begin{figure}[ht]\centering
+\input{figures/ch08-pigeon}
+\caption{The odd-part partition of $1..100$ into $50$ classes. Notice
+the proof is in the box design: inside one class, two elements differ by
+a pure power of $2$ --- the ``same box'' condition was engineered to be
+exactly the conclusion.}
+\label{fig:pigeon}
+\end{figure}
+
+\begin{checkpoint}[Predict before you run]
+Listing~\ref{lst:count} checks the chapter's three closed forms against
+brute force. Predict which count is \emph{not} a power of two before
+reading the output.
+\end{checkpoint}
+
+\begin{lstlisting}[language=Python,caption={\texttt{count\_check.py}:
+enumeration vs closed forms (full script in
+\texttt{code/count\_check.py}).},label={lst:count}]
+enum = sum(1 for w in combinations(range(m + k), m))
+\end{lstlisting}
+Real output:
+\begin{lstlisting}[numbers=none]
+subsets: n=4
+  enum=16  closed=2^4=16
+lattice paths: 3x2 grid
+  enum=10  closed=C(5,3)=10
+stars and bars: x1+x2+x3+x4 = 6, x >= 0
+  enum=84  closed=C(9,3)=84
+pigeonhole demo: 51 numbers from 1..100, two differ by 2x
+  all-odd set [1, 3, 5, 7, 9]...[95, 97, 99]: no pair doubles -> 50 evades
+  adding any even e makes e/2 or 2e odd-divisor-equal
+\end{lstlisting}
+
+\section{Committee proofs}\label{sec:committee}
+\index{combinatorial proof}
+
+The committee argument generalises WE~\ref{ex:committee}: an identity
+between two formulas is proved by exhibiting \emph{one} set both sides
+count. The discipline is identical to Chapter~2's proof hygiene --- name
+the object, then let each side count it under a different strategy.
+$\binom{n}{k} = \binom{n}{n-k}$: choosing a committee chooses its
+non-members. Vandermonde $\sum_i \binom{m}{i}\binom{n}{k-i} =
+\binom{m+n}{k}$: a $k$-committee from $m$ women + $n$ men splits by the
+number of women chosen. Every algebraic identity in this chapter has a
+committee behind it --- finding it is the exercise.
+
+\begin{exercise}[medium]\label{exr:vandermonde}
+Prove Vandermonde's identity by naming the set both sides count.
+\end{exercise}
+
+\section{Chapter summary}
+\begin{table}[ht]\centering
+\begin{tabularx}{\linewidth}{@{}lYY@{}}
+\toprule
+\tablehead\thead{Object} & \thead{Count} & \thead{Watch}\\
+\midrule
+ordered sequence, no repeats & $n!$, or $n!/(n-k)!$ for length $k$ & ties need their own rule\\
+$k$-subset of $[n]$ & $\binom{n}{k}$ & unordered: no $k!$ factor\\
+paths with $m$ R, $n$ U & $\binom{m+n}{m}$ & the word is the object\\
+$x_1+\cdots+x_k = n$, $x_i \ge 0$ & $\binom{n+k-1}{k-1}$ & shift for lower bounds\\
+same set, two routes & identity for free & name the set first\\
+$N$ objects in $k$ boxes & one gets $\ge \lceil N/k \rceil$ & design the boxes\\
+\bottomrule
+\end{tabularx}
+\caption{Counting in one page: pick the model (ordered? distinct?
+bounded?), then let a bijection or a committee do the proving.}
+\label{tab:count}
+\end{table}
+
+\section{Common mistakes}
+\index{common mistakes}
+\begin{itemize}
+\item \textbf{Multiply where cases add.} ``Pick 1 of 3 or 1 of 4'' is
+$7$ outcomes; $3 \cdot 4$ counts \emph{pairs}, a different object. Ask:
+is the second choice conditional on the first?
+\item \textbf{Ordered where unordered was meant.} Dealing a 5-card hand
+by $52 \cdot 51 \cdots 48$ counts ordered hands; each real hand appears
+$5!$ times. The fix ``divide by $k!$'' is honest here --- but only when
+every target object was overcounted \emph{equally}.
+\item \textbf{Ignoring ``indistinguishable''.} Stars and bars counts
+named piles (the $x_i$ have labels). If the problem's piles are
+unnamed, the same diagram overcounts --- partitions of $n$ have no
+closed form, and pretending they do is the mistake.
+\end{itemize}
+
+\section{Additional exercises}
+\begin{exercise}[easy]
+Count 4-letter ``words'' from $\{a,b,c,d,e\}$: (a) any letters;
+(b) distinct letters; (c) distinct with no two vowels adjacent.
+\end{exercise}
+\begin{exercise}[easy]
+Evaluate $\binom{10}{3}$ and $\binom{10}{7}$ two ways each; which
+computation is shorter and why does symmetry predict it?
+\end{exercise}
+\begin{exercise}[easy]
+Count committees of 5 from 12 people if two specific people refuse to
+serve together. (Two clean cases --- don't subtract blindly.)
+\end{exercise}
+\begin{exercise}[easy]
+From a standard deck: how many 5-card hands are all hearts? All one
+suit? Exactly 3 aces?
+\end{exercise}
+\begin{exercise}[medium]
+Prove $\sum_{k=0}^{n} \binom{n}{k}^2 = \binom{2n}{n}$ by counting
+$n$-subsets of $[2n]$ a second way.
+\end{exercise}
+\begin{exercise}[medium]
+Count lattice paths $(0,0) \to (6,4)$ that pass through $(3,2)$ ---
+then count those that avoid it. Which was easier to count, and why?
+\end{exercise}
+\begin{exercise}[medium]
+Count nonnegative solutions of $x_1 + x_2 + x_3 + x_4 = 20$ with
+$x_1 \le 6$. (Inclusion-exclusion on the bad side.)
+\end{exercise}
+\begin{exercise}[medium]
+Prove: among any $6$ integers, two have difference divisible by $5$.
+Generalise: $n+1$ integers give a pair with difference divisible by
+$n$. What are the pigeons, what are the boxes?
+\end{exercise}
+\begin{exercise}[medium]
+Show that any 10 distinct two-digit numbers contain two disjoint
+subsets with equal sum. (Count subsets vs possible sums.)
+\end{exercise}
+\begin{exercise}[hard]
+Prove $\binom{n}{0} + \binom{n}{2} + \binom{n}{4} + \cdots =
+2^{n-1}$ by a committee argument \emph{and} by the binomial theorem
+(evaluate at $(1,1)$ and $(1,-1)$).
+\end{exercise}
+\begin{exercise}[hard]
+Derive the positive-solutions formula $\binom{n-1}{k-1}$ for
+$x_1 + \cdots + x_k = n$ directly from the diagram (bars between stars,
+at most one per gap), then reconcile it with the $x_i \ge 1$ shift.
+\end{exercise}
+\begin{exercise}[hard]
+Extend \texttt{count\_check.py} to enumerate \emph{restricted}
+stars-and-bars solutions ($x_i \le c_i$) for $k = 3$ and verify the
+inclusion--exclusion count (the tool of Chapter~9) on 200 random cases.
+\end{exercise}
+
+\chapternotes
+The two-rules-first presentation and committee-proof discipline follow
+Hammack's counting chapter~\cite{hammack}; 6.042J's counting-via-
+bijection sections supplied the lattice-path and ``counting in two
+ways'' framing~\cite{mcs}; CS70's counting notes carry the same
+material with more identities~\cite{cs70}; Zhao's bijection and
+counting-in-two-ways handouts are the olympiad continuation~\cite{zhao},
+and Engel's counting chapter the hard-end drill~\cite{engel}. Contest
+items powered by this chapter --- paths and stars-and-bars (AIME~2025~I~P3,
+AIME~2024~I~P6, AIME~2024~II~P3), committee identities (AIME~2023~II~P10,
+AIME~2020~I~P7), pigeonhole constructions (AIME~2025~II~P10--11,
+AIME~2022~I~P6, AIME~2018~I~P9--10, AIME~2010~I~P10) and the
+distribution-flavoured items AIME~2025~I~P10, AIME~2023~I~P11,
+AIME~2021~I~P4, AIME~2020~I~P5, AMC~12~2024~B~P16, AMC~12~2023~A~P13 ---
+are on the AoPS archive~\cite{aops-amc}.

@@ -1,0 +1,16 @@
+% Figure: semicircle AM-GM for n=2 -- radius vs geometric-mean chord.
+% Source for Figure~\ref{fig:amgm}. TikZ only; regenerable by compiling main.tex.
+\begin{tikzpicture}[
+  lab/.style={font=\footnotesize\sffamily,text=slate},
+]
+\draw[draw=ink] (0,0) arc (180:0:1.5);
+\draw[draw=ink] (-1.5,0) -- (1.5,0);
+% split point at x=a vs b: a=1.8? keep simple: a at -0.5 -> segments 1.0,2.0
+\draw[accent,very thick] (-0.5,0) -- (-0.5,{sqrt(1.0*2.0)});
+\draw[rulegray,dashed] (0,0) -- (0,1.5);
+\node[lab] at (-1.0,-0.35) {$a$};
+\node[lab] at (0.75,-0.35) {$b$};
+\node[lab] at (0.15,1.55) {$\frac{a+b}{2}$};
+\node[lab,anchor=west] at (-0.42,0.9) {$\sqrt{ab}$};
+\node[lab] at (0,-0.9) {the dashed radius always clears the chord's height};
+\end{tikzpicture}

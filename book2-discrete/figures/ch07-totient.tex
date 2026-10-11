@@ -1,0 +1,30 @@
+% Figure: totient phi(n) for n = 1..36 --- primes spike, products echo.
+% Source for Figure~\ref{fig:totient}. TikZ only; regenerable by compiling main.tex.
+\begin{tikzpicture}[
+  bar/.style={fill=accentsoft,draw=rulegray},
+  pbar/.style={fill=accent,draw=accent},
+  lab/.style={font=\scriptsize\sffamily,text=slate},
+]
+\foreach \n/\f in {1/1,2/1,3/2,4/2,5/4,6/2,7/6,8/4,9/6,10/4,11/10,12/4,
+                   13/12,14/6,15/8,16/8,17/16,18/6,19/18,20/8,21/12,22/10,
+                   23/22,24/8,25/20,26/12,27/18,28/12,29/28,30/8,31/30,
+                   32/16,33/20,34/16,35/24,36/12}
+{
+  \pgfmathtruncatemacro{\isp}{\f == \n-1 ? 1 : 0}
+  \ifnum\isp=1
+    \draw[pbar] (\n*0.24,0) rectangle (\n*0.24+0.18,\f*0.06);
+  \else
+    \draw[bar] (\n*0.24,0) rectangle (\n*0.24+0.18,\f*0.06);
+  \fi
+}
+\draw[draw=rulegray] (0.2,0) -- (8.9,0);
+\node[lab,anchor=north] at (1.1,-0.1) {5};
+\node[lab,anchor=north] at (2.3,-0.1) {10};
+\node[lab,anchor=north] at (3.5,-0.1) {15};
+\node[lab,anchor=north] at (4.7,-0.1) {20};
+\node[lab,anchor=north] at (5.9,-0.1) {25};
+\node[lab,anchor=north] at (7.1,-0.1) {30};
+\node[lab,anchor=north] at (8.3,-0.1) {35};
+\node[lab] at (4.5,2.2) {dark bars: $\varphi(p) = p - 1$ exactly at primes};
+\node[lab] at (4.5,-0.85) {notice $\varphi(p) = p-1$ is the record --- composite $n$ wastes factors};
+\end{tikzpicture}

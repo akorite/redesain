@@ -1,0 +1,284 @@
+\chapter{Graphs, trees and planarity}\label{ch:graphs}
+\index{graph}
+
+A graph is Chapter~4's relation made drawable: vertices, edges, and
+nothing else --- yet from that skeleton come the oldest theorem of
+network reasoning (handshake), the simplest connectivity story (trees),
+Euler's walk through Königsberg, and a counting formula that forbids
+whole graphs from living in the plane. After this chapter you can model
+a problem as a graph, run degree-parity arguments, and use Euler's
+formula as a non-planarity weapon.
+
+\section{Graphs and the handshake lemma}\label{sec:handshake}
+\index{degree}\index{handshake lemma}
+\begin{definition}
+A graph $G = (V, E)$ is a set of vertices with edges as unordered pairs
+$\{u,v\}$; $\deg(v)$ counts the edges at $v$.
+\end{definition}
+
+\begin{example}\label{ex:handshake}
+Prove that at any party, an even number of people shook an odd number
+of hands.
+\par\smallskip
+\textbf{Strategy.} Count edge-ends two ways --- the double-counting
+habit from Chapter~8: each edge contributes exactly $2$ to the degree
+sum (Figure~\ref{fig:handshake}).
+\par\smallskip
+\begin{solution}
+$\sum_v \deg(v) = 2|E|$ (each edge has two ends). An odd number of odd
+terms can't sum to the even right side, so the number of odd-degree
+vertices is even.
+\end{solution}
+\end{example}
+
+\begin{figure}[ht]\centering
+\input{figures/ch11-handshake}
+\caption{The handshake lemma is a double count. Notice every edge
+carries two $+1$ markers --- the sum of degrees is $2|E|$ because the
+count is per endpoint, not per edge.}
+\label{fig:handshake}
+\end{figure}
+
+\section{Walks, paths, cycles, connectivity}\label{sec:walks}
+\index{walk}\index{path}\index{cycle}\index{connected}
+A \emph{walk} allows repeats; a \emph{path} forbids repeated vertices; a
+\emph{cycle} returns to its start (length $\ge 3$). A graph is
+\emph{connected} when every pair is joined by a path; the maximal
+connected pieces are its \emph{components}. The terms differ in exactly
+what repetition is allowed --- a frequent exam-time collision.
+
+\section{Bipartite graphs}\label{sec:bip}
+\index{bipartite}
+A graph is bipartite iff $V$ splits into two independent classes ---
+equivalently, iff it contains \emph{no odd cycle} (an odd cycle needs a
+third colour; a 2-colouring propagates consistently when no odd cycle
+exists to break it).
+
+\section{Trees}\label{sec:trees}
+\index{tree}\index{spanning tree}
+A tree is connected and acyclic. Every tree on $n \ge 2$ vertices has a
+leaf (a degree-1 vertex): start at any vertex, walk without repeating.
+The tree is acyclic, so the walk cannot revisit and must stop; the
+endpoint has degree~$1$ --- an unvisited neighbor would extend the walk,
+a visited one would close a cycle.
+
+\begin{example}\label{ex:tree}
+Prove a tree on $n$ vertices has exactly $n - 1$ edges.
+\par\smallskip
+\textbf{Strategy.} Remove the extremal object: a leaf exists, deleting
+it keeps the graph a tree, and the count drops by exactly one ---
+induction with the induction doing real work (Figure~\ref{fig:leaf}).
+\par\smallskip
+\begin{solution}
+Induct on $n$; $n = 1$ gives $0$ edges. For $n \ge 2$ pick a leaf
+$\ell$: $T - \ell$ is still connected (only $\ell$'s single neighbour
+touched it) and acyclic, hence a tree on $n-1$ vertices, so by
+induction it has $n - 2$ edges. Adding $\ell$'s edge back gives
+$n - 1$.
+\end{solution}
+\end{example}
+
+\begin{figure}[ht]\centering
+\input{figures/ch11-leaf}
+\caption{Leaf removal as the induction step. Notice deleting a leaf
+preserves treeness --- connectedness survives because a leaf's edge was
+its only link.}
+\label{fig:leaf}
+\end{figure}
+
+A spanning tree of a connected graph is a tree using all its vertices:
+repeat edge-deletion on cycles until none remain, $n-1$ edges minimum.
+
+\section{Eulerian trails}\label{sec:euler}
+\index{Eulerian trail}
+\begin{example}\label{ex:konig}
+Decide whether Königsberg's seven bridges admit a walk using each
+exactly once.
+\par\smallskip
+\textbf{Strategy.} Every \emph{intermediate} visit to a land mass
+consumes two edges --- one in, one out --- so interior vertices need
+even degree; only start and end may be odd.
+\par\smallskip
+\begin{solution}
+The multigraph of Figure~\ref{fig:konig} has all four vertices odd.
+An Eulerian trail allows exactly $0$ or $2$ odd vertices: no such walk
+exists. The same parity test decides any graph (Listing~\ref{lst:euler}).
+\end{solution}
+\end{example}
+
+\begin{figure}[ht]\centering
+\input{figures/ch11-konig}
+\caption{Königsberg as a multigraph. Notice the map's geometry is
+irrelevant --- only ``which land masses share a bridge'' survives, which
+is exactly the move that turns a puzzle into graph theory.}
+\label{fig:konig}
+\end{figure}
+
+\begin{checkpoint}[Predict before you run]
+Listing~\ref{lst:euler} checks connectivity and degree parity on
+four graphs, printing one of three statuses. Predict which of \{Königsberg multigraph, 5-cycle, 4-path\}
+gets an Eulerian circuit versus a mere trail.
+\end{checkpoint}
+
+\begin{lstlisting}[language=Python,caption={\texttt{euler\_check.py}:
+DFS connectivity + odd-degree count (full script in
+\texttt{code/euler\_check.py}).},label={lst:euler}]
+odd = sum(len(adj[v]) % 2 for v in range(n))
+\end{lstlisting}
+Real output:
+\begin{lstlisting}[numbers=none]
+Konigsberg multigraph: no Eulerian trail
+5-cycle: Eulerian circuit
+path of 4: Eulerian trail (no circuit)
+random 6v/8e: Eulerian trail (no circuit)
+\end{lstlisting}
+
+\section{Planar graphs and Euler's formula}\label{sec:planar}
+\index{planar graph}\index{Euler's formula}
+\begin{theorem}[Euler's formula]
+A connected planar embedding obeys $V - E + F = 2$.
+\end{theorem}
+(Figure~\ref{fig:eulerf} works it twice.) Corollaries by double-counting
+edge-face incidence: $E \le 3V - 6$ for simple planar graphs ($V \ge 3$),
+and $E \le 2V - 4$ when the graph is triangle-free (every face needs
+$\ge 4$ sides).
+
+\begin{figure}[ht]\centering
+\input{figures/ch11-eulerf}
+\caption{Euler's formula checked on two embeddings. Notice $F$ counts
+the outside face too --- the plane's ``outside'' is a face in every
+sense the formula needs.}
+\label{fig:eulerf}
+\end{figure}
+
+\begin{example}\label{ex:k33}
+Prove $K_{3,3}$ is nonplanar.
+\par\smallskip
+\textbf{Strategy.} $K_{3,3}$ is bipartite, hence triangle-free: the
+sharper bound $E \le 2V - 4$ applies. Count and contradict.
+\par\smallskip
+\begin{solution}
+$V = 6$, $E = 9$; a bipartite planar graph needs $E \le 2\cdot 6 - 4
+= 8 < 9$ --- impossible. (For $K_5$: $E = 10 > 3\cdot 5 - 6 = 9$; both
+failures are in Figure~\ref{fig:k5k33}.)
+\end{solution}
+\end{example}
+
+\begin{figure}[ht]\centering
+\input{figures/ch11-k5k33}
+\caption{$K_5$ and $K_{3,3}$ with their inevitable crossings marked.
+Notice the proofs are edge-counts, not the drawing --- the picture is
+intuition, Euler's formula is the licence.}
+\label{fig:k5k33}
+\end{figure}
+
+\section{Graph colouring basics}\label{sec:color}
+\index{graph colouring}
+A proper colouring assigns colours so no edge is monochromatic;
+$\chi(G)$ is the fewest colours needed. Bipartite $\Rightarrow$
+$\chi = 2$ (the definition repackaged); odd cycles need $3$; and a
+vertex of degree $d$ bounds $\chi \le d_{\max} + 1$ greedily.
+
+\begin{exercise}[easy]\label{exr:g1}
+A graph has degrees $3,3,2,2,1,1$. Is it possible? Check the handshake
+lemma first.
+\end{exercise}
+\begin{exercise}[medium]\label{exr:g2}
+Prove a tree is bipartite.
+\end{exercise}
+\begin{exercise}[medium]\label{exr:g3}
+Does the graph $K_4$ minus one edge have an Eulerian trail? A circuit?
+Decide by parity, don't draw the trail.
+\end{exercise}
+\begin{exercise}[medium]\label{exr:g4}
+Use Euler's formula to show every planar simple graph has a vertex of
+degree $\le 5$.
+\end{exercise}
+
+\section{Chapter summary}
+\begin{table}[ht]\centering
+\begin{tabularx}{\linewidth}{@{}lYY@{}}
+\toprule
+\tablehead\thead{Fact} & \thead{Statement} & \thead{Proof tool}\\
+\midrule
+handshake & $\sum\deg = 2|E|$ & double counting\\
+tree & $n$ vertices $\Rightarrow$ $n-1$ edges & leaf induction\\
+bipartite & $\Leftrightarrow$ no odd cycle & 2-colour propagation\\
+Euler trail & conn.\ + $\le 2$ odd degrees & parity argument\\
+Euler formula & $V-E+F=2$ planar & induction on edges\\
+planar bound & $E\le 3V-6$; $2V-4$ if no $\triangle$ & face-edge count\\
+\bottomrule
+\end{tabularx}
+\caption{One page: degrees and double counts, then Euler twice ---
+trails by parity, planarity by formula.}
+\label{tab:graphs}
+\end{table}
+
+\section{Common mistakes}
+\index{common mistakes}
+\begin{itemize}
+\item \textbf{Walk $\ne$ path $\ne$ cycle.} A walk may repeat; a path
+may not; a cycle returns home. Many ``proofs'' break by silently
+upgrading a walk to a path.
+\item \textbf{Using $E \le 3V-6$ backwards.} Satisfying the bound does
+\emph{not} prove planarity --- it is a necessary condition only;
+nonplanarity is proved by violating it.
+\item \textbf{``Looks bipartite.''} The property is odd-cycle-free, not
+visually two-sided; a twisted drawing can hide an odd cycle.
+\end{itemize}
+
+\section{Additional exercises}
+\begin{exercise}[easy]
+Can a graph have degree sequence $5,4,3,2,1,0$? What invariant decides
+before you try to draw it?
+\end{exercise}
+\begin{exercise}[easy]
+How many edges does a forest of $k$ components on $n$ vertices have?
+Generalise the tree count.
+\end{exercise}
+\begin{exercise}[easy]
+Is the cube graph (8 vertices, edges of a cube) bipartite? Eulerian?
+\end{exercise}
+\begin{exercise}[easy]
+How many spanning trees does a cycle $C_n$ have?
+\end{exercise}
+\begin{exercise}[medium]
+Prove every connected graph with all even degrees has an Eulerian
+circuit (Hierholzer's idea: stitch cycles).
+\end{exercise}
+\begin{exercise}[medium]
+Show a tree with a vertex of degree $d$ has at least $d$ leaves.
+\end{exercise}
+\begin{exercise}[medium]
+Prove a connected graph where every vertex has degree $2$ is a cycle.
+\end{exercise}
+\begin{exercise}[medium]
+The Petersen graph has $V=10$, $E=15$. Is it planar? (Its girth is 5 ---
+use the right bound.)
+\end{exercise}
+\begin{exercise}[hard]
+Prove $K_5$ nonplanar without citing the $3V-6$ bound --- derive the
+bound first from $V-E+F=2$.
+\end{exercise}
+\begin{exercise}[hard]
+Show that a planar graph and its dual have complementary edge counts,
+and that the dodecahedron's dual is the icosahedron (20 faces, 12
+vertices).
+\end{exercise}
+\begin{exercise}[hard]
+Extend \texttt{euler\_check.py} to output one actual Eulerian trail
+(Hierholzer's algorithm) and verify it uses each edge exactly once on
+200 random even-degree graphs.
+\end{exercise}
+
+\chapternotes
+The walk/path/cycle hygiene and the planar sections follow 6.042J's
+graph chapters~\cite{mcs}; CS70's graph notes carry the same material
+with more algorithms~\cite{cs70}; Engel's graph chapter supplies the
+olympiad drill~\cite{engel}, and Cut-the-Knot the Königsberg
+framing~\cite{cuttheknot}. Contest items powered by this chapter ---
+graph-distance and path-state framings (AMC 12 2023 A P21,
+AIME 2024 I P3), cycle and polygon walks (AIME 2018 I P10,
+AIME 2018 I P14, AIME 2021 I P12), plus constraint graphs
+(AMC 12 2024 A P22, AIME 2023 I P3) --- are on the AoPS
+archive~\cite{aops-amc}.

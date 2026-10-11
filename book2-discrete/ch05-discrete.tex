@@ -1,0 +1,455 @@
+\chapter{Divisibility and primes}\label{ch:div}
+\index{divisibility}
+
+Number theory begins with one relation: $a \mid b$, ``$a$ divides $b$''.
+This chapter builds the two machines it powers --- the Euclidean algorithm
+(the fastest proof in mathematics: it \emph{is} an algorithm and a proof of
+correctness at once) and unique factorisation --- and ends with the first
+tool an olympiad problem reaches for: solving equations in integers. After
+this chapter you will be able to run Euclid by hand in seconds, extract
+B\'ezout coefficients from it, prove the digit criteria contestants quote
+without thinking, and solve any $ax + by = c$ completely.
+
+\section{Divisibility and the division algorithm}\label{sec:div}
+\index{a|b@$a \mid b$}
+
+\begin{definition}
+For integers $a, b$ with $a \ne 0$, \emph{$a$ divides $b$} (write
+$a \mid b$) means $b = ak$ for some integer $k$. Then $a$ is a
+\emph{divisor}\index{divisor} (or factor) of $b$, and $b$ is a
+\emph{multiple} of $a$.
+\end{definition}
+
+Note the type: $a \mid b$ is a \emph{statement} (true or false), while
+$a / b$ is a \emph{number}. Writing ``$3 \mid 6$'' asserts; writing
+``$3 / 6$'' computes. Mixing them is Common Mistake \#1 and it misfires on
+every proof that unfolds the definition.
+
+Basic rules, each a two-line element-chase: if $a \mid b$ and $a \mid c$
+then $a \mid (b + c)$ and $a \mid (b - c)$; if $a \mid b$ then $a \mid bk$
+for any integer $k$; if $a \mid b$ and $b \mid c$ then $a \mid c$. The
+engine behind all of them --- and behind half of olympiad number theory ---
+is the division algorithm.
+
+\begin{theorem}[Division algorithm]\index{division algorithm}
+For integers $a$ and $b$ with $b > 0$, there exist unique integers $q, r$
+with $a = qb + r$ and $0 \le r < b$.
+\end{theorem}
+
+\begin{proof}
+Existence: let $q = \lfloor a/b \rfloor$ (the largest integer with
+$qb \le a$) and $r = a - qb$; then $0 \le r < b$ by the floor's definition.
+Uniqueness: if $a = q_1 b + r_1 = q_2 b + r_2$ with both remainders in
+$[0, b)$, then $(q_1 - q_2)b = r_2 - r_1$; the right side has absolute value
+$< b$ and is a multiple of $b$, so it is $0$, giving $r_1 = r_2$ and
+$q_1 = q_2$.
+\end{proof}
+
+Every statement ``$b \mid a$'' is the special case $r = 0$. The remainder is
+the object; Chapter~6 builds arithmetic on it.
+
+\begin{exercise}[easy]\label{exr:divrules}
+Prove from the definition: if $a \mid b$ and $a \mid c$, then
+$a \mid (3b - 5c)$.
+\end{exercise}
+
+\section{Gcd and the Euclidean algorithm}\label{sec:euclid}
+\index{gcd}\index{Euclidean algorithm}
+
+\begin{definition}
+The \emph{greatest common divisor} $\gcd(a,b)$ of integers $a, b$ (not both
+zero) is the largest integer dividing both. If $\gcd(a,b) = 1$, call $a, b$
+\emph{coprime}\index{coprime}.
+\end{definition}
+
+\begin{lemma}\label{lem:gcdswap}
+For $a = qb + r$, $\gcd(a, b) = \gcd(b, r)$.
+\end{lemma}
+
+\begin{proof}
+Any $d$ dividing $a$ and $b$ divides $r = a - qb$; any $d$ dividing $b$ and
+$r$ divides $a = qb + r$. So the two pairs have \emph{identical} divisor
+sets, hence identical greatest elements.
+\end{proof}
+
+Lemma~\ref{lem:gcdswap} is the whole machine: replace $(a,b)$ by $(b, a
+\bmod b)$ until the second entry is $0$; the survivor is the gcd.
+Figure~\ref{fig:euclid-rect} shows why it is called an algorithm \emph{and}
+a proof: tiling a $252 \times 198$ rectangle greedily with squares, the last
+square that fits is the gcd.
+
+\begin{figure}[ht]\centering
+\input{figures/ch05-rectangle}
+\caption{Euclid, geometrically. Notice what each square size is: the
+\emph{side} of each fitted square is a quotient in the algorithm's trace ---
+$198, 54, 36, 18$ --- and the smallest tile that tiles the whole rectangle
+is the answer.}
+\label{fig:euclid-rect}
+\end{figure}
+
+\begin{exercise}[easy]\label{exr:gcdcalc}
+Run the Euclidean algorithm on $\gcd(1071, 462)$ by hand, then check with
+\texttt{bezout.py} (change the two numbers).
+\end{exercise}
+
+\section{B\'ezout's identity --- and why the proof is an algorithm}\label{sec:bezout}
+\index{Bezout@B\'ezout's identity}
+
+\begin{theorem}[B\'ezout]
+For any integers $a, b$ (not both zero), there exist integers $x, y$ with
+$ax + by = \gcd(a,b)$.
+\end{theorem}
+
+Two proofs, and the useful one is a procedure: run Euclid forward, then read
+the trace backwards --- each remainder was itself a remainder, so the gcd
+unrolls into a combination. (The slick proof --- smallest positive
+combination divides both --- proves existence but hands you no $x, y$;
+contest work wants the coefficients.)
+
+\begin{example}\label{ex:bezout}
+Compute $\gcd(252, 198)$ and find integers $x, y$ with
+$252x + 198y = \gcd(252,198)$.
+\par\smallskip
+\textbf{Strategy.} Run the algorithm forward, then read it backwards:
+each line $a = qb + r$ rewrites as $r = a - qb$, and substituting upward
+keeps every term a combination of $252$ and $198$.
+\par\smallskip
+\begin{solution}
+Forward:
+\[
+252 = 1\cdot198 + 54,\quad
+198 = 3\cdot54 + 36,\quad
+54 = 1\cdot36 + 18,\quad
+36 = 2\cdot18 + 0,
+\]
+so $\gcd = 18$. Backward:
+$18 = 54 - 1\cdot36 = 54 - (198 - 3\cdot54) = 4\cdot54 - 198 =
+4\cdot(252 - 198) - 198 = 4\cdot252 - 5\cdot198$.
+Check: $4\cdot252 - 5\cdot198 = 1008 - 990 = 18$. So $x = 4$, $y = -5$.
+\end{solution}
+\end{example}
+
+\begin{checkpoint}[Predict before you run]
+Listing~\ref{lst:bezout} mechanises the back-substitution. Predict its
+B\'ezout line before scrolling to the output --- and predict the sign
+pattern (why is at least one coefficient negative here? --- a small exercise).
+\end{checkpoint}
+
+\begin{lstlisting}[language=Python,caption={\texttt{bezout.py}: Euclid
+forward, then read backwards (full script in \texttt{code/bezout.py}).},
+label={lst:bezout}]
+def euclid(a, b):
+    steps = []
+    while b:
+        q, r = divmod(a, b); steps.append((a, q, b, r)); a, b = b, r
+    return a, steps
+...
+A, B = 1, 0                      # deepest: g = 1*a + 0*b
+for a, q, b, r in reversed(steps):
+    A, B = B, A - q*B            # unwind r = a - q*b
+\end{lstlisting}
+Real output:
+\begin{lstlisting}[numbers=none]
+Euclid(252,198):
+  252 = 1*198 + 54
+  198 = 3*54 + 36
+  54 = 1*36 + 18
+  36 = 2*18 + 0
+gcd = 18
+Bezout: 18 = 4*252 + -5*198  (check 18)
+
+Solve 12x + 18y = 30:
+  gcd(12,18) = 6, and 6 | 30 -> solutions exist
+  particular: x0 = -5, y0 = 5
+  general:    x = -5 + 3t,  y = 5 - 2t
+  t=-1: x=-8, y=7, check 12x+18y = 30
+  t=0: x=-5, y=5, check 12x+18y = 30
+  t=2: x=1, y=1, check 12x+18y = 30
+\end{lstlisting}
+
+B\'ezout's corollary is the workhorse: if $a \mid bc$ and $\gcd(a,b) = 1$,
+then $a \mid c$. (Multiply $ax + by = 1$ by $c$.) One warning: the lemma
+\emph{needs} coprimality --- asserting $\gcd(a,b)=1$ without checking it is
+Common Mistake \#3.
+
+\begin{exercise}[medium]\label{exr:bezout}
+Find integers $x, y$ with $1071x + 462y = \gcd(1071, 462)$, by
+back-substitution (do Exercise~\ref{exr:gcdcalc} first).
+\end{exercise}
+
+\section{Primes and the fundamental theorem}\label{sec:fta}
+\index{prime}\index{fundamental theorem of arithmetic}
+
+\begin{definition}
+An integer $p \ge 2$ is \emph{prime} if its only positive divisors are $1$
+and $p$; otherwise it is \emph{composite}. ($1$ is neither --- and the
+reason is the next theorem.)
+\end{definition}
+
+\begin{theorem}[Fundamental theorem of arithmetic]\index{FTA|see{fundamental theorem of arithmetic}}
+Every integer $n \ge 2$ has a unique factorisation
+$n = p_1^{e_1} p_2^{e_2} \cdots p_k^{e_k}$ into primes (unique up to order).
+\end{theorem}
+
+Existence is strong induction (Chapter~3): $n$ is prime or splits
+$n = ab$ with $a, b < n$. Uniqueness uses B\'ezout's corollary: if a prime
+$p \mid ab$ then $p \mid a$ or $p \mid b$ (Euclid's lemma) --- apply it to
+two factorisations and cancel one prime at a time. The poset of
+Figure~\ref{fig:poset} draws the divisor world of one number, $60 =
+2^2\cdot3\cdot5$.
+
+\begin{figure}[ht]\centering
+\input{figures/ch05-poset}
+\caption{The divisors of $60$, edges meaning ``divides with nothing
+between''. Notice the layering by factor count: every edge multiplies by a
+prime --- the lattice \emph{is} the factorisation $2^2\cdot3\cdot5$ drawn as
+a graph.}
+\label{fig:poset}
+\end{figure}
+
+\begin{exercise}[easy]\label{exr:poset}
+Draw the divisibility poset of $36$ and of $30$; why does $30$'s have the
+shape of a cube while $36$'s does not?
+\end{exercise}
+
+\section{Euclid's infinitude of primes}\label{sec:infprimes}
+\index{primes!infinitude of}
+
+\begin{theorem}
+There are infinitely many primes.
+\end{theorem}
+
+\begin{example}
+Prove it.
+\par\smallskip
+\textbf{Strategy.} Contradiction --- from any finite list, build a number
+\emph{no listed prime divides}: multiply them and add one.
+\par\smallskip
+\begin{solution}
+Suppose $p_1, \dots, p_k$ were all the primes. Consider
+$N = p_1 p_2 \cdots p_k + 1$. By Theorem~\ref{thm:primefactor} (Chapter~3)
+$N$ has a prime factor $p$. But $N \bmod p_i = 1$ for every $i$, so no
+listed prime divides $N$: $p$ is a new prime, contradiction.
+\end{solution}
+\end{example}
+
+Two warnings students always need: the proof does \emph{not} claim
+$p_1\cdots p_k + 1$ is prime ($2\cdot3\cdot5\cdot7\cdot11\cdot13 + 1 =
+30031 = 59\cdot509$ is composite) --- only that \emph{some} prime factor
+escapes the list. And this is a real proof by contradiction, not a
+construction: it gives no recipe for the next prime.
+
+\begin{figure}[ht]\centering
+\input{figures/ch05-sieve}
+\caption{The sieve to $60$: composites struck, 17 primes boxed. Notice the
+proof inside the picture --- every composite $\le 60$ has a prime factor
+$\le\sqrt{60}$, so crossing off multiples of $2,3,5,7$ leaves only primes.
+That square-root bound is the same lemma that speeds up primality testing
+and powers the primality tests of the olympiad track \cite{zhao}.}
+\label{fig:sieve}
+\end{figure}
+
+\begin{exercise}[medium]\label{exr:inf2}
+Prove there are infinitely many primes $p \equiv 3 \pmod 4$. (Copy Euclid:
+form $4p_1\cdots p_k - 1$ and check its factors' residues.)
+\end{exercise}
+
+\section{Digit criteria and base representations}\label{sec:digits}
+\index{divisibility criteria}\index{base representation}
+
+\begin{theorem}[Base representation]\index{base-$b$ representation}
+For any base $b \ge 2$, every integer $n \ge 0$ has a unique expansion
+$n = d_k d_{k-1}\dots d_1 d_0 = \sum d_i b^i$ with digits
+$0 \le d_i < b$ and $d_k \ne 0$.
+\end{theorem}
+
+Figure~\ref{fig:base} shows the same number in two clothes. The digit
+criteria are polynomial evaluations: writing
+$n = \sum d_i 10^i = P(10)$, any criterion comes from what $10$ does modulo
+the divisor.
+
+\begin{example}\label{ex:digitrules}
+Prove the tests for $9$ and $11$: $9 \mid n$ iff $9 \mid$ digit-sum of $n$;
+$11 \mid n$ iff $11 \mid$ alternating digit-sum of $n$.
+\par\smallskip
+\textbf{Strategy.} Evaluate the polynomial at $10$: since $10 \equiv 1
+\pmod 9$, every power $10^i \equiv 1$, so $P(10) \equiv P(1) = $ the digit
+sum. Since $10 \equiv -1 \pmod{11}$, powers alternate $+1, -1, +1, \dots$,
+giving the alternating sum. The criterion \emph{is} the congruence.
+\par\smallskip
+\begin{solution}
+Write $n = \sum_{i=0}^{k} d_i 10^i$.
+\emph{Mod 9:} $10 \equiv 1 \pmod 9$, so $10^i \equiv 1$ and
+$n \equiv \sum d_i \pmod 9$; hence $9 \mid n$ iff $9 \mid \sum d_i$.
+\emph{Mod 11:} $10 \equiv -1 \pmod{11}$, so $10^i \equiv (-1)^i$ and
+$n \equiv d_0 - d_1 + d_2 - \cdots \pmod{11}$; hence $11 \mid n$ iff $11$
+divides that alternating sum.
+\end{solution}
+\end{example}
+
+\begin{figure}[ht]\centering
+\input{figures/ch05-base}
+\caption{Place value in two bases. Notice what changes and what doesn't:
+the digits differ, the powers differ, the \emph{number} is the same --- base
+is a notation, not a property of $n$.}
+\label{fig:base}
+\end{figure}
+
+Same recipe, every divisor: $3$ works like $9$; $2, 5, 10$ read the last
+digit since $10 \equiv 0$; $4$ and $25$ read the last two since
+$100 \equiv 0$. Cut-the-Knot collects the whole family~\cite{cuttheknot}.
+
+\begin{exercise}[easy]\label{exr:digit}
+Derive the test for $7$ in the style of Example~\ref{ex:digitrules}: what
+is $10 \bmod 7$, and why is the classical ``double the last digit, subtract''
+rule equivalent?
+\end{exercise}
+
+\section{Linear Diophantine equations}\label{sec:dioph}
+\index{Diophantine equation}
+
+\begin{theorem}\label{thm:dioph}
+$ax + by = c$ has integer solutions iff $\gcd(a,b) \mid c$. If $(x_0, y_0)$
+is one solution, all solutions are
+$x = x_0 + \frac{b}{\gcd(a,b)}\,t$,\; $y = y_0 - \frac{a}{\gcd(a,b)}\,t$
+for $t \in \Z$.
+\end{theorem}
+
+\begin{proof}
+Direction $\Rightarrow$: $\gcd$ divides $ax + by$. Direction $\Leftarrow$:
+B\'ezout gives $ax' + by' = \gcd$; multiply by $c/\gcd$. For the family:
+substituting shows every listed pair works; conversely, any two solutions
+differ by a solution of $ax + by = 0$, i.e.\ $\frac{a}{\gcd}x =
+-\frac{b}{\gcd}y$ --- coprime factors force
+$x = \frac{b}{\gcd}t$.
+\end{proof}
+
+\begin{example}\label{ex:dioph}
+Find all integer solutions of $12x + 18y = 30$.
+\par\smallskip
+\textbf{Strategy.} Two gates, in order: does $\gcd(12,18) = 6$ divide $30$?
+Yes --- so solutions exist. Get one by B\'ezout (or by halving the equation
+to $2x + 3y = 5$ and spotting $x = 1, y = 1$); then the family is periodic
+with period $b/\gcd = 3$ in $x$.
+\par\smallskip
+\begin{solution}
+Divide through by $6$: $2x + 3y = 5$. Spot $x_0 = 1, y_0 = 1$
+($2 + 3 = 5$). By Theorem~\ref{thm:dioph} all solutions are
+$x = 1 + 3t$, $y = 1 - 2t$ for $t \in \Z$. (The script's equivalent
+parametrisation $x = -5 + 3t$, $y = 5 - 2t$ is the same line re-indexed.)
+Check: $12(1 + 3t) + 18(1 - 2t) = 12 + 18 + 36t - 36t = 30$.
+\end{solution}
+\end{example}
+
+The structure is worth naming: solutions form a \emph{particular solution
+plus a lattice} --- a linear Diophantine equation is a line of integer
+points, and B\'ezout is how you land on it.
+
+\begin{exercise}[medium]\label{exr:dioph}
+Solve completely or prove impossible: (a) $15x + 35y = 100$;
+(b) $21x + 14y = 63$; (c) $34x + 55y = 1$ (consecutive Fibonacci numbers ---
+predict $\gcd$ first).
+\end{exercise}
+
+\section{Chapter summary}
+\begin{table}[ht]\centering
+\begin{tabularx}{\linewidth}{@{}lYY@{}}
+\toprule
+\tablehead\thead{Object} & \thead{Machine} & \thead{Watch}\\
+\midrule
+$a \mid b$ & $b = ak$ unfolding & it is a statement, not a fraction\\
+$\gcd(a,b)$ & Euclid: $(a,b) \to (b, a \bmod b)$ & log keeps every remainder\\
+$ax + by = \gcd$ & B\'ezout by back-substitution & one coefficient usually goes negative\\
+prime factorisation & FTA: unique up to order & existence = strong induction\\
+$ax + by = c$ & gcd-gate then periodic family & check $\gcd \mid c$ FIRST\\
+digit test for $d$ & evaluate $P(10) \bmod d$ & $10 \equiv 1, -1, 0$ cases\\
+infinitude of primes & $p_1\cdots p_k + 1$ & shows a \emph{new} prime, not \emph{the} next\\
+\bottomrule
+\end{tabularx}
+\caption{The chapter in one page: every construction doubles as a proof.
+The right column is where hand-written solutions actually break.}
+\label{tab:div}
+\end{table}
+
+\section{Common mistakes}
+\index{common mistakes}
+\begin{itemize}
+\item \textbf{$a \mid b$ read as a fraction.} $a \mid b$ is a proposition;
+$a/b$ is a rational number. The error bites when unfolding:
+``$3 \mid 6 = 2$'' is nonsense --- the claim is $6 = 3\cdot2$.
+\item \textbf{``Prime'' confused with ``odd''.} $9$ and $15$ are odd and
+composite; $2$ is prime and even. The definition is about \emph{divisors},
+not parity --- most students meet it as a slip in a proof that ``assumes''
+a prime is odd.
+\item \textbf{Asserting $\gcd(a,b)=1$ unproved.} Euclid's lemma and the
+family formula for Diophantine equations both \emph{require} coprimality.
+``WLOG $\gcd(p,q)=1$'' is a licence only after you justify it (lowest
+terms) or divide it out explicitly.
+\end{itemize}
+
+\section{Additional exercises}
+\begin{exercise}[easy]
+Prove: if $a \mid b$ and $b \mid a$ for positive integers, then $a = b$.
+(Where does ``positive'' enter?)
+\end{exercise}
+\begin{exercise}[easy]
+Compute $\gcd(2016, 784)$ and $\gcd(1001, 77)$ by Euclid; confirm with
+\texttt{code/bezout.py}.
+\end{exercise}
+\begin{exercise}[easy]
+Prove the divisibility tests for $4$ and $25$ from
+Example~\ref{ex:digitrules}'s method.
+\end{exercise}
+\begin{exercise}[easy]
+How many divisors does $360 = 2^3\cdot3^2\cdot5$ have? Prove the formula
+$d(n) = \prod (e_i + 1)$ from the FTA.
+\end{exercise}
+\begin{exercise}[medium]
+Prove $\gcd(a, b) \cdot \mathrm{lcm}(a, b) = ab$ for positive $a, b$.
+(Track one prime's exponent at a time.)
+\end{exercise}
+\begin{exercise}[medium]
+Prove: if $\gcd(a, b) = 1$ and $a \mid bc$, then $a \mid c$ --- and find a
+counterexample when $\gcd(a,b) > 1$.
+\end{exercise}
+\begin{exercise}[medium]
+Show that among any three consecutive integers $> 2$, at least one is
+composite; and that $n! + 2, n! + 3, \dots, n! + n$ gives $n - 1$
+consecutive composites for any $n$.
+\end{exercise}
+\begin{exercise}[medium]
+Prove a square number never ends in digit $2, 3, 7$ or $8$. (Reduce
+$(10a + b)^2 \bmod 10$.)
+\end{exercise}
+\begin{exercise}[hard]
+Prove Euclid's lemma in both directions: $p$ prime iff
+$p \mid ab \Rightarrow p \mid a$ or $p \mid b$ --- the reverse direction is
+a clean characterisation of primality.
+\end{exercise}
+\begin{exercise}[hard]
+Chickens cost $3$ coins, goats $7$: a farmer spends exactly $200$ coins.
+Prove a solution exists and find all solutions ($3x + 7y = 200$, $x, y \ge
+0$). Why is this Postage-with-a-budget?
+\end{exercise}
+\begin{exercise}[hard]
+Extend \texttt{code/bezout.py} to print, for each Euclid step, the running
+coefficients $(x_i, y_i)$ with $ax_i + by_i = r_i$ maintained as an
+invariant --- the \emph{iterative} extended algorithm. Prove its invariant
+by induction and verify on $(252,198)$ and $(1071,462)$.
+\end{exercise}
+
+\chapternotes
+The presentation follows MIT 6.042J's number-theory chapter: division
+algorithm, Euclid-as-lemma-machine, B\'ezout by back-substitution, and the
+gcd-times-lcm identity~\cite{mcs}; Velleman's chapter on divisibility
+supplied the WOP-style proofs and the element-chase drills~\cite{velleman},
+and Hammack's proof chapters the $\gcd\cdot\mathrm{lcm}$ and
+gcd-gate material~\cite{hammack}. The digit-criteria family and the
+sieve-as-proof framing follow Cut-the-Knot's divisibility
+articles~\cite{cuttheknot}; Zhao's modular-arithmetic handout ladder
+(orders, Fermat--Euler, Wilson) is the recommended continuation into
+Chapter~6~\cite{zhao}. The contest problems this chapter feeds ---
+including AIME~2025~I~P1, AIME~2025~I~P5, AMC~12~2024~A~P4, AMC~12~2024~A~P9,
+AMC~12~2024~A~P11, AIME~2024~II~P7 and the classic remainder/digit items
+AIME~2018~I~P2, AIME~2022~I~P2, AIME~2020~I~P3, AMC~12~2024~B~P21 --- are on
+the AoPS archive~\cite{aops-amc}.

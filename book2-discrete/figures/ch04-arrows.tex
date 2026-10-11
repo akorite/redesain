@@ -1,0 +1,45 @@
+% Figure: injective / surjective / bijective arrow diagrams.
+% Source for Figure~\ref{fig:arrows}. TikZ only; regenerable by compiling main.tex.
+\begin{tikzpicture}[
+  blob/.style={draw=rulegray,rounded corners=4pt,minimum width=11mm,minimum height=20mm},
+  pt/.style={circle,fill=ink,inner sep=1.2pt},
+  arr/.style={->,accent},
+  lab/.style={font=\footnotesize\sffamily,text=slate,align=center},
+]
+% ---- panel 1: injective, not surjective ----
+\begin{scope}
+\node[blob] (A1) at (0,0) {};
+\node[blob] (B1) at (1.7,0) {};
+\node[lab] at (0,-1.35) {injective,\\not surjective};
+\foreach \y [count=\i] in {0.6,0,-0.6} \node[pt] (a\i) at (0,\y) {};
+\foreach \y [count=\i] in {0.75,0.25,-0.25,-0.75} \node[pt] (b\i) at (1.7,\y) {};
+\draw[arr] (a1.east) -- (b1.west);
+\draw[arr] (a2.east) -- (b2.west);
+\draw[arr] (a3.east) -- (b4.west);
+\node[font=\scriptsize,text=amber,anchor=west] at (1.75,-0.75) {missed};
+\end{scope}
+% ---- panel 2: surjective, not injective ----
+\begin{scope}[xshift=40mm]
+\node[blob] at (0,0) {};
+\node[blob] at (1.7,0) {};
+\node[lab] at (0.85,-1.35) {surjective,\\not injective};
+\foreach \y [count=\i] in {0.75,0.25,-0.25,-0.75} \node[pt] (c\i) at (0,\y) {};
+\foreach \y [count=\i] in {0.6,0,-0.6} \node[pt] (d\i) at (1.7,\y) {};
+\draw[arr] (c1.east) -- (d1.west);
+\draw[arr] (c2.east) -- (d1.west);
+\draw[arr] (c3.east) -- (d2.west);
+\draw[arr] (c4.east) -- (d3.west);
+\node[font=\scriptsize,text=amber,anchor=west] at (1.75,0.6) {hit twice};
+\end{scope}
+% ---- panel 3: bijective ----
+\begin{scope}[xshift=80mm]
+\node[blob] at (0,0) {};
+\node[blob] at (1.7,0) {};
+\node[lab] at (0.85,-1.35) {bijective};
+\foreach \y [count=\j] in {0.6,0,-0.6} \node[pt] (e\j) at (0,\y) {};
+\foreach \y [count=\k] in {0.6,0,-0.6} \node[pt] (f\k) at (1.7,\y) {};
+\draw[arr] (e1.east) -- (f1.west);
+\draw[arr] (e2.east) -- (f2.west);
+\draw[arr] (e3.east) -- (f3.west);
+\end{scope}
+\end{tikzpicture}

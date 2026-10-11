@@ -1,0 +1,351 @@
+\chapter{Invariants, monovariants and extremal arguments}\index{invariant}
+
+Three questions dominate olympiad problems: what survives a process
+(invariant), why it must end (monovariant), and where the boundary case
+lives (extremal principle). Together they turn ``show it's impossible''
+into ``count the conserved quantity'' --- the cheapest proofs in the
+book once you learn to look for what doesn't move.
+
+\section{Invariants}\index{invariant!definition}
+An \emph{invariant} is a quantity (or parity, or property) unchanged by
+every legal move. The discipline: state it, then check \emph{every}
+move, not the moves you expect. If a target configuration has a
+different value, it is unreachable --- impossibility for free.
+
+\begin{example}[The chocolate bar]\index{chocolate bar}
+Breaking an $m\times n$ bar along grid lines, one piece at a time:
+prove you always need exactly $mn-1$ breaks.
+
+\textbf{Strategy.} Don't count cuts --- count what each move preserves.
+Every break splits one piece into two: the \emph{number of pieces} rises
+by exactly 1 no matter where the break lands.
+
+\textbf{Solution.} The component count is the monovariant:
+$1$ piece at start, $mn$ pieces at the end, $+1$ per break ---
+so $mn-1$ breaks, always (Figure~\ref{fig:choco}). Order and shape are
+irrelevant; the invariant does the whole proof.
+\end{example}
+\begin{figure}[ht]\centering
+\input{figures/ch16-choco}
+\caption{The chocolate-bar invariant. Notice you never need to know
+\emph{where} the break happened --- only that components went up by 1.}
+\label{fig:choco}
+\end{figure}
+
+\section{Monovariants}\index{monovariant}
+A \emph{monovariant} is a measure that only moves one way --- usually a
+nonnegative integer that strictly decreases. Since it can't decrease
+forever, the process \emph{terminates} (Figure~\ref{fig:descent}):
+termination is a corollary, not a separate proof.
+\begin{figure}[ht]\centering
+\input{figures/ch16-descent}
+\caption{A monovariant plot. Notice what makes it a proof: integer,
+nonnegative, strictly dropping --- three properties, one conclusion.}
+\label{fig:descent}
+\end{figure}
+
+\begin{example}[Difference reduction terminates]\index{difference reduction}
+On a list of positive integers, replace two entries $a,b$ by $|a-b|$
+until one number remains. Prove the process ends and the survivor
+equals $\gcd$ of the list.
+
+\textbf{Strategy.} Two measures: the \emph{sum} (strictly drops ---
+monovariant, gives termination) and the \emph{gcd} (never changes ---
+invariant, gives the answer).
+
+\textbf{Solution.} Each move replaces $a+b$ by $|a-b|<a+b$: the sum is a
+strictly decreasing positive integer, so the list must shrink to one
+entry. Every move also preserves $\gcd$: $\gcd(a,b,\dots) =
+\gcd(|a-b|,b,\dots)$. The survivor therefore equals
+$\gcd(a_1,\dots,a_n)$ --- verified numerically in \S\ref{sec:invcode}.
+\end{example}
+
+\section{The extremal principle}\index{extremal principle}
+On a finite set, a minimum \emph{exists}: name it and argue on it.
+``Take the smallest counterexample'' is induction in extremal clothes;
+``take the closest pair'' is geometry's version
+(Figure~\ref{fig:extremal}). The trap: the principle needs
+\emph{finiteness or well-ordering} --- ``the least $n$'' exists on
+$\mathbb N$ but not on $\mathbb Z$.
+\begin{figure}[ht]\centering
+\input{figures/ch16-extremal}
+\caption{The extremal principle. Notice the two-step pattern: existence
+from finiteness, then every argument runs on \emph{that} witness.}
+\label{fig:extremal}
+\end{figure}
+
+\begin{example}[Closest pair as a proof device]\index{closest pair}
+Among $n$ points in the plane, show there is a line through two points
+containing no third (the silly-theorem warm-up: in any configuration
+there exist two points whose line is ``clean'' for the extremal
+argument).
+
+\textbf{Strategy.} Don't search all $\binom n3$ triples --- take the
+pairwise distance minimum and argue on \emph{that} pair.
+
+\textbf{Solution.} The set of pairs is finite, so a closest pair
+$(P,Q)$ exists. If a third point $R$ lay on line $PQ$, one of
+$PR,RQ$ would be shorter than $PQ$ --- contradicting minimality. The
+witness does the work; the extremal principle supplied it.
+\end{example}
+
+\section{Advanced pigeonhole}\index{pigeonhole!generalized}
+Generalized form: if $N$ objects land in $k$ boxes, some box holds
+$\ge\lceil N/k\rceil$. Averaging form: if numbers average $\bar x$,
+some entry is $\ge\bar x$ (and some $\le$). These are the same
+statement; olympiad use is always of the form ``so one object
+\emph{must} have the property''.
+
+\section{Coloring and parity arguments}\index{coloring argument}
+Coloring turns structure into arithmetic: assign labels so every legal
+move has a known signature, then count.
+\begin{example}[The domino impossibility]\index{domino tiling}
+A $10\times10$ board minus two \emph{opposite} corners: can dominoes
+tile it?
+
+\textbf{Strategy.} Checkerboard it: every domino covers one square of
+each color, so a tiling requires equal color counts.
+
+\textbf{Solution.} Opposite corners share a color (even side length);
+the board has $48$ of one color and $50$ of the other --- no tiling
+exists (Figure~\ref{fig:checker}). The proof is four words long once the
+coloring is found: \emph{count the colors}.
+\end{example}
+\begin{figure}[ht]\centering
+\input{figures/ch16-checker}
+\caption{The coloring argument. Notice the impossibility needs only the
+imbalance --- you never exhibit a failed tiling.}
+\label{fig:checker}
+\end{figure}
+
+\section{Games}\index{games!winning positions}
+Positions split into \emph{winning} (a move to a losing position
+exists) and \emph{losing} (every move lands on a winning position) ---
+compute backwards from terminal states (Figure~\ref{fig:nim}).
+\emph{Strategy stealing} and \emph{pairing} handle existence claims:
+mirror the opponent's moves across a center (Figure~\ref{fig:pair}) so
+their play produces yours.
+\begin{figure}[ht]\centering
+\input{figures/ch16-pair}
+\caption{The pairing strategy. Notice whose move it is: the second
+player's reply exists because the board was symmetric before the first
+player touched it.}
+\label{fig:pair}
+\end{figure}
+\begin{figure}[ht]\centering
+\input{figures/ch16-nim}
+\caption{Take-away game tree ($n=5$, take 1 or 2). Notice the period:
+losing positions repeat mod 3 --- the invariant-style pattern inside
+every impartial game.}
+\label{fig:nim}
+\end{figure}
+\begin{example}[Pairing the second player]\index{pairing strategy}
+Two players alternately place identical coins on a round table without
+overlap; the last to place wins. Who wins?
+
+\textbf{Strategy.} Don't design a first-player attack --- hand the
+second player a mirror.
+
+\textbf{Solution.} First player places a coin at the center; thereafter
+whatever the opponent plays is answered by the centrally symmetric
+spot. Every opponent move creates a legal mirror move, so the first
+player always has a reply and wins. The symmetry does everything after
+move one.
+\end{example}
+
+\section{Summary}
+\begin{center}\small
+\begin{tabular}{@{}ll@{}}
+\toprule
+\textbf{Tool} & \textbf{Kills which question} \\
+\midrule
+Invariant & ``can it reach?'' --- different value, unreachable \\
+Monovariant & ``does it end?'' --- strictly drops, must floor \\
+Extremal & ``does it exist?'' --- name the minimum \\
+Pigeonhole & ``must one have P?'' --- $\lceil N/k\rceil$ \\
+Coloring & ``can it tile/balance?'' --- count the colors \\
+W/L positions & ``who wins?'' --- backtrack from terminal \\
+Pairing/mirror & ``who wins?'' --- borrow their move \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\section{Code: watching the invariant}\label{sec:invcode}\index{invariant\_sim}
+\texttt{invariant\_sim.py} runs the difference-reduction process and
+prints the list, the dropping sum (monovariant) and the constant gcd
+(invariant) at each step.
+\begin{checkpoint}
+Predict the survivor before running: $[12,18,30,42]$ should leave its
+gcd. Then run \texttt{python3 invariant\_sim.py}.
+\end{checkpoint}
+\begin{lstlisting}
+start: [12, 18, 30, 42]
+t=1: [12, 18, 12]  sum=42  gcd=6 (invariant 6)
+t=2: [6, 12]  sum=18  gcd=6 (invariant 6)
+t=3: [6]  sum=6  gcd=6 (invariant 6)
+survivor = 6 == gcd([12,18,30,42]) = 6: True
+\end{lstlisting}
+The sum column is the termination certificate; the gcd column is the
+answer. The test script \texttt{test\_16\_inv.sh} re-runs the sim and
+greps the survivor line.
+
+\section{Common mistakes}\index{invariant!mistakes}
+\begin{itemize}
+\item \emph{Checking the moves you meant, not all legal moves.} An
+invariant must survive \emph{every} legal transition --- one unchecked
+case voids it.
+\item \emph{Extremal on an infinite set.} ``Take the least counterexample''
+needs well-ordering: valid on $\mathbb N$, meaningless on $\mathbb R$.
+\item \emph{Draw $\Rightarrow$ strategy.} Showing a position isn't losing
+for player one doesn't hand player two a strategy --- who moves first
+is part of the claim.
+\end{itemize}
+
+\section*{Exercises}
+\subsection*{Inline}
+\begin{exercise}[easy]\label{exr:iv1}
+A stack of coins: each move splits one stack into two. Prove finishing
+takes $n-1$ moves for $n$ single coins.
+\end{exercise}
+\begin{solution}
+Same invariant as the chocolate bar: components $+1$ per move.
+\end{solution}
+\begin{exercise}[easy]\label{exr:iv2}
+On a chessboard, a rook moves any number of squares. Is ``color of the
+square'' an invariant under a rook move?
+\end{exercise}
+\begin{solution}
+No --- a rook move may end on either color. Not invariant (a move that
+changes it exists); a move that \emph{preserves} color is a knight
+move's complement story.
+\end{solution}
+\begin{exercise}[medium]\label{exr:iv3}
+Start with $\{1,2,\dots,2n\}$ on a board; each move erases two numbers
+$a,b$ and writes $|a-b|$. Prove the last number is even iff $n$ is even.
+\end{exercise}
+\begin{solution}
+Parity of the sum is invariant (sum drops by $2\min$); initial sum
+$n(2n+1)$ has parity of $n$.
+\end{solution}
+\begin{exercise}[medium]\label{exr:iv4}
+Show the take-away game (take 1 or 2) is losing exactly at $3\mid n$.
+\end{exercise}
+\begin{solution}
+From $3k$ every move hits $3k\pm\{1,2\}$; from a non-multiple, take the
+remainder to land on a multiple. Induction on $n$.
+\end{solution}
+\subsection*{Additional}
+\begin{exercise}[easy]\label{exr:ia1}
+Prove an $8\times8$ board minus two \emph{adjacent} corners \emph{can}
+be tiled by dominoes.
+\end{exercise}
+\begin{solution}
+Adjacent corners differ in color: $31$--$31$ balance; exhibit a snake
+tiling row by row.
+\end{solution}
+\begin{exercise}[easy]\label{exr:ia2}
+Is $a+b$ invariant under replacing $a,b$ by $a-b$? Check every move
+type.
+\end{exercise}
+\begin{solution}
+No: $a+b \to (a-b)+b = a$ changes it; the sum \emph{decreases} ---
+that's the monovariant, not an invariant.
+\end{solution}
+\begin{exercise}[easy]\label{exr:ia3}
+Among $13$ integers, two are congruent mod 12 --- state the boxes.
+\end{exercise}
+\begin{solution}
+Residues mod 12 are the 12 boxes; 13 pigeons.
+\end{solution}
+\begin{exercise}[easy]\label{exr:ia4}
+Give a nonnegative integer monovariant for the Euclidean algorithm.
+\end{exercise}
+\begin{solution}
+The smaller argument $b$ strictly drops each division step; it's a
+positive integer, so Euclid terminates.
+\end{solution}
+\begin{exercise}[medium]\label{exr:ia5}
+Prove every $2^n\times2^n$ board minus one square is tileable by
+L-trominoes (invariant/induction form).
+\end{exercise}
+\begin{solution}
+Induction: quarter the board, put one L at the center covering one
+square of each of the three ``complete'' quarters; each quarter is now
+a smaller instance.
+\end{solution}
+\begin{exercise}[medium]\label{exr:ia6}
+At a party any two people have a common friend; prove someone knows
+everyone (extremal hint).
+\end{exercise}
+\begin{solution}
+Take a person $M$ of maximum degree; if some $X$ weren't $M$'s friend,
+$M$ and $X$ share a friend of degree $> \deg M$.
+\end{solution}
+\begin{exercise}[medium]\label{exr:ia7}
+$51$ numbers from $\{1,\dots,100\}$: show two are consecutive ---
+identify the coloring/box structure.
+\end{exercise}
+\begin{solution}
+Pairs $\{1,2\},\{3,4\},\dots,\{99,100\}$ are 50 boxes; 51 picks force a
+full pair.
+\end{solution}
+\begin{exercise}[medium]\label{exr:ia8}
+Winning strategy for one-pile Nim: take any number up to $k$. State and
+prove the losing set.
+\end{exercise}
+\begin{solution}
+Losing iff $(k+1)\mid n$: multiples map to non-multiples and back,
+same induction as take-1-or-2.
+\end{solution}
+\begin{exercise}[medium]\label{exr:ia9}
+Implement-or-derive: extend \texttt{invariant\_sim.py} so the move
+picks a random pair each step (seeded), and confirm the survivor is
+still the gcd.
+\end{exercise}
+\begin{solution}
+The invariant doesn't care which pair moves; random or largest-first,
+the survivor is $6$.
+\end{solution}
+\begin{exercise}[hard]\label{exr:ia10}
+Prove the circle-difference process (replace each $a_i$ by
+$|a_i - a_{i+1}|$ on an even cycle of integers) reaches all zeros
+when $n$ is a power of two, via a monovariant + invariant combo.
+\end{exercise}
+\begin{solution}
+Max is nonincreasing; parity analysis (all entries become even after
+$\le$ a few steps, then factor out powers of two) forces max to hit 0.
+The invariant is gcd-divisibility; the monovariant is max after
+rescaling.
+\end{solution}
+\begin{exercise}[hard]\label{exr:ia11}
+Strategy stealing: prove the first player in tic-tac-toe (on an
+infinite board, get 5 in a row) cannot be worse off than the second.
+\end{exercise}
+\begin{solution}
+Suppose second player had a winning strategy; first plays an arbitrary
+opening move, then ``becomes'' the second player --- an extra mark can
+never hurt in a strong positional game.
+\end{solution}
+\begin{exercise}[hard]\label{exr:ia12}
+Prove there is no perfect cuboid argument's first step: in a set of
+distinct positive integers whose pairwise sums are all squares, an
+extremal argument bounds the set --- give the extremal witness to name.
+\end{exercise}
+\begin{solution}
+Take the largest element $M$: every partner's sum lies in
+$(M, 2M)$, so partner squares are restricted to squares in that
+interval --- finitely many candidates force a bound. (Open-problem
+flavor; the point is naming the witness.)
+\end{solution}
+
+\section*{Notes}
+Invariants, colorings, the extremal principle and game positions follow
+Engel~\cite{engel} and Zeitz~\cite{zeitz}; the state-machine
+invariant framing is 6.042J's~\cite{mcs}; pairing and
+strategy-stealing examples are Cut-the-Knot's games
+index~\cite{cuttheknot}. Contest uses: 2024 AIME I P3; 2023 AIME I P14;
+2021 AIME I P10; 2024 AMC 12B P5; 2024 AMC 12A P22; 2010 AIME I P12;
+2022 AIME I P9; 2025 AIME II P3; 2023 AIME II P11; USAJMO 2024 P2, P4;
+2023 USAJMO P3, P4, P5; IMO 2026 P1, P3, P4.
+
+\chapternotes

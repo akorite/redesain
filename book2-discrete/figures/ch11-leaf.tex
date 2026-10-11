@@ -1,0 +1,23 @@
+% Figure: leaf-removal induction on a tree (3 steps).
+% Source for Figure~\ref{fig:leaf}. TikZ only; regenerable by compiling main.tex.
+\begin{tikzpicture}[
+  vx/.style={circle,draw=ink,inner sep=2pt,minimum size=5.5mm},
+  del/.style={circle,draw=accent,dashed,inner sep=2pt,minimum size=5.5mm},
+  lab/.style={font=\footnotesize\sffamily,text=slate},
+]
+% step 1: tree on 5 vertices, leaf marked
+\node[vx] (r1) at (0,0.8) {}; \node[vx] (a1) at (-0.6,0) {};
+\node[vx] (b1) at (0.6,0) {}; \node[vx] (c1) at (-0.9,-0.8) {};
+\node[del] (d1) at (-0.3,-0.8) {};
+\draw[rulegray] (r1)--(a1) (r1)--(b1) (a1)--(c1) (a1)--(d1);
+\node[lab] at (0,-1.5) {$n=5$: a leaf exists};
+% step 2: after removal, tree on 4
+\node[vx] (r2) at (3,0.8) {}; \node[vx] (a2) at (2.4,0) {};
+\node[vx] (b2) at (3.6,0) {}; \node[vx] (c2) at (2.1,-0.8) {};
+\draw[rulegray] (r2)--(a2) (r2)--(b2) (a2)--(c2);
+\node[lab] at (3,-1.5) {$n-1=4$: still a tree};
+% step 3: count edges
+\node[lab] at (6.4,0) {$e_n = e_{n-1} + 1$};
+\node[lab] at (6.4,-0.5) {$= (n-2) + 1 = n-1$};
+\node[lab] at (6.4,-1.5) {edges shrink with vertices};
+\end{tikzpicture}

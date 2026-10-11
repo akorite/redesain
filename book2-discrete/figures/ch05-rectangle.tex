@@ -1,0 +1,26 @@
+% Figure: the Euclidean algorithm as square-tiling of a 252x198 rectangle.
+% Source for Figure~\ref{fig:euclid-rect}. TikZ only; regenerable by compiling main.tex.
+\begin{tikzpicture}[
+  sq/.style={draw=rulegray},
+  fit/.style={fill=accentsoft},
+  lab/.style={font=\footnotesize\sffamily,text=slate,align=center},
+]
+% scale: 252 x 198 at 0.012 units -> 3.02 x 2.38
+% one 198x198 square, remainder strip 54x198;
+% three 54x54 squares, remainder 54x36;
+% one 36x36 square, remainder 18x36 = two 18x18
+\draw[sq,fit] (0,0) rectangle (2.38,2.38);           % 198x198
+\draw[sq] (2.38,0) rectangle (3.03,2.38);            % strip 54 wide
+% inside the strip: three 54x54 (height 0.648 each)
+\draw[sq] (2.38,0) rectangle (3.03,0.648);           % 54x54 #1
+\draw[sq] (2.38,0.648) rectangle (3.03,1.296);       % #2
+\draw[sq,fit] (2.38,1.296) rectangle (3.03,1.944);   % 54x36 = 36x36 + 18x36
+\draw[sq] (2.38,1.944) rectangle (3.03,2.38);        % leftover sliver (fits remainder)
+% labels
+\node[lab] at (1.19,1.19) {$198 \times 198$};
+\node[lab] at (2.705,0.324) {\scriptsize $54$};
+\node[lab] at (2.705,0.972) {\scriptsize $54$};
+\node[lab] at (2.705,1.62) {\scriptsize $36$};
+\node[lab] at (1.5,2.7) {one big square, then squares filling the remainder};
+\node[lab,align=center] at (1.5,-0.55) {last square used is $18 \times 18$ --- and $18 = \gcd(252,198)$};
+\end{tikzpicture}

@@ -1,0 +1,32 @@
+% Figure: decision tree for the product rule --- 3 x 2 x 2 = 12 outcomes.
+% Source for Figure~\ref{fig:dectree}. TikZ only; regenerable by compiling main.tex.
+\begin{tikzpicture}[
+  nd/.style={circle,draw=rulegray,minimum size=3.2mm,inner sep=0pt},
+  lf/.style={rectangle,draw=accent,inner sep=1.6pt,minimum size=3mm},
+  lab/.style={font=\footnotesize\sffamily,text=slate},
+  ed/.style={draw=rulegray},
+]
+\node[nd] (r) at (0,0) {};
+% level 1 nodes at y = +2,0,-2 ; level 2 at +-0.7 offsets ; leaves +-0.28
+\foreach \i/\y in {0/2.0,1/0.0,2/-2.0}
+{
+  \node[nd] (a\i) at (1.7,\y) {};
+  \draw[ed] (r) -- (a\i);
+  \foreach \j/\dy in {0/0.7,1/-0.7}
+  {
+    \pgfmathsetmacro{\by}{\y+\dy}
+    \node[nd] (b\i\j) at (3.4,\by) {};
+    \draw[ed] (a\i) -- (b\i\j);
+    \foreach \k/\ddy in {0/0.28,1/-0.28}
+    {
+      \pgfmathsetmacro{\ly}{\by+\ddy}
+      \node[lf] at (5.1,\ly) {};
+      \draw[ed] (b\i\j) -- (5.1,\ly);
+    }
+  }
+}
+\node[lab] at (0,2.6) {choice 1: 3 ways};
+\node[lab] at (1.9,2.6) {choice 2: 2 ways};
+\node[lab] at (4.4,2.6) {choice 3: 2 ways};
+\node[lab] at (2.6,-2.9) {$3 \times 2 \times 2 = 12$ leaves --- every root-to-leaf path is one outcome};
+\end{tikzpicture}

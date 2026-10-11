@@ -1,0 +1,19 @@
+% Figure: V-E+F=2 worked on two planar embeddings.
+% Source for Figure~\ref{fig:eulerf}. TikZ only; regenerable by compiling main.tex.
+\begin{tikzpicture}[
+  vx/.style={circle,draw=ink,fill=ink!10,inner sep=2pt,minimum size=5mm},
+  lab/.style={font=\footnotesize\sffamily,text=slate},
+]
+% embedding 1: square with diagonal
+\node[vx] (a) at (0,1) {}; \node[vx] (b) at (1.4,1) {};
+\node[vx] (c) at (1.4,-0.4) {}; \node[vx] (d) at (0,-0.4) {};
+\draw[rulegray,thick] (a)--(b) (b)--(c) (c)--(d) (d)--(a) (a)--(c);
+\node[lab] at (0.7,-0.9) {$V{=}4,\ E{=}5,\ F{=}3$};
+% embedding 2: triangle with interior point
+\node[vx] (p) at (3.6,1) {}; \node[vx] (q) at (5.4,1) {};
+\node[vx] (rr) at (4.5,-0.6) {}; \node[vx] (s) at (4.5,0.35) {};
+\draw[rulegray,thick] (p)--(q) (q)--(rr) (rr)--(p) (p)--(s) (q)--(s) (rr)--(s);
+\node[lab] at (4.5,-0.9) {$V{=}4,\ E{=}6,\ F{=}4$};
+\node[lab] at (2.6,-1.6) {$V - E + F = 4 - 5 + 3 = 2$ and $4 - 6 + 4 = 2$ ---
+same formula, different drawings};
+\end{tikzpicture}

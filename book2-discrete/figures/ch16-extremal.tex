@@ -1,0 +1,13 @@
+% Figure: extremal principle -- name the minimal witness.
+% Source for Figure~\ref{fig:extremal}. TikZ only; regenerable by compiling main.tex.
+\begin{tikzpicture}[
+  lab/.style={font=\footnotesize\sffamily,text=slate,align=center},
+  pt/.style={circle,fill=ink,inner sep=1.5pt},
+]
+\foreach \x/\y in {0.4/1.7, 0.9/1.1, 1.5/1.9, 1.1/0.5, 2.0/1.4, 2.5/0.8, 2.9/1.7, 3.3/0.4, 1.9/0.3}
+  \node[pt] at (\x,\y) {};
+\node[circle,fill=accent,inner sep=2pt] (mn) at (1.9,0.3) {};
+\draw[accent,thick,dashed] (mn) -- (2.5,0.8);
+\node[lab] at (2.5,-0.5) {finite set $\Rightarrow$ a minimum exists ---\\
+\emph{name} the closest pair, then argue on it};
+\end{tikzpicture}

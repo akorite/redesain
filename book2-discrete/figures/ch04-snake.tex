@@ -1,0 +1,42 @@
+% Figure: the snake through N x N (N = {1,2,...}) --- one path that visits every lattice point.
+% Source for Figure~\ref{fig:snake}. TikZ only; regenerable by compiling main.tex.
+\begin{tikzpicture}[
+  pt/.style={circle,fill=ink,inner sep=1.1pt},
+  arr/.style={->,accent,thick},
+  lab/.style={font=\scriptsize,text=slate},
+]
+\foreach \i in {0,...,4}
+  \foreach \j in {0,...,4}
+    \node[pt] (p\i\j) at (\j*0.72,-\i*0.72) {};
+% axis labels
+\node[lab,anchor=east] at (-0.15,0) {$1$};
+\node[lab,anchor=east] at (-0.15,-0.72) {$2$};
+\node[lab,anchor=east] at (-0.15,-1.44) {$3$};
+\node[lab,anchor=north] at (0,0.3) {$1$};
+\node[lab,anchor=north] at (0.72,0.3) {$2$};
+\node[lab,anchor=north] at (1.44,0.3) {$3$};
+\node[lab,anchor=north,font=\footnotesize,text=slate] at (1.44,0.75) {$x$};
+\node[lab,anchor=east,font=\footnotesize,text=slate] at (-0.55,-1.44) {$y$};
+% snake path: visit order
+\draw[arr] (p00.east) -- (p01.west);
+\draw[arr] (p01.south) -- (p10.north);
+\draw[arr] (p10.east) -- (p20.west);
+\draw[arr] (p20.north east) -- (p11.south west);
+\draw[arr] (p11.north west) -- (p02.south east);
+\draw[arr] (p02.east) -- (p03.west);
+\draw[arr] (p03.south) -- (p12.north);
+\draw[arr] (p12.south east) -- (p21.north west);
+\draw[arr] (p21.south east) -- (p30.north west);
+\draw[arr] (p30.east) -- (p40.west);
+\draw[arr] (p40.north) -- (p31.south);
+\draw[arr] (p31.north west) -- (p22.south east);
+\draw[arr] (p22.north west) -- (p13.south east);
+\draw[arr] (p13.north west) -- (p04.south east);
+% step numbers
+\node[lab,anchor=south] at (0,0.28) {\!1};
+\node[lab,anchor=south] at (0.72,0.28) {\!2};
+\node[lab,anchor=south west] at (0.02,-0.7) {3\ };
+\node[lab,anchor=north west] at (-0.02,-1.4) {4\ };
+\node[lab,anchor=west] at (1.5,-0.74) {5};
+\node[lab,anchor=south] at (1.44,0.26) {6};
+\end{tikzpicture}

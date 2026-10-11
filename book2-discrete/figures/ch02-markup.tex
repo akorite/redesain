@@ -1,0 +1,27 @@
+% Figure: a flawed "proof" with defect marks, and what each mark means.
+% Source for Figure~\ref{fig:markup}. TikZ only; regenerable by compiling main.tex.
+\begin{tikzpicture}[
+  bad/.style={draw,rounded corners=2pt,inner sep=7pt,font=\small,text width=52mm,align=flush left},
+  ann/.style={font=\footnotesize,text=slate,text width=44mm,align=flush left},
+]
+\node[bad] (t) at (0,0) {%
+``\textbf{Claim:} if $n^2$ is even then $n$ is even.
+\textbf{Proof:} $n^2$ is even, so $n^2 = 2k$.
+\defect{1}~Then $n = \sqrt{2k}$.
+\defect{2}~Since $n^2$ is even, $n$ is even.
+\defect{3}~So the statement holds for all $n$.
+\defect{4}~Check $n = 4$: $4^2 = 16$ is even and $4$ is
+even, so it works.''};
+\node[ann,anchor=north west] at (3.4,0.7) {\defect{1}~No
+licence for this step: $\sqrt{2k}$ need not be an integer, and the detour never
+touches the parity of $n$ --- the thing the claim is about.};
+\node[ann,anchor=north west] at (3.4,-0.75) {\defect{2}~Circular:
+the conclusion is restated as its own justification. ``Since $n^2$ is even, $n$
+is even'' is exactly the claim under proof.};
+\node[ann,anchor=north west] at (3.4,-2.2) {\defect{3}~$n$ was
+never fixed. The proof must open with ``let $n$ be an integer''; an unnamed
+variable quantifies nothing.};
+\node[ann,anchor=north west] at (3.4,-3.65) {\defect{4}~Proof by
+example. One check verifies $n=4$ and says nothing about the other infinitely
+many integers.};
+\end{tikzpicture}

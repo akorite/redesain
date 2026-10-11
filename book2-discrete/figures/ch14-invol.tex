@@ -1,0 +1,16 @@
+% Figure: involution-as-bijection arrow diagram.
+% Source for Figure~\ref{fig:invol}. TikZ only; regenerable by compiling main.tex.
+\begin{tikzpicture}[
+  pt/.style={circle,draw=ink,inner sep=1.8pt},
+  lab/.style={font=\footnotesize\sffamily,text=slate,align=center},
+  arr/.style={<->,draw=accent,thick},
+]
+\node[pt,label=above:$a$] (a) at (0,1) {};
+\node[pt,label=above:$b$] (b) at (1.4,1) {};
+\node[pt,label=above:$c$] (c) at (2.8,1) {};
+\node[pt,label=above:$d$] (d) at (4.2,1) {};
+\draw[arr] (a) to[bend left=25] (b);
+\draw[arr] (c) to[bend left=25] (d);
+\node[lab] at (2.1,-0.2) {$f(f(x))=x$: pairs everything ---\\
+injective and surjective for free};
+\end{tikzpicture}

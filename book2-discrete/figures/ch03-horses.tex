@@ -1,0 +1,29 @@
+% Figure: the horses autopsy --- the step works for n>=3 and breaks at n=2.
+% Source for Figure~\ref{fig:horses}. TikZ only; regenerable by compiling main.tex.
+\begin{tikzpicture}[
+  h/.style={circle,draw,minimum size=4.4mm,inner sep=0pt,font=\scriptsize},
+  grp/.style={draw=accent,rounded corners=3pt,dashed,inner sep=2pt},
+  lab/.style={font=\footnotesize\sffamily,text=slate},
+  bad/.style={font=\footnotesize\sffamily,text=amber},
+]
+% ---- n=3: the step is fine ----
+\node[lab] at (0,0.75) {$n=3$: step works};
+\node[h,fill=accentsoft] (a) at (0,0) {};
+\node[h,fill=accentsoft] (b) at (0.55,0) {};
+\node[h] (c) at (1.1,0) {};
+\draw[grp] (-0.28,0.28) rectangle (0.83,-0.28);
+\draw[grp] (0.27,0.45) rectangle (1.38,-0.11);
+\node[lab,anchor=west] at (1.55,0.35) {$h_1,h_2$ same colour};
+\node[lab,anchor=west] at (1.55,-0.1) {$h_2,h_3$ same colour};
+\node[lab,anchor=west] at (1.55,-0.55) {shared horse $h_2$ $\Rightarrow$ all equal};
+% ---- n=2: the link is broken ----
+\node[lab] at (0,-1.9) {$n=2$: link broken};
+\node[h] (x) at (0,-2.65) {};
+\node[h] (y) at (0.55,-2.65) {};
+\draw[grp] (-0.28,-2.37) rectangle (0.28,-2.93);
+\draw[grp] (0.27,-2.2) rectangle (0.83,-2.76);
+\node[bad,anchor=west] at (1.55,-2.4) {no shared horse};
+\node[bad,anchor=west] at (1.55,-2.85) {colour cannot transfer};
+\draw[amber,thick] (0.415,-2.45) -- (0.415,-2.85);
+\node[amber,font=\normalsize] at (0.415,-3.1) {\textbf{\texttimes}};
+\end{tikzpicture}

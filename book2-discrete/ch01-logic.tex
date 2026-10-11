@@ -1,0 +1,647 @@
+\chapter{Logic and quantifiers}\label{ch:logic}
+\index{logic}
+
+Every claim in this book is either a statement you will prove or a statement you will
+refute. Before any technique, you need the grammar those statements are written in:
+connectives that combine simple claims, and quantifiers that say \emph{how many} objects
+a claim covers. After this chapter you will be able to write any contest-level claim in
+symbols, negate it mechanically without thinking, and say precisely what a proof or a
+counterexample of it would have to deliver. Nothing here is deep; everything here gets
+used weekly. Read it once carefully and it will save you from the most common proof
+errors in the rest of the book.
+
+\section{Statements and connectives}\label{sec:statements}
+
+\begin{definition}[Statement]\index{statement}\index{proposition|see{statement}}
+A \emph{statement} (also called a \emph{proposition}) is a sentence that is either
+true or false. It need not be provable, known, or interesting --- it only needs a
+definite truth value.
+\end{definition}
+
+``7 is prime'' is a statement, and a true one. ``9 is prime'' is a statement, and a
+false one. ``Every even integer greater than $2$ is a sum of two primes'' is a
+statement --- nobody knows which of the two truth values it has, but it has one.
+On the other hand ``$x+2=7$'' is not a statement, because it is true for some $x$
+and false for others; it is an \emph{open formula}\index{open formula}, and
+Section~\ref{sec:quantifiers} shows how quantifiers close it. Questions and
+commands (``is it raining?'', ``solve this'') are not statements at all.
+
+Statements combine into larger ones using \emph{connectives}\index{connective}.
+
+\begin{definition}[Basic connectives]\index{conjunction}\index{disjunction}\index{negation}
+Let $P$ and $Q$ be statements.
+\begin{itemize}
+\item $P \land Q$ (\emph{conjunction}, ``$P$ and $Q$'') is true exactly when both are true.
+\item $P \lor Q$ (\emph{disjunction}, ``$P$ or $Q$'') is true exactly when at least one
+is true --- \textbf{including when both are true}.
+\item $\lnot P$ (\emph{negation}, ``not $P$'') is true exactly when $P$ is false.
+\end{itemize}
+\end{definition}
+
+\begin{center}
+\begin{tabular}{cc|ccc}
+\toprule
+$P$ & $Q$ & $P\land Q$ & $P\lor Q$ & $\lnot P$\\
+\midrule
+T & T & T & T & F\\
+T & F & F & T & F\\
+F & T & F & T & T\\
+F & F & F & F & T\\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\begin{remark}\index{or!inclusive}
+Mathematics uses the \emph{inclusive} or: ``$P$ or $Q$'' allows both. English does
+not always. ``You may take the exam in June or in August'' usually means one or the
+other. ``A student who studied or who is lucky will pass'' allows both. When a
+contest statement wants the exclusive version it will say so: ``exactly one of''.
+\end{remark}
+
+\section{Truth tables}\label{sec:truthtables}
+\index{truth table}
+
+A connective is defined by what it does to truth values, so the whole behaviour of a
+compound statement is computable line by line. Writing out all $2^n$ rows for $n$
+atomic statements is called a \emph{truth table}. It is the brute-force verifier of
+propositional logic: two formulas are \emph{equivalent}\index{equivalence!of formulas}
+--- interchangeable inside any larger statement --- exactly when their truth tables
+agree on every row.
+
+Here is the most useful equivalence there is, in action:
+
+\begin{proposition}[De Morgan's laws for statements]\label{prop:demorgan}
+\index{De Morgan's laws}
+$\lnot(P\land Q)$ is equivalent to $\lnot P \lor \lnot Q$, and
+$\lnot(P\lor Q)$ is equivalent to $\lnot P \land \lnot Q$.
+\end{proposition}
+
+\begin{proof}
+Compare the two sides of the first law on all four cases:
+\begin{center}
+\begin{tabular}{cc|cc|c|cc}
+\toprule
+$P$ & $Q$ & $P\land Q$ & $\lnot(P\land Q)$ & $\lnot P\lor\lnot Q$ & $\lnot P$ & $\lnot Q$\\
+\midrule
+T&T&T&F&F&F&F\\
+T&F&F&T&T&F&T\\
+F&T&F&T&T&T&F\\
+F&F&F&T&T&T&T\\
+\bottomrule
+\end{tabular}
+\end{center}
+Columns four and five agree on every row, so the formulas are equivalent. The second
+law is checked the same way.
+\end{proof}
+
+Read De Morgan in English: ``not both'' means ``at least one fails''; ``neither''
+means ``both fail''. You will use it every time you negate a compound statement in
+Section~\ref{sec:negation}.
+
+\begin{exercise}[easy]\label{exr:tt-notor}
+Write the truth table of $\lnot P \lor Q$ for all four rows of $(P,Q)$. Keep it ---
+in Section~\ref{sec:implication} this formula gets a name.
+\end{exercise}
+
+\section{Implication and its family}\label{sec:implication}
+\index{implication}
+
+Most theorems have the shape ``if $P$ then $Q$''.
+
+\begin{definition}[Implication]\index{hypothesis}\index{conclusion}
+$P \Rightarrow Q$ (\emph{implication}) is false in exactly one case: $P$ true and $Q$
+false. $P$ is the \emph{hypothesis}, $Q$ the \emph{conclusion}. English renders it as
+``if $P$ then $Q$'', ``$P$ implies $Q$'', ``$Q$ if $P$'', ``$P$ only if $Q$'', and
+``$Q$ whenever $P$''.
+\end{definition}
+
+The last two rows of the table are the part everyone trips on:
+
+\begin{center}
+\begin{tabular}{cc|c}
+\toprule
+$P$ & $Q$ & $P\Rightarrow Q$\\
+\midrule
+T&T&T\\
+T&F&F\\
+F&T&T\\
+F&F&T\\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\begin{remark}\index{vacuous truth}
+If $P$ is false, $P \Rightarrow Q$ is automatically true --- \emph{vacuously} true.
+``If $2+2=5$ then this textbook has a million pages'' is a true statement, and proves
+nothing about the book. An implication only ever makes a promise about the case where
+the hypothesis holds.
+\end{remark}
+
+Exercise~\ref{exr:tt-notor} now pays off: the table you computed shows that
+$P \Rightarrow Q$ is equivalent to $\lnot P \lor Q$. This one fact explains the whole
+implication family and, later, how to negate an implication.
+
+\begin{definition}[The implication family]\index{converse}\index{inverse}\index{contrapositive}
+For $P \Rightarrow Q$:
+\begin{itemize}
+\item the \emph{converse} is $Q \Rightarrow P$;
+\item the \emph{inverse} is $\lnot P \Rightarrow \lnot Q$;
+\item the \emph{contrapositive} is $\lnot Q \Rightarrow \lnot P$.
+\end{itemize}
+\end{definition}
+
+\begin{figure}[ht]\centering
+\input{figures/ch01-family}
+\caption{The implication family. Notice that equivalence lives on the
+\emph{diagonals}: an implication and its contrapositive are the same claim
+rephrased, and so are the converse and the inverse. Neighbours are different claims.}
+\label{fig:family}
+\end{figure}
+
+\begin{theorem}\label{thm:contrapositive}
+$P \Rightarrow Q$ is equivalent to its contrapositive $\lnot Q \Rightarrow \lnot P$,
+and to $\lnot P \lor Q$. It is \emph{not} equivalent to its converse
+$Q \Rightarrow P$.
+\end{theorem}
+
+\begin{proof}
+Apply the equivalence $X \Rightarrow Y \equiv \lnot X \lor Y$ twice, with
+commutativity of $\lor$ and double negation between them:
+$P \Rightarrow Q \equiv \lnot P \lor Q \equiv Q \lor \lnot P
+\equiv \lnot(\lnot Q) \lor \lnot P \equiv \lnot Q \Rightarrow \lnot P$.
+For the converse, the rows $(P,Q)=(T,F)$ and $(F,T)$ of the truth table already
+disagree between $P\Rightarrow Q$ and $Q\Rightarrow P$, so no equivalence is possible.
+\end{proof}
+
+The contrapositive is the single most useful free move in proof-writing: whenever a
+statement is awkward in the form given, its contrapositive is the same statement in a
+different shape. Chapter~2 exploits this constantly.
+
+\begin{definition}[Biconditional]\index{biconditional}\index{iff}
+$P \iff Q$ (``$P$ if and only if $Q$'', written \emph{iff}) is
+$(P \Rightarrow Q) \land (Q \Rightarrow P)$: true when $P$ and $Q$ have the same
+truth value. A claim stated as iff is \emph{two} obligations, not one.
+\end{definition}
+
+\begin{example}\label{ex:ttree}
+Evaluate $\lnot (P \land Q) \Rightarrow R$ when $P$ and $Q$ are true and $R$ is false.
+\par\smallskip
+\textbf{Strategy.} Evaluate inside out: leaves first, then each connective, never
+reasoning about the whole formula at once. A tree of subformulas tracks the order.
+\par\smallskip
+\begin{solution}
+$P \land Q$ is T since both inputs are T. Then $\lnot(P\land Q)$ is F, so the
+statement is $F \Rightarrow F$, which is T. Figure~\ref{fig:tt-tree} shows the same
+computation for the companion formula $(P\land Q) \Rightarrow R$, where this
+assignment is the \emph{only} row that fails.
+\end{solution}
+\end{example}
+
+\begin{figure}[ht]\centering
+\input{figures/ch01-tt-tree}
+\caption{Evaluation tree of $(P\land Q)\Rightarrow R$ on the assignment
+$P{=}T,\,Q{=}T,\,R{=}F$. Notice that the implication is false exactly where the left
+child evaluates to T and the right to F --- one row out of eight decides it.}
+\label{fig:tt-tree}
+\end{figure}
+
+\begin{exercise}[medium]\label{exr:converse}
+For the statement ``if $n$ is divisible by $6$ then $n$ is even'', write the
+converse, the inverse and the contrapositive, and decide which of the four
+statements are true over the integers.
+\end{exercise}
+
+\section{Quantifiers}\label{sec:quantifiers}
+\index{quantifier}
+
+``$x+2=7$'' was not a statement because $x$ was floating free. Quantifiers bind such
+variables.
+
+\begin{definition}[Universal and existential quantifiers]\index{universal quantifier}%
+\index{existential quantifier}\index{universe of discourse}
+Fix a \emph{universe of discourse} $U$ --- the set of objects $x$ may range over. For
+an open formula $P(x)$:
+\begin{itemize}
+\item $\forall x\, P(x)$ (\emph{for all}): true when $P(x)$ holds for every $x\in U$.
+\item $\exists x\, P(x)$ (\emph{there exists}): true when $P(x)$ holds for at least
+one $x\in U$.
+\item $\exists! x\, P(x)$ (\emph{there exists a unique}): exactly one $x\in U$
+satisfies $P(x)$.
+\end{itemize}
+Write $\forall x\in U$ or $\exists x\in U$ when the universe needs naming.
+\end{definition}
+
+Read the two quantifiers as jobs. $\forall$ says \emph{be ready for anything}:
+to verify $\forall x\,P(x)$ you must handle every single $x$, and to refute it one
+\emph{counterexample}\index{counterexample} suffices. $\exists$ says \emph{produce a
+witness}\index{witness}: to verify it, hand over one $x$ that works; to refute it you
+must exclude \emph{every} candidate. Asymmetry all the way down.
+
+\begin{example}[$\forall\exists$ versus $\exists\forall$]\label{ex:quant-swap}
+On the set of contestants $\{\text{Ana, Budi, Citra, Dewi}\}$ and problems
+$\{P1,P2,P3,P4\}$, let $S(c,p)$ mean ``contestant $c$ solved problem $p$'', with
+solved problems:
+\begin{center}
+\begin{tabular}{l|cccc}
+\toprule
+ & $P1$ & $P2$ & $P3$ & $P4$\\
+\midrule
+Ana & \checkmark & & &\\
+Budi & & \checkmark & &\\
+Citra & & & \checkmark &\\
+Dewi & & & & \checkmark\\
+\bottomrule
+\end{tabular}
+\end{center}
+Compare $\forall c\,\exists p\, S(c,p)$ and $\exists p\,\forall c\, S(c,p)$.
+\par\smallskip
+\textbf{Strategy.} Read the first quantifier as the \emph{job}, the second as the
+\emph{answer}. In $\forall c\,\exists p$, the answer $p$ may depend on $c$ --- each
+contestant may bring a different solved problem. In $\exists p\,\forall c$, one
+single $p$ must serve everyone.
+\par\smallskip
+\begin{solution}
+Every row of the table has a checkmark, so $\forall c\,\exists p\,S(c,p)$ is
+\emph{true}. No column is full of checkmarks, so $\exists p\,\forall c\,S(c,p)$ is
+\emph{false}. The two claims differ: order of quantifiers is not decoration.
+\end{solution}
+\end{example}
+
+\begin{figure}[ht]\centering
+\input{figures/ch01-quantifier-order}
+\caption{Two finite worlds. Left: marks on the diagonal --- every row has a mark
+($\forall x\,\exists y$ true) but no column covers all rows
+($\exists y\,\forall x$ false). Right: one column fully marked, so both claims
+hold. Notice that $\exists y\,\forall x$ is the \emph{stronger} claim: when it
+holds, $\forall x\,\exists y$ follows.}
+\label{fig:quant-order}
+\end{figure}
+
+The same swap runs under the hood of definitions you will meet later.
+$\forall \varepsilon>0\,\exists \delta>0 \dots$ in analysis means ``however small the
+tolerance, there is a response \emph{that may depend on it}''. Confusing the two
+orders is the most common way definitions get misread; Listing~\ref{lst:verifyq}
+lets you check both verdicts by brute force on any small world.
+
+\begin{checkpoint}[Predict before you run]
+In Listing~\ref{lst:verifyq}, world 1 is the table of
+Example~\ref{ex:quant-swap}. Before running it, predict the four printed verdicts:
+two for world 1, then world 2 (everyone solved $P1$ only) and world 3 (Dewi solved
+nothing).
+\end{checkpoint}
+
+\begin{lstlisting}[language=Python,caption={\texttt{verify\_quantifiers.py}: checking
+$\forall\exists$ vs $\exists\forall$ by brute force on finite worlds.},
+label={lst:verifyq}]
+def verdicts(passed):
+    fe = all(any(p in passed[c] for p in problems)
+             for c in contestants)
+    ef = any(all(p in passed[c] for c in contestants)
+             for p in problems)
+    return fe, ef
+\end{lstlisting}
+The full script (in \texttt{code/verify\_quantifiers.py}) builds three worlds and
+prints both verdicts for each:
+\begin{lstlisting}[numbers=none]
+world 1:
+  every contestant solved some problem : True
+  some problem was solved by everyone  : False
+world 2:
+  every contestant solved some problem : True
+  some problem was solved by everyone  : True
+world 3:
+  every contestant solved some problem : False
+  some problem was solved by everyone  : False
+\end{lstlisting}
+Notice that the first claim can hold without the second (world 1), both can hold
+(world 2), and both can fail (world 3) --- the claims are strictly different, and
+$\exists p\,\forall c$ implies $\forall c\,\exists p$ but not conversely.
+
+\begin{example}[A finite world]\label{ex:tarski}
+In the $4\times4$ grid of Figure~\ref{fig:tarski}, each cell holds one symbol from
+$\{\triangle,\circ,\square\}$. Evaluate: (a) every row contains a $\triangle$;
+(b) some column consists entirely of $\circ$; (c) every $\circ$ shares its row with
+a $\square$; (d) some column contains both a $\triangle$ and a $\square$.
+\par\smallskip
+\textbf{Strategy.} When the universe is small and finite, work on the model, not on
+the symbols. $\forall$ becomes a checklist over rows or cells; $\exists$ becomes a
+search that stops at the first hit.
+\par\smallskip
+\begin{solution}
+(a) Rows $1$--$4$ have $\triangle$ in columns $1,2,3,4$ respectively: true.
+(b) Scanning columns $1$--$4$, each contains a non-$\circ$ cell: false.
+(c) Every row contains a $\square$ (columns $3,4,1,2$), and every row contains
+$\circ$ cells, so each $\circ$ shares its row with a $\square$: true.
+(d) Column $2$ contains $\triangle$ (row $2$) and $\square$ (row $4$): true.
+\end{solution}
+\end{example}
+
+\begin{figure}[ht]\centering
+\input{figures/ch01-tarski}
+\caption{The finite world of Example~\ref{ex:tarski}. Notice that the $\triangle$
+marks form a diagonal --- that is why (a) is true while every column fails the
+``all $\circ$'' test in (b). Small worlds in this style go back to the Tarski's
+World exercises used in logic courses~\cite{barwise}.}
+\label{fig:tarski}
+\end{figure}
+
+\begin{exercise}[easy]\label{exr:negate-quant}
+Negate ``every contestant solved some problem'' from Example~\ref{ex:quant-swap},
+first in English, then in symbols. Check against world 3 of the listing.
+\end{exercise}
+
+\section{Negating statements mechanically}\label{sec:negation}
+\index{negation!of quantified statements}
+
+Negation is the highest-frequency operation in proof work: every contradiction,
+every contrapositive, every disproof starts by negating something. Do it by
+mechanical rules, not by feel.
+
+\begin{principle}[Negate from the outside in]
+To negate a statement, push $\lnot$ inward past each operator, flipping as you go:
+\[
+\lnot\forall \to \exists\lnot,\qquad
+\lnot\exists \to \forall\lnot,\qquad
+\lnot(P\land Q) \to \lnot P \lor \lnot Q,
+\]
+\[
+\lnot(P\lor Q) \to \lnot P \land \lnot Q,\qquad
+\lnot(P \Rightarrow Q) \to P \land \lnot Q.
+\]
+When $\lnot$ reaches an atomic predicate it stops and negates it directly.
+\end{principle}
+
+The last rule follows from $P\Rightarrow Q \equiv \lnot P \lor Q$: negating gives
+$P \land \lnot Q$. In English: the only way ``if $P$ then $Q$'' fails is a case where
+the hypothesis happens and the conclusion does not.
+
+\begin{example}\label{ex:negate-chain}
+Negate $\forall x\,\exists y\, R(x,y)$.
+\par\smallskip
+\textbf{Strategy.} Work left to right. Each quantifier flips once, the innermost
+predicate negates.
+\par\smallskip
+\begin{solution}
+$\lnot\bigl(\forall x\,\exists y\,R(x,y)\bigr)
+\equiv \exists x\,\lnot\bigl(\exists y\,R(x,y)\bigr)
+\equiv \exists x\,\forall y\,\lnot R(x,y)$.
+One witness $x$ for which \emph{every} $y$ fails is what refutes the original.
+\end{solution}
+\end{example}
+
+\begin{tripwire}
+A very common slip negates $\forall x\,\exists y$ as $\exists x\,\exists y$: both
+quantifiers flipped, but the order was left untouched. The correct negation is
+$\exists x\,\forall y$. The $\exists$-witness comes \emph{first} in the negation,
+and it must defeat \emph{all} $y$.
+\end{tripwire}
+
+\section{English and symbols}\label{sec:english}
+\index{translation!English--symbols}
+
+Contest statements arrive in English; proofs need symbols. The translation step is
+where most wrong readings happen, so we make it explicit. The usual hiding places:
+``a'', ``an'' and ``the'' often mean $\exists$; ``every'', ``each'', ``any'' and
+``no matter which'' mean $\forall$; ``some'' and ``at least one'' mean $\exists$;
+``no'' means $\lnot\exists$ (equivalently $\forall\dots\lnot$); ``only'' reverses
+arrows --- ``$P$ only if $Q$'' is $P \Rightarrow Q$, not $Q \Rightarrow P$.
+
+\begin{example}[Goldbach's claim]\label{ex:goldbach}
+Write in symbols, then negate: \emph{every even integer greater than $2$ is a sum of
+two primes}.
+\par\smallskip
+\textbf{Strategy.} Outer structure first. The sentence is a ``for all'' over even
+integers with a condition ($>2$, even), so it is $\forall n \bigl((n \text{ even}
+\land n>2) \Rightarrow \dots\bigr)$ --- a universal over a restricted domain, which
+always means a $\forall$ wrapped around an implication. The inner claim ``is a sum
+of two primes'' is existential: $\exists p\,\exists q$ with $p,q$ prime and
+$p+q=n$. Then negate from the outside in.
+\par\smallskip
+\begin{solution}
+Let $E(n)$, $P(n)$ abbreviate ``$n$ is even'' and ``$n$ is prime''. The claim is
+\[
+\forall n\in\Z\;\Bigl( \bigl(E(n)\land n>2\bigr) \Rightarrow
+\exists p\,\exists q\;\bigl(P(p)\land P(q)\land p+q=n\bigr)\Bigr).
+\]
+Negating: $\exists n\in\Z$ such that $E(n)\land n>2$ and
+$\forall p\,\forall q\,\lnot\bigl(P(p)\land P(q)\land p+q=n\bigr)$ ---
+\emph{some even $n>2$ that is not a sum of two primes}. One counterexample kills the
+claim; no amount of examples proves it. This is \emph{Goldbach's
+conjecture}\index{Goldbach conjecture}: stated 1742, still unproved as of
+2026 --- yet mechanically, its negation took two lines.
+\end{solution}
+\end{example}
+
+\begin{wins}[A translation is done when\dots]
+every English word has become a named object, a quantifier, or a connective ---
+and the direction of every ``only if'' and every ``unless'' has been checked on a
+case where it matters. If a quantifier's universe is left implicit in English, name
+it in symbols.
+\end{wins}
+
+\begin{remark}
+Competition problems are dense quantified statements wearing prose clothes.
+AMC~12~2024~A~P22 is casework counting organised around a closed-loop (universal)
+constraint; AMC~12~2024~B~P5 is a sign-flip problem whose engine is magnitude
+bookkeeping --- each flip changes the total by twice the flipped term, and the
+parity of the sum never moves. Both are worth reading on the archive~
+\cite{aops-amc} once you can spot the quantified claims inside them.
+\end{remark}
+
+\begin{exercise}[medium]\label{exr:translate}
+Write in symbols over $\Z$: ``exactly one of the numbers $a,b,c$ is even''. Then
+decide: is the resulting statement, quantified over all $a,b,c\in\Z$, true, false,
+or an open formula? Justify.
+\end{exercise}
+
+\section{Parity and primes: a first look}\label{sec:parity}
+\index{parity}\index{even}\index{odd}\index{prime}\index{divides}
+
+The grammar of this chapter is now complete; here is some content to practise it on.
+Two definitions run through the whole book.
+
+\begin{definition}[Even, odd, divides]
+An integer $n$ is \emph{even} when $\exists k\in\Z\;(n=2k)$, and \emph{odd} when
+$\exists k\in\Z\;(n=2k+1)$. For integers $d,m$ we say \emph{$d$ divides $m$} when
+$\exists k\in\Z\;(m=d\cdot k)$.
+\end{definition}
+
+\begin{definition}[Prime]\index{composite}
+An integer $n>1$ is \emph{prime} when its only positive divisors are $1$ and $n$:
+in symbols, $\forall d\in\Z^{+}\;\bigl(d \text{ divides } n \Rightarrow
+(d=1 \lor d=n)\bigr)$. An $n>1$ that is not prime is \emph{composite}.
+\end{definition}
+
+Both definitions are quantified statements. ``$n$ is prime'' is a
+$\forall\Rightarrow$ statement --- the expensive kind, which is why proving primality
+means excluding every candidate divisor, while disproving it needs one witness.
+Already you can classify the work: ``every prime $>2$ is odd'' is
+$\forall p\;\bigl((P(p)\land p>2)\Rightarrow \text{odd}(p)\bigr)$; a proof (Chapter~2)
+must take an arbitrary such $p$ and derive oddness, while one even prime $>2$ would
+kill it. The claims and their forms:
+\begin{center}
+\begin{tabular}{lcc}
+\toprule
+Claim & Shape & To refute it you need\\
+\midrule
+every prime $>2$ is odd & $\forall\Rightarrow$ & one even prime $>2$\\
+every even $n>2$ is composite & $\forall\Rightarrow$ & one even prime $>2$\\
+there are infinitely many primes & $\forall n\,\exists p\;(p>n \land P(p))$ & a largest prime\\
+some even $n$ is a sum of two primes & $\exists$ & check all --- impossible\\
+\bottomrule
+\end{tabular}
+\end{center}
+Notice the last row: a bare $\exists$ claim can almost never be \emph{refuted} by
+search, only verified. That asymmetry is why existence claims and universal claims
+play different roles in problems.
+
+Parity is governed by a small arithmetic. You may verify all four rows yourself ---
+each is a two-line calculation once ``even'' is read as $2k$:
+\begin{center}
+\begin{tabular}{cc|cc}
+\toprule
+$x$ & $y$ & $x+y$ & $xy$\\
+\midrule
+even & even & even & even\\
+even & odd & odd & even\\
+odd & even & odd & even\\
+odd & odd & even & odd\\
+\bottomrule
+\end{tabular}
+\end{center}
+This table is the entire engine behind parity arguments --- and it is also worth
+knowing where it does \emph{not} apply. AMC~12~2024~B~P5 asks for the fewest
+$+$-to-$-$ sign flips in $1+3+\cdots+99$ that make the sum negative; flipping a
+term $t$ changes the total by $2t$, so the sum's parity is an invariant and the
+real engine is magnitude --- how few of the largest terms sum past half of
+$2500$. Proofs that this table is correct come in Chapter~2; the shape to
+notice is \emph{$\forall$ pairs of integers, a finite check of four cases} ---
+a universal statement with a finite universe in disguise.
+
+\begin{exercise}[medium]\label{exr:findn}
+Find all positive integers $n$ for which the statement ``$n$ divides $n+6$'' is
+true. (Use the division definition above: $d$ divides $m$ when $m=d\cdot k$ for
+some integer $k$.)
+\end{exercise}
+
+\section{Chapter summary}
+\begin{table}[ht]\centering
+\begin{tabularx}{\linewidth}{@{}lcYY@{}}
+\toprule
+\tablehead\thead{Symbol} & \thead{Name} & \thead{English forms} & \thead{Negation}\\
+\midrule
+$P\land Q$ & conjunction & and; both; but & $\lnot P\lor\lnot Q$\\
+$P\lor Q$ & disjunction & or (inclusive); at least one of & $\lnot P\land\lnot Q$\\
+$\lnot P$ & negation & not; it is false that & $P$\\
+$P\Rightarrow Q$ & implication & if $P$ then $Q$; $P$ only if $Q$; $Q$ whenever $P$ & $P\land\lnot Q$\\
+$P\iff Q$ & biconditional & iff; exactly when; equivalent & $(P\land\lnot Q)\lor(\lnot P\land Q)$\\
+$\forall x\,P(x)$ & universal & every; each; any; no matter which & $\exists x\,\lnot P(x)$\\
+$\exists x\,P(x)$ & existential & some; there is; at least one & $\forall x\,\lnot P(x)$\\
+$\exists! x\,P(x)$ & unique existence & exactly one & $\forall x\,\lnot P(x)\ \lor$ two distinct witnesses\\
+\bottomrule
+\end{tabularx}
+\caption{The grammar of the book on one page. The last column is the mechanical
+negation rule --- the most-used column.}
+\label{tab:grammar}
+\end{table}
+
+\begin{table}[ht]\centering
+\begin{tabularx}{\linewidth}{@{}lYY@{}}
+\toprule
+\tablehead\thead{Claim shape} & \thead{To establish it} & \thead{To refute it}\\
+\midrule
+$\forall x\,P(x)$ & handle every $x$ (proof, Chapter~2) & one counterexample\\
+$\exists x\,P(x)$ & one witness & rule out every $x$\\
+$P\Rightarrow Q$ & assume $P$, derive $Q$; or assume $\lnot Q$, derive $\lnot P$ & one case with $P$ true, $Q$ false\\
+$P\iff Q$ & both directions, separately & one direction fails\\
+$\forall x\,\exists y$ & give each $x$ its own $y$ & one $x$ defeating all $y$\\
+$\exists y\,\forall x$ & one $y$ serving all $x$ & for each $y$, some $x$ it fails\\
+\bottomrule
+\end{tabularx}
+\caption{What a proof or a refutation owes you, per claim shape.}
+\label{tab:jobs}
+\end{table}
+
+\section{Common mistakes}
+\index{common mistakes}
+\begin{itemize}
+\item \textbf{Asserting the converse.} From ``if $n$ is divisible by $6$ then $n$ is
+even'' and ``$n$ is even'' you get nothing --- $n=10$ satisfies the conclusion and
+not the hypothesis. The converse $Q\Rightarrow P$ is a \emph{different} claim
+(Figure~\ref{fig:family}); proving it is a separate job.
+\item \textbf{Negating $\forall\exists$ as $\exists\exists$.} The negation of
+``every row has a mark'' is ``\emph{some} row has \emph{no} marks''
+($\exists x\,\forall y$), not ``some row has some mark''. Flip each quantifier once
+and keep the order.
+\item \textbf{Reading ``or'' as exclusive.} ``$x$ is even or $x$ is prime'' is true
+of $x=2$ twice over; disjunction does not promise exactly one branch. When a
+statement means exactly one, it says so --- translate that as two claims
+($\lor$ plus $\lnot\land$), as in Exercise~\ref{exr:translate}.
+\end{itemize}
+
+\section{Additional exercises}
+\begin{exercise}[easy]
+Write the truth table of $(P \lor Q) \land \lnot(P \land Q)$ and compare it with
+``exactly one of $P,Q$''. This is the \emph{exclusive or}.
+\end{exercise}
+\begin{exercise}[easy]
+Negate mechanically: (a) $\exists x\,\forall y\,R(x,y)$;
+(b) $\forall x\,\bigl(P(x)\Rightarrow Q(x)\bigr)$;
+(c) ``there is no largest prime'' after writing it in symbols.
+\end{exercise}
+\begin{exercise}[easy]
+Over $\Z$, is $\exists x\,\forall y\;(x\cdot y = y)$ true or false? Give a witness
+or a refutation, and state the claim in English.
+\end{exercise}
+\begin{exercise}[easy]
+Classify each as statement, open formula, or neither: (a) $n^2$ is even;
+(b) $n$ is even for every $n$; (c) every multiple of $4$ is even; (d) prove that
+$n$ is even.
+\end{exercise}
+\begin{exercise}[medium]
+Write in symbols and determine truth over $\Z$: (a) ``for every $x$ there is a $y$
+with $x+y=0$''; (b) ``there is a $y$ such that for every $x$, $x+y=0$''.
+Explain the difference in one sentence.
+\end{exercise}
+\begin{exercise}[medium]
+Prove or disprove: if $x^2$ is divisible by $4$, then $x$ is divisible by $4$.
+(If disproving, exhibit the smallest counterexample.)
+\end{exercise}
+\begin{exercise}[medium]
+Negate the $\varepsilon$--$\delta$ statement you will meet in analysis:
+$\forall \varepsilon>0\,\exists\delta>0\,\forall x\,
+(|x-a|<\delta \Rightarrow |f(x)-f(a)|<\varepsilon)$.
+Your answer should begin ``$\exists \varepsilon>0$ such that\dots''.
+\end{exercise}
+\begin{exercise}[medium]
+On the set $\{1,2,3\}$, define a relation $R(x,y)$ such that
+$\forall x\,\exists y\,R(x,y)$ is true and $\exists y\,\forall x\,R(x,y)$ is false;
+then one where both are true. Draw both as grids of marks like
+Figure~\ref{fig:quant-order}.
+\end{exercise}
+\begin{exercise}[hard]
+Define $\exists!x\,P(x)$ two ways: (i) $\exists x\,\bigl(P(x)\land \forall y\,
+(P(y)\Rightarrow y=x)\bigr)$ and (ii) $\exists x\,P(x)\;\land\;\forall x\,\forall y\,
+\bigl(P(x)\land P(y) \Rightarrow x=y\bigr)$. Prove the two readings agree: each
+implies the other. (This is the shape of every ``unique solution'' claim in the
+book.)
+\end{exercise}
+\begin{exercise}[hard]
+Extend \texttt{code/verify\_quantifiers.py} into a tiny verifier: input a finite
+grid of marks and a claim of the form $\forall x\,\exists y$, $\exists y\,\forall x$,
+or their negations, and have it print the verdict. Test it on the three worlds of
+the listing and on Figure~\ref{fig:quant-order}'s two grids.
+\end{exercise}
+
+\chapternotes
+The order --- connectives, truth tables, implication family, then quantifiers and
+mechanical negation --- follows Velleman's first two chapters, the clearest
+prose treatment of this material~\cite{velleman}, and Hammack's logic chapter, whose
+exercise mix (translate, negate, truth-table, find-the-error) shaped ours~\cite{hammack}.
+The proof-first ordering across the whole book follows MIT 6.042J~\cite{mcs}.
+The finite-world evaluation of Example~\ref{ex:tarski} is in the tradition of
+Barwise and Etchemendy's \emph{Tarski's World}~\cite{barwise}; Cut-the-Knot's logic
+and fallacy pages~\cite{cuttheknot} supply many of the standard traps catalogued in
+Common mistakes. Problem citations (AMC~12~2024~A~P22, AMC~12~2024~B~P5) point to
+the AoPS archive~\cite{aops-amc}; read the statements there --- they are referenced,
+never reproduced.

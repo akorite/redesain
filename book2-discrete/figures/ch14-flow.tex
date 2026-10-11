@@ -1,0 +1,20 @@
+% Figure: substitution-tactics decision flowchart.
+% Source for Figure~\ref{fig:feflow}. TikZ only; regenerable by compiling main.tex.
+\begin{tikzpicture}[
+  bx/.style={draw=ink,rounded corners=2pt,inner sep=4pt,font=\footnotesize\sffamily,text=slate,align=center},
+  lab/.style={font=\footnotesize\sffamily,text=slate,align=center},
+  arr/.style={->,draw=rulegray,thick},
+]
+\node[bx] (q) at (0,0) {read the equation:\\what must collide?};
+\node[bx] (z) at (-2.4,-1.3) {plug zeros:\\$x=0$, $y=0$};
+\node[bx] (s) at (0,-1.3) {symmetric swap:\\$x\leftrightarrow y$};
+\node[bx] (v) at (2.4,-1.3) {plug $x=u$ or $x=f(u)$:\\force a value};
+\node[bx] (c) at (0,-2.7) {new fact? loop back ---\\else try an involution $f(f(x))$};
+\draw[arr] (q) -- (z);
+\draw[arr] (q) -- (s);
+\draw[arr] (q) -- (v);
+\draw[arr] (z) -- (c);
+\draw[arr] (s) -- (c);
+\draw[arr] (v) -- (c);
+\node[lab] at (0,-3.6) {each substitution should \emph{earn} a fact --- tautologies are waste};
+\end{tikzpicture}

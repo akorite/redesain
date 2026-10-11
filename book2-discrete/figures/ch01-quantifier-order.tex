@@ -1,0 +1,22 @@
+% Figure: forall-exists vs exists-forall on two 4x4 grids of marks.
+% Source for Figure~\ref{fig:quant-order}. TikZ only; regenerable by compiling main.tex.
+\begin{tikzpicture}[cell/.style={minimum size=5.6mm},mk/.style={circle,fill=accent,inner sep=1.6pt},
+  lab/.style={font=\footnotesize\sffamily,text=slate}]
+% left grid: marks on the diagonal -- every row has a mark, no column covers all rows
+\foreach \r in {1,...,4} \foreach \c in {1,...,4}
+  \node[cell,draw=rulegray] at (0.6*\c,-0.6*\r) {};
+\foreach \i in {1,...,4} \node[mk] at (0.6*\i,-0.6*\i) {};
+\foreach \r in {1,...,4} \node[lab,anchor=east] at (0.24,-0.6*\r) {$x_\r$};
+\foreach \c in {1,...,4} \node[lab,anchor=south] at (0.6*\c,-0.26) {$y_\c$};
+\node[lab] at (1.5,-2.85) {$\forall x\,\exists y$: T\qquad $\exists y\,\forall x$: F};
+
+% right grid: one whole column marked -- a single column covers every row
+\begin{scope}[xshift=58mm]
+\foreach \r in {1,...,4} \foreach \c in {1,...,4}
+  \node[cell,draw=rulegray] at (0.6*\c,-0.6*\r) {};
+\foreach \r in {1,...,4} \node[mk] at (0.6*2,-0.6*\r) {};
+\foreach \r in {1,...,4} \node[lab,anchor=east] at (0.24,-0.6*\r) {$x_\r$};
+\foreach \c in {1,...,4} \node[lab,anchor=south] at (0.6*\c,-0.26) {$y_\c$};
+\node[lab] at (1.5,-2.85) {$\forall x\,\exists y$: T\qquad $\exists y\,\forall x$: T};
+\end{scope}
+\end{tikzpicture}

@@ -1,0 +1,283 @@
+\chapter{Hints for the hard exercises}\index{hints}
+
+One hint per \textbf{[hard]} exercise, in chapter order. Read the hint
+only after a real attempt --- a hint that costs you zero minutes of
+stuck costs you the whole exercise.
+
+\section*{Chapter 1}
+\begin{itemize}
+\item $\exists!$ two ways: expand both and derive each from the other;
+the second clause of (ii) is the uniqueness half of (i).
+\item Verifier: brute-force the grid over the two orderings of
+$\forall/\exists$; the verdict differs exactly when some column's
+required row varies.
+\end{itemize}
+
+\section*{Chapter 2}
+\begin{itemize}
+\item $x^2-4y=2$: mod 4 gives $x^2\equiv2$; parity-wise an even LHS
+forces $x$ even, then LHS $\equiv0$.
+\item Euler-variant polynomials: hunt for a factorable evaluation ---
+plug $x$ equal to the constant term.
+\item Euclid: $N$ is coprime to every listed prime; any prime factor of
+$N$ is new.
+\end{itemize}
+
+\section*{Chapter 3}
+\begin{itemize}
+\item Two holes: $(4^n-2)/3$ never integral because $4^n\equiv1\pmod3$.
+\item Hole anywhere: induct on the quarter containing the hole, as in
+the one-hole version.
+\item Strengthened sum: induct on $2-1/n$; the slack $1/n$ is exactly
+what the induction step spends.
+\end{itemize}
+
+\section*{Chapter 4}
+\begin{itemize}
+\item $\mathcal P(\mathbb N)$: diagonalize on membership of $i$.
+\item Cantor: $D=\{a:a\notin f(a)\}$ differs from every $f(a)$ at $a$.
+\item Base-3 flips: avoid the ambiguous tail by never producing all-2s.
+\end{itemize}
+
+\section*{Chapter 5}
+\begin{itemize}
+\item Euclid's lemma both ways: forward via Bezout; reverse by
+contrapositive on a composite.
+\item Chicken/goat budget: it is linear Diophantine, so run
+$3c+7g=200$ through extended Euclid, then bound the parameter.
+\item Iterative Bezout: keep $(x_i,y_i)$ satisfying $ax_i+by_i=r_i$;
+each division step updates the pair, not just the remainder.
+\end{itemize}
+
+\section*{Chapter 6}
+\begin{itemize}
+\item Purely periodic iff $\gcd(a,m)=1$: a tail exists iff a prime
+divides $a$ and $m$ --- $2\bmod{12}$ shows it.
+\item CRT by hand: solve mod 3, fold in mod 5, then mod 7.
+\item Tail/period table: conjecture tail length $=$ exponent needed to
+clear common factors; verify on 12, 20, 100.
+\end{itemize}
+
+\section*{Chapter 7}
+\begin{itemize}
+\item $\varphi(n)=12$: bound primes by $p-1\mid12$, then case-split the
+square factors.
+\item $x^2\equiv1$: two roots mod $p$ (Euclid's lemma on
+$(x-1)(x+1)$); mod 8 the factorization has four roots.
+\item Non-coprime CRT: consistent iff congruences agree mod the gcd;
+solution class is mod lcm.
+\end{itemize}
+
+\section*{Chapter 8}
+\begin{itemize}
+\item Even committees: pair $S$ with $S\triangle\{1\}$; or
+$((1+1)^n-(1-1)^n)/2$.
+\item Stars and bars direct: $n$ stars, $k-1$ bars in the $n-1$ gaps.
+\item Restricted PIE in code: cap each variable, subtract violations
+exactly as Chapter 9 counts surjections.
+\end{itemize}
+
+\section*{Chapter 9}
+\begin{itemize}
+\item Surjection formula at $n<k$: it must be 0 because no surjection
+exists --- the combinatorics forces the algebra.
+\item Distinct vs odd parts: $(1+x)(1+x^2)\cdots =
+\frac{1-x^2}{1-x}\cdot\frac{1-x^4}{1-x^2}\cdots$ telescopes.
+\item $\{6,10,15\}$: largest unmakeable is 29; show 30--35 all makeable
+then induct by adding 6.
+\end{itemize}
+
+\section*{Chapter 10}
+\begin{itemize}
+\item Binet two ways: induction on the recurrence, and partial fractions
+on $x/(1-x-x^2)$; the $\phi,\hat\phi$ coefficients coincide.
+\item Decimal Binet: the failure moves out with precision; exact
+algebraic arithmetic never fails --- only rounding does.
+\end{itemize}
+
+\section*{Chapter 11}
+\begin{itemize}
+\item $K_5$ nonplanar: derive $E\le3V-6$ from $V-E+F=2$ and the
+$2E\ge3F$ handshaking bound first.
+\item Dual counts: $E=E^*$ always; dodecahedron $\leftrightarrow$
+icosahedron swaps $(V,F)$.
+\item Hierholzer: splice cycles; verify by edge count, not just success.
+\end{itemize}
+
+\section*{Chapter 12}
+\begin{itemize}
+\item $\mathrm{Var}=E[X^2]-\mu^2$: expand $(X-\mu)^2$; fixed points via
+indicator pairwise products.
+\item Simpson: reverse inequalities need the losing strata to carry far
+more mass --- set weights first.
+\item Max fixed points: the limit is a named extreme-value law ---
+think Gumbel on a Poisson(1) skeleton.
+\end{itemize}
+
+\section*{Chapter 13}
+\begin{itemize}
+\item Tangent line: $\frac{x^3}{1+x^2}-(x-\frac12)=\frac{(x-1)^2}{2(1+x^2)}
+\ge0$; sum at $x=1$ equality.
+\item Schur scan: expect the minimum difference exactly 0 at
+$a=b=c$ or a zero --- that is Schur's boundary.
+\item Cauchy backward: pad with $n$ copies of the mean; the $2n$
+inequality collapses to the $n$ one.
+\end{itemize}
+
+\section*{Chapter 14}
+\begin{itemize}
+\item Hamel gate: without regularity, additive $f$ can map basis
+elements arbitrarily --- discontinuities exist.
+\item Degree-3 search: expect the same single-parameter family
+survives; cubic coefficients die on the leading term.
+\end{itemize}
+
+\section*{Chapter 15}
+\begin{itemize}
+\item Radical axis: the power equation is linear in $(x,y)$ after the
+$x^2+y^2$ terms cancel.
+\item Orthogonal circles invert to what? Angles are preserved ---
+still orthogonal (or a line through a center).
+\item Nine-point radius: $R/2$; center is the midpoint of $OH$.
+\end{itemize}
+
+\section*{Chapter 16}
+\begin{itemize}
+\item Circle-differences: parity makes all entries even in bounded
+steps; divide out the 2s and use the max monovariant.
+\item Strategy stealing: extra marks can't hurt; first player borrows
+the second's hypothetical strategy.
+\item Pairwise-square sums: name the largest element --- partner sums
+sit in $(M,2M)$, finitely many squares.
+\end{itemize}
+
+\section*{Chapter 17}
+\begin{itemize}
+\item Timed rewrite: the fix between drafts should be structural, not
+verbal.
+\item Stating the gap: graders pay for verifiable progress --- a named
+unproved step is still named.
+\item Budget simulation: plans break at the deep-work cap; measure the
+stall, not the solve.
+\end{itemize}
+
+\chapter{Selected solutions}\index{solutions}
+
+Full solutions rotate across chapters so every chapter's exercise set
+gets real coverage: all exercises in Chapters 13--17 carry complete
+in-chapter solutions; below are full solutions to a spread of
+additional exercises from Chapters 1--12, with the rest of the book's
+solutions already printed inline.
+
+\section*{Chapter 1}
+\textbf{Ex.~(negations drill).} The negation of
+$\forall x\,\exists y\,P(x,y)$ is $\exists x\,\forall y\,\neg P(x,y)$:
+flip each quantifier and negate the predicate. Order is preserved ---
+no reordering occurs under negation.
+
+\textbf{Ex.~(vacuous truth).} ``All unicorns in the room are asleep''
+is true when the room has no unicorns: $\forall x\,P$ over an empty
+domain holds vacuously. The corresponding $\exists$ statement fails.
+
+\section*{Chapter 2}
+\textbf{Ex.~(mod-4 squares).} Every square is $\equiv0$ or
+$1\pmod4$: $(2k)^2=4k^2$ and $(2k+1)^2=4k(k+1)+1$. So $x^2+y^2\equiv3
+\pmod4$ has no solutions.
+
+\textbf{Ex.~(contradiction template).} To prove $\sqrt2$ irrational:
+suppose $\sqrt2=p/q$ in lowest terms; $p^2=2q^2$ forces $p$ even,
+writing $p=2r$ gives $q^2=2r^2$, forcing $q$ even too --- contradicting
+lowest terms.
+
+\section*{Chapter 3}
+\textbf{Ex.~(strong induction).} Every $n\ge2$ has a prime factor:
+least counterexample $m$ can't be composite (its factors would have
+prime factors below $m$), so it's prime --- its own witness.
+
+\textbf{Ex.~(sum formula).} $\sum_{i=1}^n i = n(n+1)/2$: base $n=1$;
+step adds $n+1$ to $n(n+1)/2$, giving $(n+1)(n+2)/2$.
+
+\section*{Chapter 4}
+\textbf{Ex.~(no bijection to $\mathbb R$).} A countable list
+$x_1,x_2,\dots$ of reals misses the number whose $i$-th decimal is
+$x_i$'s $i$-th digit plus 1 (mod 10, skipping 9) --- so $\mathbb R$ is
+uncountable.
+
+\textbf{Ex.~(countable union).} Countably many countable sets are
+countable: list each set as a row and take the diagonal enumeration
+$i+j=\text{const}$.
+
+\section*{Chapter 5}
+\textbf{Ex.~(gcd linearity).} $\gcd(a,b)=\gcd(a-b,b)$: any common
+divisor of $a,b$ divides $a-b$, and vice versa --- the divisor sets
+coincide.
+
+\textbf{Ex.~(Bezout existence).} The least positive value of
+$ax+by$ divides both $a$ and $b$ (divide $a$ by it --- the remainder
+would be a smaller such value), so it equals $\gcd(a,b)$.
+
+\section*{Chapter 6}
+\textbf{Ex.~(Fermat inverse).} $a^{p-1}\equiv1\pmod p$ for
+$p\nmid a$ gives $a^{-1}\equiv a^{p-2}$: pairing each element with its
+inverse collapses $(p-1)!$ to $-1$ (Wilson aside).
+
+\textbf{Ex.~(cycle detection).} Powers of $2\bmod7$: $1,2,4$ ---
+period 3, and $3\mid6=\varphi(7)$, matching Euler's theorem.
+
+\section*{Chapter 7}
+\textbf{Ex.~($\varphi$ multiplicativity).}
+$\varphi(mn)=\varphi(m)\varphi(n)$ for coprime $m,n$: CRT bijects
+residues mod $mn$ coprime to $mn$ with pairs of coprime residues.
+
+\textbf{Ex.~(order bound).} If $a^k\equiv1$, the least such $k$
+divides $\varphi(m)$: write $\varphi=qk+r$, $0\le r<k$; then
+$a^r\equiv1$ forces $r=0$.
+
+\section*{Chapter 8}
+\textbf{Ex.~(committee argument).} $\sum_k\binom nk\binom{k}{2}
+=\binom n2 2^{n-2}$: choose the two leaders first ($\binom n2$), then
+any subset of the rest ($2^{n-2}$).
+
+\textbf{Ex.~(PIE count).} Students taking at least one of two
+electives: $|A\cup B|=|A|+|B|-|A\cap B|=32+28-11=49$ of 60, so 11 take
+neither.
+
+\section*{Chapter 9}
+\textbf{Ex.~(derangements).} $D_4=4!\,(1-1+1/2-1/6+1/24)=9$: PIE on
+bad events ``element $i$ fixed''.
+
+\textbf{Ex.~(GF coefficient).} $[x^5]\,(1+x+x^2)^3$: choices of
+$\le2$ per factor summing to 5 --- only $(1,2,2)$ patterns, $3$
+arrangements: coefficient $3$.
+
+\section*{Chapter 10}
+\textbf{Ex.~(linear recurrence).} $a_n=2a_{n-1}+3a_{n-2}$,
+$a_0=1,a_1=4$: characteristic roots $3,-1$; $a_n=A3^n+B(-1)^n$,
+$A=B=1/2$ solves, so $a_n=(3^n+(-1)^n)/2$ --- integer forever.
+
+\textbf{Ex.~(domino recurrence).} $2\times n$ tilings satisfy
+$T_n=T_{n-1}+T_{n-2}$ (last column vertical or a horizontal pair), so
+$T_n=F_{n+1}$.
+
+\section*{Chapter 11}
+\textbf{Ex.~(handshake).} $\sum\deg=2E$: each edge contributes one to
+each endpoint's degree. Corollary: odd-degree vertices come in even
+count.
+
+\textbf{Ex.~(tree leaves).} A tree on $\ge2$ vertices has a leaf:
+a maximal path's endpoint can have no neighbor off the path
+(acyclicity), and none along it (no repeats) --- degree 1.
+
+\section*{Chapter 12}
+\textbf{Ex.~(linearity).} $E[X+Y]=E[X]+E[Y]$ needs no independence:
+expand over the joint table and marginalize each side.
+
+\textbf{Ex.~(derangement expectation).} Expected fixed points of a
+random permutation: indicators give $n\cdot\tfrac1n=1$ ---
+distribution-independent in $n$.
+
+\bigskip
+\noindent\emph{Coverage: all 264 exercises carry solutions either
+in-chapter or here --- this appendix gives full solutions to a rotating
+selection so each chapter's additional set is sampled, and every
+\textbf{[hard]} exercise carries a hint above.}

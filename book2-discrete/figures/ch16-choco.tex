@@ -1,0 +1,17 @@
+% Figure: chocolate bar component count (3-step small multiple).
+% Source for Figure~\ref{fig:choco}. TikZ only; regenerable by compiling main.tex.
+\begin{tikzpicture}[
+  cell/.style={draw=ink,minimum size=0.32cm,inner sep=0},
+  lab/.style={font=\footnotesize\sffamily,text=slate,align=center},
+]
+\foreach \x in {0,1,2} \foreach \y in {0,1} \node[cell] at (0.32*\x,0.32*\y) {};
+\node[lab] at (0.32,-0.5) {1 piece, 0 breaks};
+\foreach \x in {0,1} \foreach \y in {0,1} \node[cell] at (2.0+0.32*\x,0.32*\y) {};
+\foreach \y in {0,1} \node[cell] at (2.96,0.32*\y) {};
+\node[lab] at (2.32,-0.5) {2 pieces, 1 break};
+\foreach \x in {0} \foreach \y in {0,1} \node[cell] at (4.0+0.32*\x,0.32*\y) {};
+\foreach \x in {1} \foreach \y in {0,1} \node[cell] at (4.64+0.32*\x,0.32*\y) {};
+\node[lab] at (4.32,-0.5) {3 pieces, 2 breaks};
+\node[lab] at (2.32,-1.2) {each break adds exactly one component ---\\
+\#pieces $=$ \#breaks $+1$ \emph{always}};
+\end{tikzpicture}

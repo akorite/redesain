@@ -1,0 +1,20 @@
+% Figure: residue clock mod 12, with +5 and +7 step arrows.
+% Source for Figure~\ref{fig:clock}. TikZ only; regenerable by compiling main.tex.
+\begin{tikzpicture}[
+  nd/.style={circle,draw,minimum size=6mm,font=\footnotesize},
+  stp/.style={->,thick,accent},
+  lab/.style={font=\footnotesize\sffamily,text=slate},
+]
+\foreach \i in {0,...,11}
+{
+  \node[nd] (n\i) at ({90 - \i*30}:2.1) {\i};
+}
+% a +5 walk from 2: 2->7->0->5->10, then +7: 10->5
+\draw[stp,bend left=18] (n2) to (n7);
+\draw[stp,bend left=18] (n7) to (n0);
+\draw[stp,bend left=18] (n0) to (n5);
+\draw[stp,bend left=18] (n5) to (n10);
+\draw[stp,dashed,bend right=18] (n10) to (n5);
+\node[lab] at (0,-3.0) {$+5$ steps: $2\to7\to0\to5\to10$ (solid); then $+7$ (dashed): $10\to5$};
+\node[lab] at (0,-3.4) {arithmetic on the circle is arithmetic on residues};
+\end{tikzpicture}

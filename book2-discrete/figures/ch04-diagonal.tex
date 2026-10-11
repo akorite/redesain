@@ -1,0 +1,29 @@
+% Figure: Cantor diagonalisation --- flip each marked digit, escape the list.
+% Source for Figure~\ref{fig:diagonal}. TikZ only; regenerable by compiling main.tex.
+\begin{tikzpicture}[
+  dg/.style={font=\footnotesize\ttfamily,text=ink},
+  hit/.style={draw=amber,thick,rounded corners=1pt},
+  lab/.style={font=\footnotesize\sffamily,text=slate},
+  new/.style={font=\footnotesize\ttfamily,text=accent},
+]
+\def\cw{0.21}
+% the table (digits monospaced); rows 0..7, decimal digits at columns 2..11
+\foreach \r/\row in {
+  0/{0.5000000000},
+  1/{0.3333333333},
+  2/{0.1415926535},
+  3/{0.7182818284},
+  4/{0.4142135623},
+  5/{0.6180339887},
+  6/{0.1010010001},
+  7/{0.2500000000}}
+  \node[dg,anchor=west] at (0,-\r*0.34) {\row};
+% amber boxes on the diagonal digit of each row: column index = 2 + r
+\foreach \r in {0,...,7}
+  \node[hit,minimum width=2.6mm,minimum height=3mm] at ({(2+\r)*\cw + 0.018},-\r*0.34-0.02) {};
+\node[lab,anchor=west] at (2.7,-0.1) {each row's marked digit};
+\draw[->,slate] (2.75,-0.45) -- (1.28,-1.35);
+% constructed row
+\node[new,anchor=west] at (0,-2.95) {0.45555555...};
+\node[lab,anchor=west] at (2.2,-2.98) {flipped each marked digit --- absent from every row};
+\end{tikzpicture}

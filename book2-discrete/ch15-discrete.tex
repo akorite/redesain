@@ -1,0 +1,401 @@
+\chapter{Olympiad geometry}\index{geometry!olympiad}
+
+Olympiad geometry rewards \emph{configuration recognition}: the same
+five or six lemmas --- cyclic quadrilaterals, the incenter/excenter
+picture, power of a point, Ceva, homothety, inversion --- generate most
+of what contests ask. This chapter teaches the tools, their equality
+cases, and the escape hatch: when synthetic insight stalls, coordinates
+and complex numbers are honest backup plans, not admissions of defeat.
+
+\section{Angle chasing systematically}\index{angle chasing}
+School angle chasing uses unsigned angles and silently splits cases ---
+acute vs obtuse, interior vs exterior. \emph{Directed
+angles}\index{directed angle} work mod $180^\circ$:
+$\measuredangle(\ell,m)$ is the turn from $\ell$ to $m$, so supplements
+collapse into one statement (Figure~\ref{fig:directed}). The upgrade
+costs one definition and pays back every case split.
+\begin{figure}[ht]\centering
+\input{figures/ch15-directed}
+\caption{Directed angles are taken mod $180^\circ$. Notice what this
+buys: the ``supplementary'' configuration stops existing.}
+\label{fig:directed}
+\end{figure}
+The core rule: $\measuredangle(l,m) + \measuredangle(m,n) =
+\measuredangle(l,n)$; and $\measuredangle(l,m)=0$ iff the lines
+coincide.
+
+\begin{example}[Reverse angle chase: prove a line is tangent]\index{tangent!angle chase}
+Given $\triangle ABC$ with circumcircle $\omega$, show the line $\ell$
+through $A$ with $\measuredangle(\ell, AB) = \measuredangle ACB$ is
+tangent to $\omega$.
+
+\textbf{Strategy.} Don't prove tangency head-on --- chase backwards
+from the tangent criterion (a line is tangent iff its angle with the
+chord equals the inscribed angle in the opposite arc).
+
+\textbf{Solution.} Let $t$ be the tangent at $A$: then
+$\measuredangle(t,AB)=\measuredangle ACB$ by the tangent--chord
+theorem. But $\ell$ is defined by the \emph{same} angle on the same
+side, so $\ell=t$: the constructed line \emph{is} the tangent. (Each
+directed angle value determines a \emph{unique} ray through $A$ ---
+matching the tangent's angle means matching the tangent's line.)
+Reverse chasing converts ``prove tangent'' into ``match the tangent's
+angle''.
+\end{example}
+
+\section{Cyclic quadrilaterals}\index{cyclic quadrilateral}
+Half of olympiad geometry reduces to spotting (or building) a cyclic
+quad: $ABCD$ cyclic iff $\measuredangle ACB=\measuredangle ADB$ (equal
+angles on chord $AB$) iff $\angle A+\angle C=180^\circ$
+(Figure~\ref{fig:cyclic}). Proving concyclicity is often the entire
+problem in disguise.
+\begin{figure}[ht]\centering
+\input{figures/ch15-cyclic}
+\caption{Equal angles on a chord force concyclicity. Notice the converse
+is a construction tool: need two angles equal? Show the four points are
+concyclic.}
+\label{fig:cyclic}
+\end{figure}
+
+\section{The incenter/excenter lemma}\index{incenter/excenter lemma}
+\begin{lemma}
+Let $I$, $I_A$ be the incenter and $A$-excenter of $\triangle ABC$, and
+$M$ the midpoint of arc $BC$ not containing $A$ on the circumcircle.
+Then $M$ is equidistant from $B,I,C,I_A$: $MB=MI=MC=MI_A$.
+\end{lemma}
+\begin{proof}[Proof sketch]
+$\angle IBM$ splits as $\angle IBC + \angle CBM$; the first is $B/2$,
+the second equals $\angle CAM = A/2$ since both subtend arc $CM$ \dots
+the symmetric chase
+gives $\angle IBM = \angle BIM$, so $MB=MI$; excenter goes the same way
+with external bisectors (Figure~\ref{fig:incexc}).
+\end{proof}
+\begin{figure}[ht]\centering
+\input{figures/ch15-incexc}
+\caption{The incenter/excenter lemma: arc midpoint $M$ is secretly the
+center of a circle through $B,I,C,I_A$. Notice the pattern --- when
+four named points turn out concyclic, a ``configuration'' is present.}
+\label{fig:incexc}
+\end{figure}
+
+\section{Power of a point}\index{power of a point}
+For point $P$ and circle of radius $r$ center $O$: every secant through
+$P$ meets the circle in $A,B$ with $PA\cdot PB = OP^2-r^2$ (signed);
+for $P$ outside this equals $PT^2$ for tangent $PT$; for $P$ inside,
+$PA\cdot PB = r^2-OP^2$ (Figure~\ref{fig:power}). Two circles' equal-power
+locus is the \emph{radical axis}\index{radical axis}, a line; three
+circles give the \emph{radical center} where the three axes concur
+(Figure~\ref{fig:radical}).
+\begin{figure}[ht]\centering
+\input{figures/ch15-power}
+\caption{Power of a point, inside and out. Notice the value depends
+only on $OP$ --- the \emph{direction} of the secant is irrelevant, which
+is what makes it useful.}
+\label{fig:power}
+\end{figure}
+\begin{figure}[ht]\centering
+\input{figures/ch15-radical}
+\caption{The radical axis of two disjoint circles. Notice it exists
+even when the circles don't meet --- ``common chord'' generalizes to
+``equal-power locus''.}
+\label{fig:radical}
+\end{figure}
+
+\begin{example}[Two-secant length computation]\index{power of a point!example}
+Secants from $P$ cut a circle at $(A,B)$ and $(C,D)$ with $PA=3$,
+$AB=5$, $PC=2$. Find $CD$.
+
+\textbf{Strategy.} Pick the circle first, then the point --- the
+products $PA\cdot PB$ and $PC\cdot PD$ are the same number.
+
+\textbf{Solution.} $PA\cdot PB = 3\cdot 8 = 24 = PC\cdot PD = 2\cdot PD$
+so $PD=12$ and $CD=10$. The answer is the arithmetic of one invariant.
+\end{example}
+
+\section{Ceva, Menelaus, extended sine law}\index{Ceva}\index{Menelaus}
+Ceva: cevians $AD,BE,CF$ concur iff $\frac{BD}{DC}\cdot
+\frac{CE}{EA}\cdot\frac{AF}{FB}=1$ (directed lengths; the product is
+$+1$). Menelaus: a transversal cutting the three side-lines gives
+product $-1$ (directed sign distinguishes the two theorems)
+(Figure~\ref{fig:ceva}). The \emph{extended law of sines}: in any
+triangle $a/\sin A = 2R$, connecting ratios to the circumradius.
+\begin{figure}[ht]\centering
+\input{figures/ch15-ceva}
+\caption{Ceva and Menelaus side by side. Notice the directed-length
+convention is what makes the two statements differ in sign rather than
+in case lists.}
+\label{fig:ceva}
+\end{figure}
+\begin{example}[Medians concur --- and a ratio chase]\index{medians!concurrent}
+\textbf{Strategy.} For medians, every factor is $1$; for a nontrivial
+case, write the product in directed form and identify each factor.
+
+\textbf{Solution.} Medians: $BD=DC$ etc., product $1$, so the three
+medians concur. Ratio chase: if $D,E,F$ divide sides in ratios
+$x,y,z$ cyclically, concurrence iff $xyz=1$ --- e.g.\ cevians dividing
+sides in ratios $1/2, 3, 2/3$ concur since
+$\tfrac12\cdot3\cdot\tfrac23=1$.
+\end{example}
+
+\section{Homothety and spiral similarity}\index{homothety}
+A homothety (dilation) at center $Z$ ratio $k$ sends every figure to a
+similar one; a \emph{spiral similarity} composes it with a rotation ---
+and is the unique map taking one segment $AB$ to another $A'B'$
+directly. Circles tangent internally are homothety images of each other.
+
+\begin{example}[The nine-point circle exists]\index{nine-point circle}
+\textbf{Strategy.} Don't construct nine points --- find one dilation:
+the homothety at the orthocenter $H$ with ratio $\tfrac12$ should send
+the circumcircle onto the claimed circle.
+
+\textbf{Solution.} The homothety $h(H,\tfrac12)$ sends each vertex to
+the midpoint of its $H$-segment and the circumcircle to a circle
+$\Gamma$ through the three feet of the altitudes and the three
+midpoints of the sides' Euler segments; the homothety $h(G,-\tfrac12)$
+at the centroid sends the circumcircle to the circle through the side
+midpoints --- and both images coincide since $N$ is the midpoint of
+$OH$ (Figure~\ref{fig:ninept}). Existence is a corollary of finding the
+dilation; the nine points ride for free.
+\end{example}
+\begin{figure}[ht]\centering
+\input{figures/ch15-ninept}
+\caption{The nine-point circle as homothety image. Notice the proof is
+one map, not nine verifications --- the dilation \emph{is} the theorem.}
+\label{fig:ninept}
+\end{figure}
+
+\section{Inversion in a circle}\index{inversion}
+Inversion in circle $(O,r)$ sends $P\mapsto P'$ on ray $OP$ with
+$OP\cdot OP' = r^2$. It swaps inside/outside, reverses orientation, and
+converts between ``lines'' and ``circles through $O$''
+(Figure~\ref{fig:invert}): lines $\not\ni O \leftrightarrow$ circles
+$\ni O$; circles $\not\ni O \leftrightarrow$ circles $\not\ni O$.
+Choose the center where the problem's concurrency or tangency lives.
+\begin{figure}[ht]\centering
+\input{figures/ch15-invert}
+\caption{Inversion's image table. Notice what it trades: your mess of
+circles becomes lines --- and tangency (a hard thing to use) becomes
+parallelism or collinearity (easy).}
+\label{fig:invert}
+\end{figure}
+Worked transformation: to prove four circles share a common point,
+invert about one circle's center; the four become lines or circles
+through $O$ whose concurrency is a collinearity check. This chapter
+teaches recognition and one deployment; the deeper problem set lives in
+the Notes.
+
+\section{Analytic backup plans}\index{analytic geometry}
+Coordinates, areas, trigonometric form, and Ptolemy's inequality
+($AC\cdot BD \le AB\cdot CD + BC\cdot AD$ for any quadrilateral,
+equality iff cyclic) are the backup plan --- honest, mechanical, and
+sometimes strictly cheaper than synthetic insight. Fix scale and
+orientation first (e.g.\ unit circle at origin); choose analytic when
+the problem is asymmetric or the synthetic handle is invisible.
+
+\section{Summary}
+\begin{center}\small
+\begin{tabular}{@{}ll@{}}
+\toprule
+\textbf{Tool} & \textbf{What it buys} \\
+\midrule
+Directed angles & no case splits \\
+Cyclic quads & equal angles $\leftrightarrow$ concyclic \\
+Incenter/excenter & hidden circle centers \\
+Power of a point & $PA\cdot PB$ invariant \\
+Ceva/Menelaus & concurrency/collinearity $=\pm1$ \\
+Homothety & one map $=$ existence proof \\
+Inversion & circles $\leftrightarrow$ lines \\
+Coordinates/complex & the backup plan \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\section{Code: two numerical verifications}\index{power\_check}\index{invert.py}
+\texttt{power\_check.py} places coordinates and verifies
+$PA\cdot PB = PT^2 = OP^2-r^2$ plus the interior variant.
+\texttt{invert.py} inverts a sampled line and checks its image lies on
+the predicted circle through $O$.
+\begin{checkpoint}
+Predict the common value for $P=(2,1)$ on the unit circle, and which
+circle the line $x=1$ maps to under $r=2$ inversion. Then run both.
+\end{checkpoint}
+\begin{lstlisting}
+secant: PA*PB = 4.000000
+tangent: PT^2  = 4.000000
+agree: True
+interior: QA*QB = 0.870000 vs r^2-|OQ|^2 = 0.870000
+line x=1 -> 13 image points
+max distance from predicted circle (center (2,0), r=2): 4.44e-16
+inv(inv(P))=P check: (2.999..., 1.0) vs (3.0, 1.0)
+|OP|*|OP'| = 4.000 = r^2 = 4.0
+\end{lstlisting}
+\texttt{test\_15\_geom.sh} re-runs and greps the agreement lines.
+
+\section{Common mistakes}\index{geometry!mistakes}
+\begin{itemize}
+\item \emph{Unsigned angles landing on the supplement} --- the
+EGMO-errata mistake; directed angles exist precisely to prevent it.
+\item \emph{Ceva/Menelaus on unsigned ratios} --- the sign is the whole
+point; undirected products can't tell the theorems apart.
+\item \emph{Assuming concyclicity} --- three points always define a
+circle, four almost never do; prove it before using it.
+\item \emph{Wrong inversion center} --- the circle of inversion is a
+choice; put it at the concurrency or tangency point, and remember
+orientation flips.
+\item \emph{Unfixed coordinates} --- choosing axes before fixing scale
+and orientation doubles the algebra.
+\end{itemize}
+
+\section*{Exercises}
+\subsection*{Inline}
+\begin{exercise}[easy]\label{exr:g1}
+Show two parallel chords of a circle intercept equal arcs.
+\end{exercise}
+\begin{solution}
+Inscribed angles on equal arcs; directed angles give it in one line.
+\end{solution}
+\begin{exercise}[easy]\label{exr:g2}
+Secant: $PA=4$, $AB=6$; find $PT$ for a tangent from $P$.
+\end{exercise}
+\begin{solution}
+$PT^2 = 4\cdot10 = 40$, $PT=2\sqrt{10}$.
+\end{solution}
+\begin{exercise}[medium]\label{exr:g3}
+Prove the tangent--chord theorem used in the first worked example.
+\end{exercise}
+\begin{solution}
+Draw the diameter through the contact point; the tangent is
+perpendicular; inscribed-angle bookkeeping finishes.
+\end{solution}
+\begin{exercise}[medium]\label{exr:g4}
+Show the three radical axes of three circles (taken pairwise) concur at
+the radical center --- when they are not parallel.
+\end{exercise}
+\begin{solution}
+A point on two axes has equal power w.r.t.\ all three circles, so it
+lies on the third axis too.
+\end{solution}
+\begin{exercise}[medium]\label{exr:g5}
+Ceva: points $D,E,F$ on $BC,CA,AB$ with $BD/DC=2$, $CE/EA=1/2$,
+$AF/FB=1$. Concur?
+\end{exercise}
+\begin{solution}
+$2\cdot\tfrac12\cdot1 = 1$: yes.
+\end{solution}
+\begin{exercise}[medium]\label{exr:g6}
+Inversion: what is the image of a circle through $O$ under inversion
+about $(O,r)$?
+\end{exercise}
+\begin{solution}
+A line not through $O$ --- the ``missing point'' $O$ on the circle
+opens it into a line.
+\end{solution}
+\subsection*{Additional}
+\begin{exercise}[easy]\label{exr:ga1}
+Two secants: $PA\cdot PB = PC\cdot PD$ implies $A,B,C,D$ concyclic ---
+state and prove the converse.
+\end{exercise}
+\begin{solution}
+Equal powers put $P$ on both circles' radical axis --- the converse of
+power of a point gives the circle through $A,B,C,D$.
+\end{solution}
+\begin{exercise}[easy]\label{exr:ga2}
+Compute the power of the circle's own center $O$.
+\end{exercise}
+\begin{solution}
+$-r^2$ (signed) --- the minimum possible power.
+\end{solution}
+\begin{exercise}[easy]\label{exr:ga3}
+Angles on the same arc are equal --- give the directed-angle one-liner.
+\end{exercise}
+\begin{solution}
+$\measuredangle ACB=\measuredangle ADB$ iff $A,B,C,D$ concyclic; the
+proof is the inscribed-angle theorem with signs.
+\end{solution}
+\begin{exercise}[easy]\label{exr:ga4}
+A circle through $O$ inverts to a line --- what happens to $O$ itself?
+\end{exercise}
+\begin{solution}
+$O$ has no image ($OP\cdot OP'=r^2$ is degenerate at $0$); the line is
+the circle ``minus $O$'' closed at infinity.
+\end{solution}
+\begin{exercise}[medium]\label{exr:ga5}
+Use the incenter/excenter lemma to find the center of the circle through
+$B,I,C,I_A$ and its radius in terms of $M$'s position.
+\end{exercise}
+\begin{solution}
+Center $M$; radius $MB$ --- computable from $2R\sin(A/2)$.
+\end{solution}
+\begin{exercise}[medium]\label{exr:ga6}
+Ceva form of concurrency for angle bisectors: verify the incenter via
+the bisector theorem.
+\end{exercise}
+\begin{solution}
+By the angle-bisector theorem, $BD/DC=c/b$, and likewise for the other
+two bisectors; the product $\frac cb\cdot\frac ac\cdot\frac ba = 1$
+satisfies Ceva.
+\end{solution}
+\begin{exercise}[medium]\label{exr:ga7}
+Show a spiral similarity taking $AB\mapsto CD$ has center at the
+intersection of circles through $(A,C)$ and $(B,D)$ --- the
+``pivot theorem'' idea.
+\end{exercise}
+\begin{solution}
+The center sees $AC$ and $BD$ under the same rotation angle; the two
+circles' second intersection is it.
+\end{solution}
+\begin{exercise}[medium]\label{exr:ga8}
+Ptolemy: prove $AC\cdot BD = AB\cdot CD + BC\cdot AD$ for cyclic $ABCD$
+by the inscribed-angle trick on the diagonal.
+\end{exercise}
+\begin{solution}
+Take $E$ on $AC$ with $\angle ABE=\angle DBC$; two similar triangles
+give the two products.
+\end{solution}
+\begin{exercise}[medium]\label{exr:ga9}
+Implement-or-derive: extend \texttt{power\_check.py} to the interior
+case for a \emph{random} chord through $Q$, 100 trials.
+\end{exercise}
+\begin{solution}
+Loop over random directions; every trial's $QA\cdot QB$ lands on
+$r^2-|OQ|^2$ to machine precision.
+\end{solution}
+\begin{exercise}[hard]\label{exr:ga10}
+Prove the radical axis is a line, not just a locus.
+\end{exercise}
+\begin{solution}
+$|PO_1|^2-r_1^2 = |PO_2|^2-r_2^2$ expands to a linear equation in
+$P$'s coordinates --- the quadratic parts cancel.
+\end{solution}
+\begin{exercise}[hard]\label{exr:ga11}
+Inversion converts the statement ``two circles are orthogonal'' into
+what on their images?
+\end{exercise}
+\begin{solution}
+Angle-preserving (conformal) maps preserve orthogonality; a circle
+orthogonal to the inversion circle maps to itself.
+\end{solution}
+\begin{exercise}[hard]\label{exr:ga12}
+Derive the nine-point circle radius in terms of $R$ and locate its
+center on the Euler line.
+\end{exercise}
+\begin{solution}
+Radius $R/2$ (the $\tfrac12$ homothety); center $N$ at the midpoint of
+$OH$, between $G$ and $H$ on the Euler line $O$--$G$--$N$--$H$.
+\end{solution}
+
+\section*{Notes}
+The configuration-first pedagogy and directed-angles-early order follow
+EGMO's table of contents and its errata~\cite{egmo}; the
+incenter/excenter lemma, the pivot theorem and the inversion image table
+follow Chen's geometry handouts~\cite{chen-geom}. Zhao's
+cyclic-quadrilateral, power-of-a-point and ``Three Lemmas'' handouts
+carry the full inversion problem set routed here by the merge
+decision~\cite{zhao}. Ceva/Menelaus in directed form and the analytic
+backups follow Engel~\cite{engel}. Contest uses: 2024 AIME I P10, P5,
+P8, P12; 2023 AIME I P5, P8; 2023 AIME II P9, P12; 2022 AIME I P8; 2021
+AIME I P11, P13; 2020 AIME I P1, P15; 2018 AIME I P4, P13, P15; 2015
+AIME I P11; 2025 AIME II P1, P5/P6; 2024 AMC 12A P19; USAJMO 2024 P1,
+P6; 2023 USAJMO P2, P6.
+
+\chapternotes

@@ -1,0 +1,22 @@
+% Figure: the direct-proof template --- assume, derive, conclude.
+% Source for Figure~\ref{fig:prooftemplate}. TikZ only; regenerable by compiling main.tex.
+\begin{tikzpicture}[
+  stage/.style={draw,rounded corners=2pt,inner sep=6pt,font=\small,text width=64mm,align=flush left},
+  arr/.style={->,accent,thick},
+  lab/.style={font=\footnotesize\sffamily,text=slate,text width=36mm,align=flush left},
+]
+\node[stage] (a) at (0,0) {\textbf{Assume.} Unfold the hypotheses into their
+definitions --- ``$n$ is even'' becomes ``$n = 2k$ for some integer $k$''.};
+\node[stage] (d) at (0,-2.3) {\textbf{Derive.} Write a chain of steps; each line
+is licensed by a definition, an axiom, or a theorem already proved.};
+\node[stage] (c) at (0,-4.5) {\textbf{Conclude.} Stop the instant the goal lands
+and restate it --- ``therefore $n+m$ is even''.};
+\draw[arr] (a.south) -- (d.north);
+\draw[arr] (d.south) -- (c.north);
+\node[lab,anchor=north west] at (3.7,0.1) {the hypotheses are the only raw
+material you start with};
+\node[lab,anchor=north west] at (3.7,-2.25) {every step cites its licence ---
+nothing enters ``obviously''};
+\node[lab,anchor=north west] at (3.7,-4.4) {one clean landing; do not keep
+writing past it};
+\end{tikzpicture}

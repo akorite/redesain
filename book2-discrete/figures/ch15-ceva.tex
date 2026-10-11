@@ -1,0 +1,25 @@
+% Figure: Ceva and Menelaus side by side with directed-segment arrows.
+% Source for Figure~\ref{fig:ceva}. TikZ only; regenerable by compiling main.tex.
+\begin{tikzpicture}[
+  lab/.style={font=\footnotesize\sffamily,text=slate,align=center},
+  pt/.style={circle,fill=ink,inner sep=1.3pt},
+]
+% Ceva triangle
+\node[pt,label={[lab]above:$A$}] (A) at (-3.2,1.4) {};
+\node[pt,label={[lab]left:$B$}] (B) at (-4.4,-1.0) {};
+\node[pt,label={[lab]right:$C$}] (C) at (-2.0,-1.0) {};
+\draw[ink] (A) -- (B) -- (C) -- cycle;
+\coordinate (D) at (-3.6,-1.0);
+\coordinate (E) at (-2.6,0.2);
+\coordinate (F) at (-3.9,0.3);
+\draw[accent] (A) -- (D); \draw[accent] (B) -- (E); \draw[accent] (C) -- (F);
+\foreach \p/\n in {D/D,E/E,F/F} \node[lab] at (\p) [below right=-2pt] {\tiny\n};
+\node[lab] at (-3.2,-1.9) {Ceva: $\frac{BD}{DC}\frac{CE}{EA}\frac{AF}{FB}=1$};
+% Menelaus triangle
+\node[pt,label={[lab]above:$A'$}] (A2) at (1.6,1.4) {};
+\node[pt,label={[lab]left:$B'$}] (B2) at (0.4,-1.0) {};
+\node[pt,label={[lab]right:$C'$}] (C2) at (2.8,-1.0) {};
+\draw[ink] (A2) -- (B2) -- (C2) -- cycle;
+\draw[accent,dashed,thick] (0.6,-0.35) -- (3.6,-0.05);
+\node[lab] at (1.6,-1.9) {Menelaus: a transversal gives $= -1$};
+\end{tikzpicture}

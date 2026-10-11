@@ -1,0 +1,459 @@
+\chapter{Induction}\label{ch:induction}
+\index{induction}
+
+A claim about every $n \ge 1$ cannot be proved one $n$ at a time --- there are
+infinitely many. Induction is the machine that handles all of them in one
+argument: prove the first case by hand, then prove that each case carries the
+next. After this chapter you will be able to run that machine in its two
+standard gears (ordinary and strong induction), recognise its disguise
+(the minimal-counterexample argument), audit other people's uses of it ---
+and construct a geometric induction like the tromino tiling, not just an
+algebraic one. Chapters 5, 7 and 9 run on it constantly.
+
+\section{The domino idea and the template}\label{sec:domino}
+
+Suppose $P(n)$ is a statement about an integer $n$. To establish
+``$P(n)$ for all $n \ge b$'' by induction, you prove exactly two things:
+
+\begin{definition}[Principle of mathematical induction]\index{induction!principle of}
+If (i) \emph{base case}: $P(b)$ is true, and (ii) \emph{inductive step}: for
+every $n \ge b$, $P(n) \Rightarrow P(n+1)$, then $P(n)$ holds for all $n \ge b$.
+Inside the step, the assumed $P(n)$ is called the \emph{inductive
+hypothesis}\index{inductive hypothesis} (I.H.).
+\end{definition}
+
+\begin{figure}[ht]\centering
+\input{figures/ch03-dominoes}
+\caption{The machine's two parts. Notice that neither part alone does anything:
+the fallen first domino without working links knocks over nothing, and working
+links without a first domino have nothing to transmit.}
+\label{fig:dominoes}
+\end{figure}
+
+The template below is compulsory in this book, on exams, and in the portfolio:
+graders grade the parts, and the parts are where induction proofs break.
+
+\begin{rulebox}[The induction template]
+\index{induction!template}
+\begin{enumerate}
+\item \textbf{State $P(n)$} --- write the claim as a named predicate on $n$.
+\item \textbf{Base case} --- prove $P(b)$ directly.
+\item \textbf{Inductive step} --- ``Let $n \ge b$. Assume $P(n)$.'' Derive
+$P(n+1)$, marking the exact line where the I.H. was used.
+\item \textbf{Conclusion} --- ``By induction, $P(n)$ holds for all $n \ge b$.''
+\end{enumerate}
+\end{rulebox}
+
+Why does the template work? Informally: $P(b)$ starts the chain and the step
+transmits it; formally it is equivalent to the well-ordering principle of
+Section~\ref{sec:wop}. Until then, treat the machinery as a licence granted by
+Chapter~\ref{ch:proof}'s rules --- the step is an ordinary conditional proof
+($P(n) \Rightarrow P(n+1)$) nested inside a bigger claim.
+
+\section{Sums and formulas by induction}\label{sec:suminduct}
+
+Sum formulas are induction's home turf, and they teach the single most-used
+move: \emph{peel the last term} so the I.H. has something to bite.
+
+\begin{example}\label{ex:gauss}
+Prove: for every $n \ge 1$, $\displaystyle\sum_{k=1}^{n} k = \frac{n(n+1)}{2}$.
+\par\smallskip
+\textbf{Strategy.} Template first: name $P(n)$, prove $P(1)$, then in the step
+split the sum at $k=n$ so $\sum_{k=1}^{n} k$ appears --- that subexpression
+\emph{is} the I.H., and the rest is algebra.
+\par\smallskip
+\begin{solution}
+Let $P(n)$ be the claim $\sum_{k=1}^{n} k = n(n+1)/2$.
+\emph{Base.} $P(1)$: $\sum_{k=1}^{1} k = 1 = 1\cdot 2/2$. Check.
+\emph{Step.} Let $n \ge 1$ and assume $P(n)$: $\sum_{k=1}^{n} k = n(n+1)/2$. Then
+\[
+\sum_{k=1}^{n+1} k = \left(\sum_{k=1}^{n} k\right) + (n+1)
+\overset{\text{I.H.}}{=} \frac{n(n+1)}{2} + (n+1)
+= \frac{(n+1)(n+2)}{2},
+\]
+which is exactly $P(n+1)$. \emph{Conclusion.} By induction, $P(n)$ holds for
+all $n \ge 1$.
+\end{solution}
+\end{example}
+
+Two things to copy: the I.H. is marked where it enters (never let a grader hunt
+for it), and the goal $P(n+1)$ was kept in sight --- the whole middle of the
+step is traffic between those two endpoints.
+
+\begin{exercise}[easy]\label{exr:sumsq}
+Prove by induction: $\sum_{k=1}^{n} k^2 = \frac{n(n+1)(2n+1)}{6}$.
+(Same engine: peel the last term.)
+\end{exercise}
+
+\section{Induction for inequalities}\label{sec:ineqinduct}
+
+Induction proves inequalities too, but the step is an algebraic squeeze, not a
+substitution: you chain $\le$ and $\ge$ signs from the I.H. to the target, and
+each link needs its own reason.
+
+\begin{example}\label{ex:2nvsn2}
+Prove: $2^n > n^2$ for every integer $n \ge 5$.
+\par\smallskip
+\textbf{Strategy.} The claim is false below $5$ (check $n=2,3,4$ --- the base
+window matters), so induct from $n=5$. In the step, the I.H. gives $2 \cdot
+2^n > 2n^2$; the remaining job is the auxiliary inequality $2n^2 \ge (n+1)^2$,
+which holds once $n \ge 3$. Every $\ge$ gets a name.
+\par\smallskip
+\begin{solution}
+Let $P(n)$ be ``$2^n > n^2$''. \emph{Base.} $P(5)$: $32 > 25$. \emph{Step.}
+Let $n \ge 5$ and assume $2^n > n^2$. Then
+$2^{n+1} = 2 \cdot 2^n \overset{\text{I.H.}}{>} 2n^2$. And for $n \ge 3$,
+$2n^2 - (n+1)^2 = n^2 - 2n - 1 = (n-1)^2 - 2 \ge 2 > 0$, so $2n^2 > (n+1)^2$
+and $2^{n+1} > (n+1)^2$. \emph{Conclusion.} By induction, $P(n)$ holds for
+all $n \ge 5$.
+\end{solution}
+\end{example}
+
+\begin{tripwire}
+\index{base case!wrong window}
+An inequality that is true ``eventually'' is only proved from where it starts.
+$2^n > n^2$ fails at $n=2,3,4$; proving $P(5)$ and the step for $n \ge 5$ is
+not optional bookkeeping --- it is the claim.
+\end{tripwire}
+
+\begin{exercise}[medium]\label{exr:factorial}
+Prove by induction: $n! > 2^n$ for all $n \ge 4$. (Find the smallest working
+base first.)
+\end{exercise}
+
+\section{Strong induction}\label{sec:strong}
+\index{strong induction}
+
+Ordinary induction lets the step lean on $P(n)$ only. \emph{Strong induction}
+lets it lean on \emph{every} earlier case:
+to prove $\forall n \ge b\;P(n)$, prove base cases
+$P(b), P(b{+}1), \dots, P(b{+}s{-}1)$ and the step
+$\bigl(P(b) \land P(b{+}1) \land \cdots \land P(n)\bigr) \Rightarrow P(n+1)$
+for all $n \ge b{+}s{-}1$. The number of base cases $s$ equals how far back the
+step reaches --- Figure~\ref{fig:reachback} draws the difference.
+
+\begin{figure}[ht]\centering
+\input{figures/ch03-reachback}
+\caption{What each gear is allowed to lean on. Notice the strong row needs a
+\emph{window} of base cases: if the step reaches back $s$ positions, the
+dominoes inside reach of no step must be toppled by hand.}
+\label{fig:reachback}
+\end{figure}
+
+\begin{example}[Postage]\label{ex:postage}
+Prove: every integer $n \ge 12$ can be written as $n = 3a + 7b$ for some
+nonnegative integers $a, b$.
+\par\smallskip
+\textbf{Strategy.} Adding $3$ moves forward in steps of $3$, so the step will
+reach back three positions: $P(n-2) \Rightarrow P(n+1)$. A reach of $3$ needs
+a base window of $3$ consecutive cases --- check $12, 13, 14$ by hand.
+\par\smallskip
+\begin{solution}
+Let $P(n)$ be ``$n = 3a + 7b$ for some $a, b \in \Z_{\ge 0}$''.
+\emph{Base.} $12 = 3\cdot 4 + 7\cdot 0$, $13 = 3\cdot 2 + 7\cdot 1$,
+$14 = 3\cdot 0 + 7\cdot 2$.
+\emph{Step.} Let $n \ge 14$ and assume $P(m)$ for all $12 \le m \le n$. Then
+$n+1 \ge 15$, so $n - 2 \ge 12$ and $n - 2 \le n$; by the I.H.,
+$n - 2 = 3a + 7b$ for some $a, b \ge 0$. Then $n + 1 = 3(a+1) + 7b$.
+\emph{Conclusion.} By strong induction, $P(n)$ holds for all $n \ge 12$.
+\end{solution}
+\end{example}
+
+Note $n=11$ has no such representation --- $12$ is the honest base, not a
+convenience. This is a baby Frobenius problem; the general theory waits for
+Chapter~5's gcd machinery.
+
+\begin{exercise}[medium]\label{exr:postage}
+Prove every $n \ge 4$ is $2a + 5b$ for nonnegative $a,b$. How wide is your
+base window?
+\end{exercise}
+
+\section{Well-ordering: induction in disguise}\label{sec:wop}
+\index{well-ordering principle}
+
+\begin{definition}[Well-ordering principle]
+Every nonempty subset of $\N$ has a least element.
+\end{definition}
+
+WOP and induction are the same engine in different clothes. The translation is
+the \emph{minimal counterexample}\index{minimal counterexample} template:
+suppose some $n$ fails $P(n)$; take the \emph{smallest} failure $n_0$ (WOP
+supplies it); then every smaller case holds, and the inductive step applied at
+$n_0 - 1$ produces $P(n_0)$ --- contradiction. If you can prove the step but
+induction bookkeeping annoys you, WOP is the same argument with the accounting
+hidden.
+
+\begin{theorem}\label{thm:primefactor}
+Every integer $n \ge 2$ has a prime factor.
+\end{theorem}
+
+\begin{proof}
+Suppose not, and let $n_0 \ge 2$ be the smallest counterexample (well-ordering).
+Then $n_0$ is not prime --- otherwise it is its own prime factor --- so
+$n_0 = ab$ with $2 \le a, b < n_0$. By minimality of $n_0$, the integer $a$ has
+a prime factor $p$, and $p \mid a \mid n_0$ makes $p$ a prime factor of $n_0$:
+contradiction.
+\end{proof}
+
+Compare with strong induction on the same claim: the ``smallest failure''
+plays the role of $n+1$, and ``every smaller case'' is exactly the strong
+hypothesis. Same proof, two costumes --- keep both, because some arguments
+(descent, Section~\ref{sec:structure}'s fake proof) read more naturally as
+minimal counterexamples.
+
+\section{Structural examples: a tiling, a recurrence, a fake proof}
+\label{sec:structure}
+\index{structural induction}
+
+Induction is not only algebra. The object being inducted on can be a board, a
+tree, a formula --- anything with a \emph{size} that decomposes into smaller
+instances of itself.
+
+\begin{example}[The tromino tiling]\label{ex:tromino}
+An $L$-tromino covers three cells in an L shape. Prove: for every $n \ge 1$,
+a $2^n \times 2^n$ board with any one cell removed can be tiled by L-trominos.
+\par\smallskip
+\textbf{Strategy.} Induct on $n$: the base $2 \times 2$ minus a cell \emph{is}
+one tromino. For the step, the board must be made to look like four smaller
+instances --- cut it into four $2^{n-1} \times 2^{n-1}$ quadrants. The hole
+lives in one quadrant; place a single L-tromino on the three centre cells of
+the other quadrants. Now \emph{every} quadrant is a $2^{n-1}$ board with one
+cell spoken for --- the I.H. finishes each.
+\par\smallskip
+\begin{solution}
+Let $P(n)$ be the claim for $2^n$ boards. \emph{Base.} $P(1)$: a $2 \times 2$
+board missing one cell is exactly one L-tromino. \emph{Step.} Let $n \ge 2$
+and assume $P(n-1)$: every $2^{n-1} \times 2^{n-1}$ board with one cell
+removed is tileable. Given a $2^n \times 2^n$ board with a hole, quarter it.
+The quadrant containing the hole is a $2^{n-1}$ board missing a cell; the
+other three quadrants each lose one cell to the single centre tromino we place
+(Figure~\ref{fig:tromino}, second panel). Apply the I.H. to all four.
+\emph{Conclusion.} By induction, $P(n)$ holds for all $n \ge 1$.
+\end{solution}
+\end{example}
+
+\begin{figure}[ht]\centering
+\input{figures/ch03-tromino}
+\caption{The induction at work. Notice what the step actually needs: one L
+placed at the centre converts ``one quadrant has a hole'' into ``every quadrant
+has a hole'' --- after which four copies of $P(n-1)$ finish the job. The last
+panel is a real tiling produced by Listing~\ref{lst:tiling}'s algorithm.}
+\label{fig:tromino}
+\end{figure}
+
+The proof is not just existence --- it is a construction recipe, and it runs:
+
+\begin{checkpoint}[Predict before you run]
+Listing~\ref{lst:tiling} tiles an $8 \times 8$ board with hole $(5,3)$. Before
+running: predict the number of trominos ($(4^3 - 1)/3$ --- why is it an
+integer?), and predict whether any cell can be covered twice.
+\end{checkpoint}
+
+\begin{lstlisting}[language=Python,caption={\texttt{verify\_tiling.py}: the
+proof, compiled. Recursion \emph{is} the induction.},
+label={lst:tiling}]
+def tile(board, top, left, size, hr, hc, tid):
+    if size == 2:                      # base: one L fills the non-hole cells
+        ...
+    h = size // 2
+    q = (hr >= top+h)*2 + (hc >= left+h)      # quadrant holding the hole
+    ...  # centre tromino covers one cell of each other quadrant
+    for i, (qt, ql) in enumerate(origins):    # recurse into all four
+        nhr, nhc = (hr, hc) if i == q else centers[i]
+        tid = tile(board, qt, ql, h, nhr, nhc, tid)
+\end{lstlisting}
+The full script (in \texttt{code/verify\_tiling.py}) runs the construction on
+$8\times 8$ and prints each tromino as a letter. Its real output:
+\begin{lstlisting}[numbers=none]
+board 8x8, hole at (5,3)
+C C D D H H I I
+C B B D H G G I
+E B F F J J G K
+E E F A A J K K
+M M N N A R S S
+M L N # R R Q S
+O L L P T Q Q U
+O O P P T T U U
+trominos used: 21, cells covered: 63, expected: 21
+\end{lstlisting}
+Each letter is one tromino --- read the grid and you can \emph{see} the
+quartering: the centre L is \texttt{A}, and each $4\times4$ quadrant repeats
+the construction inside itself.
+
+Induction is also how closed forms for recurrences get proved --- guess a
+formula, then verify the step preserves it (Chapter~10 owns this; contest
+sequences like Fibonacci identities are already fair game, e.g.\
+AMC~12~2024~B~P18~\cite{aops-amc}).
+
+Finally, the autopsy every student owes themselves once --- the most famous
+broken induction ever written:
+
+\begin{example}[Fake-proof autopsy: all horses one colour]\label{ex:horses}
+``Theorem'': all horses are the same colour. ``Proof'': induct on the number
+of horses. \emph{Base}: one horse has one colour. \emph{Step}: given $n+1$
+horses, remove one --- the remaining $n$ share a colour by the I.H.; swap it
+back and remove a different one --- again one colour; since both groups share
+horses, all $n+1$ agree. Where does it break?
+\par\smallskip
+\textbf{Strategy.} Do not hunt for a subtle logical flaw --- hunt for the
+smallest $n$ where the step's \emph{ingredients} stop existing. The argument
+needs the two $(n)$-horse groups to \emph{share} a horse to transfer colour
+through. When do they not?
+\par\smallskip
+\begin{solution}
+At $n+1 = 2$: the groups $\{h_1\}$ and $\{h_2\}$ share nothing ---
+Figure~\ref{fig:horses} marks the dead link. The step itself is genuinely
+valid for every $n \ge 3$ (the shared middle horse transfers colour), but
+validity alone never fires it: with no proof of $P(2)$, the link from
+$P(1)$ to $P(2)$ is missing, so $P(2), P(3), P(4), \dots$ are all left
+unestablished --- only $P(1)$ was ever proved. A single missing link kills
+the entire chain from the break onward.
+\end{solution}
+\end{example}
+
+\begin{figure}[ht]\centering
+\input{figures/ch03-horses}
+\caption{Why the horses proof dies at $n=2$. Notice the colour-transfer
+mechanism is real for $n \ge 3$ --- the fake proof fails on the \emph{reach}
+of the step, not on its logic. This is the commonest way inductions break in
+the wild.}
+\label{fig:horses}
+\end{figure}
+
+\begin{exercise}[medium]\label{exr:fake}
+A ``proof'' claims every $n \ge 0$ satisfies $n = 0$, because $P(0)$ holds and
+$P(n) \Rightarrow P(n+1)$ is proved by ``adding nothing to both sides of
+$n = 0$''. Identify the actual failure.
+\end{exercise}
+
+\section{Choosing what to induct on}\label{sec:choosevar}
+\index{induction!choosing the variable}
+
+The template asks one question most students skip: \emph{what is $n$?}
+The statement's variable is the default, but any quantity that measures the
+problem's size works --- board dimension, set cardinality, string length,
+number of operators. Rule of thumb: induct on the quantity the problem
+\emph{decomposes along}. A $2^n$ board splits along $n$; a graph along $|V|$;
+a sum along its term count.
+
+A subtler choice: the \emph{claim itself}. Sometimes $P(n)$ is too weak to
+carry the step, and the fix is \emph{inductive loading} --- prove a
+\emph{stronger} statement so the I.H. gives you more. Classic instance: bound
+$\sum_{k=1}^{n} 1/k^2 < 2$ directly and the step stalls (the surplus shrinks);
+prove the stronger $\sum_{k=1}^{n} 1/k^2 \le 2 - 1/n$ and the step goes
+through cleanly. Chapter~13 uses this move for inequalities.
+
+\begin{exercise}[easy]\label{exr:choose}
+For each claim, name what you would induct on: (a) every full binary tree with
+$\ell$ leaves has $2\ell - 1$ vertices; (b) every $n \ge 60$ is a sum of
+$6$'s, $9$'s and $20$'s; (c) a formula with $m$ operators has at most $m+1$
+variables.
+\end{exercise}
+
+\section{Chapter summary}
+\begin{table}[ht]\centering
+\begin{tabularx}{\linewidth}{@{}lYYY@{}}
+\toprule
+\tablehead\thead{Situation} & \thead{Gear} & \thead{Base obligation} & \thead{Step obligation}\\
+\midrule
+standard $\forall n \ge b$ & induction & $P(b)$ & $P(n) \Rightarrow P(n+1)$\\
+step reaches back $s$ & strong induction & $s$ consecutive bases & all of $P(b..n) \Rightarrow P(n+1)$\\
+``no smallest bad case'' style & well-ordering & --- & smallest failure contradicts itself\\
+algebraic sum/formula & peel last term & check by hand & split so the I.H. appears\\
+inequality (eventual) & squeeze & the \emph{first} true $n$ & name every $\ge$ link\\
+structure that decomposes & structural & smallest instance & reassemble smaller copies\\
+claim too weak for the step & strengthen $P(n)$ & stronger base & stronger I.H. carries it\\
+\bottomrule
+\end{tabularx}
+\caption{The induction menu on one page. The right column is where each
+variant actually breaks in student work --- check it before submitting.}
+\label{tab:induction}
+\end{table}
+
+\section{Common mistakes}
+\index{common mistakes}
+\begin{itemize}
+\item \textbf{No base case --- or the wrong window.} The horses proof dies
+exactly here: a step valid only from $n \ge 3$ needs $P(1)$ \emph{and} $P(2)$
+checked by hand. Always ask: how far back does my step reach? That distance
+is your base window.
+\item \textbf{Using the conclusion inside the step.} ``Assume $P(n+1)$\dots''
+or quietly writing $\sum_{k=1}^{n+1} = \frac{(n+1)(n+2)}{2}$ mid-derivation is
+assuming what you must prove. The I.H. covers $P(n)$ (or earlier), never
+$P(n+1)$.
+\item \textbf{Inducting on the wrong variable.} On a two-parameter claim
+($2^n \times 2^n$ boards, $n \times m$ grids), inducting on the wrong
+coordinate gives a step that cannot decompose the object. Induct on the
+quantity the structure splits along (Section~\ref{sec:choosevar}).
+\end{itemize}
+
+\section{Additional exercises}
+\begin{exercise}[easy]
+Prove by induction: $\sum_{k=1}^{n} (2k - 1) = n^2$. (What does the picture
+of $n^2$ as nested Ls say?)
+\end{exercise}
+\begin{exercise}[easy]
+Prove by induction: $\sum_{k=1}^{n} k \cdot k! = (n+1)! - 1$.
+\end{exercise}
+\begin{exercise}[easy]
+Prove: $3 \mid (4^n - 1)$ for all $n \ge 0$. (This is why $21 = (4^3-1)/3$
+trominos was guaranteed to be an integer.)
+\end{exercise}
+\begin{exercise}[easy]
+Each of these inductions is broken --- name the failure type from Common
+mistakes: (a) a proof that all integers are equal (``true for $n$ implies
+true for $n+1$ by symmetry''); (b) a proof of $\sum k^3 = n^4$ whose step
+``assumes the formula for $n+1$ and verifies it''.
+\end{exercise}
+\begin{exercise}[medium]
+Prove: $n^3 - n$ is divisible by $6$ for all $n \ge 0$, once by induction and
+once by the factorisation $n^3 - n = (n-1)n(n+1)$.
+\end{exercise}
+\begin{exercise}[medium]
+Prove by induction: $F_1 + F_2 + \cdots + F_n = F_{n+2} - 1$, where
+$F_1 = F_2 = 1$. (Fibonacci sums are AMC staples --- see
+AMC~12~2024~B~P18~\cite{aops-amc}.)
+\end{exercise}
+\begin{exercise}[medium]
+Prove: every $n \ge 1$ has a binary representation $n = \sum 2^{a_i}$ with
+distinct exponents, by strong induction. (Halve $n$ and read the parity; the
+$n=1$ base is $2^0$.)
+\end{exercise}
+\begin{exercise}[medium]
+Prove by minimal counterexample: every rational number has a lowest-terms
+representative $p/q$ with $\gcd(p,q) = 1$. (Take the smallest denominator.)
+\end{exercise}
+\begin{exercise}[hard]
+Prove that for every $n \ge 1$, a $2^n \times 2^n$ board missing \emph{two}
+cells can never be tiled by L-trominos. (Area: $(4^n - 2)/3$ must be an
+integer --- prove $4^n \equiv 1 \pmod 3$ by induction, so the count is never
+one.)
+\end{exercise}
+\begin{exercise}[hard]
+Extend \texttt{code/verify\_tiling.py} so the hole can be \emph{any} cell and
+the board any $2^k$ (try $16 \times 16$). Then prove the count invariant:
+the printed number of trominos is always $(4^n - 1)/3$, and prove by
+induction that $3 \mid 4^n - 1$ so the count is always an integer.
+\end{exercise}
+\begin{exercise}[hard]
+Strengthened induction. Prove directly that $\sum_{k=1}^{n} 1/k^2 < 2$
+stalls, then prove the stronger $\sum_{k=1}^{n} 1/k^2 \le 2 - 1/n$ by
+induction. Explain in one sentence why a stronger claim can be easier.
+\end{exercise}
+
+\chapternotes
+The domino template, the base-window discipline, and the strong-vs-ordinary
+reformulation follow MIT 6.042J's induction and well-ordering chapters, which
+also supplied the WOP$\,\Leftrightarrow\,$induction equivalence and the
+``bogus proofs'' tradition our autopsy section continues~\cite{mcs}.
+Velleman's induction chapter organises proofs by the same
+strategy-first pattern this book uses~\cite{velleman}, and Hammack's chapter 10
+supplied the inequality-by-induction examples~\cite{hammack}. The tromino
+theorem is the classic first structural induction (a Cut-the-Knot staple;
+the constructive proof here is the standard
+one~\cite{cuttheknot}); Engel's induction chapter catalogues the
+choosing-the-variable and strengthen-the-claim moves of
+Section~\ref{sec:choosevar}~\cite{engel}. Contest sequence problems named in
+this chapter (AMC~12~2024~A~P21, AMC~12~2024~B~P18, AIME~2021~I~P10,
+AIME~2025~II~P13, AMC~12~2023~A~P20, AMC~12~2023~A~P25) live on the AoPS
+archive~\cite{aops-amc} --- they are inductions wearing arithmetic clothes.

@@ -1,0 +1,24 @@
+% Figure: Konigsberg schematic -> multigraph (4 land masses, 7 bridges).
+% Source for Figure~\ref{fig:konig}. TikZ only; regenerable by compiling main.tex.
+\begin{tikzpicture}[
+  vx/.style={circle,draw=ink,fill=ink!10,inner sep=2.4pt,minimum size=9mm,font=\footnotesize},
+  lab/.style={font=\footnotesize\sffamily,text=slate},
+]
+% schematic left
+\draw[rulegray!50,fill=rulegray!12] (-3.2,-0.2) rectangle (-0.2,0.4); % top bank
+\draw[rulegray!50,fill=rulegray!12] (-3.2,-2.2) rectangle (-0.2,-1.6); % bottom bank
+\draw[rulegray!50,fill=rulegray!12] (-2.4,-0.6) ellipse (0.55 and 0.3); % island top
+\draw[rulegray!50,fill=rulegray!12] (-1.0,-1.4) ellipse (0.55 and 0.3); % island bottom
+\foreach \x/\y in {-2.4/-0.35,-2.4/-1.05,-1.0/-0.35,-1.0/-1.35,-2.4/-1.9,-1.0/-1.95,-1.7/-0.7}
+  \draw[accent,thick] (\x,\y) -- ++(0.32,0.05);
+\node[lab] at (-1.7,-2.9) {the map (schematic)};
+% multigraph right
+\node[vx] (A) at (1.4,0.8) {A};
+\node[vx] (B) at (3.4,0.8) {B};
+\node[vx] (C) at (1.4,-1.2) {C};
+\node[vx] (D) at (3.4,-1.2) {D};
+\draw[rulegray,thick] (A) to[bend left=25] (B);
+\draw[rulegray,thick] (A) to[bend right=25] (B);
+\draw[rulegray,thick] (A)--(C) (A)--(D) (B)--(C) (B)--(D) (C)--(D);
+\node[lab] at (2.4,-2.2) {the multigraph: all four degrees odd};
+\end{tikzpicture}

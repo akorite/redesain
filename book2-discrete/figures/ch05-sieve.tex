@@ -1,0 +1,28 @@
+% Figure: Sieve of Eratosthenes to 60 --- composites struck, primes boxed.
+% Source for Figure~\ref{fig:sieve}. TikZ only; regenerable by compiling main.tex.
+\begin{tikzpicture}[
+  cell/.style={minimum width=5.6mm,font=\scriptsize},
+  pr/.style={font=\scriptsize\bfseries,text=accent},
+  st/.style={font=\scriptsize,text=rulegray},
+  lab/.style={font=\footnotesize\sffamily,text=slate},
+]
+% pass 1: every number grey (struck) except 1
+\foreach \n in {1,...,60}
+{
+  \pgfmathtruncatemacro{\rw}{(\n-1)/10}
+  \pgfmathtruncatemacro{\cl}{mod(\n-1,10)}
+  \node[cell,st] at (\cl*0.58,-\rw*0.42) {\n};
+}
+% pass 2: the 17 primes <= 60, boxed in accent
+\foreach \p in {2,3,5,7,11,13,17,19,23,29,31,37,41,43,47,53,59}
+{
+  \pgfmathtruncatemacro{\rw}{(\p-1)/10}
+  \pgfmathtruncatemacro{\cl}{mod(\p-1,10)}
+  \node[cell,pr,fill=white,inner sep=0.5pt] at (\cl*0.58,-\rw*0.42) {\p};
+  \draw[accent,rounded corners=1pt] (\cl*0.58-0.24,-\rw*0.42-0.14) rectangle (\cl*0.58+0.24,-\rw*0.42+0.14);
+}
+\node[lab,anchor=west] at (6.1,-1.0) {grey: struck by 2, 3, 5 or 7};
+\node[lab,anchor=west] at (6.1,-1.4) {boxed: the 17 primes $\le 60$};
+\node[lab,anchor=west] at (6.1,-2.0) {sieves stop at $\sqrt{60}$ ---};
+\node[lab,anchor=west] at (6.1,-2.4) {every composite has a factor $\le\sqrt{n}$};
+\end{tikzpicture}

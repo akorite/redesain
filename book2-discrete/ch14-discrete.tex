@@ -1,0 +1,324 @@
+\chapter{Functional equations}\index{functional equation}
+
+A functional equation\index{functional equation!definition} asks for
+every function satisfying a relation like $f(x+y)=f(x)+f(y)$ --- not a
+value, a \emph{family}. Solving one is a two-directions discipline: find
+candidates, then prove nothing else works. This chapter is the toolkit:
+candidate guessing, substitution tactics, injectivity/surjectivity
+milestones, Cauchy's equation done honestly, and the feedback step most
+solutions skip --- verifying the answer. After it you can carry a
+functional equation from first plug-in to a verified closed form.
+
+\section{What ``solve over $K$'' means}\index{solve over}
+``Solve $f(x+y)=f(x)+f(y)$ over $\mathbb Q$'' means: determine
+\emph{all} $f:\mathbb Q\to\mathbb Q$ satisfying it, and verify each
+claimed solution satisfies it. The domain matters twice --- it decides
+which candidates exist (over $\mathbb R$, Cauchy's equation has
+infinitely many wild solutions; over $\mathbb Q$, only $kx$) and it
+licenses which inductions you may run ($\mathbb N\to\mathbb Z\to\mathbb Q$).
+
+\section{Guessing candidates}\index{candidate}
+Before proving uniqueness, guess: try $f=0$, $f=c$, $f=kx$, $f=x+c$,
+$f=kx+c$, monomials, low-degree polynomials. Each guess that survives is
+a lead on the general shape --- and a sanity check for later (if your
+``proof'' kills a function you already verified, the proof is wrong).
+
+\section{Substitution tactics}\index{substitution}
+The engine of every solution: choose substitutions that make terms
+\emph{collide}\index{collide terms}.
+\begin{itemize}
+\item \emph{Zeros} ($x=0$ or $y=0$) collapse sums and expose constants.
+\item \emph{Swaps} ($x\leftrightarrow y$) exploit symmetric left sides to
+equate right sides.
+\item \emph{Plugs} ($x=u$ for a specific $u$, or $x=f(u)$) force a value
+to appear where you need it.
+\end{itemize}
+Figure~\ref{fig:feflow} is the loop: every substitution should earn a
+fact; a substitution that produces $0=0$ taught you nothing --- try a
+different one.
+\begin{figure}[ht]\centering
+\input{figures/ch14-flow}
+\caption{Substitution tactics as a decision loop. Notice the goal of
+each move: make two previously-distinct terms coincide.}
+\label{fig:feflow}
+\end{figure}
+
+\section{Milestones: injectivity, surjectivity, involutions}\index{involution}
+Structural facts convert equation-juggling into set-juggling:
+$f$ injective lets you cancel $f(\cdot)=f(\cdot)$; surjective lets you
+rename any value as $f(\text{something})$; and an
+\emph{involution}\index{involution} --- $f(f(x))=x$ --- hands you both
+for free (Figure~\ref{fig:invol}).
+\begin{figure}[ht]\centering
+\input{figures/ch14-invol}
+\caption{An involution pairs the domain. Notice why it is bijective:
+$f(a)=f(b) \Rightarrow f(f(a))=f(f(b)) \Rightarrow a=b$.}
+\label{fig:invol}
+\end{figure}
+
+\begin{example}[An involution equation, Kyrgyzstan-2012 style]\index{involution!example}
+Solve over $\mathbb R$: $f\bigl(x\,f(y)\bigr) = y\,x$.
+
+\textbf{Strategy.} The left side buries $f(y)$ inside $f$ --- expose it.
+Plugging $x=1$ should peel out $f(f(y))$; if that comes out as an
+involution, bijectivity is free and $y=f(t)$ substitutions become
+available.
+
+\textbf{Solution.} $x=1$: $f(f(y)) = y$ --- an involution, so $f$ is a
+bijection (Figure~\ref{fig:invol}). Now substitute $y=f(t)$: using
+$f\bigl(x\,f(f(t))\bigr) = f(t)\,x$, i.e.\ $f(xt) = x\,f(t)$. Setting
+$t=1$: $f(x) = f(1)\,x$, so $f$ is linear, $f(x)=cx$. Feed back:
+$c^2\,xy = xy$ for all $x,y$, so $c = \pm 1$. Verification: $f(x)=x$
+gives $f(xf(y)) = xy$; $f(x)=-x$ gives $f(-xy) = xy$. \emph{Both} are
+solutions --- the answer is the two-element set $\{x\mapsto x,
+x\mapsto -x\}$.
+\end{example}
+
+\section{Cauchy's equation over $\mathbb Q$}\index{Cauchy equation}
+\begin{example}[Solve $f(x+y)=f(x)+f(y)$ over $\mathbb Q$]
+\textbf{Strategy.} The candidate is $f=kx$. Rather than prove $f=kx$
+directly, expose the free parameter $k=f(1)$ and expand the domain in
+steps: $\mathbb N$ by induction, $\mathbb Z$ by a sign trick, $\mathbb Q$ by clearing denominators
+(Figure~\ref{fig:stairs}).
+
+\textbf{Solution.} $x=y=0$: $f(0)=0$. Induction gives $f(n)=nf(1)$ on
+$\mathbb N$. Then $0=f(n+(-n))=f(n)+f(-n)$ gives $f(-n)=-nf(1)$, so $\mathbb Z$ is done.
+For $p/q\in\mathbb Q$: $f(p) = f(q\cdot\tfrac pq) = q\,f(\tfrac pq)$,
+so $f(\tfrac pq) = \tfrac pq f(1)$. Hence $f(x)=f(1)x$ for all
+$x\in\mathbb Q$ --- and $kx$ does satisfy the equation, so this is the
+complete list. Over $\mathbb R$ the pipeline stops: the rationals are
+dense but algebra alone doesn't bridge (wild solutions exist without
+regularity).
+\end{example}
+\begin{figure}[ht]\centering
+\input{figures/ch14-stairs}
+\caption{The domain-expansion staircase for Cauchy's equation. Notice
+each step uses the previous one --- and the last step to $\mathbb R$
+needs a gate (monotone, bounded, continuous), not more algebra.}
+\label{fig:stairs}
+\end{figure}
+
+\begin{example}[Jensen's equation by shifting]\index{Jensen}
+Solve over $\mathbb Q$: $f(\tfrac{x+y}{2}) = \tfrac{f(x)+f(y)}{2}$.
+
+\textbf{Strategy.} Constants satisfy it --- kill that family first by
+shifting: $g(x) = f(x) - f(0)$ satisfies the same equation and has
+$g(0)=0$.
+
+\textbf{Solution.} With $g(0)=0$, set $y=0$:
+$g(x/2)=g(x)/2$. Then $g(\frac{x+y}{2}) = \frac{g(x)+g(y)}{2}$ becomes
+$g(x+y) = g(x)+g(y)$ after replacing $x+y\mapsto$ double --- Cauchy
+again, so $g(x)=kx$ and $f(x) = kx + f(0)$. Verify: affine functions
+satisfy Jensen. The shift isolated the constant family so the equation
+became one already solved.
+\end{example}
+
+\section{The pointwise trap}\index{pointwise trap}
+Suppose you prove ``for each $t$, $f(t)=\pm t$''. You have \emph{not}
+proved $f(t)=t$ or $f(t)=-t$: the sign may depend on $t$
+(Figure~\ref{fig:trap}). Kill the gap by mixing: plug $f(a)=a$,
+$f(b)=-b$ into the equation and derive a contradiction.
+\begin{figure}[ht]\centering
+\input{figures/ch14-trap}
+\caption{The pointwise trap: $f$ may follow $+x$ on part of the domain
+and $-x$ on the rest. Notice this still satisfies $|f(t)|=|t|$ at every
+point --- ``per-point'' facts never stitch into a global one.}
+\label{fig:trap}
+\end{figure}
+
+\begin{example}[Trap autopsy]\index{trap autopsy}
+\textbf{Strategy.} In $f(f(x))=x$ + Cauchy-shaped problems the sign
+pattern survives mixing only under extra structure. Exhibit the gap:
+$f(t) = t$ on $[0,\infty)$, $f(t)=-t$ on $(-\infty,0)$ satisfies
+$|f|=|x|$ pointwise --- and fails most equations.
+
+\textbf{Solution.} Take $f(x f(y)) = yx$ again: after proving
+$f(f(y))=y$ and $f(x)=f(1)x$ we found $f(1)=\pm1$ --- here the
+\emph{parameter} is global, not per-point, so no trap appears. The trap
+bites when your deduction is per-$t$ ($f(t)\in\{t,-t\}$) instead of a
+single global constant. The check that matters: did the derivation force a
+single sign, or leave one free per point?
+\end{example}
+
+\section{Feeding back: verify the answer}\index{verification}
+``Find all'' ends only when the found functions are plugged back in ---
+the verification half that contest graders insist on (the English
+handout's rule: never claim without the construction). An equation can
+shrink a candidate family to $\{f=0\}$, and even that last member still
+has to be checked.
+
+\section{Summary}
+\begin{center}\small
+\begin{tabular}{@{}ll@{}}
+\toprule
+\textbf{Tactic} & \textbf{What it earns} \\
+\midrule
+Plug $0$ & constants, $f(0)$ \\
+Swap $x\leftrightarrow y$ & equality of two right sides \\
+Plug $x=u$, $x=f(u)$ & forced values, involutions \\
+Induction & $\mathbb N$ expansion \\
+Sign trick $f(-x)$ & $\mathbb Z$ expansion \\
+Denominator clear & $\mathbb Q$ expansion \\
+Shift $g=f-f(0)$ & kill constant families \\
+Mix two points & kill the pointwise trap \\
+Plug back in & verification (required half) \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\section{Code: hunting solutions by brute force}\index{fe\_search}
+\texttt{fe\_search.py} scans degree-$\le2$ polynomials
+$f(t)=At^2+Bt+C$ on a grid for the equation
+$f(x+y)-f(x-y)=4xy$.
+\begin{checkpoint}
+Predict which coefficient must be $1$, which must be $0$, and which is
+free. Then run \texttt{python3 fe\_search.py}.
+\end{checkpoint}
+\begin{lstlisting}
+quadratic survivors: [(1.0, 0.0)]
+constant term free? distinct C values per (A,B): True
+  f=t^2 + c: residual 0.000
+  f=t^2 - 1: residual 0.000
+  f=2t^2: residual 2500.000
+  f=t: residual 2550.000
+  f=0: residual 2500.000
+verdict: f(t) = t^2 + C is the whole degree-<=2 family
+\end{lstlisting}
+The brute force agrees with the algebra ($f(x+y)-f(x-y)=4xy$ is
+$f=t^2+C$ exactly) --- and confirms the constant family survives every
+equation of difference type. \texttt{test\_14\_fe.sh} re-runs and greps
+the verdict line.
+
+\section{Common mistakes}\index{functional equation!mistakes}
+\begin{itemize}
+\item \emph{Never verifying.} ``Find all'' is two directions; a
+candidate list without a plug-back-in check is half a solution.
+\item \emph{The pointwise sign.} $f(t)=\pm t$ per point $\ne$ a global
+$\pm$. The sign must come out as a single constant.
+\item \emph{Tautology loops.} Substitutions that yield $0=0$ produce no
+fact --- if three plugs teach nothing, change \emph{what} you plug, not
+how hard you stare.
+\end{itemize}
+
+\section*{Exercises}
+\subsection*{Inline}
+\begin{exercise}[easy]\label{exr:f1}
+From $f(x+y)=f(x)+f(y)$ deduce $f(0)=0$ and $f(-x)=-f(x)$.
+\end{exercise}
+\begin{solution}
+$x=y=0$ gives $f(0)=2f(0)$. Then $0=f(0)=f(x)+f(-x)$.
+\end{solution}
+\begin{exercise}[easy]\label{exr:f2}
+Show $f(x)=kx$ satisfies $f(x+y)=f(x)+f(y)$ over $\mathbb R$ --- the
+verification half.
+\end{exercise}
+\begin{solution}
+$kx+ky = k(x+y)$. Done --- but it is \emph{required}, not optional.
+\end{solution}
+\begin{exercise}[medium]\label{exr:f3}
+Solve $f(x+y)=f(x)f(y)$ over $\mathbb Q$ with $f\not\equiv0$, given $f(1)>0$.
+\end{exercise}
+\begin{solution}
+$f(0)=1$ (since $f(x)=f(x)f(0)$ and some value is nonzero). Induction:
+$f(n)=f(1)^n$; $f(-n)=f(1)^{-n}$; $f(p/q)=f(1)^{p/q}$ with the rational
+root defined since $f(1)>0$. Answer $f(x)=a^x$ for $a=f(1)>0$ ---
+verify: $a^{x+y}=a^xa^y$.
+\end{solution}
+\begin{exercise}[medium]\label{exr:f4}
+Exhibit a function $|f(t)|=|t|$ everywhere that is neither $t$ nor $-t$,
+and use it to explain the pointwise trap.
+\end{exercise}
+\begin{solution}
+$f(t)=t$ on $[0,\infty)$, $f(t)=-t$ on $(-\infty,0)$ works (as in
+Figure~\ref{fig:trap}); the sign is per-point, so a ``$f(t)\in\{t,-t\}$
+for each $t$'' conclusion cannot be globalized without a mixing argument.
+\end{solution}
+\subsection*{Additional}
+\begin{exercise}[easy]\label{exr:fa1}
+Solve $f(x+1)=f(x)+2$ over $\mathbb Z$ with $f(0)=3$.
+\end{exercise}
+\begin{solution}
+$f(n)=2n+3$ by induction both directions; verify.
+\end{solution}
+\begin{exercise}[easy]\label{exr:fa2}
+Which constant functions satisfy $f(x+y)=f(x)+f(y)+7$?
+\end{exercise}
+\begin{solution}
+$f=c$: $c=2c+7 \Rightarrow c=-7$. Verify: $-7=-7-7+7$.
+\end{solution}
+\begin{exercise}[easy]\label{exr:fa3}
+Show an involution is bijective.
+\end{exercise}
+\begin{solution}
+$f(f(x))=x$: injective since $f(a)=f(b)\Rightarrow a=f(f(a))=f(f(b))=b$;
+surjective since $x=f(f(x))$ is in the image.
+\end{solution}
+\begin{exercise}[easy]\label{exr:fa4}
+Solve $f(f(x))=x$ and $f(x)=kx$ simultaneously over $\mathbb R$.
+\end{exercise}
+\begin{solution}
+$k^2=1$, so $f=x$ or $f=-x$; both check.
+\end{solution}
+\begin{exercise}[medium]\label{exr:fa5}
+Solve over $\mathbb Q$: $f(x+y)=f(x)+f(y)+xy$.
+\end{exercise}
+\begin{solution}
+$g=f-x^2/2$ is additive on $\mathbb Q$: $g(x)=kx$; $f=kx+x^2/2$. Verify.
+\end{solution}
+\begin{exercise}[medium]\label{exr:fa6}
+Prove $f(f(x))=x$ has no solution of the form $f(x)=x+c$ unless $c=0$.
+\end{exercise}
+\begin{solution}
+$f(f(x))=x+2c=x$ needs $c=0$.
+\end{solution}
+\begin{exercise}[medium]\label{exr:fa7}
+Suppose $f(x+y)=f(x)+f(y)$ over $\mathbb R$ and $f$ is monotone. Prove
+$f=kx$ (the gate of Figure~\ref{fig:stairs}).
+\end{exercise}
+\begin{solution}
+On $\mathbb Q$, $f=kx$ with $k=f(1)$. For $r\in\mathbb R$, pick rationals
+$q_n\uparrow r$, $q'_n\downarrow r$; monotonicity sandwiches
+$f(r)$ between $kq_n, kq'_n \to kr$. Monotonicity then forces
+$k = f(1) \ge 0$.
+\end{solution}
+\begin{exercise}[medium]\label{exr:fa8}
+Describe all solutions of $f(xy)=f(x)+f(y)$ over positive rationals
+with $f(2)=1$.
+\end{exercise}
+\begin{solution}
+On the multiplicative group $\mathbb Q_{>0}$, $f$ is determined by its
+values on primes: $f(x)=\sum_p e_p\,c_p$ for $x=\prod p^{e_p}$, with
+$c_2 = f(2) = 1$ and the other $c_p$ free --- so $f=\log_2$ is only
+the special case $c_p=0$ for $p>2$, not the general answer.
+\end{solution}
+\begin{exercise}[hard]\label{exr:fa9}
+Prove Cauchy's equation over $\mathbb R$ admits non-linear solutions
+(hence the gate) using a Hamel basis.
+\end{exercise}
+\begin{solution}
+Pick a $\mathbb Q$-vector-space basis $H$ of $\mathbb R$ containing $1$.
+Define $f$ linear on basis elements with $f(1)=1$, $f(h)=0$ for
+$h\ne1$; extend $\mathbb Q$-linearly. Then $f$ is additive but not $kx$
+(e.g.\ $f(\sqrt2)=0$).
+\end{solution}
+\begin{exercise}[hard]\label{exr:fa10}
+Implement-or-derive: extend \texttt{fe\_search.py} to degree-3
+polynomials on the same equation and report the surviving family.
+\end{exercise}
+\begin{solution}
+The same $t^2+C$ survives; no cubic term can cancel ($A t^3$'s residual
+grows like $|t|^3$). Brute force confirms the degree bound.
+\end{solution}
+
+\section*{Notes}
+The candidates→substitutions→involution→Cauchy backbone follows Chen's
+\emph{Introduction to Functional Equations}~\cite{chen-funceq}; the
+$\mathbb N\to\mathbb Z\to\mathbb Q$ pipeline and the $\mathbb R$-gate are the Excerpts'
+treatment~\cite{otis}; Engel's chapter supplies the Jensen and
+involution stock~\cite{engel}. The pointwise-trap framing is the
+``English'' handout's two-directions rule~\cite{chen-english} applied to
+sign choice. Contest uses: 2023 AMC 12A P22, P25; 2015 AIME I P10;
+2010 AIME I P6; 2024 AIME I P12; USAJMO 2024 P5; JMO 2015 P4; USAMO
+2002 (read inside~\cite{chen-funceq}); IMO 2026 P5.
+
+\chapternotes

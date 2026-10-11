@@ -1,0 +1,19 @@
+% Figure: power of a point, three cases (interior / exterior / tangent).
+% Source for Figure~\ref{fig:power}. TikZ only; regenerable by compiling main.tex.
+\begin{tikzpicture}[
+  lab/.style={font=\footnotesize\sffamily,text=slate,align=center},
+  pt/.style={circle,fill=ink,inner sep=1.2pt},
+]
+% interior
+\draw[ink] (-3.2,0) circle (1.0);
+\node[pt,label={[lab]below:$Q$}] at (-3.2,0.1) {};
+\draw[rulegray] (-4.1,-0.3) -- (-2.3,0.5);
+\draw[rulegray] (-3.9,0.6) -- (-2.6,-0.7);
+\node[lab] at (-3.2,-1.5) {$QA\cdot QB = r^2-OQ^2$};
+% exterior
+\draw[ink] (1.0,0) circle (1.0);
+\node[pt,label={[lab]right:$P$}] at (2.9,0) {};
+\draw[rulegray] (2.9,0) -- (0.3,0.55);
+\draw[accent,thick] (2.9,0) -- (1.7,0.95);
+\node[lab] at (1.6,-1.5) {$PA\cdot PB = PT^2 = OP^2-r^2$};
+\end{tikzpicture}

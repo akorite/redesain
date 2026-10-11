@@ -1,0 +1,30 @@
+% Figure: CRT as two sliding rulers --- residues mod 3 and mod 5.
+% Source for Figure~\ref{fig:rulers}. TikZ only; regenerable by compiling main.tex.
+\begin{tikzpicture}[
+  tick/.style={draw=rulegray},
+  hit/.style={circle,fill=accent,inner sep=1.6pt},
+  lab/.style={font=\footnotesize\sffamily,text=slate},
+]
+% top ruler: positions 0..14 labeled mod 3
+\node[lab,anchor=east] at (-0.3,0) {mod 3:};
+\foreach \i in {0,...,14}
+{
+  \pgfmathtruncatemacro{\v}{mod(\i,3)}
+  \draw[tick] (\i*0.55,0) -- (\i*0.55,0.18);
+  \node[lab] at (\i*0.55,0.42) {\v};
+  \ifnum\v=2 \node[hit] at (\i*0.55,0) {}; \fi
+}
+% bottom ruler: positions mod 5
+\node[lab,anchor=east] at (-0.3,-1.0) {mod 5:};
+\foreach \i in {0,...,14}
+{
+  \pgfmathtruncatemacro{\v}{mod(\i,5)}
+  \draw[tick] (\i*0.55,-1.0) -- (\i*0.55,-0.82);
+  \node[lab] at (\i*0.55,-0.58) {\v};
+  \ifnum\v=3 \node[hit] at (\i*0.55,-1.0) {}; \fi
+}
+% alignment markers at 8 and 23->position 8
+\draw[accent,dashed] (8*0.55,0.15) -- (8*0.55,-1.15);
+\node[lab] at (8*0.55,-1.55) {$x = 8$: hits both conditions};
+\node[lab] at (8*0.55,-1.95) {(and again at $x = 8 + 15$, $8 + 30$, \dots)};
+\end{tikzpicture}

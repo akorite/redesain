@@ -1,0 +1,33 @@
+% Figure: lattice-path bijection --- a 4x3 grid path vs the word RRURURR.
+% Source for Figure~\ref{fig:lattice}. TikZ only; regenerable by compiling main.tex.
+\begin{tikzpicture}[
+  gd/.style={draw=rulegray!60},
+  pt/.style={circle,fill=ink,inner sep=0.9pt},
+  pt2/.style={circle,draw=ink,inner sep=0.9pt},
+  pth/.style={->,accent,very thick},
+  lab/.style={font=\footnotesize\sffamily,text=slate},
+]
+% 4x3 grid: x=0..4, y=0..3
+\foreach \i in {0,...,4}
+  \draw[gd] (\i*0.72,0) -- (\i*0.72,3*0.72);
+\foreach \j in {0,...,3}
+  \draw[gd] (0,\j*0.72) -- (4*0.72,\j*0.72);
+% path R R U R U R U = (0,0)->(4,3)
+\draw[pth] (0,0) -- (0.72,0);
+\draw[pth] (0.72,0) -- (1.44,0);
+\draw[pth] (1.44,0) -- (1.44,0.72);
+\draw[pth] (1.44,0.72) -- (2.16,0.72);
+\draw[pth] (2.16,0.72) -- (2.16,1.44);
+\draw[pth] (2.16,1.44) -- (2.88,1.44);
+\draw[pth] (2.88,1.44) -- (2.88,2.16);
+\foreach \i in {0,...,4}
+  \foreach \j in {0,...,3}
+    \node[pt] at (\i*0.72,\j*0.72) {};
+\node[lab,anchor=north] at (0,-0.1) {$(0,0)$};
+\node[lab,anchor=west] at (4*0.72+0.08,3*0.72) {$(4,3)$};
+\node[lab] at (5.6,2.0) {word:};
+\node[lab] at (5.6,1.6) {\texttt{RRURURU}};
+\node[lab] at (5.6,1.0) {4 R's, 3 U's};
+\node[lab] at (5.6,0.6) {$\binom{7}{4}$ paths};
+\node[lab] at (1.4,-0.6) {one path = one arrangement of the letters};
+\end{tikzpicture}

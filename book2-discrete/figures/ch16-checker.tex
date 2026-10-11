@@ -1,0 +1,16 @@
+% Figure: checkerboard with two opposite corners removed.
+% Source for Figure~\ref{fig:checker}. TikZ only; regenerable by compiling main.tex.
+\begin{tikzpicture}[
+  lab/.style={font=\footnotesize\sffamily,text=slate,align=center},
+]
+\foreach \i in {0,...,4} \foreach \j in {0,...,4}
+  \pgfmathsetmacro{\c}{mod(\i+\j,2) ? "rulegray!45" : "white"}
+  \fill[\c] (0.3*\i,0.3*\j) rectangle (0.3*\i+0.3,0.3*\j+0.3);
+\draw[ink] (0,0) rectangle (1.5,1.5);
+\fill[white] (0,0) rectangle (0.3,0.3);
+\fill[white] (1.2,1.2) rectangle (1.5,1.5);
+\draw[accent,thick] (0,0) rectangle (0.3,0.3);
+\draw[accent,thick] (1.2,1.2) rectangle (1.5,1.5);
+\node[lab] at (0.75,-0.5) {removed corners share a color:\\
+$24$ vs $26$ squares --- no domino tiling possible};
+\end{tikzpicture}

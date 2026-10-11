@@ -1,0 +1,443 @@
+\chapter{Sets, relations and functions}\label{ch:sets}
+\index{sets}
+
+Every object in this book is built from three primitives: the \emph{set}
+(a bag of things), the \emph{relation} (a pairing rule), and the
+\emph{function} (a relation that assigns each input exactly one output).
+After this chapter you will be able to prove statements about all three ---
+in particular the two-direction discipline behind injective/surjective ---
+and you will have seen the two proof machines that power all of cardinality:
+the \emph{bijection argument} (count by matching) and \emph{diagonalisation}
+(show a list can never be complete). These run constantly in the counting,
+probability and graph chapters.
+
+\section{Sets, subsets and operations}\label{sec:sets}
+\index{set!operations}
+
+\begin{definition}\index{set!subset}
+A \emph{set} is an unordered collection of distinct objects; $x \in A$ means
+``$x$ is an element of $A$''. $A \subseteq B$ means every element of $A$ is an
+element of $B$; $A = B$ means $A \subseteq B$ and $B \subseteq A$ --- that
+two-way containment is the standard proof template for set equalities.
+\end{definition}
+
+The operations: union $A \cup B$, intersection $A \cap B$, difference
+$A \setminus B$, complement $\overline{A}$ (inside a fixed universe $U$).
+Figure~\ref{fig:venn} shows the geometry you should always draw first ---
+with the warning that a Venn diagram is a \emph{guide}, not a proof.
+
+\begin{figure}[ht]\centering
+\input{figures/ch04-venn}
+\caption{Draw before you prove. Notice three sets already give eight regions
+--- which is why ``the picture covers all cases'' claims die at $n=3$ sets.
+Use the diagram to locate the counterexample candidate, then write the
+element-chase proof.}
+\label{fig:venn}
+\end{figure}
+
+\begin{example}
+Prove the distributive law $A \cap (B \cup C) = (A \cap B) \cup (A \cap C)$.
+\par\smallskip
+\textbf{Strategy.} Equality of sets = two containments. Element-chase each
+direction: take an arbitrary $x$ and unfold the definitions mechanically.
+\par\smallskip
+\begin{solution}
+($\subseteq$) Let $x \in A \cap (B \cup C)$. Then $x \in A$ and
+$x \in B \cup C$. If $x \in B$, then $x \in A \cap B \subseteq$ right side; if
+$x \in C$, then $x \in A \cap C \subseteq$ right side.
+($\supseteq$) Let $x \in (A \cap B) \cup (A \cap C)$. Either way $x \in A$;
+and $x$ lies in $B$ or $C$, so $x \in B \cup C$. Hence
+$x \in A \cap (B \cup C)$. Both containments hold, so the sets are equal.
+\end{solution}
+\end{example}
+
+\begin{exercise}[easy]\label{exr:in-vs-sub}
+True or false, and fix the false ones: (a) $\{1\} \in \{1,2,3\}$;
+(b) $\{1\} \subseteq \{1,2,3\}$; (c) $1 \subseteq \{1,2,3\}$;
+(d) $\varnothing \in \{\varnothing\}$; (e) $\varnothing \subseteq A$ for
+every set $A$.
+\end{exercise}
+
+\section{Power set and Cartesian product}\label{sec:powprod}
+\index{power set}\index{Cartesian product}
+
+\begin{definition}
+The \emph{power set} $\mathcal{P}(A)$ is the set of all subsets of $A$.
+If $|A| = n$ then $|\mathcal{P}(A)| = 2^n$ --- each element independently
+votes in or out.
+\end{definition}
+
+\begin{definition}
+The \emph{Cartesian product} $A \times B = \{(a,b) : a \in A,\, b \in B\}$ ---
+ordered pairs. If $|A| = m$ and $|B| = n$ then $|A \times B| = mn$. Products
+iterate: $A^2 = A \times A$; $\N \times \N$ is the lattice of grid points of
+Figure~\ref{fig:snake}.
+\end{definition}
+
+Ordered means $(1,2) \neq (2,1)$; a product with itself carries a diagonal
+$\{(a,a)\}$ that shows up again in Section~\ref{sec:diag} for a very different
+reason.
+
+\begin{exercise}[easy]\label{exr:powset}
+List $\mathcal{P}(\{1,2,3\})$ and verify the count $2^3$. How many subsets of
+$[n]$ have even size? (Prove your count by pairing each subset with its
+complement where possible, or hold it for Chapter~8.)
+\end{exercise}
+
+\section{Functions: definition, domain, image}\label{sec:functions}
+\index{function}
+
+\begin{definition}\index{domain}\index{codomain}\index{image}
+A \emph{function} $f : A \to B$ assigns to every $a \in A$ exactly one
+$b \in B$, written $f(a) = b$. $A$ is the \emph{domain}, $B$ the
+\emph{codomain}, and $f(A) = \{f(a) : a \in A\} \subseteq B$ the
+\emph{image} (or \emph{range}). Two functions are equal iff they have the
+same domain, same codomain, and agree on every input.
+\end{definition}
+
+Discipline that prevents most beginner errors: codomain is a \emph{claim},
+image is a \emph{fact}. ``$f : \Z \to \Z$, $f(n) = n^2$'' is a perfectly good
+function whose image $\{0,1,4,9,\dots\}$ misses most of its codomain. When a
+problem asks you to prove something \emph{onto}, it is the image that must be
+all of the codomain --- Section~\ref{sec:injsurj} turns that into a template.
+
+\section{Injective, surjective, bijective --- with templates}\label{sec:injsurj}
+\index{injective}\index{surjective}\index{bijective}
+
+\begin{definition}
+$f : A \to B$ is \emph{injective} (one-to-one) if $f(a) = f(a') \Rightarrow a = a'$
+--- distinct inputs never collide. It is \emph{surjective} (onto) if
+$f(A) = B$ --- every $b \in B$ is hit. It is \emph{bijective} if both hold.
+\end{definition}
+
+Figure~\ref{fig:arrows} shows what each does to the arrows. The proof
+templates are fixed --- memorise the first line of each:
+
+\begin{rulebox}[The three templates]
+\index{proof template!injective/surjective}
+\begin{itemize}
+\item \textbf{Injective:} ``Suppose $f(a) = f(a')$. Then \dots therefore
+$a = a'$.'' (Unfold the definition of $f$, cancel carefully.)
+\item \textbf{Surjective:} ``Let $b \in B$. Take $a = \langle$candidate$\rangle$.
+Then $f(a) = \cdots = b$.'' (You must \emph{produce} a preimage --- guess it
+by solving $f(x) = b$.)
+\item \textbf{Bijective:} prove \emph{both}, or exhibit an inverse $g$ and
+verify $g \circ f = \mathrm{id}_A$ and $f \circ g = \mathrm{id}_B$.
+\end{itemize}
+\end{rulebox}
+
+\begin{figure}[ht]\centering
+\input{figures/ch04-arrows}
+\caption{Read the arrows, not the words: injective forbids two arrows into
+one target, surjective forbids a missed target, bijective forbids both.
+The middle panel's ``hit twice'' mark and the left panel's ``missed'' mark
+are exactly the failures each template must rule out.}
+\label{fig:arrows}
+\end{figure}
+
+\begin{example}\label{ex:compinj}
+Prove: the composition of two injections is injective. That is, if
+$f : A \to B$ and $g : B \to C$ are injective, then $g \circ f$ is injective.
+\par\smallskip
+\textbf{Strategy.} Chase the definitions one layer at a time: write
+$(g \circ f)(a) = (g \circ f)(a')$, peel the outer layer with $g$'s
+injectivity, then the inner with $f$'s.
+\par\smallskip
+\begin{solution}
+Suppose $(g \circ f)(a) = (g \circ f)(a')$, i.e.\ $g(f(a)) = g(f(a'))$. Since
+$g$ is injective, $f(a) = f(a')$. Since $f$ is injective, $a = a'$. Hence
+$g \circ f$ is injective.
+\end{solution}
+\end{example}
+
+The same one-layer proof gives: composition of surjections is surjective
+(exercise), and composition of bijections is bijective --- which is why
+``built from bijections'' is itself a counting technique
+(Section~\ref{sec:cardinality}).
+
+\begin{exercise}[medium]\label{exr:inj}
+Prove injective or give a counterexample: (a) $f:\Z\to\Z$, $f(n)=2n+1$;
+(b) $f:\Z\to\Z$, $f(n)=n^2$; (c) $f:\R\to\R$, $f(x)=x^3-x$.
+\end{exercise}
+
+\section{Relations, equivalence relations, partitions}\label{sec:relations}
+\index{relation}\index{equivalence relation}
+
+\begin{definition}
+A \emph{relation} on $A$ is a subset $R \subseteq A \times A$; write
+$a \sim b$ (or $aRb$) for $(a,b) \in R$. $R$ is
+\emph{reflexive} if $a \sim a$ for all $a$; \emph{symmetric} if
+$a \sim b \Rightarrow b \sim a$; \emph{transitive} if
+$a \sim b \sim c \Rightarrow a \sim c$. All three together make an
+\emph{equivalence relation}; its classes
+$[a] = \{b : b \sim a\}$ \emph{partition} $A$ --- every element lands in
+exactly one class.
+\end{definition}
+
+\begin{example}[The parity classes]\label{ex:parityclass}
+On $\Z$, let $a \sim b$ iff $a - b$ is even. Show $\sim$ is an equivalence
+relation and describe its classes.
+\par\smallskip
+\textbf{Strategy.} Verify reflexive/symmetric/transitive straight on the
+definition --- three tiny checks, no cleverness --- then read the classes off
+the picture (Figure~\ref{fig:classes}).
+\par\smallskip
+\begin{solution}
+\emph{Reflexive:} $a - a = 0$ is even. \emph{Symmetric:} if $a - b$ is even
+then $b - a = -(a-b)$ is even. \emph{Transitive:} if $a - b$ and $b - c$ are
+even then $a - c = (a-b) + (b-c)$ is a sum of evens, hence even. So $\sim$
+is an equivalence relation. $a \sim 0$ iff $a$ is even and $a \sim 1$ iff $a$
+is odd, so the classes are $[0] = \{\dots,-2,0,2,\dots\}$ and
+$[1] = \{\dots,-1,1,3,\dots\}$: the even and odd integers.
+\end{solution}
+\end{example}
+
+\begin{figure}[ht]\centering
+\input{figures/ch04-classes}
+\caption{An equivalence relation sorts its set into bins. Notice nothing is
+left over and nothing is in two bins --- ``partition'' is not a slogan, it is
+the theorem that classes never overlap and never miss anyone.}
+\label{fig:classes}
+\end{figure}
+
+This is the trailer for Chapter~6: ``same parity'' is congruence mod $2$, and
+mod $m$ will give $m$ classes with the same three-line verification.
+
+\begin{exercise}[medium]\label{exr:rel}
+Decide which of reflexive/symmetric/transitive each relation on $\Z$ has:
+(a) $a \sim b$ iff $a \le b$; (b) $a \sim b$ iff $|a - b| \le 1$;
+(c) $a \sim b$ iff $ab \ge 0$. Which are equivalence relations?
+\end{exercise}
+
+\section{Cardinality: bijections count, diagonalisation escapes}\label{sec:cardinality}\label{sec:diag}
+\index{cardinality}\index{countable}
+
+Two finite sets have the same size iff a bijection exists between them ---
+that is the \emph{bijection principle}, and Chapter~8 spends a book on it.
+Applied to infinite sets it gives the first surprise:
+
+\begin{definition}
+A set $A$ is \emph{countably infinite} if a bijection $\N \to A$ exists;
+\emph{countable} means finite or countably infinite; otherwise
+\emph{uncountable}.
+\end{definition}
+
+$\Z$ is countable (interleave $0,1,-1,2,-2,\dots$). $\Q$ is countable --- the
+snake of the next example is the standard proof sketch.
+
+\begin{example}\label{ex:nn}
+Show $\N \times \N$ is countable.
+\par\smallskip
+\textbf{Strategy.} Draw a snake through the grid --- a picture argument made
+precise. Visit anti-diagonals $x + y = k$ for $k = 2,3,4,\dots$; each diagonal
+is finite, so every lattice point is reached at a finite step.
+\par\smallskip
+\begin{solution}
+List pairs in order of increasing $x + y$, traversing each diagonal in the
+direction that continues the path --- alternately decreasing-$x$ and
+increasing-$x$, which is what keeps the trail continuous:
+\[ (1,1),\ (2,1),\ (1,2),\ (1,3),\ (2,2),\ (3,1),\ (4,1),\ \dots \]
+the path in
+Figure~\ref{fig:snake}. Every $(x,y)$ lies on the finite diagonal $x+y=x_0+y_0$
+and is enumerated at a finite position, so the list is a bijection
+$\N \to \N \times \N$. Hence $\N \times \N$ is countable.
+\end{solution}
+\end{example}
+
+\begin{figure}[ht]\centering
+\input{figures/ch04-snake}
+\caption{The snake enumeration of $\N \times \N$ (here $\N =
+\{1,2,3,\dots\}$). Notice why it works: every
+anti-diagonal $x+y=k$ is \emph{finite}, so the path reaches any given point
+after finitely many steps --- ``eventually covers everything'' is the whole
+content of countable.}
+\label{fig:snake}
+\end{figure}
+
+And the second surprise --- there are strictly more reals:
+
+\begin{example}[Cantor diagonalisation]\label{ex:cantor}
+\index{diagonalisation}
+Prove: $[0,1)$ is uncountable --- no list of reals in $[0,1)$ is complete.
+\par\smallskip
+\textbf{Strategy.} Given any candidate list, \emph{manufacture the missing
+witness}: build a number whose $n$-th decimal digit differs from the $n$-th
+digit of the $n$-th row. It differs from every row, so it was never listed.
+\par\smallskip
+\begin{solution}
+Suppose $r_1, r_2, r_3, \dots$ is any list of numbers in $[0,1)$, each written
+as decimals $0.d_{i1}d_{i2}d_{i3}\dots$ (forbid the all-9s tail so every
+number has one expansion). Build $x = 0.e_1e_2e_3\dots$ by the rule
+$e_i = 4$ if $d_{ii} = 5$, else $e_i = 5$. For every $i$, $x$ differs from
+$r_i$ in position $i$, so $x \neq r_i$; and $x \in [0,1)$ since its digits
+are 4s and 5s --- never the ambiguous 9-tail. So $x$ is a number in $[0,1)$
+absent from the list. No list is complete; $[0,1)$ is uncountable.
+\end{solution}
+\end{example}
+
+\begin{figure}[ht]\centering
+\input{figures/ch04-diagonal}
+\caption{The flip rule at work. Notice two engineering details that make the
+argument watertight: the constructed digits are only 4s and 5s (no 9-tail, so
+$x$'s expansion is unique), and each row is attacked at \emph{its own}
+position --- the new number escapes all rows simultaneously.}
+\label{fig:diagonal}
+\end{figure}
+
+\begin{checkpoint}[Predict before you run]
+Listing~\ref{lst:diag} runs the construction on eight decimals. Before
+running: predict the constructed number's first two digits, and predict which
+row it could \emph{still} equal even though it differs at the marked
+position. (Trick: none --- differing in one decimal position is enough when
+expansions are unique.)
+\end{checkpoint}
+
+\begin{lstlisting}[language=Python,caption={\texttt{diagonal\_demo.py}: the
+manufacture-the-witness step, mechanised (full script in
+\texttt{code/diagonal\_demo.py}).},label={lst:diag}]
+def flip(digit):                 # never emits 9 -> unique expansion
+    return "4" if digit == "5" else "5"
+
+for i, row in enumerate(ROWS):
+    ...                          # print row with position i+2 marked
+    digits.append(flip(row[i+2]))
+built = "0." + "".join(digits) + "..."
+\end{lstlisting}
+Real output:
+\begin{lstlisting}[numbers=none]
+0.[5]000000000
+0.3[3]33333333
+0.14[1]5926535
+0.718[2]818284
+0.4142[1]35623
+0.61803[3]9887
+0.101001[0]001
+0.2500000[0]00
+constructed: 0.45555555...
+differs from every row at its marked position
+\end{lstlisting}
+Eight rows, eight marked positions, one number that is provably on none of
+them. Infinite lists differ only in scale, not in kind.
+
+\begin{exercise}[easy]\label{exr:countable}
+Show each set is countable by describing the enumeration:
+(a) $\Z$; (b) the even integers; (c) $\N \times \{0,1\}$.
+\end{exercise}
+
+\section{The set $[n]$ and indexing conventions}\label{sec:bracketn}
+\index{[n]@$[n]$}
+
+\begin{definition}
+$[n] = \{1, 2, \dots, n\}$, the standard $n$-element set; $[0] = \varnothing$.
+Any set of size $n$ is ``a copy of $[n]$'' via some bijection --- that is the
+content of counting.
+\end{definition}
+
+Conventions this book keeps: indices run $1..n$ unless declared otherwise;
+$a_1, \dots, a_n$ is a \emph{sequence} (ordered, may repeat) while
+$\{a_1, \dots, a_n\}$ is a set (unordered, distinct); $x \in [n]$ means
+$1 \le x \le n$ integer. $\N = \{1, 2, 3, \dots\}$ throughout --- the olympiad
+convention of the notation guide --- with $\Z_{\ge 0}$ written explicitly
+when $0$ must be included.
+
+\section{Chapter summary}
+\begin{table}[ht]\centering
+\begin{tabularx}{\linewidth}{@{}lYY@{}}
+\toprule
+\tablehead\thead{To prove\dots} & \thead{Template} & \thead{First line}\\
+\midrule
+$A = B$ & two containments & ``Let $x \in A$'' / ``Let $x \in B$''\\
+$f$ injective & unfold collision & ``Suppose $f(a)=f(a')$''\\
+$f$ surjective & produce preimage & ``Let $b \in B$; take $a = \dots$''\\
+$f$ bijective & both, or inverse & verify $g\circ f$, $f\circ g$ identities\\
+$\sim$ equivalence & R/S/T on definition & $a\sim a$; flip; add\\
+$A$ countable & enumerate & list that reaches every element\\
+$A$ uncountable & diagonalise & ``Suppose $r_1, r_2, \dots$ is a list''\\
+count finite sets & bijection & match the objects, count $[n]$\\
+\bottomrule
+\end{tabularx}
+\caption{Every claim shape in this chapter has a named template and a
+required first line. Write the first line before you think --- it is the
+part graders grade.}
+\label{tab:sets}
+\end{table}
+
+\section{Common mistakes}
+\index{common mistakes}
+\begin{itemize}
+\item \textbf{Confusing $\in$ with $\subseteq$.} $1 \in \{1,2\}$ but
+$\{1\} \subseteq \{1,2\}$; the wrapped version is a different object.
+Check every statement's type before arguing about it.
+\item \textbf{Proving a bijection by one direction.} Injective-only and
+surjective-only examples are in Figure~\ref{fig:arrows}; one property says
+nothing about the other. Prove both, or exhibit the inverse.
+\item \textbf{``Uncountable'' $\neq$ ``infinite''.} $\Z$ and $\Q$ are infinite
+\emph{and} countable; the failure mode is assuming a list exists because the
+set is ``just'' infinite. Diagonalisation is precisely the argument that no
+list suffices for $[0,1)$.
+\end{itemize}
+
+\section{Additional exercises}
+\begin{exercise}[easy]
+Prove by element-chase: $A \cup (B \cap C) = (A \cup B) \cap (A \cup C)$.
+\end{exercise}
+\begin{exercise}[easy]
+Prove De Morgan: $\overline{A \cup B} = \overline{A} \cap \overline{B}$.
+(Draw Figure~\ref{fig:venn}'s left panel first.)
+\end{exercise}
+\begin{exercise}[easy]
+Give an example of a function $f : \Z \to \Z$ that is injective but not
+surjective, and one that is surjective but not injective --- and prove each
+property you claim.
+\end{exercise}
+\begin{exercise}[easy]
+On $\Z$, is $a \sim b$ iff $a \mid b$ an equivalence relation? Which of
+reflexive/symmetric/transitive hold?
+\end{exercise}
+\begin{exercise}[medium]
+Prove: the composition of two surjections is surjective. (Mirror
+Example~\ref{ex:compinj}; the harder half is producing the preimage.)
+\end{exercise}
+\begin{exercise}[medium]
+Show the positive rationals $\Q_{>0}$ are countable. (Snake the pairs
+$(p,q)$, skip non-reduced fractions --- explain why skipping is allowed.)
+\end{exercise}
+\begin{exercise}[medium]
+Let $a \sim b$ on $\Z$ iff $a - b$ is divisible by $3$. Prove it is an
+equivalence relation and describe all its classes.
+\end{exercise}
+\begin{exercise}[medium]
+Prove: if $f : A \to B$ and $g : B \to C$ with $g \circ f$ injective, then
+$f$ is injective. Does $g$ have to be injective? Prove or counterexample.
+\end{exercise}
+\begin{exercise}[hard]
+Adapt diagonalisation to subsets: prove $\mathcal{P}(\N)$ is uncountable by
+supposing a list $S_1, S_2, \dots$ and building a subset that differs from
+every $S_i$ on membership of $i$.
+\end{exercise}
+\begin{exercise}[hard]
+Prove Cantor's theorem: for \emph{every} set $A$, no function
+$f : A \to \mathcal{P}(A)$ is surjective. (Consider the diagonal set
+$D = \{a \in A : a \notin f(a)\}$ --- Russell's paradox in one line.)
+\end{exercise}
+\begin{exercise}[hard]
+Extend \texttt{code/diagonal\_demo.py} so it works for base-3 expansions
+(digits 0--2), choosing a flip rule that still avoids ambiguity. Then prove
+from your construction that the numbers in $[0,1)$ with \emph{only} digits
+$\{0,2\}$ in base 3 (the Cantor set) are uncountable.
+\end{exercise}
+
+\chapternotes
+The element-chase template, the two-containment proof of set equality, and
+the treatment of relations/partitions follow Velleman's chapters 4--5 and
+8~\cite{velleman}; the injective/surjective templates and the composition
+exercises are Hammack's chapter 11--12 approach~\cite{hammack}, with the
+definition conventions of Chen's \emph{Introduction to Functional
+Equations}~\cite{chen-funceq} (injections, surjections and bijections
+stated in solve-for-the-witness form). MIT 6.042J's chapters on sets and cardinality
+supplied the countability order of Section~\ref{sec:cardinality} and the
+light Cantor treatment~\cite{mcs}; diagonalisation as ``manufacture the
+missing witness'' is the standard presentation~\cite{hammack,mcs}. The
+counting-flavoured contest problems this chapter feeds are
+AIME 2024 II P6, AIME 2023 II P11, AIME 2022 I P12, AIME 2010 I P7 and
+AMC 12 2023 A P24, all on the AoPS archive~\cite{aops-amc}.

@@ -1,0 +1,13 @@
+% Figure: geometric probability -- quarter-circle in a unit square.
+% Source for Figure~\ref{fig:geo}. TikZ only; regenerable by compiling main.tex.
+\begin{tikzpicture}[
+  lab/.style={font=\footnotesize\sffamily,text=slate},
+]
+\draw[draw=ink] (0,0) rectangle (3,3);
+\draw[draw=accent,very thick,fill=accent!15] (0,0) -- (3,0) arc (0:90:3) -- cycle;
+\node[lab] at (0.7,0.9) {hit};
+\node[lab] at (2.2,2.5) {miss};
+\node[lab] at (1.5,-0.5) {unit square, quarter-circle of radius 1};
+\node[lab] at (1.5,-1.0) {$P(\text{hit}) = \dfrac{\pi/4}{1} = \dfrac{\pi}{4}$
+ --- areas replace counts};
+\end{tikzpicture}

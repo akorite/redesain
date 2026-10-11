@@ -1,0 +1,22 @@
+% Figure: stars and bars --- 12 stars, 3 bars, 4 groups.
+% Source for Figure~\ref{fig:stars}. TikZ only; regenerable by compiling main.tex.
+\begin{tikzpicture}[
+  st/.style={font=\small},
+  bar/.style={draw=accent,very thick},
+  lab/.style={font=\footnotesize\sffamily,text=slate},
+]
+% pattern: ***|**|****|***  = (3,2,4,3) sum 12, k=4 -> 3 bars
+\foreach \i in {0,...,14}
+{
+  \ifnum\i=3 \draw[bar] (\i*0.5,-0.3) -- (\i*0.5,0.3); \else
+  \ifnum\i=6 \draw[bar] (\i*0.5,-0.3) -- (\i*0.5,0.3); \else
+  \ifnum\i=11 \draw[bar] (\i*0.5,-0.3) -- (\i*0.5,0.3); \else
+    \node[st] at (\i*0.5,0) {$\star$};
+  \fi\fi\fi
+}
+\node[lab] at (1.0,-0.9) {$x_1 = 3$};
+\node[lab] at (3.0,-0.9) {$x_2 = 2$};
+\node[lab] at (5.0,-0.9) {$x_3 = 4$};
+\node[lab] at (6.9,-0.9) {$x_4 = 3$};
+\node[lab] at (3.5,-1.6) {15 slots, choose 3 bar positions: $\binom{15}{3} = \binom{n+k-1}{k-1}$};
+\end{tikzpicture}

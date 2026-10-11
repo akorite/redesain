@@ -1,0 +1,14 @@
+% Figure: strategy -> skeleton -> details write-up pipeline.
+% Source for Figure~\ref{fig:pipeline}. TikZ only; regenerable by compiling main.tex.
+\begin{tikzpicture}[
+  lab/.style={font=\footnotesize\sffamily,text=slate,align=center},
+  box/.style={draw=ink,rounded corners=2pt,minimum height=0.9cm,font=\footnotesize\sffamily,align=center,inner sep=4pt},
+]
+\node[box,fill=rulegray!30] (a) at (0,0) {strategy\\(scratch paper:\\the idea)};
+\node[box,fill=accent!25] (b) at (3.1,0) {skeleton\\(claim, lemmas,\\order of steps)};
+\node[box,fill=accent!45] (c) at (6.2,0) {details\\(full sentences,\\displayed math)};
+\draw[rulegray,thick,->] (a) -- (b);
+\draw[rulegray,thick,->] (b) -- (c);
+\node[lab] at (3.1,-1.1) {the artifact is built in three passes ---\\
+never submitted in discovery order};
+\end{tikzpicture}

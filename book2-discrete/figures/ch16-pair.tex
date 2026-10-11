@@ -1,0 +1,13 @@
+% Figure: pairing strategy -- mirrored cells across center.
+% Source for Figure~\ref{fig:pair}. TikZ only; regenerable by compiling main.tex.
+\begin{tikzpicture}[
+  lab/.style={font=\footnotesize\sffamily,text=slate,align=center},
+]
+\draw[ink] (0,0) grid[step=0.35] (2.1,1.05);
+\fill[accent!40] (0.35,0.7) rectangle (0.7,1.05);
+\fill[accent!40] (1.4,0) rectangle (1.75,0.35);
+\draw[accent,thick,<->] (0.52,0.87) -- (1.57,0.17);
+\node[circle,fill=ink,inner sep=1pt] at (1.05,0.52) {};
+\node[lab] at (1.05,-0.5) {mirror each move through the center:\\
+the second player's reply is already on the board};
+\end{tikzpicture}

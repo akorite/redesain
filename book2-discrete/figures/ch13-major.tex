@@ -1,0 +1,21 @@
+% Figure: Muirhead majorization -- exponent bars [3,0,0] vs [2,1,0].
+% Source for Figure~\ref{fig:major}. TikZ only; regenerable by compiling main.tex.
+\begin{tikzpicture}[
+  lab/.style={font=\footnotesize\sffamily,text=slate},
+  hd/.style={font=\footnotesize\bfseries},
+]
+% [3,0,0] bars
+\node[hd] at (0.6,1.1) {$[3,0,0]$};
+\draw[fill=accent!50] (0,0) rectangle (0.4,0.9);
+\draw[fill=rulegray!30] (0.5,0) rectangle (0.9,0.02);
+\draw[fill=rulegray!30] (1.0,0) rectangle (1.4,0.02);
+\node[lab] at (0.7,-0.4) {sym.\ sum $= \sum x^3$};
+% [2,1,0] bars
+\node[hd] at (4.0,1.1) {$[2,1,0]$};
+\draw[fill=accent!50] (3.4,0) rectangle (3.8,0.6);
+\draw[fill=rulegray!50] (3.9,0) rectangle (4.3,0.3);
+\draw[fill=rulegray!30] (4.4,0) rectangle (4.8,0.02);
+\node[lab] at (4.1,-0.4) {sym.\ sum $= \sum_{sym} x^2 y$};
+\node[lab] at (2.4,-1.1) {$[3,0,0]$ majorizes $[2,1,0]$:
+ $3 \ge 2$ and $3+0 \ge 2+1$ $\Rightarrow$ $\sum x^3 \ge \sum_{sym} x^2 y / 6$};
+\end{tikzpicture}

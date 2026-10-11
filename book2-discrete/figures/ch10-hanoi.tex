@@ -1,0 +1,30 @@
+% Figure: Hanoi recursion tree depth 4 with call-count labels.
+% Source for Figure~\ref{fig:hanoi}. TikZ only; regenerable by compiling main.tex.
+\begin{tikzpicture}[
+  nd/.style={circle,draw=rulegray,inner sep=2pt,minimum size=7mm,font=\scriptsize},
+  ed/.style={draw=rulegray},
+  lab/.style={font=\footnotesize\sffamily,text=slate},
+]
+\node[nd] (r) at (0,0) {$H_4$};
+\node[nd] (a) at (-2.2,-1.1) {$H_3$};
+\node[nd] (b) at (2.2,-1.1) {$H_3$};
+\draw[ed] (r) -- (a); \draw[ed] (r) -- (b);
+\node[nd] (a1) at (-3.2,-2.2) {$H_2$};
+\node[nd] (a2) at (-1.2,-2.2) {$H_2$};
+\node[nd] (b1) at (1.2,-2.2) {$H_2$};
+\node[nd] (b2) at (3.2,-2.2) {$H_2$};
+\draw[ed] (a) -- (a1); \draw[ed] (a) -- (a2);
+\draw[ed] (b) -- (b1); \draw[ed] (b) -- (b2);
+\foreach \p/\q in {a1/a11,a1/a12,a2/a21,a2/a22,b1/b11,b1/b12,b2/b21,b2/b22} {}
+\foreach \i/\x in {0/-3.6,1/-2.8,2/-1.6,3/-0.8,4/0.8,5/1.6,6/2.8,7/3.6}
+  \node[nd,minimum size=5mm] at (\x,-3.3) {$H_1$};
+\draw[ed] (a1) -- (-3.6,-3.3); \draw[ed] (a1) -- (-2.8,-3.3);
+\draw[ed] (a2) -- (-1.6,-3.3); \draw[ed] (a2) -- (-0.8,-3.3);
+\draw[ed] (b1) -- (0.8,-3.3); \draw[ed] (b1) -- (1.6,-3.3);
+\draw[ed] (b2) -- (2.8,-3.3); \draw[ed] (b2) -- (3.6,-3.3);
+\node[lab,anchor=east] at (-4.1,0) {depth 0: 1 call};
+\node[lab,anchor=east] at (-4.1,-1.1) {depth 1: 2 calls};
+\node[lab,anchor=east] at (-4.1,-2.2) {depth 2: 4 calls};
+\node[lab,anchor=east] at (-4.1,-3.3) {depth 3: 8 calls};
+\node[lab] at (0,-4.2) {$1+2+4+8 = 15$ moves --- the tree doubles per level};
+\end{tikzpicture}

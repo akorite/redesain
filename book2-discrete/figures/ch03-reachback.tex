@@ -1,0 +1,32 @@
+% Figure: induction vs strong induction --- what each step is allowed to lean on.
+% Source for Figure~\ref{fig:reachback}. TikZ only; regenerable by compiling main.tex.
+\begin{tikzpicture}[
+  dot/.style={circle,draw,inner sep=1.4pt,minimum size=5.2mm,font=\footnotesize},
+  bd/.style={circle,draw=accent,fill=accentsoft,inner sep=1.4pt,minimum size=5.2mm,font=\footnotesize},
+  arr/.style={->,accent},
+  sarr/.style={->,accent,bend left=24},
+  lab/.style={font=\footnotesize\sffamily,text=slate},
+]
+% ---- ordinary induction ----
+\node[lab,anchor=east] at (-0.3,0) {induction};
+\foreach \i in {1,...,7}
+  \node[dot] (a\i) at (\i*0.72,0) {\i};
+\node[bd] at (0.72,0) {1};
+\foreach \i [evaluate=\i as \j using int(\i+1)] in {1,...,6}
+  \draw[arr] (a\i.east) -- (a\j.west);
+\node[lab,anchor=west] at (5.8,0) {each step leans on the previous case only};
+% ---- strong induction ----
+\node[lab,anchor=east] at (-0.3,-2.1) {strong};
+\foreach \i in {1,...,7}
+  \node[dot] (b\i) at (\i*0.72,-2.1) {\i};
+\foreach \i in {1,2,3}
+  \node[bd] at (\i*0.72,-2.1) {\i};
+% arrows from all earlier cases into n+1 (show into 4 and 7)
+\foreach \i in {1,2,3}
+  \draw[sarr] (b\i.north) to (b4.north);
+\foreach \i in {4,5,6}
+  \draw[sarr] (b\i.north) to (b7.north);
+\node[lab,anchor=west] at (5.8,-2.1) {each step may lean on \emph{any} earlier case};
+\node[lab,anchor=north] at (1.44,-2.5) {base window};
+\draw[rulegray] (0.44,-2.5) -- (2.44,-2.5);
+\end{tikzpicture}

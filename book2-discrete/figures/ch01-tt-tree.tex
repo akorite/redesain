@@ -1,0 +1,28 @@
+% Figure: evaluation tree for (P /\ Q) => R at the row P=T, Q=T, R=F.
+% Source for Figure~\ref{fig:tt-tree}. TikZ only; regenerable by compiling main.tex.
+\begin{tikzpicture}[
+  level distance=10mm,
+  level 1/.style={sibling distance=52mm},
+  level 2/.style={sibling distance=26mm},
+  every node/.style={font=\small},
+  op/.style={draw,inner sep=2.5pt,rounded corners=1pt},
+  leaf/.style={font=\small},
+  val/.style={font=\footnotesize\sffamily,text=slate},
+  badval/.style={font=\footnotesize\sffamily,text=amber},
+  edge from parent/.style={draw=rulegray,-},
+]
+\node[op] (root) {$P \land Q \Rightarrow R$}
+  child { node[op] (and) {$P \land Q$}
+    child { node[leaf] (p) {$P$} }
+    child { node[leaf] (q) {$Q$} }
+  }
+  child { node[leaf] (r) {$R$} };
+% truth values propagated upward for the assignment P=T,Q=T,R=F
+\node[val,anchor=west] at (p.east) {= T};
+\node[val,anchor=west] at (q.east) {= T};
+\node[badval,anchor=west] at (r.east) {= F};
+\node[val,anchor=east] at (and.west) {= T};
+\node[badval,anchor=south] at (root.north) {= F};
+\node[draw=none,font=\footnotesize\itshape,text=slate] at (0,-2.9)
+  {assignment $P{=}T,\ Q{=}T,\ R{=}F$: the only row where the implication fails};
+\end{tikzpicture}

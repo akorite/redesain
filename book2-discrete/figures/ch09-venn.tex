@@ -1,0 +1,24 @@
+% Figure: 3-set Venn with +/- signs showing PIE's alternating correction.
+% Source for Figure~\ref{fig:pievenn}. TikZ only; regenerable by compiling main.tex.
+\begin{tikzpicture}[
+  lab/.style={font=\footnotesize\sffamily,text=slate},
+  reg/.style={font=\footnotesize\bfseries},
+]
+\begin{scope}
+  \draw[draw=rulegray,fill=accent!8] (0,0) circle (1.15);
+  \draw[draw=rulegray,fill=accent!8] (1.3,0) circle (1.15);
+  \draw[draw=rulegray,fill=accent!8] (0.65,1.05) circle (1.15);
+\end{scope}
+\node[lab] at (-1.0,1.35) {$A$};
+\node[lab] at (2.3,1.35) {$B$};
+\node[lab] at (0.65,2.35) {$C$};
+% region signs: single = +, pair = -, triple = +
+\node[reg] at (-0.55,0.05) {$+$};
+\node[reg] at (1.85,0.05) {$+$};
+\node[reg] at (0.65,1.85) {$+$};
+\node[reg] at (0.65,-0.55) {$-$};
+\node[reg] at (-0.25,0.85) {$-$};
+\node[reg] at (1.55,0.85) {$-$};
+\node[reg] at (0.65,0.55) {$+$};
+\node[lab] at (0.65,-1.75) {each element is counted $+1$ exactly once: singles $+$, pairs $-$, triple $+$};
+\end{tikzpicture}
