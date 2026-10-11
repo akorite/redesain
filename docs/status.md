@@ -114,3 +114,8 @@ Pending a GitHub PAT: issue creation (pinned "Status" issue + `needs-user` label
 - book1 delivered physics ch01-17 fast-batch (~140pp author-side). Landed coordinator-side: 0/0/0 clean, 141pp. Defect: deliveries never carried a physics main.tex — reconstructed scaffold + inputs mechanically. PR#19.
 - Known nit: ch04 at 14/15 exercises (author-flagged; patch queued for depth pass).
 - book2 resumed → quant depth pass (132→~220). elec-0006 resumed → systems ch04+. ml-f668 → ml ch01+ then cp-depth re-review + elec ch14-19 reviews queued.
+
+## 2026-10-11 — book5-electronics v0.1 TAGGED; cp depth re-review fixes landed
+- ml-f668 delivered elec ch14-19 independent review: 6/6 ACCEPT (sims/uart/ngspice/gerbers all live-verified). 3 floor flags → author patch queued (ch17/18 WE 3→5, ch19 ex 13→15).
+- ml-f668 delivered cp ch01-13 depth re-review: 11 ACCEPT / 3 REVISE-lite (CPH chapter refs ch04/05/07 + Makefile sh→bash) — verbatim fixes applied+verified, 200pp.
+- Tags now: book1-cp-v0.1, book2-discrete-v0.2, book3-linalg-ml-v0.1, book5-electronics-v0.1 (4/8).
