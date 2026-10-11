@@ -1,0 +1,16 @@
+\begin{tikzpicture}[x=1cm,y=1cm, >=latex]
+% clock square wave, period 2 units
+\draw[thick, blue] (0,2.2) -- (0,2.9) -- (1,2.9) -- (1,2.2) -- (2,2.2) -- (2,2.9) -- (3,2.9) -- (3,2.2) -- (4,2.2) -- (4,2.9) -- (5,2.9) -- (5,2.2) -- (6,2.2) -- (6,2.9) -- (7,2.9) -- (7,2.2) -- (8,2.2);
+\node[anchor=east, font=\small] at (-0.15,2.55) {\sf clk};
+\draw[<->] (2,3.25) -- (4,3.25) node[midway, above, font=\small] {period $T=1/f$};
+% data-valid window around the edge at x=3
+\draw[fill=red!15, draw=red, thick] (2.3,0.4) rectangle (3.0,1.0);
+\node[font=\scriptsize, text=red] at (2.65,1.2) {setup};
+\draw[fill=amber!25, draw=amber!80!black, thick] (3.0,0.4) rectangle (3.55,1.0);
+\node[font=\scriptsize, text=amber!80!black] at (3.55,1.2) {hold};
+\draw[thick, gray] (3,0.2) -- (3,1.4);
+\node[font=\scriptsize, gray] at (3,0.0) {edge};
+\draw[->] (0,-0.5) -- (8.6,-0.5) node[anchor=west, font=\small] {$t$};
+\node[font=\scriptsize\itshape, text=gray, anchor=west] at (4.4,0.7) {data must be still in the shaded window};
+\node[font=\scriptsize\itshape, text=gray, anchor=west] at (4.4,0.25) {between two flops, one $T$ is the whole budget};
+\end{tikzpicture}
