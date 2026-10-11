@@ -25,3 +25,8 @@ Outline approved pending compliance check. 18 chapters planned. Not started.
 
 ## Book 8 — Physics for engineers (`book8-physics`)
 Outline approved pending compliance check. 18 chapters planned. Not started.
+
+## Repository
+URL: https://github.com/akorite/redesain (empty repo reused per user 2026-10-11; rename to `study-textbooks` in Settings when ready — links survive).
+Structure: `book1-cp/` … `book8-physics/`, `shared/`, `docs/`, `case-study/`, `metrics.csv`, `PROJECT.md`, `COMMUNICATION.md`, `README.md`. Root = main.
+Pending a GitHub PAT: issue creation (pinned "Status" issue + `needs-user` label). Until then the pinned status lives in this file; PR-per-chapter runs via git_manager PRs starting with the next landed chapter.
