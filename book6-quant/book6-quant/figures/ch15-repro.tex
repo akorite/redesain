@@ -1,0 +1,9 @@
+\begin{tikzpicture}[font=\scriptsize,every node/.style={align=center}]
+  \node[draw=slate,fill=white,rounded corners=1pt,minimum width=2.3cm] (d) at (0,1.6) {pinned data\\ (hash)};
+  \node[draw=slate,fill=white,rounded corners=1pt,minimum width=2.3cm] (c) at (3.0,1.6) {pinned code\\ (commit)};
+  \node[draw=slate,fill=white,rounded corners=1pt,minimum width=2.3cm] (s) at (6.0,1.6) {pinned seeds\\ (recorded)};
+  \node[draw=ink,fill=goodbg,rounded corners=1pt,minimum width=2.3cm] (o) at (3.0,0.3) {same output\\ $\Rightarrow$ same claim};
+  \draw[->,ink] (d.south)--(o.north west);
+  \draw[->,ink] (c.south)--(o.north);
+  \draw[->,ink] (s.south)--(o.north east);
+\end{tikzpicture}

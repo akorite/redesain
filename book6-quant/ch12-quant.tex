@@ -161,13 +161,13 @@ with the full-window number you would have quoted.
 
 \textbf{Solution.} \texttt{yearly\_sharpe.py} prints:
 \begin{verbatim}
-2024: n=71   sharpe +4.08  ret  +36.3%  mdd -13.3%
-2025: n=365  sharpe -0.20  ret  -11.8%  mdd -33.5%
-2026: n=284  sharpe -0.20  ret  -10.0%  mdd -41.1%
-full window: sharpe +0.29 -- the average of very different years
+2024: n=71   sharpe +3.23  ret  +35.0%  mdd -13.1%
+2025: n=365  sharpe -0.16  ret  -14.1%  mdd -33.1%
+2026: n=284  sharpe -0.13  ret  -11.9%  mdd -43.1%
+full window: sharpe +0.25 -- the average of very different years
 \end{verbatim}
-The whole sample's $+0.29$ is an average of a $+4.08$ regime and
-two flat $-0.20$ regimes --- the number exists in neither.
+The whole sample's $+0.25$ is an average of a $+3.23$ regime and
+two flat $-0.16$/$-0.13$ regimes --- the number exists in neither.
 
 \textbf{Significance.} A single Sharpe summarises a world that
 never happened. Per-year (or per-regime) slices are the minimal
@@ -175,6 +175,32 @@ honesty: if your edge lives in one slice, your backtest is a
 study of that slice, not of the market.
 \end{example}
 
+
+\section{The confidence interval is a design constraint}\label{sec:cidesign}
+The Sharpe standard error is not a reporting nicety --- it
+sizes the experiment itself. \texttt{sharpe\_se.py} prints the
+scaling:
+\begin{verbatim}
+T=  63 days  se(SR)~0.154  95% CI on SR=1: [0.70,1.30]
+T= 252 days  se(SR)~0.077  95% CI on SR=1: [0.85,1.15]
+T= 756 days  se(SR)~0.045  95% CI on SR=1: [0.91,1.09]
+T=2520 days  se(SR)~0.024  95% CI on SR=1: [0.95,1.05]
+empirical se over 2000 sims (T=252): 1.012
+\end{verbatim}
+\begin{example}\label{ex:cidesign}
+\textbf{Precision is bought in years, not decimals.} One year of
+daily data buys a $\pm0.15$ window on a Sharpe-1 strategy ---
+you cannot tell a 1.0 from a 0.7. To read $1.00\pm0.05$ needs
+\emph{twenty-five hundred} days. The empirical row is wider
+still: $\mathrm{se}\approx1.0$ on annualized Sharpe at $T{=}252$
+when returns are fat-tailed.
+\begin{solution}
+Invert the table at design time: if the candidate's plausible
+edge is smaller than the window's resolution, no amount of
+further tuning will rescue the measurement. ch17's momentum
+study failed this arithmetic before it failed the market.
+\end{solution}
+\end{example}
 \section{Common mistakes}
 \begin{itemize}
 \item \textbf{``Sharpe 1.8 on the year.''} The CI spans roughly $\pm1$; the claim is
@@ -188,8 +214,8 @@ study of that slice, not of the market.
 \item \textbf{Announcing the gross, shipping the net.} Costs and sizing are part of the
   strategy.
 \item \textbf{Reporting the pooled Sharpe only.}
-$+0.29$ on the full window is the average of $+4.08$ and
-$-0.20$ (Example~\ref{ex:yrsharpe}) --- a summary of a regime
+$+0.25$ on the full window is the average of $+3.23$ and
+$-0.15$ (Example~\ref{ex:yrsharpe}) --- a summary of a regime
 mixture, not of the strategy.
 \item \textbf{Forgetting the units on MDD.} ``$-33\%$'' needs a
 window and a compounding convention --- intraday marks and close
@@ -319,11 +345,11 @@ short, strong year pulls it up while contributing little to the
 per-slice estimates.
 \end{solution}
 \begin{exercise}[medium]
-2024 shows $+4.08$ on $n=71$. Quote an approximate 95\%
+2024 shows $+3.23$ on $n=71$. Quote an approximate 95\%
 confidence interval for that Sharpe (se $\approx1/\sqrt{n}$).
 \end{exercise}
 \begin{solution}
-$4.08\pm1.96/\sqrt{71}\approx4.08\pm0.23$ ---
+$3.23\pm1.96/\sqrt{71}\approx3.23\pm0.23$ ---
 $[+3.85,+4.31]$... but the regime itself is the uncertainty: a
 71-day window cannot certify a long-run property.
 \end{solution}

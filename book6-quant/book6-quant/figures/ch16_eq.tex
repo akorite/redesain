@@ -1,0 +1,10 @@
+\begin{tikzpicture}
+\begin{axis}[width=0.75\linewidth,height=0.45\linewidth,
+  xlabel={day},ylabel={equity (\$1 start)},xmin=0,xmax=20,
+  legend style={font=\scriptsize,at={(0.02,0.98)},anchor=north west}]
+\addplot[blue!70,thick] table[x index=0,y index=1] {figures/data/ch16_eq.dat};
+\addplot[orange!80,thick] table[x index=0,y index=2] {figures/data/ch16_eq.dat};
+\addplot[green!60!black,thick] table[x index=0,y index=3] {figures/data/ch16_eq.dat};
+\legend{BTC spot,funding carry,risk-parity port}
+\end{axis}
+\end{tikzpicture}

@@ -1,0 +1,398 @@
+\chapter{Evaluating a strategy}\label{ch:eval}
+
+\noindent A backtest ends with a number; an evaluation starts with a battery. Sharpe is
+necessary and nowhere near sufficient: it has a huge standard error at realistic sample
+sizes, it ignores the path (drawdown), the shape (skew), and the bill (turnover). This
+chapter is the suite.
+
+\section{The Sharpe CI problem}\label{sec:sharpeci}
+
+The standard error of a measured Sharpe ratio is roughly
+$\mathrm{se}\approx\sqrt{(1+\mathrm{SR}^2/2)/T}$. \texttt{sharpe\_se.py}:
+\begin{lstlisting}[numbers=none]
+T=  63 days  se(SR)~0.154  95% CI on SR=1: [0.70,1.30]
+T= 252 days  se(SR)~0.077  95% CI on SR=1: [0.85,1.15]
+T= 756 days  se(SR)~0.045  95% CI on SR=1: [0.91,1.09]
+T=2520 days  se(SR)~0.024  95% CI on SR=1: [0.95,1.05]
+empirical se over 2000 sims (T=252): 1.012
+\end{lstlisting}
+
+\begin{example}\label{ex:sharpeci}
+\textbf{The one-year Sharpe is a rumor.} A year of daily data narrows a true SR-1
+strategy only to $[0.85,1.15]$ in theory---and the empirical spread across 2{,}000
+sims is $\pm1.0$ (the non-normal world is wider still).
+\begin{solution}
+At $T{=}252$ you cannot distinguish Sharpe 1.5 from Sharpe 0.3 with any confidence.
+The discipline consequence: small Sharpe differences between two strategies on one
+year of data are noise, and a single-year backtest ``proving'' Sharpe 1.8 is compatible
+with true Sharpe anywhere in $[0.5,3]$---before the multiple-testing haircut from ch09.
+\end{solution}
+\end{example}
+
+\begin{figure}[htbp]\centering
+\input{figures/ch12-ci}
+\caption{Sharpe confidence intervals shrink only as $1/\sqrt T$---a decade buys a
+$\pm5\%$ band on the truth.}
+\label{fig:ci}
+\end{figure}
+
+\section{The metric suite}\label{sec:suite}
+
+\texttt{metrics\_demo.py} runs two strategies with nearly identical hit rates:
+\begin{lstlisting}[numbers=none]
+tail-risk strategy: sharpe +1.49  mdd -7.9%  hit 58.4%
+boring strategy:    sharpe +3.63  mdd -4.6%  hit 59.7%
+same mean, different product -- the suite shows what sharpe hides
+\end{lstlisting}
+
+\begin{example}\label{ex:suite}
+\textbf{Why the suite, not the number.} The boring strategy's Sharpe is 2.4$\times$ the
+tail-risk one's---the hit rates are within a point of each other.
+\begin{solution}
+Hit rate alone describes neither. The suite separates what one number merges:
+Sharpe (mean/vol), MDD (worst path), skew (asymmetry), hit rate (frequency). A strategy
+reporting one of them is choosing which weakness to hide.
+\end{solution}
+\end{example}
+
+\begin{figure}[htbp]\centering
+\input{figures/ch12-eqdd}\\[4pt]
+\input{figures/ch12-ddpanel}
+\caption{Equity curve and its drawdown series: the middle panel is where the risk lives.}
+\label{fig:eqdd}
+\end{figure}
+
+\begin{figure}[htbp]\centering
+\input{figures/ch12-metrics}
+\caption{The evaluation suite: each metric answers a question the others cannot.}
+\label{fig:metrics}
+\end{figure}
+
+\section{The cliff hidden in high Sharpe}\label{sec:cliff}
+
+\texttt{tail\_demo.py} builds the classic put-seller profile---steady wins, rare crashes:
+\begin{lstlisting}[numbers=none]
+put-seller profile: sharpe +2.09  skew -4.30  worst -11.2%
+high sharpe can hide a cliff: read skew and worst day too
+\end{lstlisting}
+
+\begin{example}\label{ex:cliff}
+\textbf{Sharpe 2.09 with skew $-4.3$.} Ninety-five percent of days pay +0.7\%; 5\% lose
+$-8\%$.
+\begin{solution}
+Volatility---Sharpe's denominator---is symmetric, so it treats the cliff the same as the
+ladder. Skew ($-4.3$) and worst-day ($-11.2\%$) report what Sharpe cannot: the distribution
+is a staircase down with a trapdoor. Any metric suite that excludes the left tail is an
+invitation to sell insurance and call it alpha.
+\end{solution}
+\end{example}
+
+\begin{figure}[htbp]\centering
+\input{figures/ch12-tailhist}
+\caption{The return histogram the Sharpe ratio summarizes as one number.}
+\label{fig:tailhist}
+\end{figure}
+
+\begin{figure}[htbp]\centering
+\input{figures/ch12-cliff}
+\caption{Steady small wins punctuated by a rare large loss---the profile that maximizes
+Sharpe-per-unit-of-honesty.}
+\label{fig:cliff}
+\end{figure}
+
+\section{Attribution}\label{sec:attr}
+
+The last question: \emph{where} did the return come from? Signal (the rule's direction),
+timing (when it traded), sizing (how much), costs (what it paid). A strategy whose PnL is
+90\% one lucky sizing decision is not the strategy described.
+
+\begin{example}\label{ex:attr}
+\textbf{Attribution before celebration.} Suppose the backtest returns +22\%: signal
++35\%, sizing $-8\%$, costs $-5\%$.
+\begin{solution}
+The marketable product is the signal---the sizing loss is a fixable implementation
+detail and the cost is a capacity ceiling. Attribution converts one number into a list
+of actions: fix sizing, shrink footprint, keep the signal.
+\end{solution}
+\end{example}
+
+\begin{figure}[htbp]\centering
+\input{figures/ch12-attr}
+\caption{Return decomposition: gross signal minus timing, sizing and costs is the net
+the strategy actually ships.}
+\label{fig:attr}
+\end{figure}
+
+\begin{checkpoint}[Evaluation audit]
+\begin{itemize}
+\item What is the 95\% CI on a measured Sharpe of 1.0 over one year? ($\approx$ two
+Sharpe points wide---theory $\pm0.3$, empirically wider.)
+\item Which two metrics expose a put-selling profile? (Skew and worst-day.)
+\item Name the attribution categories. (Signal, timing, sizing, costs.)
+\end{itemize}
+\end{checkpoint}
+
+\section{Recap}\label{sec:evalrecap}
+
+Sharpe is a coarse instrument: wide confidence intervals, blind to path and tail. The
+evaluation suite---MDD, skew, hit rate, turnover, capacity, attribution---is what
+converts a backtest number into a decision. Report all of them or name the one you
+are hiding.
+
+\begin{table}[htbp]\centering\small
+\caption{Chapter toolbox.}
+\begin{tabular}{@{}lll@{}}
+\toprule
+Concept & Rule & Gotcha\\
+\midrule
+Sharpe & $\mathrm{se}\sim\sqrt{(1+\mathrm{SR}^2/2)/T}$ & 1yr $\Rightarrow$ CI $\pm1$\\
+MDD & worst peak-to-trough & path-aware, strategy-dependent\\
+Skew/worst & tail shape & high SR can hide a cliff\\
+Hit rate & payoff frequency & meaningless alone\\
+Attribution & signal+timing+sizing+cost & net $\neq$ marketable\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{example}[One monster year inside a flat tape]\label{ex:yrsharpe}
+\textbf{Strategy.} Split the real BTC daily series by calendar
+year and compute Sharpe, return and MDD per slice. Then compare
+with the full-window number you would have quoted.
+
+\textbf{Solution.} \texttt{yearly\_sharpe.py} prints:
+\begin{verbatim}
+2024: n=71   sharpe +3.23  ret  +35.0%  mdd -13.1%
+2025: n=365  sharpe -0.16  ret  -14.1%  mdd -33.1%
+2026: n=284  sharpe -0.13  ret  -11.9%  mdd -43.1%
+full window: sharpe +0.25 -- the average of very different years
+\end{verbatim}
+The whole sample's $+0.25$ is an average of a $+3.23$ regime and
+two flat $-0.16$/$-0.13$ regimes --- the number exists in neither.
+
+\textbf{Significance.} A single Sharpe summarises a world that
+never happened. Per-year (or per-regime) slices are the minimal
+honesty: if your edge lives in one slice, your backtest is a
+study of that slice, not of the market.
+\end{example}
+
+
+\section{The confidence interval is a design constraint}\label{sec:cidesign}
+The Sharpe standard error is not a reporting nicety --- it
+sizes the experiment itself. \texttt{sharpe\_se.py} prints the
+scaling:
+\begin{verbatim}
+T=  63 days  se(SR)~0.154  95% CI on SR=1: [0.70,1.30]
+T= 252 days  se(SR)~0.077  95% CI on SR=1: [0.85,1.15]
+T= 756 days  se(SR)~0.045  95% CI on SR=1: [0.91,1.09]
+T=2520 days  se(SR)~0.024  95% CI on SR=1: [0.95,1.05]
+empirical se over 2000 sims (T=252): 1.012
+\end{verbatim}
+\begin{example}\label{ex:cidesign}
+\textbf{Precision is bought in years, not decimals.} One year of
+daily data buys a $\pm0.15$ window on a Sharpe-1 strategy ---
+you cannot tell a 1.0 from a 0.7. To read $1.00\pm0.05$ needs
+\emph{twenty-five hundred} days. The empirical row is wider
+still: $\mathrm{se}\approx1.0$ on annualized Sharpe at $T{=}252$
+when returns are fat-tailed.
+\begin{solution}
+Invert the table at design time: if the candidate's plausible
+edge is smaller than the window's resolution, no amount of
+further tuning will rescue the measurement. ch17's momentum
+study failed this arithmetic before it failed the market.
+\end{solution}
+\end{example}
+\section{Common mistakes}
+\begin{itemize}
+\item \textbf{``Sharpe 1.8 on the year.''} The CI spans roughly $\pm1$; the claim is
+  compatible with mediocre.
+\item \textbf{MDD reported without dates.} A $-30\%$ dd lasting 3 years is a different
+  product than one lasting 3 weeks.
+\item \textbf{Ignoring skew.} Symmetric-vol metrics bless put-sellers.
+\item \textbf{Confusing hit rate with edge.} Win frequency and expectancy are different
+  axes.
+\item \textbf{Skipping turnover.} Return per unit of trading is the honest efficiency.
+\item \textbf{Announcing the gross, shipping the net.} Costs and sizing are part of the
+  strategy.
+\item \textbf{Reporting the pooled Sharpe only.}
+$+0.25$ on the full window is the average of $+3.23$ and
+$-0.15$ (Example~\ref{ex:yrsharpe}) --- a summary of a regime
+mixture, not of the strategy.
+\item \textbf{Forgetting the units on MDD.} ``$-33\%$'' needs a
+window and a compounding convention --- intraday marks and close
+marks give different numbers on the same tape.\end{itemize}
+
+\section{Exercises}
+\begin{exercise}[easy]
+What is the approximate 95\% CI on measured Sharpe at $T{=}252$ days?
+\end{exercise}
+\begin{solution}
+Theory $\pm0.15$ at SR${=}1$; empirically closer to $\pm1$ on real (non-normal) returns.
+\end{solution}
+
+\begin{exercise}[easy]
+Why can two strategies share a hit rate and differ everywhere else?
+\end{exercise}
+\begin{solution}
+Hit rate counts sign, not size---it ignores both tail shape and path.
+\end{solution}
+
+\begin{exercise}[easy]
+Name the metric that catches a put-selling profile.
+\end{exercise}
+\begin{solution}
+Skew (and worst-day): the rare large loss is invisible to symmetric volatility.
+\end{solution}
+
+\begin{exercise}[easy]
+What are the four attribution categories?
+\end{exercise}
+\begin{solution}
+Signal, timing, sizing, costs.
+\end{solution}
+
+\begin{exercise}[easy]
+Why is turnover an evaluation metric, not just an execution detail?
+\end{exercise}
+\begin{solution}
+It converts directly to cost and capacity---a 5bp edge trading daily is a different
+product than one trading monthly.
+\end{solution}
+
+\begin{exercise}
+Compute $\mathrm{se}(\mathrm{SR})$ for SR${=}1.5$, $T{=}500$.
+\end{exercise}
+\begin{solution}
+$\sqrt{(1+1.125)/500}\approx0.065$---still a CI a third of a Sharpe wide.
+\end{solution}
+
+\begin{exercise}
+A strategy: Sharpe 2.5, skew $-5$, MDD $-40\%$. Sell or bury it?
+\end{exercise}
+\begin{solution}
+Bury: the Sharpe is built on a staircase-and-trapdoor profile; the risk model should
+price the cliff, not the average.
+\end{solution}
+
+\begin{exercise}
+How does MDD interact with the evaluation's time horizon?
+\end{exercise}
+\begin{solution}
+Longer horizons mechanically produce deeper MDDs---compare like-for-like windows.
+\end{solution}
+
+\begin{exercise}
+Write the attribution identity for a backtest return.
+\end{exercise}
+\begin{solution}
+$R_{\text{net}}=R_{\text{signal}}+R_{\text{timing}}+R_{\text{sizing}}-C_{\text{costs}}$.
+\end{solution}
+
+\begin{exercise}
+Why does skew of $-4$ not show in the Sharpe?
+\end{exercise}
+\begin{solution}
+Volatility is symmetric: $\sigma$ weights up and down moves identically; the cliff is a
+third-moment property.
+\end{solution}
+
+\begin{exercise}
+A backtest: +40\% signal, $-10\%$ sizing, $-8\%$ costs. What do you fix first?
+\end{exercise}
+\begin{solution}
+Sizing---it is implementation, not alpha; costs are a capacity ceiling for later.
+\end{solution}
+
+\begin{exercise}
+When is hit rate genuinely informative?
+\end{exercise}
+\begin{solution}
+Together with average win/loss ratio---it is half the expectancy identity, useless alone.
+\end{solution}
+
+\begin{exercise}[hard]
+Show that even at $T{=}2500$ (10y) you cannot separate SR${=}1.0$ from SR${=}0.8$ at
+95\% confidence.
+\end{exercise}
+\begin{solution}
+CI $\approx\pm0.05$: the two means differ by 0.2, but each estimate's band is
+$[0.95,1.05]$ vs $[0.75,0.85]$---they just separate; in practice fatter tails widen both.
+\end{solution}
+
+\begin{exercise}[hard]
+Design a metric battery for a put-selling fund---which three numbers dominate and why?
+\end{exercise}
+\begin{solution}
+Worst-day, skew, and recovery time: all three describe the cliff the Sharpe pretends is
+volatility.
+\end{solution}
+
+\begin{exercise}[hard]
+A strategy's entire 5-year MDD occurred in its first year; argue whether the metric is
+informative or misleading, and what you'd compute instead.
+\end{exercise}
+\begin{solution}
+Misleading as a forward estimate if the regime changed; compute rolling max-dd or
+regime-conditioned dd to see the current risk, not the historical scar.
+\end{solution}
+
+\begin{exercise}[easy]
+The full-window Sharpe is $+0.29$; two of three slices are
+$-0.20$. Reconcile in one line.
+\end{exercise}
+\begin{solution}
+The pooled Sharpe is a weighted average across regimes --- one
+short, strong year pulls it up while contributing little to the
+per-slice estimates.
+\end{solution}
+\begin{exercise}[medium]
+2024 shows $+3.23$ on $n=71$. Quote an approximate 95\%
+confidence interval for that Sharpe (se $\approx1/\sqrt{n}$).
+\end{exercise}
+\begin{solution}
+$3.23\pm1.96/\sqrt{71}\approx3.23\pm0.23$ ---
+$[+3.85,+4.31]$... but the regime itself is the uncertainty: a
+71-day window cannot certify a long-run property.
+\end{solution}
+\begin{exercise}[hard]
+Design the table that reports these numbers honestly: which
+columns and which row tells the truth faster?
+\end{exercise}
+\begin{solution}
+Per-slice rows (n, sharpe, ret, mdd) plus a pooled row marked
+``mixture, not strategy'' --- the slice sd (or min--max range)
+is the honest summary, the pooled row the cautionary one.
+\end{solution}
+
+\section*{Notes}
+Evaluation is where optimism goes to be measured. The suite is cheap to compute and
+expensive to skip: a Sharpe with no CI, no drawdown, no skew, and no attribution is a
+fund's marketing deck, not a research result.
+
+\section*{Further reading}
+\begin{itemize}
+\item A.~Lo, ``The Statistics of Sharpe Ratios'' --- sampling error, the paper:
+
+\url{https://web.archive.org/web/2024/https://alo.mit.edu/wp-content/uploads/2017/06/The-Statistics-of-Sharpe-Ratios.pdf}
+\item E.~Chan, \emph{Quantitative Trading} --- performance metrics in practice:
+
+\url{https://epchan.blogspot.com/}
+\item L.~de Prado lectures --- evaluation metrics and DSR:
+
+\url{https://www.quantresearch.org/Lectures.htm}
+\item Bailey \& L\'opez de Prado, ``The Deflated Sharpe Ratio'':
+
+\url{https://www.davidhbailey.com/dhbpapers/deflated-sharpe.pdf}
+\item Grinold \& Kahn, \emph{Active Portfolio Management} --- the attribution frame:
+
+\url{https://www.amazon.com/Active-Portfolio-Management-Quantitative-Controlling/dp/0070248826}
+\end{itemize}
+
+\begin{rulebox}[Watch instead]
+\begin{itemize}
+\item ``12. Risk Analysis'' --- MIT 18.S096 (80:32). Risk measures; re-verified 2026-10-11.
+\url{https://www.youtube.com/watch?v=qlytPllimpQ}
+\item ``11. Time Series Analysis II'' --- MIT 18.S096 (83:47). Testing; re-verified
+2026-10-11.
+\url{https://www.youtube.com/watch?v=_IFUfFuyQlU}
+\end{itemize}
+\end{rulebox}

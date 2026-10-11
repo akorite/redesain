@@ -14,5 +14,5 @@ def run(seed,fee_daily_turnover=0.08):
     return (lp+fees)/hodl-1
 res=[run(s) for s in range(40)]
 res_nf=[run(s,0) for s in range(40)]
-print(f"40 seeds: LP+fees-vs-hodl mean {np.mean(res)*100:+.2f}%  "
+print(f"40 seeds: LP+fees mean {np.mean(res)*100:+.2f}%  "
       f"no-fees {np.mean(res_nf)*100:+.2f}%  best {np.max(res)*100:+.2f}%  worst {np.min(res)*100:+.2f}%")

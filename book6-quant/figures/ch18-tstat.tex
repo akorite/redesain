@@ -1,0 +1,7 @@
+\begin{tikzpicture}
+\begin{axis}[width=0.72\linewidth, height=4.5cm, xlabel={window (hours)},
+  ylabel={t-statistic of mean carry}, ymin=0, xmax=520]
+\addplot[blue!60!black, thick, mark=*] table[x index=0,y index=1] {figures/data/ch18-tstat.dat};
+\addplot[red, dashed, domain=0:520] {2};
+\end{axis}
+\end{tikzpicture}

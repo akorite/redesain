@@ -1,0 +1,13 @@
+\begin{tikzpicture}
+\begin{axis}[width=0.86\linewidth,height=0.36\linewidth,
+    xlabel={fraction $f$},ylabel={growth/toss},
+    xmin=0,xmax=0.35,
+    tick style={draw=none},axis line style={draw=slate},font=\scriptsize]
+  \addplot[accent,very thick] file{figures/data/KG.tex};
+  \addplot[red,dashed,thick] coordinates {(0.1,0)(0.1,0.0055)};
+  \addplot[slate,dotted] coordinates {(0,-0.02)(0.35,-0.02)};
+  \node[font=\scriptsize,text=red] at (axis cs:0.115,0.0058) {$f^*{=}0.10$};
+  \node[font=\scriptsize,text=slate] at (axis cs:0.26,-0.006) {$2f^*$: growth $\approx0$};
+  \node[font=\scriptsize,text=slate] at (axis cs:0.30,-0.014) {$3f^*$: negative};
+\end{axis}
+\end{tikzpicture}

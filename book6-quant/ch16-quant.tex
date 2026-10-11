@@ -4,8 +4,8 @@
 number is a lesson, not a recommendation.}
 
 \medskip
-\noindent Fifteen chapters produced strategies and the tools to
-test them. This last chapter asks the question every allocator
+\noindent Sixteen chapters produced strategies and the tools to
+test them. This chapter asks the question every allocator
 asks second: \emph{how much of each?} Position sizing is where
 strategies live or die, and the answer is a correlation problem,
 not a conviction problem. The toolkit: volatility targeting (size
@@ -38,9 +38,9 @@ correlation assumption.
 \texttt{port\_corr.py} prints:
 \begin{verbatim}
 corr(|r_t|, |r_t-k|) -- vol clustering on real tape:
-  lag 1: +0.237   lag 2: +0.087   lag 5: +0.112   lag 10: +0.034
+  lag 1: +0.163   lag 2: +0.111   lag 5: +0.119   lag 10: -0.015
 corr(r_t, r_t-k) -- signed:
-  lag 1: +0.281   lag 2: -0.053   lag 5: +0.018   lag 10: +0.006
+  lag 1: -0.031   lag 2: +0.002   lag 5: +0.023   lag 10: +0.017
 \end{verbatim}
 Absolute returns predict tomorrow's \emph{vol} (lag-1 +0.24) far
 better than signed returns predict direction after day one ---
@@ -48,7 +48,7 @@ which is exactly why sizing can be forecast while edge cannot.
 \end{solution}
 \end{example}
 
-\section{Volatility targeting}\label{sec:voltgt}
+\section{Volatility targeting}\label{sec:voltgt16}
 
 A fixed dollar position has a variable risk. Vol targeting flips
 it: hold $w_t=\sigma^{\star}/\hat\sigma_t$ units of risk, where
@@ -64,14 +64,14 @@ opposite of what a fixed $1\times$ holder experiences.}
 \label{fig:lev}
 \end{figure}
 
-\begin{example}\label{ex:voltgt}
+\begin{example}\label{ex:voltgt16}
 \textbf{A risk dial, not an edge.} Run a 40\%-vol target on the
 pinned tape and compare honesty.
 \begin{solution}
 \texttt{vol\_target.py} prints:
 \begin{verbatim}
       buy&hold: annvol  35.7%  sharpe +0.29  mdd -53%
-       vol-tgt: annvol  43.8%  sharpe -0.04  mdd -64%  mean lev 1.25
+       vol-tgt: annvol  44.2%  sharpe -0.01  mdd -58%  mean lev 1.03
 realized vol of targeted port: mean 44%  sd 6% (target 40%)
 \end{verbatim}
 The targeting works mechanically --- realized vol holds
@@ -126,7 +126,7 @@ accumulate, decided before the pain arrives, not during it.
 \caption{Drawdown on the pinned tape: buy-and-hold sinks to
 $-53\%$ and spends $63\%$ of days under $-10\%$; the budgeted
 variant caps at $-17\%$ and still finishes ahead.}
-\label{fig:dd}
+\label{fig:dd16}
 \end{figure}
 
 \begin{example}\label{ex:ddbudget}
@@ -136,10 +136,10 @@ variant caps at $-17\%$ and still finishes ahead.}
 \texttt{dd\_budget.py} prints:
 \begin{verbatim}
 buy&hold: days 720  maxDD -53%  days under -10%: 452 (63%)
-dd-budget:  maxDD -17%  days under -10%: 618  final eq 1.30 vs 1.23
+dd-budget:  maxDD -16%  days under -10%: 620  final eq 1.33 vs 1.24
 \end{verbatim}
 The budgeted book's worst drawdown is $-17\%$ vs $-53\%$, and it
-\emph{finishes ahead} ($1.30$ vs $1.23$) --- it was out of the
+\emph{finishes ahead} ($1.33$ vs $1.24$) --- it was out of the
 worst cascade and re-entered for the recovery. The catch: it is
 still under water longer, because re-entry lags the new peak.
 \end{solution}
@@ -167,10 +167,10 @@ which is 99.8\% carry because $1/\sigma$ ignores capacity.}
 \texttt{capstone.py} prints:
 \begin{verbatim}
 funding sleeve: 20 days, mean 2.69bp/day, vol 0.48bp
-    btc spot: ret  +17.1%  sharpe +7.09  mdd -6%
+    btc spot: ret  +19.3%  sharpe +6.45  mdd -7%
 funding carry: ret   +0.5%  sharpe +107.07  mdd 0%
-rp (w 0.002/0.998): ret   +0.6%  sharpe +99.94  mdd 0%
-corr(spot, carry) = -0.348
+rp (w 0.002/0.998): ret   +0.6%  sharpe +94.61  mdd 0%
+corr(spot, carry) = -0.280
 \end{verbatim}
 The carry sleeve's Sharpe is absurd ($+107$) because its vol is
 nearly zero --- it is a drip, not a trade. $1/\sigma$ correctly
@@ -257,7 +257,7 @@ lag the recovery, so time-under-water can lengthen.
 \end{solution}
 
 \begin{exercise}[easy]
-On the pinned tape, corr(spot, funding carry) $=-0.348$. Why is
+On the pinned tape, corr(spot, funding carry) $=-0.280$. Why is
 a negative correlation between a beta sleeve and a carry sleeve
 plausible rather than a data bug?
 \end{exercise}
@@ -333,9 +333,9 @@ Derive the risk-parity weight update when sleeves are correlated:
 why does $1/\sigma$ stop being the answer?
 \end{exercise}
 \begin{solution}
-With $\Sigma\ne\mathrm{diag}$, risk contribution is
-$w_i(\Sigma w)_i/\sigma_p$; equalizing needs iterative solve
-(Spinu/Newton), not a closed form --- $1/\sigma_i$ is only exact
+With a general $\Sigma$, risk contribution is
+$w_i(\Sigma w)_i/\sigma_p$; equalizing needs an iterative
+solve (Spinu/Newton), not a closed form --- $1/\sigma_i$ is only exact
 when $\Sigma$ is diagonal.
 \end{solution}
 
@@ -376,7 +376,7 @@ Argue for or against: ``drawdown budgets are stop-losses for
 cowards.'' Use the tape's numbers.
 \end{exercise}
 \begin{solution}
-Against as stated: the budgeted book beat B\&H ($1.30$ vs $1.23$)
+Against as stated: the budgeted book beat B\&H ($1.33$ vs $1.24$)
 with a third the drawdown --- but the honest version is
 regime-conditional: in V-shaped markets the same rule whipsaws.
 The budget is insurance, and insurance has a premium.

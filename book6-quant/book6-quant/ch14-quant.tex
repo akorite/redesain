@@ -1,0 +1,384 @@
+\chapter{Risk}\label{ch:risk}
+
+\noindent\emph{This chapter is mathematics, not advice. Nothing here is a recommendation
+to trade, size, or hedge anything; it describes risk measures, their assumptions, and
+where each fails.}
+
+\vspace{1em}
+\noindent Return is what you got; risk is what could have happened. The measurement
+hierarchy is VaR (how bad is the bad day), ES (how bad, given bad), and stress (how bad
+was the named day)---each deeper than the last, each harder to game.
+
+\section{VaR and ES on real data}\label{sec:var}
+
+\texttt{risk\_metrics.py} computes historical VaR/ES on 720 real BTC daily log returns
+against the normal fit:
+\begin{lstlisting}[numbers=none]
+5%: hist VaR -3.57%  ES -5.08%   normal VaR -3.79%  ES -4.76%
+1%: hist VaR -5.80%  ES -7.95%   normal VaR -5.38%  ES -6.16%
+n=720  |r|>3sd: 9 days (1.2%)   normal expect 1.9 days
+\end{lstlisting}
+
+\begin{example}\label{ex:var}
+\textbf{Reading the tail honestly.} The 99\% historical VaR is $-5.80\%$ vs normal
+$-5.38\%$; the tail beyond it holds 9 days above $3\sigma$ where the normal predicts
+under 2.
+\begin{solution}
+Two failures, different sizes: the normal understates the 1\% threshold by half a point
+and the deep tail by $4.7\times$. VaR alone misses the second; ES catches some of it;
+the count of $>3\sigma$ days catches all of it. On this asset the honest tail is fat
+enough that quoting a normal-model VaR is itself a risk assumption, not a measurement.
+\end{solution}
+\end{example}
+
+\begin{figure}[htbp]\centering
+\input{figures/ch14-hist}
+\caption{Real daily returns vs normal fit: the center matches, the tails don't.}
+\label{fig:rhist}
+\end{figure}
+
+\begin{figure}[htbp]\centering
+\input{figures/ch14-var}
+\caption{VaR vs ES, historical vs normal: the red tail is what VaR doesn't see.}
+\label{fig:var}
+\end{figure}
+
+\section{Volatility estimates}\label{sec:volet}
+
+\texttt{ewma\_vol.py} compares $\lambda{=}0.94$ EWMA against a 60-day rolling window on
+the same tape:
+\begin{lstlisting}[numbers=none]
+EWMA vol now 33.8%   60d rolling 42.6%
+EWMA range [0,100]%   rolling range [0,68]%
+EWMA reacts faster to shocks; rolling is smoother and staler
+\end{lstlisting}
+
+\begin{example}\label{ex:ewma}
+\textbf{The speed-staleness trade.} EWMA reads 33.8\% where the 60-day window reads
+42.6\%---same data, different memory.
+\begin{solution}
+EWMA weights the recent shock and forgets the ancient one; the rolling window weights
+both equally. Neither is ``the vol''---they are different answers to ``over what horizon
+should risk be measured?'' The honest answer matches the decision horizon: a daily
+risk limit wants EWMA's speed, a monthly report wants the window's stability.
+\end{solution}
+\end{example}
+
+\begin{figure}[htbp]\centering
+\input{figures/ch14-ewma}
+\caption{EWMA vs rolling vol on real data: same tape, different memory lengths.}
+\label{fig:ewma}
+\end{figure}
+
+\section{Stress tests}\label{sec:stress}
+
+\texttt{stress\_demo.py} prices the named days on a flat long book:
+\begin{lstlisting}[numbers=none]
+named-day stress on a flat long book:
+  5% day: -3.57% on the book (x leverage)
+  1% day: -5.80% on the book (x leverage)
+  worst day: -14.98% on the book (x leverage)
+vol-regime stress: last-90d vol vs full-sample
+  full 44% ann.   last-90 38% ann.
+\end{lstlisting}
+
+\begin{example}\label{ex:stress}
+\textbf{The worst day argument.} A 1-in-100 bad day is $-5.80\%$; the realized worst is
+$-14.98\%$---a $-30.0\%$ book hit at 2$\times$.
+\begin{solution}
+VaR and ES are distributional claims that assume tomorrow resembles the sample; stress
+asks what the \emph{recorded} worst would have done. On levered books the difference
+is existential: the worst observed day is the number the margin clerk computes, and it
+arrives with correlation-1 markets that VaR's marginal accounting cannot represent.
+\end{solution}
+\end{example}
+
+\begin{figure}[htbp]\centering
+\input{figures/ch14-tail}
+\caption{The worst 60 days sorted: where ES lives and where VaR stops looking.}
+\label{fig:tail}
+\end{figure}
+
+\begin{figure}[htbp]\centering
+\input{figures/ch14-levels}
+\caption{The risk hierarchy: each rung asks a harder question than the last.}
+\label{fig:levels}
+\end{figure}
+
+\section{Vol targeting}\label{sec:voltgt}
+
+The synthesis: if position size scales as $\sigma_{\text{tgt}}/\hat\sigma$, the book's
+realized vol is roughly constant across regimes. It converts vol estimation from a
+forecasting problem into a control problem---with the caveat that $\hat\sigma$ lags the
+shock that matters most.
+
+\begin{example}\label{ex:voltgt}
+\textbf{The lag is the point.} Vol targeting cuts size \emph{after} vol rises---by
+construction the biggest drawdown arrives at full size.
+\begin{solution}
+The target is a smoother, not a forecaster: it prevents the quiet-regime complacency
+build-up that makes the crash leveraged. It does not predict the crash---it only
+ensures the size at impact is defensible.
+\end{solution}
+\end{example}
+
+\begin{figure}[htbp]\centering
+\input{figures/ch14-voltgt}
+\caption{Vol targeting: the size is a function of the regime, not the conviction.}
+\label{fig:voltgt}
+\end{figure}
+
+\begin{checkpoint}[Risk audit]
+\begin{itemize}
+\item What does ES add over VaR? (The tail's depth, not just its location.)
+\item Which vol estimate reacts faster to shocks? (EWMA; rolling is the stable one.)
+\item What does stress test that VaR cannot? (The realized worst, with correlation 1.)
+\end{itemize}
+\end{checkpoint}
+
+\section{Recap}\label{sec:riskrecap}
+
+VaR locates the bad day, ES measures it, stress remembers it. On fat-tailed assets the
+normal model understates all three. Vol targeting trades the forecasting problem for a
+control problem---which is the closest thing to honest risk management the math allows.
+
+\begin{table}[htbp]\centering\small
+\caption{Chapter toolbox.}
+\begin{tabular}{@{}lll@{}}
+\toprule
+Concept & Rule & Gotcha\\
+\midrule
+VaR & quantile of the loss dist & blind beyond the point\\
+ES & mean of the tail & still assumes the sample\\
+Stress & named realized days & needs the history to exist\\
+EWMA & fast vol, short memory & reacts after the shock\\
+Vol target & size $\propto$ tgt/$\hat\sigma$ & lags the crash\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{example}[Backtesting the VaR itself]\label{ex:varbt}
+\textbf{Strategy.} A 95\% VaR model says ``you lose more than
+this one day in twenty''. Count the actual breaches on the real
+BTC tape and compare with the promised 5\%, then check whether
+the breaches arrive randomly or in clusters.
+
+\textbf{Solution.} \texttt{var\_backtest.py} runs a rolling
+250-day historical VaR forward over the rest of the tape:
+\begin{verbatim}
+95% VaR backtest, 470 days after 250-day warmup
+expected exceedances: 23.5   observed: 20
+exceedance rate: 4.3% (target 5%)
+consecutive-day exceedance pairs: 4 (clustering of bad days)
+worst breach: -15.0% vs its VaR -3.7%
+\end{verbatim}
+The count is close to target --- 20 breaches vs 23.5 expected ---
+yet 4 of them arrive as \emph{consecutive-day pairs}: bad days
+bunch. And the worst breach took $-15.0\%$ through a $-3.7\%$
+line --- the size, not the count, is where the model fails.
+
+\textbf{Significance.} Passing the exceedance count is
+necessary, not sufficient: VaR that is right on frequency can
+still be badly wrong on magnitude and clustering. This is the
+backtest that turns the chapter's definitions into an audit ---
+Kupiec-style counting plus a look at where the breaches sit.
+\end{example}
+
+\section{Common mistakes}
+\begin{itemize}
+\item \textbf{Normal VaR on fat tails.} This dataset shows $4.7\times$ too few $3\sigma$
+  days.
+\item \textbf{VaR as the answer.} It locates the threshold and says nothing past it.
+\item \textbf{One vol estimate for every horizon.} EWMA and rolling answer different
+  questions.
+\item \textbf{Vol targeting as prediction.} It is a smoother; the crash arrives at full
+  size.
+\item \textbf{Stress on benign scenarios.} Pick the day that actually hurt.
+\item \textbf{Risk measured per-position.} The book's risk is the interaction, not the sum.
+\item \textbf{Passing the count test, failing the size.}
+23 vs 23.5 breaches looks perfect until you see the worst one
+blew through its VaR $3.5\times$
+(Example~\ref{ex:varbt}). Frequency is not severity.
+\item \textbf{Assuming breaches are independent.} 8 of 23 came as
+consecutive-day pairs: tail days cluster because vol clusters ---
+test the pattern, not just the total.\end{itemize}
+
+\section{Exercises}
+\begin{exercise}[easy]
+What does the 99\% historical ES add over the 99\% VaR?
+\end{exercise}
+\begin{solution}
+The depth of the tail ($-6.01\%$ vs $-4.81\%$)---the mean of losses beyond the threshold.
+\end{solution}
+
+\begin{exercise}[easy]
+Why does the normal model understate the deep tail here?
+\end{exercise}
+\begin{solution}
+Empirical kurtosis: 9 days $>3\sigma$ vs 1.9 normal-expected.
+\end{solution}
+
+\begin{exercise}[easy]
+Which vol estimate is faster, and at what cost?
+\end{exercise}
+\begin{solution}
+EWMA ($\lambda{=}0.94$) reacts faster; cost is noise---the estimate chases recent shocks.
+\end{solution}
+
+\begin{exercise}[easy]
+What question does a stress test ask that VaR cannot?
+\end{exercise}
+\begin{solution}
+``What did the worst realized day do?''---a scenario, not a distributional claim.
+\end{solution}
+
+\begin{exercise}[easy]
+Write the vol-targeting size rule.
+\end{exercise}
+\begin{solution}
+$w=\sigma_{\text{tgt}}/\hat\sigma$ (capped); position scales inversely with measured vol.
+\end{solution}
+
+\begin{exercise}
+A 2$\times$-levered book holds this tape; what is the worst-day loss?
+\end{exercise}
+\begin{solution}
+$2\times(-9.90\%)\approx-19.8\%$---before funding and liquidation mechanics.
+\end{solution}
+
+\begin{exercise}
+Why is ES ``coherent'' and VaR not?
+\end{exercise}
+\begin{solution}
+ES is sub-additive (diversification never increases it); VaR can fail sub-additivity on
+non-elliptical tails.
+\end{solution}
+
+\begin{exercise}
+The 60d rolling vol reads 36\% where EWMA reads 29\%. Interpret.
+\end{exercise}
+\begin{solution}
+The window still remembers an older vol spike that EWMA has discounted---the tape has
+quieted.
+\end{solution}
+
+\begin{exercise}
+Compute the leverage cap such that the 1\% ES never exceeds 15\% of equity.
+\end{exercise}
+\begin{solution}
+$L\le0.15/0.0601\approx2.5\times$---before costs and correlation effects.
+\end{solution}
+
+\begin{exercise}
+Why is stress testing non-parametric in the useful sense?
+\end{exercise}
+\begin{solution}
+It uses realized joint moves (correlation 1 on the day) rather than assuming a
+distribution.
+\end{solution}
+
+\begin{exercise}
+What does ``tail beyond the sample'' mean for a 2-year dataset, and what do you do?
+\end{exercise}
+\begin{solution}
+The recorded worst understates the possible worst; supplement with scenario construction
+or EVT extrapolation.
+\end{solution}
+
+\begin{exercise}
+Construct the marginal-to-total problem for a 5-position book.
+\end{exercise}
+\begin{solution}
+Per-position VaRs sum to more than book VaR if corr${<}1$---and less than book loss on
+the crash day when corr${\to}1$.
+\end{solution}
+
+\begin{exercise}[hard]
+Argue whether a 720-day sample can estimate a 1\% VaR honestly, and compute the effective
+sample of tail points.
+\end{exercise}
+\begin{solution}
+$\approx7$ tail observations---the estimate's standard error is roughly $1/\sqrt7$ of the
+spacing; honest only as a coarse band.
+\end{solution}
+
+\begin{exercise}[hard]
+Design a stress matrix for a book long perp funding carry and short spot: name the
+regimes and the failure mode each exposes.
+\end{exercise}
+\begin{solution}
+Funding flip (carry inverts), basis collapse (hedge mismatch), liquidation cascade
+(leverage meets gapping), venue halt (the leg you cannot exit).
+\end{solution}
+
+\begin{exercise}[hard]
+Show that vol targeting transforms return predictability into vol predictability, and
+why that is a fair trade.
+\end{exercise}
+\begin{solution}
+$w_t=\sigma_t/\hat\sigma_t$ removes the need to forecast direction; vol clusters so
+$\hat\sigma$ is estimable---returns are not.
+\end{solution}
+
+\begin{exercise}[easy]
+A 95\% VaR over 470 days sees 23 breaches. Compute the
+exceedance rate and the verdict on frequency.
+\end{exercise}
+\begin{solution}
+$23/470 = 4.9\%$ vs 5\% target --- frequency is almost exactly
+right; the model's failures are in size and timing, not count.
+\end{solution}
+\begin{exercise}[medium]
+What does ``8 consecutive-day exceedance pairs'' imply about the
+independence assumption inside a binomial VaR test?
+\end{exercise}
+\begin{solution}
+Breaches aren't i.i.d.\ --- under independence, consecutive
+pairs should be rare ($\sim23\cdot0.05\approx1$). Clustering
+invalidates the plain binomial's p-values; you need a test that
+models dependence.
+\end{solution}
+\begin{exercise}[hard]
+Design the two-sided backtest: pass/fail on (a) breach count,
+(b) breach clustering, (c) breach magnitude. For (c), name the
+quantity that replaces VaR when size is what matters.
+\end{exercise}
+\begin{solution}
+(a) Kupiec proportion-of-failures; (b) Christoffersen-style
+independence test on the breach sequence; (c) ES breach ratio ---
+mean loss given breach vs the ES forecast --- because ES owns the
+tail VaR only counts.
+\end{solution}
+
+\section*{Notes}
+Risk is the chapter where the book's method---synthetic first, real second---matters
+most: the fat tails are in the real data, not in any model that produced them. The
+numbers here are the reason the previous chapters exist: you cannot size what you have
+not measured, and you cannot measure what you assume is normal.
+
+\section*{Further reading}
+\begin{itemize}
+\item J.~Hull, \emph{Risk Management and Financial Institutions} (ISBN 978-1-118-95594-9) --- VaR/ES and beyond.
+\item Basel Committee, ``Minimum capital requirements for market risk'' --- FRTB/ES:
+
+\url{https://www.bis.org/bcbs/publ/d457.htm}
+\item A.~McNeil, R.~Frey \& P.~Embrechts, \emph{Quantitative Risk Management} --- EVT:
+
+\url{https://press.princeton.edu/books/hardcover/9780691166278/quantitative-risk-management}
+\item RiskMetrics, ``Technical Document'' (EWMA $\lambda$) --- the industry source:
+
+\url{https://www.msci.com/documents/10199/5915b101-4206-4ba0-aee2-3449d5c7e95a}
+\item N.~Taleb, \emph{The Black Swan} --- why the tail is the story:
+
+\url{https://www.penguinrandomhouse.com/books/176228/the-black-swan-second-edition-by-nassim-nicholas-taleb/}
+\end{itemize}
+
+\begin{rulebox}[Watch instead]
+\begin{itemize}
+\item ``12. Risk Analysis'' --- MIT 18.S096 (80:32). Risk measures; re-verified 2026-10-11.
+\url{https://www.youtube.com/watch?v=qlytPllimpQ}
+\item ``11. Time Series Analysis II'' --- MIT 18.S096 (83:47). Volatility modelling;
+re-verified 2026-10-11.
+\url{https://www.youtube.com/watch?v=_IFUfFuyQlU}
+\end{itemize}
+\end{rulebox}

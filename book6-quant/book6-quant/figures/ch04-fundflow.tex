@@ -1,0 +1,12 @@
+\begin{tikzpicture}[every node/.style={draw=slate,fill=white,rounded corners=1pt,
+  font=\scriptsize,align=center,inner sep=4pt}]
+  \node (prem) {premium $p_t$\\ perp vs index};
+  \node (clamp) [right=1.4cm of prem] {clamp\\ $|f_t|\le f_{\max}$};
+  \node (split) [right=1.4cm of clamp] {sign of $f_t$};
+  \node (long) [above right=0.5cm and 1.2cm of split,text=good] {longs pay shorts\\ $f_t>0$};
+  \node (short) [below right=0.5cm and 1.2cm of split,text=amber] {shorts pay longs\\ $f_t<0$};
+  \draw[->,ink] (prem) -- (clamp);
+  \draw[->,ink] (clamp) -- (split);
+  \draw[->,ink] (split) -- (long);
+  \draw[->,ink] (split) -- (short);
+\end{tikzpicture}

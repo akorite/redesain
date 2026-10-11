@@ -1,0 +1,12 @@
+\begin{tikzpicture}[every node/.style={font=\scriptsize,align=center}]
+  \node[draw=good,fill=goodbg,rounded corners=1pt,minimum width=3.4cm,minimum height=0.9cm] (spot)
+    {long 1 BTC spot};
+  \node[draw=amber,fill=amberbg,rounded corners=1pt,minimum width=3.4cm,minimum height=0.9cm,right=2.6cm of spot] (perp)
+    {short 1 BTC perp};
+  \node[draw=slate,fill=graybg,rounded corners=1pt,minimum width=3.4cm,minimum height=0.9cm,
+        below=1.0cm of $(spot)!0.5!(perp)$] (res)
+    {price moves cancel:\\ earns $f_t$ when $f_t>0$, pays when $f_t<0$};
+  \draw[<->,ink,thick] (spot) -- node[above]{delta $=0$} (perp);
+  \draw[->,ink] (spot) -- (res);
+  \draw[->,ink] (perp) -- (res);
+\end{tikzpicture}

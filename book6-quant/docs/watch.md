@@ -33,3 +33,7 @@ Every entry was opened and confirmed (YouTube oembed + page metadata) before lis
 | ch15 | PyData McKinney pandas walkthrough | PyData | 10:28 | 2026-10-11 |
 | 16 | How to Build a Recession-Proof Investment Portfolio | Real Vision | 52:39 | https://youtu.be/SkfgEZtJ9LA | 16.2-16.5 | 2026-10-11 |
 | 16 | How The Economic Machine Works | Principles by Ray Dalio | 31:00 | https://youtu.be/PHe0bXAIuk0 | 16.1,16.5 | 2026-10-11 |
+ch17 | Dangers of Backtest Overfitting - Marcos Lopez de Prado | Alex Bernal | 20:41 | 2026-10-11 | https://www.youtube.com/watch?v=QxhxLwNbMMg
+ch17 | How quant trading strategies are developed and tested w/ Ernie Chan | Chat With Traders | 60:38 | 2026-10-11 | https://www.youtube.com/watch?v=DW9zQ8Hz6gQ
+ch18 | The Hidden Trap in Funding Rate Arbitrage Nobody Talks About | Fueled By Chai | 9:33 | 2026-10-11 | https://www.youtube.com/watch?v=eq8ZHA6Czt8
+ch18 | What Are Perpetual Contracts and How Funding Rates Work | dYdX Academy | 5:00 | 2026-10-11 | https://www.youtube.com/watch?v=MMjR_LRhfK0

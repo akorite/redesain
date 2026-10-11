@@ -1,12 +1,12 @@
 \begin{tikzpicture}
 \begin{axis}[width=0.86\linewidth,height=0.34\linewidth,
-    xlabel={bar},ylabel={equity (start=1)},
-    xmin=0,xmax=721,ymin=0.4,ymax=15,
+    xlabel={bar},ylabel={equity (start=1, log scale)},
+    ymode=log,xmin=0,xmax=721,ymin=0.4,ymax=3e7,
     tick style={draw=none},axis line style={draw=slate},
     xtick={0,180,360,540,720},font=\scriptsize]
   \addplot[amber,very thick] file{figures/data/E_LEAK.tex};
   \addplot[accent,thick] file{figures/data/E_SMA.tex};
-  \node[font=\scriptsize,text=amber] at (axis cs:540,11) {one-bar foresight};
-  \node[font=\scriptsize,text=accent] at (axis cs:600,1.5) {honest};
+  \node[font=\scriptsize,text=amber] at (axis cs:450,3e5) {one-bar foresight};
+  \node[font=\scriptsize,text=accent] at (axis cs:600,0.9) {honest};
 \end{axis}
 \end{tikzpicture}

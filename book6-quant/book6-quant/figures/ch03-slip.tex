@@ -1,0 +1,9 @@
+\begin{tikzpicture}
+\begin{axis}[width=0.7\linewidth,height=5.2cm,
+  xlabel={market-buy size (units)},ylabel={slippage vs mid (\%)},
+  grid=major,grid style={gray!25},xmin=0,xmax=48,ymin=0,ymax=3.5]
+\addplot[accent,thick,mark=*] coordinates {(2,0.249) (3,0.416) (5,0.549) (6,0.665) (9,0.859) (12,1.039) (21,1.556) (36,2.466) (46,3.177)};
+\node[font=\small,text=slate,anchor=west] at (axis cs:6,2.9)
+  {convex: each level eaten costs more than the last};
+\end{axis}
+\end{tikzpicture}

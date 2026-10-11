@@ -1,0 +1,644 @@
+\chapter{Time series and stationarity}\label{ch:ts}
+A price series is not a dataset of independent draws --- it is an
+ordered path. That single fact is why the tests in this book need
+care: most of classical statistics assumes the thing you feed it is
+\emph{stationary}, and prices emphatically are not. This chapter
+makes that precise: what stationarity means, the two ways a series
+fails it, the differencing fix you already used in ch1, and the ADF
+test that tells you whether the fix was needed --- including the one
+thing ADF cannot tell you.
+
+\section{Stationarity, weak and strong}\label{sec:stat}
+\index{stationarity}\index{weak stationarity}
+A process is \emph{strongly} (strictly) stationary if the joint
+distribution of any finite window $(x_{t_1},\dots,x_{t_k})$ equals
+that of $(x_{t_1+h},\dots,x_{t_k+h})$ for every shift $h$ ---
+statistics are translation-invariant in time, full stop. That is
+stronger than anything you can check on one path, so practice uses
+the weaker version: \emph{weakly} (covariance) stationary means
+\begin{itemize}
+\item $\mathbb E[x_t]=\mu$ constant,
+\item $\operatorname{Var}[x_t]=\sigma^2$ constant, finite,
+\item $\operatorname{Cov}[x_t,x_{t-k}]$ depends only on the lag $k$,
+not on $t$.
+\end{itemize}
+Why tests need it: a sample mean $\bar x$ over a window is an
+estimate of \emph{something} only if the mean doesn't move while you
+average. On a random walk, $\mathbb E[x_t]$ is still defined but
+$\operatorname{Var}[x_t]=t\sigma^2$ grows --- the second condition
+fails, and with it every ``standard error'' computed under the
+i.i.d.\ assumption.
+
+\begin{example}[Identify by eye, then by number]\label{ex:tsgrid}
+Four generators, same $T=500$:
+white noise, AR(1) with $\phi=0.85$, Ornstein--Uhlenbeck with
+$\theta=0.12$ around $\mu=4$, and a random walk. Which are
+stationary?
+
+\textbf{Strategy.} Eyeball for a constant level and a constant
+spread, then confirm with the printed summaries.
+
+\textbf{Solution.} Figure~\ref{fig:tsgrid} shows all four; real
+output:
+\begin{lstlisting}[numbers=none]
+white noise : mean=+0.055 sd=1.001 first50 sd=1.092 last50 sd=0.978
+AR(1) phi.85: mean=+0.305 sd=1.951
+random walk : mean=+7.883 sd=9.361 start=+2.04 end=+27.50
+OU theta.12 : mean=+4.011 sd=0.729 -> half-life 5.8 bars
+\end{lstlisting}
+White noise and OU look flat-and-constant --- stationary. AR(1) with
+$\phi=0.85$ wanders more but is still stationary (an AR(1) with
+$|\phi|<1$ has a finite stationary variance
+$\sigma_\varepsilon^2/(1-\phi^2)$; the wandering is just slow
+reversion, not a unit root). The random walk is the odd one out:
+level drifts from $+2$ to $+27.5$ and the spread grows --- it fails
+both the mean and variance conditions.
+\end{example}
+
+\begin{figure}[ht]\centering
+\input{figures/ch02-tsgrid}
+\caption{Which are stationary? White noise and OU are (constant mean
+and spread); AR(1) with $\phi<1$ is stationary but lazy about
+reverting; the random walk drifts and fans out.}
+\label{fig:tsgrid}
+\end{figure}
+
+\begin{checkpoint}[Name the failure]
+For each, say which weak-stationarity condition fails: (a)
+$x_t=0.5t+\varepsilon_t$; (b) $x_t=x_{t-1}+\varepsilon_t$; (c)
+$\varepsilon_t\cdot t$ with $\varepsilon$ i.i.d. ((a) mean, (b)
+variance, (c) variance.)
+\end{checkpoint}
+
+\section{ACF, PACF and the Ljung--Box check}\label{sec:acfpacf}
+\index{PACF}\index{Ljung--Box}
+Ch1 used the ACF as a fact-detector. For model identification the
+companion is the \emph{PACF}: $\operatorname{PACF}(k)$ is the
+correlation of $x_t$ with $x_{t-k}$ \emph{after removing} the effect
+of the intervening lags. The signature table worth memorising:
+\begin{itemize}
+\item White noise: both die immediately.
+\item AR($p$): ACF decays smoothly, PACF cuts off after $p$.
+\item MA($q$): ACF cuts off after $q$, PACF decays smoothly.
+\item Unit root: ACF hugs 1 for dozens of lags
+(Figure~\ref{fig:acf3}).
+\end{itemize}
+ACF bars are pointwise; the joint question ``is \emph{any} of the
+first $m$ lags nonzero?'' is the Ljung--Box test:
+$Q=m\,(m+2)\sum_{k\le m}\hat\rho_k^2/(n-k)$, $\chi^2_m$ under the
+null of whiteness.
+
+\begin{example}[Ljung--Box before and after fitting]\label{ex:lb}
+Run the check on the raw AR(1) series, then on its residuals after
+fitting (\texttt{code/ljung\_box.py}).
+
+\textbf{Strategy.} Raw series should fail whiteness badly; residuals
+of a correct fit should pass it. That before/after pair is the
+diagnostic loop in miniature.
+
+\textbf{Solution.} Real output:
+\begin{lstlisting}[numbers=none]
+white noise    LB(10)=   5.10 p=0.8847 -> consistent with white noise
+AR(1) .85 raw  LB(10)=1385.33 p=0.0000 -> autocorrelation remains
+AR(1) resid    LB(10)=   5.05 p=0.8880 -> consistent with white noise
+(phi_hat=0.861 vs planted 0.85)
+\end{lstlisting}
+The raw AR(1) fails at $Q=1385$; the fitted residuals pass at
+$Q=5.05$ --- nothing left for the model to explain. White noise
+itself passes, as it must. Read the pattern, not just the p-value:
+LB is the ``model is finished'' certificate, and it is checked on
+\emph{residuals}, never on the raw series.
+\end{example}
+
+\begin{figure}[ht]\centering
+\input{figures/ch02-acf}
+\caption{ACF signatures. Random walk: decays too slowly to see in 15
+lags. AR(1): clean geometric decay $\approx0.85^k$. OU: same decay
+family (it is an AR(1) around a mean) and that is the point --- the
+ACF cannot tell AR(1)-mean-reverting from AR(1)-persistent; level
+and the ADF regression carry that information.}
+\label{fig:acf3}
+\end{figure}
+
+\section{Deterministic trend vs unit root}\label{sec:trend}
+\index{unit root}\index{trend-stationary}
+``Non-stationary'' has two flavours and they are not
+interchangeable:
+\begin{itemize}
+\item \textbf{Trend-stationary:} $x_t=\alpha+\beta
+t+\text{stationary}$. Remove the deterministic line and it is
+stationary. Shocks die out.
+\item \textbf{Difference-stationary (unit root):}
+$x_t=x_{t-1}+\varepsilon_t$ (a random walk) or with drift. Every
+shock is permanent; $\operatorname{Var}$ grows with $t$. Differencing
+restores stationarity.
+\end{itemize}
+The distinction matters because the fix differs: detrending a unit
+root leaves a non-stationary remainder (the line you removed was
+never the real level); differencing a trend-stationary series
+\emph{over-differences} --- you manufactured an MA unit root of the
+opposite sign. Most financial prices look like the second case.
+
+\section{Differencing and logs: the price\texorpdfstring{$\to$}{->}returns fix}\label{sec:diff}
+\index{differencing}
+If $P_t$ contains a unit root, $r_t=\log P_t-\log P_{t-1}$ removes
+it --- which is the operational reason ch1 modelled returns, not
+prices. Verify on the real series.
+
+\begin{example}[BTC: unit root in the level, none in the return]
+\label{ex:btcadf}
+On the cached Kraken daily closes (\texttt{data/btc\_daily.csv};
+\texttt{code/btc\_stationarity.py}), run ADF on the log-price and on
+its first difference.
+
+\textbf{Strategy.} The question a trading researcher actually asks:
+``is my model's input legal?'' Prices fail; returns pass.
+
+\textbf{Solution.} Real output:
+\begin{lstlisting}[numbers=none]
+bars=721 log-price range [10.981,11.735]
+log-price  ADF= -1.865 p=0.3487 crit5%=-2.866 -> unit root not rejected
+log-return ADF=-27.621 p=0.0000 crit5%=-2.866 -> stationary
+\end{lstlisting}
+Figure~\ref{fig:diff} shows the before/after: the level wanders for
+two years (and ADF agrees: $-1.865$ is far inside the $-2.866$
+critical value, Figure~\ref{fig:adfsketch}); one difference kills it
+and the return rejects at $-27.6$. This is why ``run the test on
+prices'' is a trap question --- the test \emph{should} fail there.
+\end{example}
+
+\begin{figure}[ht]\centering
+\input{figures/ch02-diff}
+\caption{BTC log-price (top) vs its first difference, the log-return
+(bottom). Non-stationary level in, stationary series out.}
+\label{fig:diff}
+\end{figure}
+
+\begin{checkpoint}[Predict the verdict]
+What do you expect ADF to report on (a) raw $P_t$, (b) $\log P_t$,
+(c) $\Delta\log P_t$ for the same series? (Fail, fail, pass ---
+logging compresses but does not remove the unit root.)
+\end{checkpoint}
+
+\section{The ADF test: what it says, what it cannot say}\label{sec:adf}
+\index{ADF test}
+The augmented Dickey--Fuller test fits the regression
+\[
+\Delta x_t = \alpha + \beta t + \gamma\, x_{t-1}
+  + \textstyle\sum_{j}\delta_j\,\Delta x_{t-j} + e_t
+\]
+and tests $H_0:\gamma=0$ (a unit root) against $\gamma<0$
+(stationary, mean-reverting). The statistic is the t-ratio on
+$\gamma$, but the null distribution is \emph{not} the t-distribution
+--- it has its own critical values ($\approx-2.87$ at 5\% with a
+constant, $-3.44$ with a trend; read them off the output).
+
+\begin{example}[ADF on the four canonical series]\label{ex:adf}
+\texttt{code/adf\_demo.py} runs the test (statsmodels
+\texttt{adfuller}, AIC lag selection) on everything built so far.
+
+\textbf{Strategy.} Check the planted truth against the verdicts,
+including the cointegrated pair.
+
+\textbf{Solution.} Real output:
+\begin{lstlisting}[numbers=none]
+white noise  ADF=-22.971  p=0.0000  -> REJECT unit root (stationary)
+AR(1) .85    ADF= -6.039  p=0.0000  -> REJECT unit root (stationary)
+OU .12       ADF= -5.792  p=0.0000  -> REJECT unit root (stationary)
+random walk  ADF= -0.349  p=0.9182  -> cannot reject (non-stationary)
+coint sprd z ADF= -5.371  p=0.0000  -> REJECT unit root (stationary)
+coint y=2x+z ADF= -1.029  p=0.7426  -> cannot reject (non-stationary)
+\end{lstlisting}
+Every planted verdict is recovered, including the pair: $y_t$
+contains the walk's unit root, the spread $z_t$ does not.
+\end{example}
+
+\begin{example}[Where ADF goes blind: the power problem]
+\label{ex:adfpow}
+Same script, second block: AR(1) with $\phi=0.98$ at $T=500$, three
+seeds:
+\begin{lstlisting}[numbers=none]
+seed  3: ADF=-2.644 p=0.084 not detected
+seed  7: ADF=-2.496 p=0.116 not detected
+seed 11: ADF=-3.979 p=0.002 stationary
+\end{lstlisting}
+$\phi=0.98$ \emph{is} stationary --- and two of three seeds fail to
+reject. Near the boundary, the test has low power: it is a one-sided
+statement. ``Cannot reject'' means the data are consistent with a
+unit root, not that there is one. The practical rule: a borderline
+result tells you to look at the ACF decay and the economics, not to
+declare victory either way.
+\end{example}
+
+\begin{figure}[ht]\centering
+\input{figures/ch02-adf}
+\caption{ADF rejection region (sketch of the null distribution with
+a constant). The BTC log-price statistic $-1.865$ sits inside the
+non-rejection zone; only the far left tail rejects the unit root.}
+\label{fig:adfsketch}
+\end{figure}
+
+\begin{checkpoint}[Read the asymmetry]
+An ADF run gives $p=0.02$. What do you conclude --- and what would
+$p=0.20$ \emph{not} let you conclude? (Reject at 5\%: stationary by
+this test. The large p proves nothing about a unit root; it says the
+data are consistent with one.)
+\end{checkpoint}
+
+\section{Mean reversion vs random walk: where a testable edge could live}\label{sec:ou}
+\index{Ornstein--Uhlenbeck}\index{half-life}\index{cointegration}
+Stationarity earned by differencing is ``no structure left''. The
+interesting stationary objects are the ones with structure: a spread
+that keeps returning. The workhorse model is the
+Ornstein--Uhlenbeck process
+$\mathrm dx_t=\theta(\mu-x_t)\,\mathrm dt+\sigma\,\mathrm dW_t$ ---
+an AR(1) pointed at a mean --- and its tradable version is the
+\emph{cointegrated pair}: two individually non-stationary series
+$y_t=\beta x_t+z_t$ whose linear combination $z_t$ is stationary.
+Then the \emph{half-life} $t_{1/2}=\log 2/\theta$ is the expected
+decay time of a spread excursion --- the number that sizes holding
+periods.
+
+\begin{example}[Half-life recovered from data]\label{ex:ouhl}
+Plant OU spreads at three speeds, recover $\theta,\mu$ and
+$t_{1/2}$ by the AR(1) regression $x_t=a+b\,x_{t-1}+e_t$
+($\hat\theta=1-b$), \texttt{code/ou\_halflife.py}.
+
+\textbf{Strategy.} The estimator is four lines; the question is how
+well it reads back the truth at 4000 bars.
+
+\textbf{Solution.} Real output:
+\begin{lstlisting}[numbers=none]
+planted theta=0.05 mu=2.00 hl= 13.9 | recovered: theta=0.044 hl= 15.6
+planted theta=0.12 mu=2.00 hl=  5.8 | recovered: theta=0.110 hl=  6.3
+planted theta=0.30 mu=2.00 hl=  2.3 | recovered: theta=0.290 hl=  2.4
+\end{lstlisting}
+Recovery is tight for fast reversion (2.3$\to$2.4) and looser for
+slow (13.9$\to$15.6, $\sim$12\% high): slow reversion gives each
+sample less independent information, exactly the ADF power problem
+in another costume. Figure~\ref{fig:oup} shows the annotated path.
+\end{example}
+
+\begin{figure}[ht]\centering
+\input{figures/ch02-ou}
+\caption{OU path ($\theta=0.12,\mu=4$): every excursion decays back
+with planted half-life $\approx5.8$ bars.}
+\label{fig:oup}
+\end{figure}
+
+\begin{example}[A synthetic cointegrated pair]\label{ex:coint}
+$x_t$ a random walk, $y_t=2x_t+z_t$ with $z_t$ OU
+($\theta=0.10$), \texttt{simulate\_ts.py} + \texttt{adf\_demo.py}.
+Real output:
+\begin{lstlisting}[numbers=none]
+coint pair  : y=2x+z, spread z mean=+0.120 sd=0.731
+              (x sd 8.93, y sd 18.02)
+coint sprd z ADF= -5.371  p=0.0000  -> stationary
+coint y=2x+z ADF= -1.029  p=0.7426  -> unit root not rejected
+\end{lstlisting}
+Both legs fail the ADF test individually; their combination $z_t$
+passes (Figure~\ref{fig:coint}). That is the entire mean-reversion
+thesis in one output block: the edge, if any, lives in the
+stationary residual --- a number you can name, estimate and test ---
+not in ``two prices that look correlated''.
+\end{example}
+
+\begin{figure}[ht]\centering
+\input{figures/ch02-coint}
+\caption{Cointegration. Both legs contain the unit root; the linear
+combination $z_t=y_t-2x_t$ is stationary (ADF $-5.37$).}
+\label{fig:coint}
+\end{figure}
+
+\begin{example}[Trend-stationary or difference-stationary?]\label{ex:trendvsdiff}
+\textbf{Strategy.} Two candidate fixes compete for trending series:
+subtract a fitted line, or difference. Run ADF on both candidates
+and let the data vote.
+
+\textbf{Solution.} \texttt{trend\_vs\_diff.py} detrends the log BTC
+price linearly, runs ADF on the residuals, and compares with ADF on
+the returns:
+\begin{verbatim}
+detrended log-price ADF stat -2.799  (crit5% -1.941)
+differenced (returns) ADF stat -27.635  (crit5% -1.941)
+trend slope -18.8% per yr, R2 of trend fit = 0.298
+verdict: returns reject hard (-27.6); detrended only marginally
+     (-2.80 vs -1.94) -- thin evidence for trend-stationarity
+\end{verbatim}
+Returns reject the unit root at $-27.6$ --- decisively. The
+detrended residuals reject only \emph{marginally} ($-2.80$ vs
+$-1.94$ critical): barely inside the 5\% band, and the verdict is
+fragile to lag choice and window. Meanwhile the trend explains
+only $R^2=0.30$: a real ink-on-the-chart slope that is statistically
+thin, because a random walk's ``trend'' is an accumulation of luck,
+not a deterministic schedule.
+
+\textbf{Significance.} This is the concrete form of
+\S\ref{sec:trend}'s distinction, on real data, with the honest
+wrinkle: borderline ADF rejections on detrended levels are
+\emph{weak} evidence of trend-stationarity, not proof. When the
+detrended answer is marginal and the differenced answer is
+decisive, difference. \emph{Estimated} drift and a unit root
+coexist happily --- never let an $R^2$ of 0.30 talk you into a
+deterministic trend.
+\end{example}
+
+\section*{Summary sheet}
+\addcontentsline{toc}{section}{Summary sheet}
+\begin{table}[ht]\centering
+\begin{tabularx}{\linewidth}{@{}lYY@{}}
+\toprule
+\tablehead\thead{Object} & \thead{Definition} & \thead{When to use}\\
+\midrule
+Weak stationarity & const $\mu,\sigma^2$, lag-only cov &
+the licence statistical tests need\\
+ACF/PACF & raw vs partial autocorr & fingerprinting AR/MA/unit root\\
+Ljung--Box $Q$ & joint test of first $m$ lags & ``are residuals
+white?''\\
+Unit root & $x_t=x_{t-1}+\varepsilon_t$ & the permanent-shock kind
+of non-stationarity\\
+Differencing & $\Delta x_t$ or $\Delta\log$ & kills a unit root,
+not a deterministic trend\\
+ADF test & $H_0$: unit root & says ``consistent with unit root'',
+never proves it\\
+OU/half-life & $\mathrm dx=\theta(\mu-x)\mathrm dt+\sigma\mathrm dW$,
+$t_{1/2}=\log2/\theta$ & sizing mean-reversion holds\\
+Cointegration & $y-\beta x$ stationary while legs are not &
+where spread edges live\\
+\bottomrule
+\end{tabularx}
+\caption{Chapter 2 toolkit.}
+\end{table}
+
+\section{Common mistakes}\index{common mistakes}
+\begin{itemize}
+\item \textbf{Testing prices for stationarity at all.} They will
+fail; the question is whether the \emph{transformed} series passes.
+Test the object you model.
+\item \textbf{Reading ``cannot reject'' as ``there is a unit
+root''.} ADF is one-sided: a big p is absence of evidence, not
+evidence of absence --- Example~\ref{ex:adfpow} shows a stationary
+series failing to reject.
+\item \textbf{Ljung--Box on the raw series.} $Q$ is a residual
+diagnostic; a raw AR(1) \emph{should} fail (LB$=1385$ in
+Example~\ref{ex:lb}) and that failure is information, not an error.
+\item \textbf{Detrending a unit root / differencing a trend.}
+Removing a line from a walk leaves a walk; differencing a trend
+manufactures an MA unit root. Diagnose which kind first
+(\S\ref{sec:trend}).
+\item \textbf{Believing the ACF distinguishes AR from OU.} Their
+ACFs are the same family (Figure~\ref{fig:acf3}); the difference is
+the level they revert to, not the decay shape.
+\item \textbf{Trading ``cointegration'' on correlation alone.}
+Correlated non-stationary legs can diverge forever; the ADF-passing
+residual is the object that reverts.
+\item \textbf{Detrending a unit root.} A fitted line through a
+random walk produces residuals that still fail ADF
+(Example~\ref{ex:trendvsdiff}) and \emph{fake} mean reversion ---
+the residuals oscillate around the line because the walk wanders.
+Difference first, model the level never.
+\item \textbf{Reading ADF as ``the test''.} ADF has three regression
+variants (no constant, constant, trend) and lag selection changes
+the verdict. State both, or the number is not reproducible.
+\end{itemize}
+
+\section*{Exercises}\addcontentsline{toc}{section}{Exercises}
+\begin{exercise}[easy]
+Classify each as stationary/non-stationary and name the failing
+condition: (a) $\varepsilon_t$ i.i.d.; (b) $x_t=3+x_{t-1}+\varepsilon_t$
+(drift); (c) $x_t=\sin(2\pi t/24)+\varepsilon_t$; (d)
+$x_t=0.5x_{t-1}+\varepsilon_t$.
+\end{exercise}
+\begin{solution}
+(a) yes; (b) no (variance grows, mean moves); (c) no --- mean is
+periodic, so $\mathbb E[x_t]$ is not constant; (d) yes
+($|\phi|<1$).
+\end{solution}
+\begin{exercise}[easy]
+Write the AR(1) stationary variance
+$\sigma_\varepsilon^2/(1-\phi^2)$ and evaluate at $\phi=0.85$,
+$\sigma_\varepsilon=1$. Explain the printed sd $1.95$.
+\end{exercise}
+\begin{solution}
+$1/(1-0.7225)=3.60$, sd $1.90$ --- matches $1.951$ within sampling
+error.
+\end{solution}
+\begin{exercise}[easy]
+State the ADF null and the 5\% critical value (constant, no trend)
+from the output block. Which side is rejection?
+\end{exercise}
+\begin{solution}
+$H_0:\gamma=0$ (unit root); crit $\approx-2.87$; reject when the
+statistic is \emph{more negative} (left tail).
+\end{solution}
+\begin{exercise}[easy]
+Convert a planted half-life to $\theta$: $t_{1/2}=10$ bars.
+\end{exercise}
+\begin{solution}
+$\theta=\log2/10\approx0.069$.
+\end{solution}
+\begin{exercise}[easy]
+A series has ACF $_1=0.99$, ACF$_{10}=0.91$. Suggest the diagnosis
+and the fix.
+\end{exercise}
+\begin{solution}
+Near-unit-root; difference the series (or, for prices, use log
+returns), then re-check.
+\end{solution}
+\begin{exercise}[medium]
+Show $\operatorname{Var}[x_t]=t\sigma^2$ for the random walk
+$x_t=\sum_{s\le t}\varepsilon_s$, and hence why $\bar x$ over a
+window is not a mean estimator.
+\end{exercise}
+\begin{solution}
+Sum of $t$ independent variances. The variance depends on $t$, so no
+window-average is estimating a fixed $\mu$ --- weak stationarity
+condition 2 fails.
+\end{solution}
+\begin{exercise}[medium]
+OU autocorrelation: for the discrete form
+$x_t=\mu+\phi(x_{t-1}-\mu)+e_t$ with $\phi=1-\theta$, show
+$\operatorname{ACF}(k)=\phi^k$ and evaluate the lag where it first
+drops below $0.1$ at $\theta=0.12$.
+\end{exercise}
+\begin{solution}
+Iterating, $x_{t+k}-\mu=\phi^k(x_t-\mu)+\text{noise}$, so
+corr$=\phi^k$. $\phi=0.88$: $0.88^k<0.1$ at $k=\log0.1/\log0.88
+\approx18$.
+\end{solution}
+\begin{exercise}[medium]
+Interpret the borderline ADF output: seed 3 in
+Example~\ref{ex:adfpow} gives $p=0.084$ on a series you know is
+AR(1) with $\phi=0.98$. State the two correct readings.
+\end{exercise}
+\begin{solution}
+(1) At 5\% you cannot reject a unit root --- the data are consistent
+with one. (2) That is not evidence the process is non-stationary;
+power near $\phi=1$ is low, so treat the verdict as inconclusive and
+lean on theory/ACF.
+\end{solution}
+\begin{exercise}[medium]
+Build your own cointegrated pair with $\beta=3$, OU spread
+$\theta=0.08$, on 800 bars; report whether ADF recovers stationarity
+of the spread and non-stationarity of $y$.
+\end{exercise}
+\begin{solution}
+Implementation exercise: reuse \texttt{coint\_pair} parameters;
+expect spread rejects, $y$ does not (as in
+Example~\ref{ex:coint}).
+\end{solution}
+\begin{exercise}[medium]
+Ljung--Box: why does fitting the AR(1) first change the verdict from
+$Q=1385$ to $Q=5$? What is the residual series estimating?
+\end{exercise}
+\begin{solution}
+The model removed the autocorrelation it was designed to capture;
+$e_t=x_t-\hat\phi x_{t-1}$ estimates the innovation, which by
+construction is white. LB on residuals asks ``did anything survive
+the model?''
+\end{solution}
+\begin{exercise}[hard]
+Over-differencing: let $x_t=\alpha+\beta t+\varepsilon_t$
+(trend-stationary). Compute $\Delta x_t$ and show it now contains an
+MA(1) with unit coefficient --- an artificial non-invertibility.
+\end{exercise}
+\begin{solution}
+$\Delta x_t=\beta+\varepsilon_t-\varepsilon_{t-1}$: a constant plus
+an MA(1) at $\theta_1=-1$, i.e.\ on the unit circle in MA space ---
+you created the pathology you were trying to remove.
+\end{solution}
+\begin{exercise}[hard]
+Half-life estimation error: at fixed $T$, argue qualitatively why
+$\hat\theta$ for small $\theta$ is biased, using the output ordering
+in Example~\ref{ex:ouhl}. Connect to the ADF power problem.
+\end{exercise}
+\begin{solution}
+Small $\theta$ means few effective reversions per sample (long
+memory): the regression on $x_{t-1}$ is near-collinear, $b\uparrow1$,
+$\hat\theta=1-b$ is squashed toward 0, so half-life overestimates ---
+the same low-power regime as ADF near $\phi=1$.
+\end{solution}
+\begin{exercise}[hard]
+Extend \texttt{btc\_stationarity.py}: split the 721-bar series in
+half and run ADF on each half's returns. Report whether the verdict
+is stable, and state the sampling caveat.
+\end{exercise}
+\begin{solution}
+Implementation exercise; both halves should reject comfortably
+(returns are far from the boundary), but treat each as a different
+sample of a possibly time-varying process --- stationarity of
+returns is a model statement, not a law.
+\end{solution}
+\begin{exercise}[hard]
+A pairs trader reports ``correlation between the two log-prices is
+0.97, so the spread is safe''. Refute using
+Example~\ref{ex:coint}'s numbers.
+\end{exercise}
+\begin{solution}
+Correlation of levels is meaningless under unit roots (both legs are
+non-stationary and can drift apart without bound); the safety claim
+requires the \emph{residual} $y-\beta x$ to pass ADF --- a different
+and testable statement.
+\end{solution}
+\begin{exercise}[hard]
+Implement a Hurst-style check on the cached BTC returns: compare
+$\operatorname{sd}[\sum_{i\le k}r_i]$ with $k^{0.5}$ scaling on
+$k\in\{1,4,16,64\}$. Do BTC daily returns scale like a random walk?
+\end{exercise}
+\begin{solution}
+Implementation exercise; the fit is $\operatorname{sd}\propto k^H$
+with $H\approx0.5$ for near-independent increments --- expect $H$
+close to but not exactly $0.5$, and say what the deviation could
+mean (mild serial structure vs heavy tails inflating the sd).
+\end{solution}
+
+\begin{exercise}[easy]
+In Example~\ref{ex:trendvsdiff}, which ADF statistic is the
+stronger evidence of stationarity, and why is the $-27.6$ not a
+surprise?
+\end{exercise}
+\begin{solution}
+$-27.6$ on returns --- returns of a unit-root series are white-ish
+noise by construction, so decisive rejection is expected; the
+detrended level rejects only marginally ($-2.80$ vs $-1.94$), which
+is thin and fragile evidence for trend-stationarity.
+\end{solution}
+\begin{exercise}[medium]
+Your ADF on a trending series gives stat $=-1.5$ (fail) with the
+\texttt{"c"} variant but $-3.5$ (pass) with \texttt{"ct"}.
+Write one sentence a reviewer could not attack.
+\end{exercise}
+\begin{solution}
+``With a trend term the series is trend-stationary at 5\%, without
+it it carries a unit root --- the two variants test different nulls,
+so I report both and difference regardless''.
+\end{solution}
+\begin{exercise}[hard]
+Show that if $y_t$ follows a pure random walk, the OLS $R^2$ of a
+time-trend regression tends to a nondegenerate random variable, not
+to $0$ --- i.e. trending R-squared values mean nothing. Simulate it
+on 500-step walks to see the distribution.
+\end{exercise}
+\begin{solution}
+A spurious-regression result (Granger--Newbold): the $t$-statistic
+and $R^2$ both diverge/level off at random values because the
+walk's low-frequency content mimics any trend. Simulation shows
+$R^2$ spread over $[0.1, 0.9]$ with no point mass at 0.
+\end{solution}
+
+\section*{Notes}\addcontentsline{toc}{section}{Notes}
+\textbf{Software pin.} \texttt{statsmodels 0.14.6} and
+\texttt{scipy 1.13.1} are pinned in \texttt{code/README.md};
+The \texttt{adfuller} defaults
+are used verbatim (regression \texttt{"c"}, AIC lag choice). \textbf{Standing disclaimer.} This book teaches
+research methods and market mechanics; nothing here is investment,
+legal or tax advice. \textbf{Data.} The BTC series is the cached
+Kraken daily file (\texttt{code/data/btc\_daily.csv}, fetched
+2026-10-11); venue availability is \textbf{[unverified]} per
+\texttt{docs/unverified.md}.
+\textbf{Where this leads.} Ch3 drops to the mechanism that prints
+those prices --- the order book --- and ch8 turns this chapter's
+``is the input legal?'' into a harness rule.
+
+\section*{Further reading}\addcontentsline{toc}{section}{Further reading}
+\begin{itemize}
+\item R.~Hyndman \& G.~Athanasopoulos, \emph{FPP3}, ch9
+``Stationarity and differencing'' --- the pedagogy model for
+\S\ref{sec:stat}--\S\ref{sec:diff}, free online:
+
+\url{https://otexts.com/fpp3/stationarity.html}
+\item MIT 18.S096 lecture notes 8 (Kempthorne) --- the course notes
+behind the ARIMA/ADF treatment; free PDF:
+
+\url{https://ocw.mit.edu/courses/18-s096-topics-in-mathematics-with-applications-in-finance-fall-2013/1926c83ecd7ea700f7cb63914c6d7c0f_MIT18_S096F13_lecnote8.pdf}
+\item statsmodels \texttt{adfuller} documentation --- every option
+and the critical-value table used in \S\ref{sec:adf}:
+
+\url{https://www.statsmodels.org/stable/generated/statsmodels.tsa.stattools.adfuller.html}
+\item ``Augmented Dickey--Fuller test'' --- compact reference for
+the regression and the nonstandard null distribution:
+
+\url{https://en.wikipedia.org/wiki/Augmented_Dickey\%E2\%80\%93Fuller_test}
+\item MIT OCW 18.S096 course page --- context for the Watch list,
+all lectures free:
+
+\url{https://ocw.mit.edu/courses/18-s096-topics-in-mathematics-with-applications-in-finance-fall-2013/}
+\item M.~L\'opez de Prado, lecture library --- the stationarity and
+fractional-differentiation lectures that take this further:
+
+\url{https://www.quantresearch.org/Lectures.htm}
+\end{itemize}
+
+\begin{rulebox}[Watch instead]
+\begin{itemize}
+\item \textbf{MIT OpenCourseWare --- ``8. Time Series Analysis I''}
+(18.S096), 1:16:19 --- Kempthorne covers stationarity, Wold
+representation and ARMA estimation; maps to
+\S\ref{sec:stat}--\S\ref{sec:trend}. (Verified 2026-10-11.)
+\url{https://www.youtube.com/watch?v=uBeM1FUk4Ps}
+\item \textbf{MIT OpenCourseWare --- ``11. Time Series Analysis II''}
+(18.S096), 1:23:47 --- multivariate series and least-squares
+estimation; background for \S\ref{sec:ou}. (Verified 2026-10-11.)
+\url{https://www.youtube.com/watch?v=_IFUfFuyQlU}
+\end{itemize}
+\end{rulebox}

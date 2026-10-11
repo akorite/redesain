@@ -13,6 +13,6 @@ def liq_cross():
 print(f"position: long {notional} @ {entry}, 5x, IM={im}, free acct={free}, MM=0.5%")
 print(f"isolated liq px {liq_iso():.0f} ({(liq_iso()/entry-1)*100:+.1f}%)")
 print(f"cross    liq px {liq_cross():.0f} ({(liq_cross()/entry-1)*100:+.1f}%)")
-print(f"cross buys {liq_iso()-liq_cross():.0f} more room -- but ALL collateral is at risk, not just {im}")
+print(f"cross buys {liq_iso()-liq_cross():.0f} more room -- but ALL collateral now at risk")
 # cascading: two positions sharing cross collateral
 print("cross risk: losers share one pool -> both liquidate together")

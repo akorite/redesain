@@ -157,13 +157,13 @@ its first difference.
 \textbf{Solution.} Real output:
 \begin{lstlisting}[numbers=none]
 bars=721 log-price range [10.981,11.735]
-log-price  ADF= -1.822 p=0.3697 crit5%=-2.866 -> unit root not rejected
-log-return ADF=-18.535 p=0.0000 crit5%=-2.866 -> stationary
+log-price  ADF= -1.865 p=0.3487 crit5%=-2.866 -> unit root not rejected
+log-return ADF=-27.621 p=0.0000 crit5%=-2.866 -> stationary
 \end{lstlisting}
 Figure~\ref{fig:diff} shows the before/after: the level wanders for
-two years (and ADF agrees: $-1.822$ is far inside the $-2.866$
+two years (and ADF agrees: $-1.865$ is far inside the $-2.866$
 critical value, Figure~\ref{fig:adfsketch}); one difference kills it
-and the return rejects at $-18.5$. This is why ``run the test on
+and the return rejects at $-27.6$. This is why ``run the test on
 prices'' is a trap question --- the test \emph{should} fail there.
 \end{example}
 
@@ -233,7 +233,7 @@ declare victory either way.
 \begin{figure}[ht]\centering
 \input{figures/ch02-adf}
 \caption{ADF rejection region (sketch of the null distribution with
-a constant). The BTC log-price statistic $-1.822$ sits inside the
+a constant). The BTC log-price statistic $-1.865$ sits inside the
 non-rejection zone; only the far left tail rejects the unit root.}
 \label{fig:adfsketch}
 \end{figure}
@@ -319,13 +319,14 @@ and let the data vote.
 price linearly, runs ADF on the residuals, and compares with ADF on
 the returns:
 \begin{verbatim}
-detrended log-price ADF stat -2.846  (crit5% -1.941)
-differenced (returns) ADF stat -18.542  (crit5% -1.941)
-trend slope -18.7% per yr, R2 of trend fit = 0.297
-verdict: returns stationary, detrended price NOT -- unit root, not trend
+detrended log-price ADF stat -2.799  (crit5% -1.941)
+differenced (returns) ADF stat -27.635  (crit5% -1.941)
+trend slope -18.8% per yr, R2 of trend fit = 0.298
+verdict: returns reject hard (-27.6); detrended only marginally
+     (-2.80 vs -1.94) -- thin evidence for trend-stationarity
 \end{verbatim}
-Returns reject the unit root at $-18.5$ --- decisively. The
-detrended residuals reject only \emph{marginally} ($-2.85$ vs
+Returns reject the unit root at $-27.6$ --- decisively. The
+detrended residuals reject only \emph{marginally} ($-2.80$ vs
 $-1.94$ critical): barely inside the 5\% band, and the verdict is
 fragile to lag choice and window. Meanwhile the trend explains
 only $R^2=0.30$: a real ink-on-the-chart slope that is statistically
@@ -553,13 +554,13 @@ mean (mild serial structure vs heavy tails inflating the sd).
 
 \begin{exercise}[easy]
 In Example~\ref{ex:trendvsdiff}, which ADF statistic is the
-stronger evidence of stationarity, and why is the $-18.5$ not a
+stronger evidence of stationarity, and why is the $-27.6$ not a
 surprise?
 \end{exercise}
 \begin{solution}
-$-18.5$ on returns --- returns of a unit-root series are white-ish
+$-27.6$ on returns --- returns of a unit-root series are white-ish
 noise by construction, so decisive rejection is expected; the
-detrended level rejects only marginally ($-2.85$ vs $-1.94$), which
+detrended level rejects only marginally ($-2.80$ vs $-1.94$), which
 is thin and fragile evidence for trend-stationarity.
 \end{solution}
 \begin{exercise}[medium]

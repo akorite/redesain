@@ -1,0 +1,620 @@
+\chapter{Perpetual futures and funding}\label{ch:perp}
+
+\noindent\emph{Nothing here is investment advice. Venue rules change without notice; anything quoted
+as a rule is dated and re-checkable.}\medskip
+
+\noindent The perpetual future---``perp''---is the dominant crypto derivative: a futures-style
+contract with \emph{no expiry date}. It is where most leveraged price exposure lives, where most
+liquidations happen, and where the funding rate acts as a continuous toll on crowded positions.
+This chapter is about the mechanics: what a perp is, how funding replaces expiry convergence,
+how margin and liquidation actually compute, and how to read funding as data.
+
+\section{What a perp is and is not}\label{sec:whatperp}
+
+An expiring future needs no tether to spot: at expiry the contract \emph{settles} to the spot
+price, so arbitrage forces convergence as the date approaches. A perp never settles, so nothing
+pulls its price toward the index except a manufactured cost---\emph{funding}.
+
+\begin{principle}[The two engines]
+A perpetual future is a leveraged position on an index price with two moving parts:
+\textbf{(i)} a funding transfer between longs and shorts that keeps the perp near the index,
+and \textbf{(ii)} a margin/liquidation engine that closes positions whose collateral can no
+longer cover their losses. Everything else---leverage sliders, mark price, insurance funds---is
+in service of these two.
+\end{principle}
+
+\begin{figure}[htbp]\centering
+\input{figures/ch04-perp-expiry}
+\caption{Convergence. Expiring futures are pulled to spot at expiry; a perp oscillates around
+the index forever because funding, not expiry, does the pulling.}
+\label{fig:perpexpiry}
+\end{figure}
+
+Concrete numbers make the size of the instrument clear. On a \$50{,}000 index, a trader going
+long 0.5\,BTC of perp at $25\times$ leverage posts about \$1{,}000 of margin. The position is
+\$25{,}000 of notional. A $1\%$ index move is $\pm\$250$ of PnL---$25\%$ of posted margin.
+That asymmetry is the whole appeal and the whole danger.
+
+\section{The funding mechanism}\label{sec:funding}
+
+Every venue implements the same skeleton: measure the perp's \emph{premium} over the index,
+turn it into a rate $f_t$, and transfer $f_t$ per unit of notional between longs and shorts each
+funding epoch. Positive $f_t$: longs pay shorts. Negative: shorts pay longs.
+
+\begin{figure}[htbp]\centering
+\input{figures/ch04-fundflow}
+\caption{The funding pipeline: premium $\to$ rate (clamped) $\to$ peer-to-peer transfer.}
+\label{fig:fundflow}
+\end{figure}
+
+\begin{principle}[funding rate, schematic]
+Let $p_t$ be the perp's premium index (e.g.\ impact-mid minus index, smoothed). The funding rate
+is typically $f_t = \mathrm{clamp}(\tilde p_t,\,-f_{\max},\,f_{\max}) + I$ where $I$ is a fixed
+interest component. On Hyperliquid, funding is paid \textbf{every hour} and the interest term is
+about $0.125$\,bp/h ($=0.01\%$ per $8$h) \emph{[unverified: venue rules, checked 2026-10-11,
+re-check quarterly]}.
+\end{principle}
+
+We fetched 500 hours of real BTC funding from the Hyperliquid public API
+(\texttt{fundingHistory}, no auth) and pinned the response to \texttt{data/hl\_funding\_btc.json}:
+
+\begin{lstlisting}[language=Python, numbers=none]
+d=json.load(open("data/hl_funding_btc.json"))
+f=np.array([float(x["fundingRate"]) for x in d])
+\end{lstlisting}
+\begin{lstlisting}[numbers=none]
+500 hourly funding prints  1757548800090 .. 1759345200083
+funding rate: mean +0.113bp/h  sd 0.038bp  min -0.16bp  max +0.12bp
+f>0: 97% of hours   f=+0.125bp exact: 85%
+premium: mean -1.0bp   mean(f - premium) = +1.08bp ~ the 1.25bp/8h interest floor
+annualised carry at mean rate: +9.9%
+30d-equivalent carry: 56bp of notional over 500h
+\end{lstlisting}
+
+Read the structure out of the data: $85\%$ of hours print exactly the $0.125$bp/h interest
+component, meaning the clamped premium term was near zero---a quiet, balanced book. Yet the
+mean rate $+$1.08bp over the premium says the interest floor, not the premium, set the price of
+being long for that window.
+
+\begin{figure}[htbp]\centering
+\input{figures/ch04-fundts}
+\caption{Real BTC funding on Hyperliquid, 500 hours ending 2026-10-09. The dashed line is the
+$0.125$bp/h interest component. Data: \texttt{data/hl\_funding\_btc.json}.}
+\label{fig:fundts}
+\end{figure}
+
+\begin{example}\label{ex:fundpay}
+\textbf{Funding payment.} You are long $2$\,BTC notional at index \$50{,}000. The next three
+hourly funding rates print $+0.5$\,bp, $+0.12$\,bp, $-0.3$\,bp. What do you pay or receive,
+and what does a sustained $+0.5$\,bp/h regime cost per day?
+\begin{solution}
+Payment each epoch $=$ position $\times$ notional $\times f_t$:
+$2\times 50{,}000 \times (0.5+0.12-0.3)\times 10^{-4}
+ = 100{,}000\times 3.2\times 10^{-5} = \$3.2$ paid over the three hours.
+At a sustained $+0.5$\,bp/h the day cost is
+$100{,}000\times 0.5\times 10^{-4}\times 24 = \$120$/day---about $8.8\%$ per month on the
+\$10{,}000 margin you might have posted at $10\times$ leverage.
+\end{solution}
+\end{example}
+
+\section{Basis and carry}\label{sec:basis}
+
+The \emph{basis} $B_t = F_t - S_t$ (or $F_t/S_t - 1$) is the perp's premium over spot. For an
+expiring contract basis decays to zero on a schedule; for a perp it is whatever funding tolerates.
+The annualised basis $\hat b = B/S \times (365/D)$ compares carry opportunities across tenors.
+
+\begin{principle}[cash-and-carry]
+Long spot $+$ short perp in equal notional is \emph{delta-neutral}: price moves cancel. The
+position's return stream is funding: shorts collect $f_t$ when $f_t>0$. Its risks are
+liquidation on the short leg, funding flipping negative, and basis widening \emph{before}
+collapsing---you can be right about the level and still be forced out.
+\end{principle}
+
+\begin{figure}[htbp]\centering
+\input{figures/ch04-basists}
+\caption{Simulated mean-reverting basis on a GBM index (seed 11): sd $\approx19$\,bp, inside
+$\pm20$\,bp $70\%$ of hours. \texttt{basis\_carry.py}.}
+\label{fig:basists}
+\end{figure}
+
+\begin{example}\label{ex:carry}
+\textbf{Carry yield.} \texttt{funding\_sim.py} simulates a premium process mean-reverting to
+$+0.13$\,bp/h with noise, clamps the rate, and applies it to a 2\,BTC position:
+\begin{lstlisting}[numbers=none]
+T=720h  mean funding 0.091bp/h  sum 65.78bp  ~APR 800bp
+long pays +275 USD over 30d (positive = paid by longs)
+price PnL -25,402  funding -275  net -25,677
+short-perp carry yield 30d: 27.5bp of notional
+\end{lstlisting}
+Two lessons. (i) The long's net PnL is price PnL \emph{minus} a funding bill that accrues even
+when price is flat---the toll of holding the crowded side. (ii) The flip side is a real trade:
+short perp $+$ long spot harvested $27.5$\,bp of notional in a simulated month at these rates.
+\begin{solution}
+The carry figure is $\sum_t f_t$ times notional, and only the funding flips sign between the
+two sides---the delta terms cancel exactly. The printed numbers are not an advertisement: the
+same file shows the risk, because the simulation's price drop cost the naked long \$25{,}402.
+Carry trades fail in both directions at once: funding flips \emph{and} the short leg's margin
+is stressed precisely when basis widens.
+\end{solution}
+\end{example}
+
+\section{Margin, mark price and liquidation}\label{sec:liq}
+
+Initial margin (IM) is collateral posted to open; maintenance margin (MM) is the floor below
+which the venue takes over the position. For an isolated long of quantity $q$ at entry $E$
+with margin $w$, liquidation hits when $q(E-P) = w - qP\,\mathrm{MM}$, giving
+\begin{equation}\label{eq:liq}
+P_{\mathrm{liq}} \;=\; E\,\frac{1-\mathrm{IM}}{1-\mathrm{MM}},
+\qquad \mathrm{IM}=\tfrac{w}{qE}.
+\end{equation}
+At $25\times$ leverage ($\mathrm{IM}=4\%$, $\mathrm{MM}=0.5\%$), $P_{\mathrm{liq}}=E\times
+0.96/0.995 \approx 0.9648E$---a $3.5\%$ adverse move, not the naive $1/25=4\%$. The $0.5\%$
+maintenance margin is why liquidation always sits closer than ``one over leverage''.
+
+\begin{figure}[htbp]\centering
+\input{figures/ch04-liqcurve}
+\caption{Distance to liquidation vs leverage at $\mathrm{MM}=0.5\%$. Above $25\times$, ordinary
+hourly volatility reaches your liquidation level within hours.}
+\label{fig:liqcurve}
+\end{figure}
+
+\begin{example}\label{ex:liq}
+\textbf{Liquidation price.} \texttt{liq\_calc.py} computes \eqref{eq:liq} for entry 50{,}000,
+0.5\,BTC, $25\times$:
+\begin{lstlisting}[numbers=none]
+entry 50000 qty 0.5 lev 25x (IM 4.0%, MM 0.5%)
+liquidation price = entry*(1-IM)/(1-MM) = 48,241
+drop to liq = 3.52%  vs naive 1/leverage = 4.00%
+check: loss 879 = wallet 1,000 - MM 121 ? True
+   2x: liq 25,126  (49.75% away)
+   5x: liq 40,201  (19.60% away)
+  10x: liq 45,226  (9.55% away)
+  25x: liq 48,241  (3.52% away)
+  50x: liq 49,246  (1.51% away)
+\end{lstlisting}
+\begin{solution}
+Equation \eqref{eq:liq} is checked numerically: loss $q(E-P_{\mathrm{liq}})=879$ equals wallet
+$1{,}000$ minus maintenance value $121$ at the liquidation price. Note the check uses MM on the
+\emph{liquidation} notional $qP_{\mathrm{liq}}$, not the entry---a one-line bug that shifts the
+answer by bp and shows up in exercise~\ref{ex:liqex}.
+\end{solution}
+\end{example}
+
+\begin{rulebox}[On venues (rules change)]
+Perp mechanics vary: funding epoch (1h Hyperliquid vs 8h legacy venues), premium smoothing,
+mark price (index vs impact-mid vs fair-price formulas), margin modes (cross vs isolated),
+and whether liquidation is partial or full. Quote a venue rule only with a date and a re-check
+plan; treat every number in this chapter's venue claims as \emph{[unverified]} until you check
+the live docs.
+\end{rulebox}
+
+\section{Funding as data}\label{sec:funddata}
+
+Persistent positive funding means longs are paying to stay---crowded bullish positioning and a
+fragile squeeze candidate. Persistent negative funding is the mirror. Funding is also a yield
+instrument: the mean rate annualises to a carry estimate. From our 500h snapshot:
+mean $+0.113$\,bp/h $\Rightarrow$ about $+9.9\%$/yr for the short side---before fees, before
+flips, and before the basis moves against you.
+
+\begin{example}\label{ex:fundread}
+\textbf{Reading a tape.} BTC rallies 6\% over a day while funding runs $+0.8$\,bp/h for
+sixteen consecutive epochs (versus the $0.125$bp interest baseline). Open interest is up 12\%.
+What is the tape saying, and what is the carry cost of staying long 1\,BTC at index 60{,}000?
+\begin{solution}
+Funding well above the interest floor says the premium term is engaged: the perp trades
+persistently rich, i.e.\ buyers are crowding the levered long side and paying for the privilege.
+Rising open interest alongside means new leveraged longs, not just spot-driven move---the
+classic crowded-long squeeze setup. Cost: $60{,}000\times0.8\times10^{-4}\times24 \approx
+\$115$/day per BTC held long. A trader who stays long is paying $\approx1.7\%$/month to hold
+the position, which is the position's break-even drift, not a footnote.
+\end{solution}
+\end{example}
+
+\begin{example}\label{ex:dash}
+\textbf{The funding dashboard.} \texttt{funding\_hist.py} is the whole skill in 20 lines:
+fetch (or load pinned) funding, then report mean rate, share of positive epochs, distance from
+the interest floor, and an annualised carry. Its output is quoted in \S\ref{sec:funding}.
+Build the same tool against any venue's public funding endpoint and you have a positioning
+gauge that needs no price model at all.
+\end{example}
+
+\begin{checkpoint}[Perp math]
+\begin{itemize}
+\item Derive \eqref{eq:liq} for a \emph{short}: $P_{\mathrm{liq}} = E(1+\mathrm{IM})/(1+\mathrm{MM})$---sign flip, not a new formula.
+\item In \texttt{data/hl\_funding\_btc.json}, find the longest run of $f_t<0$ and compute what a 10\,BTC short earned that day.
+\item Why does the interest floor, not the premium, dominate mean funding in quiet regimes? (Answer: the clamp zeroes the premium term while the floor always pays.)
+\end{itemize}
+\end{checkpoint}
+
+\begin{example}[What the window actually costs]\label{ex:carrycost}
+\textbf{Strategy.} Take the pinned 500-hour BTC funding tape and
+bill it like a broker would: multiply the summed rate by notional,
+then ask how unevenly the cost arrives.
+
+\textbf{Solution.} \texttt{carry\_cost.py} prints:
+\begin{verbatim}
+window: 500h of BTC funding on Hyperliquid
+mean funding = 0.113 bp/h  (9.88% per yr if sustained)
+mean premium = -0.965 bp/h
+median funding = 0.125 bp/h  at-floor hours 85%
+carry on $100k long over 500h = $563.83 = 56.4 bp
+worst 8h funding stretch = 1.00 bp  best = -0.34 bp
+\end{verbatim}
+A $\$100$k long held the whole window pays $\$563.83$ ---
+$56.4$bp, or an annualised $9.9\%$ if this rate sustained. Yet
+85\% of hours sat at the $0.125$bp interest floor: the carry is a
+\emph{fixed toll}, not compensation for a real premium (mean
+premium $-0.97$bp --- the perp actually traded \emph{below} index
+most of the window).
+
+\textbf{Significance.} Funding is rarely ``the carry trade's
+yield'' --- on this venue it is mostly the rate floor. The worst
+8h stretch ($1.0$bp) is five times the mean: sizing a position
+by average funding understates the crowded-window cost by the
+same factor.
+\end{example}
+
+\section{Recap: perp math end-to-end}\label{sec:perprecap}
+
+The chapter's toolkit is deliberately small. A perp position is fully described by
+$(q, E, \mathrm{IM}, \mathrm{MM})$; its PnL is $q(P_t-E)$ minus accumulated
+$qN_t f_t$; its survival is governed by \eqref{eq:liq}. Funding converts crowdedness into a
+price series you can download and study. That is the entire engine---everything else a venue
+shows you is presentation of these same numbers.
+
+\begin{figure}[htbp]\centering
+\input{figures/ch04-carrystack}
+\caption{The cash-and-carry structure: equal and opposite delta, funding as the return stream.}
+\label{fig:carrystack}
+\end{figure}
+
+\begin{table}[htbp]\centering\small
+\caption{Chapter toolbox.}
+\begin{tabular}{@{}lll@{}}
+\toprule
+Concept & Formula/tool & Gotcha\\
+\midrule
+Funding payment & $qN_t f_t$ per epoch & sign convention varies by venue\\
+Basis & $F/S-1$, annualise $\times365/D$ & perp basis has no expiry anchor\\
+Carry & $\sum f_t$ on short-perp leg & flips sign; liq risk on short leg\\
+Liquidation & \eqref{eq:liq} & MM on liquidation notional\\
+Mark vs last & PnL on mark, trades on last & liquidations trigger off mark\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{example}[The premium is persistent; the floor is not cheap]\label{ex:fundterm}
+\textbf{Strategy.} Split the pinned 500-hour funding tape into
+its two additive parts --- the interest floor and the premium
+component --- and test whether today's premium carries into
+tomorrow (i.e.\ whether funding is a forecastable term structure).
+
+\textbf{Solution.} \texttt{funding\_term.py} prints:
+\begin{verbatim}
+premium persistence: lag-1 +0.964  lag-24 +0.521
+corr(24h funding paid, 24h premium) = +0.762
+blocks where funding exceeded premium x2: 1/20
+annualised carry if sustained: 9.9%  realized premium: -84.5%
+\end{verbatim}
+Premium deviations persist strongly ($+0.96$ at one hour, $+0.52$
+a day out) --- the basis has memory. But the realized premium was
+\emph{negative} $84.5\%$/yr while funding still cost $+9.9\%$/yr:
+the floor charged longs on top of a discount that never showed up
+in the headline rate.
+
+\textbf{Significance.} Two lessons in one tape: the premium leg
+is forecastable enough to time entries (half-day persistence), and
+the floor leg means ``funding $=0.125$bp'' is never ``free'' even
+when the perp trades under index. Venue-rule statements like this
+one are date-stamped --- re-verify before sizing.
+\end{example}
+
+\section{Isolated vs.\ cross margin}\label{sec:marginmodes}
+The leverage slider chooses a number; the margin mode chooses a
+\emph{budget}. Under \emph{isolated} margin each position posts
+its own collateral and liquidates on its own --- the worst case is
+capped at that position's initial margin. Under \emph{cross}
+margin every position draws from one shared pool: a losing trade
+can eat collateral you meant for something else, but it survives
+much deeper drawdowns before liquidation. Same position, same
+leverage --- two different failure geometries.
+
+\begin{example}[Same position, two liquidation prices]\label{ex:margmodes}
+\textbf{Strategy.} A $10{,}000$ BTC long at $50{,}000$ with 5x
+leverage posts $2{,}000$ initial margin; the account holds another
+$3{,}000$ free. Compute the liquidation price under both modes with
+maintenance margin $0.5\%$.
+
+\textbf{Solution.} \texttt{margin\_modes.py} prints:
+\begin{verbatim}
+position: long 10000 @ 50000, 5x, IM=2000, free acct=3000, MM=0.5%
+isolated liq px 40250 (-19.5%)
+cross    liq px 25250 (-49.5%)
+cross buys 15000 more room -- but ALL collateral now at risk
+cross risk: losers share one pool -> both liquidate together
+\end{verbatim}
+Cross margin stretches the liquidation point from $-19.5\%$ to
+$-49.5\%$ --- the whole $5{,}000$ pool absorbs losses instead of
+the position's $2{,}000$ alone. The trade: under cross, a second
+losing position drains the same pool and \emph{both} liquidate
+together.
+
+\textbf{Significance.} Isolation is blast-radius control; cross is
+drawdown tolerance. Choose cross when positions hedge each other
+(shared pool shares their P\&L correctly); choose isolation when a
+position is allowed to die without orphans. And the standing rule
+applies: venue margin semantics are venue rules --- date-stamped
+\texttt{[unverified]}, re-check before relying on them.
+\end{example}
+
+
+\section{The premium is information}\label{sec:premsig}
+Funding pays the coupon; the premium path is what the market is
+\emph{saying}. On the pinned tape the two decouple sharply:
+\texttt{funding\_term.py} measures persistence and drift:
+\begin{verbatim}
+premium persistence: lag-1 +0.964  lag-24 +0.521
+corr(24h funding paid, 24h premium) = +0.762
+blocks where funding exceeded premium x2: 1/20
+annualised carry if sustained: 9.9%  realized premium: -84.5%
+\end{verbatim}
+\begin{example}\label{ex:prem18}
+\textbf{Read the premium like a slow-moving price.} Lag-1
+persistence of $+0.964$ means the basis is nearly a random walk
+hour to hour --- and the $-84.5\%$/yr realized premium level
+means the perp sat \emph{below} index for almost the whole
+window. A $+9.9\%$ floor charged \emph{to} longs while the perp
+discount widened is a crowded-longs signature, not free yield.
+\begin{solution}
+ch18's carry math prices this exactly: funding received minus
+premium change. The persistence tells you the premium is
+forecastable (it is where it was an hour ago); the level tells
+you the direction of the crowd. Carry books that ignore the
+second term are long the crowd's unwind.
+\end{solution}
+\end{example}
+\section{Common mistakes}
+\begin{itemize}
+\item \textbf{``$1/\text{leverage}$ is my liquidation distance.''} Maintenance margin pulls it
+  closer: $25\times$ at $\mathrm{MM}=0.5\%$ is $3.5\%$, not $4\%$.
+\item \textbf{Forgetting funding in PnL.} A flat market is not free: at $+0.5$\,bp/h a long
+  bleeds $\sim1.2\%$ of notional per day.
+\item \textbf{Confusing mark and last price.} Liquidations, margin checks and displayed PnL
+  use the mark; your fills are at last. In a wick, the difference is the whole story.
+\item \textbf{Treating carry as riskless.} Short perp $+$ long spot still has liquidation
+  risk on the short leg, funding-flip risk, and basis risk while entering/exiting.
+\item \textbf{Reading funding as a signal after it prints.} Funding tells you who is
+  \emph{already} crowded; it is a positioning measure, not a forecast.
+\item \textbf{Annualising from one epoch.} $f_t$ is noisy at hourly scale; annualise the
+  \emph{mean} over a window, not a single hot print.
+\item \textbf{Annualising the floor.} $0.125$bp/h $\times
+24\times365 = 10.95\%$/yr --- but that is the \emph{floor}, not a
+signal: 85\% of the window printed exactly it. Quote the floor and
+the premium separately.
+\item \textbf{Budgeting carry by the mean.} The worst 8h stretch
+cost $5\times$ the hourly mean (Example~\ref{ex:carrycost}). A
+position sized to ``average funding'' is sized wrong precisely
+when it matters most.
+\end{itemize}
+
+\section{Exercises}
+\begin{exercise}[easy]
+At index 80{,}000 you hold 0.4\,BTC long. Funding prints $+0.2$\,bp/h for 24 hours. Total paid?
+\end{exercise}
+\begin{solution}
+$0.4\times80{,}000\times0.2\times10^{-4}\times24=\$15.36$.
+\end{solution}
+
+\begin{exercise}[easy]
+Recompute $P_{\mathrm{liq}}$ for the entry-50{,}000 long at $10\times$ ($\mathrm{IM}=10\%$) with
+$\mathrm{MM}=0.5\%$. Then for $5\times$.
+\end{exercise}
+\begin{solution}
+$10\times$: $50{,}000\times0.9/0.995=45{,}226$ ($9.5\%$ away).
+$5\times$: $50{,}000\times0.8/0.995=40{,}201$ ($19.6\%$ away)---matching the table.
+\end{solution}
+
+\begin{exercise}[easy]
+A perp trades at index $+45$\,bp. Funding is currently $+0.12$\,bp/h. Is funding doing its job,
+and what would you expect to print over the next hours?
+\end{exercise}
+\begin{solution}
+A persistent $+45$bp premium should raise the premium term: expect $f_t$ to climb above the
+interest floor toward the venue's clamp, paying shorts to lean against the rich perp until the
+premium compresses.
+\end{solution}
+
+\begin{exercise}[easy]
+Your venue quotes funding ``0.01\%'' per 8h. What is that in bp/h and in \%/yr at a flat rate?
+\end{exercise}
+\begin{solution}
+$0.01\%=1$\,bp per 8h $=0.125$\,bp/h; flat: $1\,\mathrm{bp}\times3\times365/10^{4}=10.95\%$/yr.
+\end{solution}
+
+\begin{exercise}[easy]
+Short 1\,BTC at entry 60{,}000, $20\times$ ($\mathrm{IM}=5\%$), $\mathrm{MM}=0.5\%$. Liquidation
+price?
+\end{exercise}
+\begin{solution}
+Shorts liquidate on rallies: $P_{\mathrm{liq}}=E(1+\mathrm{IM})/(1+\mathrm{MM})
+=60{,}000\times1.05/1.005\approx62{,}687$ ($4.5\%$ above).
+\end{solution}
+
+\begin{exercise}
+From \texttt{data/hl\_funding\_btc.json}: compute the maximum 24h window sum of $f_t$, in bp,
+and the carry a 5\,BTC short would have earned in that window at notional \$50{,}000.
+\end{exercise}
+\begin{solution}
+Rolling-sum the pinned series (max window $\approx$ sum of $0.125$bp/h plus premium bursts,
+$\approx3.5$bp/day depending on hours counted); carry $=5\times50{,}000\times3.5\times10^{-4}
+\approx\$87.5$. Your script's exact numbers are the answer.
+\end{solution}
+
+\begin{exercise}
+Derive \eqref{eq:liq} for cross margin where wallet $w$ exceeds IM on the position. What
+changes?
+\end{exercise}
+\begin{solution}
+Replace IM by $w/(qE)$ in \eqref{eq:liq}: more collateral moves liquidation further away;
+isolated is just cross with $w=$ IM$\times$notional.
+\end{solution}
+
+\begin{exercise}\label{ex:liqex}
+The chapter warns MM applies to liquidation notional. Compute the liq price if you
+(incorrectly) apply MM to entry notional: $P^*=E(1-\mathrm{IM}+\mathrm{MM})$. At $25\times$,
+what error does that make in the distance-to-liq?
+\end{exercise}
+\begin{solution}
+$P^*=50{,}000(1-0.04+0.005)=48{,}250$ vs correct $48{,}241$: the naive formula lands $9$\,USD
+closer, a $0.02$\,bp... about $0.9$\,bp of price---small at entry scale, but it is the
+difference between a checked margin engine and a moved one.
+\end{solution}
+
+\begin{exercise}
+In \S\ref{sec:funding} we saw 97\% of hours had $f_t>0$ while mean premium was $-1.0$\,bp.
+Reconcile.
+\end{exercise}
+\begin{solution}
+The interest component pays longs-to-shorts regardless of premium sign; only when the
+clamped premium term is sufficiently negative ($<-0.125$bp/h) does $f_t$ flip. Premium $-1$bp
+on the impact-mid definition is near zero after the venue's smoothing.
+\end{solution}
+
+\begin{exercise}
+A carry desk quotes ``30\% APR available on BTC funding.'' Sketch the position, list its three
+independent failure modes, and state which one is capped by venue design.
+\end{exercise}
+\begin{solution}
+Long spot $+$ short perp. Failure: (i) funding flips negative---uncapped, continuous risk;
+(ii) liquidation of the short leg during basis widening---capped only by posting collateral,
+i.e.\ the trade can be right and still forced out; (iii) basis moves against you at
+entry/exit. None is capped by venue design except the rate clamp $f_{\max}$ which bounds the
+\emph{speed} of your bleed, not the side.
+\end{solution}
+
+\begin{exercise}
+Show that for a perp held $D$ days, funding's drag on a levered long's \emph{return on margin}
+is $f_{\mathrm{day}}\times D\times\mathrm{lev}$ where $f_{\mathrm{day}}$ is the daily funding
+rate as a fraction of notional.
+\end{exercise}
+\begin{solution}
+Daily drag on notional is $f_{\mathrm{day}}$; margin is notional/lev, so drag on margin
+$=f_{\mathrm{day}}\times$lev per day, times $D$ days.
+\end{solution}
+
+\begin{exercise}
+Funding is a peer transfer. So why does the venue care about the sign? What breaks if $f_t$
+sticks at $+5$\,bp/h for a week?
+\end{exercise}
+\begin{solution}
+Extreme funding bleeds longs into margin calls, forcing deleveraging---the venue cares because
+its risk engine inherits the position when margin fails. Sustained extreme rates are
+themselves a solvency-stress signal.
+\end{solution}
+
+\begin{exercise}[hard]
+Suppose impact-mid premium $p_t$ is AR(1) mean $\mu$, persistence $\phi$. Show that
+$\mathrm{E}[f_t] \to \mathrm{clamp-free}$ value $I+\mu/(1-\phi)$ is wrong---derive the correct
+mean and explain why the clamp matters even when rarely binding.
+\end{exercise}
+\begin{solution}
+The MA form is $\tilde p_t=\mu/(1-\phi)+\text{noise}$; the clamp acts on the \emph{rate},
+truncating its right tail, so $\mathrm{E}[f] < I+\mathrm{E}[\tilde p]$ whenever the upper tail
+crosses $f_{\max}$---the bias exists even at low binding frequency because truncation removes
+mass without replacing it.
+\end{solution}
+
+\begin{exercise}[hard]
+Extend \texttt{funding\_sim.py}: position switched to \emph{short perp $+$ long spot}. Report
+realised carry distribution over 200 seeds and the fraction that lose money. Discuss.
+\end{exercise}
+\begin{solution}
+Modify the file to flip sign of funding receipts and add the spot leg; losers are seeds where
+premium mean-reverts below $-I$ for sustained windows. The exercise is the point: implement it
+and report your number (typical runs show a few percent of seeds net-negative at these
+parameters).
+\end{solution}
+
+\begin{exercise}[hard]
+Funding $f_t$ appears both as a transfer and as a forecasting variable. Show why
+$\mathrm{E}[r_{t+1}\mid f_t] \neq 0$ does \emph{not} imply a free edge, using the crowding
+interpretation.
+\end{exercise}
+\begin{solution}
+Positive predictability (high funding predicting mean-reversion/squeezes) is exactly what
+keeps the mechanism at its resting point: if a simple rule printed money, crowding into the
+rule would move the premium and the funding equilibrium. The variable is a thermometer, and
+trading the thermometer moves the temperature.
+\end{solution}
+
+\begin{exercise}[easy]
+On the pinned window a $\$100$k long pays $\$563.83$ over 500h.
+What would a $\$100$k \emph{short} have received, and why is the
+answer not exactly $-\$563.83$?
+\end{exercise}
+\begin{solution}
+The same magnitude --- funding is symmetric in sign. It is not
+exactly $-\$563.83$ only because the rate floor makes some hours
+structurally nonzero regardless of premium sign.
+\end{solution}
+\begin{exercise}[medium]
+The mean premium was $-0.97$bp/h while mean funding was
+$+0.113$bp/h. Reconcile the signs in one sentence.
+\end{exercise}
+\begin{solution}
+Premium negative means perp $<$ index; the rate floor still
+charges longs the default interest component, so sign(funding)
+$\neq$ sign(premium) whenever the premium is small.
+\end{solution}
+\begin{exercise}[hard]
+Your strategy shorts perps to ``collect funding''. Using the pinned
+window, estimate P\&L per $\$100$k short including the premium drift
+you'd also earn/pay, and state the assumption that breaks the
+trade.
+\end{exercise}
+\begin{solution}
+Collect $+\$563.83$ funding but pay the negative premium drift
+($-0.97$bp/h $\times$ 500h $\times \$100$k $= -\$485$): net
+$\approx +\$79$. The break: any window where premium reverts
+positive flips the drift against you --- you are short the perp
+basis, not long a coupon.
+\end{solution}
+
+\section*{Notes}
+Funding is the invisible engine of crypto leverage: it prices crowdedness continuously and it
+is the reason ``free'' leverage is never free. The margin engine and \eqref{eq:liq} are the
+other half---most retail losses are liquidation mechanics, not bad calls. For live rules see
+venue docs (they change); for the market context, the CFTC's 2025 perpetual-futures event is
+the regulator's own explainer of the same machinery.
+
+\section*{Further reading}
+\begin{itemize}
+\item Hyperliquid docs, ``Funding'' --- the venue's own formula, clamp and interest terms:
+
+\url{https://hyperliquid.gitbook.io/hyperliquid-docs/trading/funding}
+\item Wikipedia, ``Perpetual futures'' --- history (Shiller) and the mechanism family:
+
+\url{https://en.wikipedia.org/wiki/Perpetual_futures}
+\item J.\ Hull, \emph{Options, Futures, and Other Derivatives} --- the expiry-convergence
+futures theory this chapter leans on:
+
+\url{https://www.pearson.com/en-us/subject-catalog/p/futures-options-and-other-derivatives/P200000002816}
+\item CFTC, AAC meeting on perpetual futures (2025) --- the regulator's explainer, incl. the
+funding-rate session video:
+
+\url{https://www.cftc.gov/PressRoom/Events/opaeventtechperp072925}
+\item L.\ de Prado, lectures --- for carry and positioning read in a research frame:
+
+\url{https://www.quantresearch.org/Lectures.htm}
+\end{itemize}
+
+\begin{rulebox}[Watch instead]
+\begin{itemize}
+\item ``Presentation on Perpetual Futures' Funding Rate Mechanism'' --- CFTC (14:31). The
+mechanism from the regulator: no-expiry design, funding replacing convergence.
+\url{https://www.youtube.com/watch?v=ZEPjpgVSavY} (accessed 2026-10-11)
+\item ``How Smart Traders Use Funding Rates'' --- Trading Bureau (6:45). Funding as
+positioning data; matches \S\ref{sec:funddata}.
+\url{https://www.youtube.com/watch?v=t06z4rCmp4w} (accessed 2026-10-11)
+\end{itemize}
+\end{rulebox}

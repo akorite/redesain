@@ -296,6 +296,32 @@ long-tail questions at once, a $b\ln2$ subsidy per market is
 cheaper than hiring a market-maker for each.
 \end{example}
 
+
+\section{The market as a conviction meter}\label{sec:conviction}
+A binary price is a number, but the \emph{distribution} of prices
+across a venue's markets is a statement about what the venue is
+for. \texttt{scoring\_stakes.py} reads the pinned 100-market
+snapshot:
+\begin{verbatim}
+conviction |2p-1| over 100 binary markets
+mean 0.553   >0.9: 25   <0.1: 20
+E[Brier] if market calibrated = 0.1386 vs 50c baseline 0.25
+info gain over coin-flip = 45%
+\end{verbatim}
+\begin{example}\label{ex:conviction2}
+\textbf{Expected Brier is the venue's score.} If these markets
+are calibrated, pricing them blind costs $0.1386$ in Brier ---
+a $45\%$ gain over the coin-flip baseline. And a quarter of the
+board sits above $0.9$ conviction: a fifth of listed markets
+are effectively decided.
+\begin{solution}
+Two reads at once: for a forecaster, market prices are a free
+prior worth roughly half the distance to the truth; for the
+venue, the mass at the extremes is inventory it cannot lose on
+and the mass near $0.5$ is where its price discovery actually
+lives.
+\end{solution}
+\end{example}
 \section{Common mistakes}
 \begin{itemize}
 \item \textbf{Reading price as certainty.} $p=0.9$ is a probability, not a promise; one in ten

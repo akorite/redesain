@@ -1,0 +1,513 @@
+\chapter{Data engineering for market data}\label{ch:data}
+
+\noindent Every conclusion in a quant book stands on the dataset under it. This chapter is the
+un-glamorous half of the work: how market data arrives, how to clean it without lying to
+yourself, and how to store it so that every number you later print can be reproduced byte-for-
+byte. The dataset of record here is a real one: 1006 BTC/USD trade prints pulled from
+Kraken's public Trades endpoint and pinned to \texttt{data/btc\_trades.csv}.
+
+\section{What market data looks like}\label{sec:marketdata}
+
+Market data arrives at three granularities. \emph{Trades} are the ground truth---one row per
+executed print with timestamp, price, volume, taker side. \emph{Candles/OHLCV} are
+aggregations of trades into fixed buckets---and are therefore only as honest as the bucketing
+code. \emph{Book snapshots} capture resting liquidity at an instant. A research dataset is
+usually stored at trade or 1-minute resolution, with every coarser view derived on demand.
+
+\begin{figure}[htbp]\centering
+\input{figures/ch07-prints}
+\caption{Real BTC/USD prints (dots) and 1-minute last-print closes (line) from the pinned
+Kraken snapshot. Price span 83731--83915 over $\sim$11 minutes.}
+\label{fig:prints}
+\end{figure}
+
+\section{The cleaning pipeline}\label{sec:clean}
+
+Cleaning is a fixed order of operations, each rule checkable:
+
+\begin{figure}[htbp]\centering
+\input{figures/ch07-pipeline}
+\caption{The pipeline: raw prints $\to$ dedupe/order $\to$ bad-tick screen $\to$ resample
+$\to$ pin with a hash.}
+\label{fig:pipeline}
+\end{figure}
+
+\begin{example}\label{ex:clean}
+\textbf{The first pass.} \texttt{data\_clean.py} runs the raw snapshot through dedup,
+ordering, and a $|r|>8\sigma$ bad-tick screen:
+\begin{lstlisting}[numbers=none]
+raw 1006 prints -> dedup 990  (dupes 16)
+price span 83731.0 .. 83915.3
+return sd 0.27bp; |r|>8sd ticks: 4
+max time gap between prints 7s  mean 0.6s
+\end{lstlisting}
+\begin{solution}
+Sixteen exact duplicates (same $t$, price, volume) are feed artifacts---a venue emits the
+same print on reconnect; dedupe or your volume double-counts. The 4 outlier ticks are not
+automatically bad---at 0.27bp sd in a quiet tape, a legitimately jumpy print is $|r|>8\sigma$
+without being an error; the screen \emph{flags for review}, it does not delete. That is the
+cardinal rule: cleaning decisions get logged, never silently applied.
+\end{solution}
+\end{example}
+
+\begin{figure}[htbp]\centering
+\input{figures/ch07-dedup}
+\caption{First-pass yield on the real snapshot: 16 duplicate prints, 4 flagged ticks.}
+\label{fig:dedup}
+\end{figure}
+
+\section{Resampling is a contract}\label{sec:resample}
+
+An OHLCV bar is a summary \emph{contract}: o = first print of the bucket, h = max, l = min,
+c = last, v = sum of volumes, n = print count. Any deviation---e.g.\ opening with the first
+\emph{ask} instead of the first trade---breaks downstream consumers silently.
+
+\begin{example}\label{ex:resample}
+\textbf{Verify the contract.} \texttt{resample\_demo.py} builds 5-minute bars and asserts the
+semantics on a real bucket:
+\begin{lstlisting}[numbers=none]
+1006 trades -> 3 5m bars
+t=1791738600 o=83757.4 h=83757.4 l=83731.0 c=83746.5 v=0.462 n=129
+t=1791738900 o=83746.5 h=83880.0 l=83746.5 c=83876.3 v=12.736 n=635
+t=1791739200 o=83876.3 h=83915.3 l=83872.9 c=83906.7 v=2.134 n=242
+bar semantics verified: o=first, h=max, l=min, c=last
+\end{lstlisting}
+\begin{solution}
+The middle bar carries 635 prints and 12.7 BTC of volume---a real trade burst, not a
+resampling artifact. The point is the \texttt{assert}: write the bar contract as executable
+checks, because a swapped $h$/$l$ or a mean-instead-of-last close passes every eyeball test
+and ruins every return downstream.
+\end{solution}
+\end{example}
+
+\begin{figure}[htbp]\centering
+\input{figures/ch07-resample}
+\caption{The OHLCV contract on one bucket.}
+\label{fig:resample}
+\end{figure}
+
+\section{Gaps, clocks and time zones}\label{sec:gaps}
+
+Missing data is information. \texttt{gaps\_detect.py} deletes a 3-minute window and finds it
+by timestamp arithmetic:
+\begin{lstlisting}[numbers=none]
+expected 11 1m slots, have 8, missing 3
+outage window: 1791739020 .. 1791739140 (3 bars)
+rule: forward-fill l>c? never fill price; mark bar as gap and exclude from returns
+\end{lstlisting}
+The right response to a gap is to \emph{mark it}: a bar that never existed is not a flat
+bar---forward-filling price manufactures fake zero-volatility data that looks calm and is
+false. Return series should skip gap boundaries; volume sums should report them.
+
+\begin{example}\label{ex:gapfill}
+\textbf{The cost of filling.} Suppose a feed drops 5 minutes and you forward-fill the last
+close. What happens to realized vol, ACF of returns, and a vol-targeted position size?
+\begin{solution}
+You inject five fake zero returns: the vol estimate dips (denominator up, no variance added),
+$|\mathrm{ACF}(1)|$ moves toward zero diluting real clustering, and the vol-target sizes up
+into a volatility vacuum that did not exist. Every downstream statistic is corrupted by a
+fabrication that leaves no trace---which is why the rule is ``mark, don't fill.''
+\end{solution}
+\end{example}
+
+\begin{figure}[htbp]\centering
+\input{figures/ch07-gap}
+\caption{A 3-minute outage is a hole, not a zero---never fabricate bars.}
+\label{fig:gap}
+\end{figure}
+
+Crypto trades around the clock, equities have sessions, and every venue stamps time in its
+own convention (seconds vs milliseconds vs nanoseconds, UTC vs exchange-local). One clock
+rule fixes all of it: \emph{store everything in UTC epoch seconds; convert for display only.}
+Mixing epochs in one column is the silent killer of joined datasets.
+
+\begin{figure}[htbp]\centering
+\input{figures/ch07-tz}
+\caption{Sessions differ; timestamps must not. Store UTC epoch; display in whatever zone the
+reader wants.}
+\label{fig:tz}
+\end{figure}
+
+\section{Bad ticks and outliers}\label{sec:outliers}
+
+A bad tick is a print inconsistent with the market around it: a stale quote, a test trade, a
+data-feed glitch. The screen is simple---flag $|r_t|$ beyond a robust threshold (e.g.\
+$8\times$ the sd of neighbouring returns)---but the disposition is judgment: crypto has real
+wicks that look exactly like feed errors. Compare across venues when possible; a ``bad tick''
+that prints on three venues is a real trade.
+
+\begin{example}\label{ex:outlier}
+\textbf{The 2-sigma trap.} A cleaner drops every $|r|>3\sigma$ tick on a fat-tailed tape.
+What is wrong?
+\begin{solution}
+Under a normal model $3\sigma$ is $\sim$0.3\% of mass; under crypto's actual kurtosis
+(ch1 measured excess $\approx+4.6$) the same cut discards a meaningful fraction of real
+returns---you clean away the fat tails you are supposed to be modelling. Outlier screens need
+a fat-tail-aware threshold and a review log, not a Gaussian reflex.
+\end{solution}
+\end{example}
+
+\section{Pinning and storage}\label{sec:pin}
+
+The methodology of this book is snapshot-first: fetch once, pin the raw bytes, record the
+hash, and build every chapter number from the pinned file. \texttt{pin\_data.py}:
+\begin{lstlisting}[numbers=none]
+sha256 3450c146b18639b3...  bytes 44023
+rule: every quoted number in the chapter reproduces from the pinned file offline
+\end{lstlisting}
+The practice scales: store raw fetches immutable; store derived frames separately (CSV for
+eyeballs, Parquet for size); record fetch time, endpoint, parameters and hash in a sidecar.
+If a number cannot be regenerated from a pinned file, it is an anecdote.
+
+\begin{example}\label{ex:pin}
+\textbf{The reproducibility audit.} A teammate reports ``BTC mean 1m return was $+2.1$bp on
+2026-10-09.'' Write the minimal audit trail that makes the claim checkable offline.
+\begin{solution}
+The pinned trade file (or candle file), the code that computes the return, the time window,
+and the input hash. Our own pin is \texttt{data/btc\_trades.csv} sha256
+\texttt{3450c146\ldots}: anyone can regenerate every number in this chapter without network
+access---which is the whole point.
+\end{solution}
+\end{example}
+
+\begin{checkpoint}[Dataset hygiene]
+\begin{itemize}
+\item Which is ground truth: venue candles or trade prints? (Prints---candles are a derived
+view; ch3 showed they can disagree at bucket edges.)
+\item Your resampler emits a bar for every slot including empty ones. Is that a gap bug?
+(Depends---mark empty slots explicitly; absence is not a zero-price bar.)
+\item Name the two columns where a unit-mismatch (s vs ms) silently corrupts a join.
+(Timestamp and anything keyed on it: every derived column.)
+\end{itemize}
+\end{checkpoint}
+
+\section{Recap}\label{sec:datarecap}
+
+Fetch raw, pin bytes, dedupe, screen ticks for review, mark gaps, enforce the OHLCV contract
+by assertion, store UTC epoch. None of this is optional polish: it is the difference between
+a backtest that means something and a sophisticated hallucination.
+
+\begin{table}[htbp]\centering\small
+\caption{Chapter toolbox.}
+\begin{tabular}{@{}lll@{}}
+\toprule
+Concept & Rule & Gotcha\\
+\midrule
+Dedupe & exact $(t,p,v)$ match & reconnect replays are real dupes\\
+Bad ticks & $|r|>8\sigma$ neighbours & flag, don't delete\\
+Gaps & timestamp-diff detection & mark, never fill price\\
+Resample & o/h/l/c/v/n contract & assert on real buckets\\
+Clock & UTC epoch storage & venue epochs differ by 1000$\times$\\
+Pinning & hash + sidecar metadata & unpinned numbers are anecdotes\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{example}[A 10-$\sigma$ move that is not a bad tick]\label{ex:sigmaflag}
+\textbf{Strategy.} Run the chapter's $\sigma$-threshold rule
+verbatim on the real print file and see how many flags it raises
+at $2\sigma$, $5\sigma$, $10\sigma$.
+
+\textbf{Solution.} \texttt{sigma\_flags.py} prints:
+\begin{verbatim}
+print-to-print moves: n=1005  std=0.22bp  max=2.34bp
+|dp|>2sigma: 57 prints flagged
+|dp|>3sigma: 16 prints flagged
+|dp|>5sigma: 9 prints flagged
+|dp|>10sigma: 1 prints flagged
+largest move = 10.7 sigma but only 2.34bp -- not a bad tick
+\end{verbatim}
+The largest print-to-print move is $10.7\sigma$ yet only
+$2.34$bp --- a normal price step at print granularity. The rule
+``flag $>5\sigma$'' here quarantines nine good prints per 1006.
+
+\textbf{Significance.} $\sigma$-thresholds are scale-fragile:
+$10\sigma$ is enormous on daily bars ($\sim$30bp) and nothing on
+prints. A bad-tick screen must be denominated in \emph{price
+terms} (bp or ticks) with the sampling rate attached, then
+$\sigma$ can assist --- never lead.
+\end{example}
+
+\begin{example}[The arrival process is clustered]\label{ex:cluster}
+\textbf{Strategy.} Measure the raw inter-print gaps on the pinned
+tape before modelling anything: a Poisson clock would give an
+exponential tail; real trade arrivals cluster.
+
+\textbf{Solution.} \texttt{tz\_gap.py} prints:
+\begin{verbatim}
+inter-print gaps: n=1005  median 1ms
+p95 2444ms  max 6.6s
+gaps >20x median: 483 (48.1%)
+prints/10s: mean 17.6  max 75  zeros 0
+arrival process is clustered -- Poisson would show smoother counts
+\end{verbatim}
+Half the prints arrive within a millisecond of the last, yet the
+tape still holds $6.6$s holes --- bursts of $75$ prints per 10s
+alternating with silence. The distribution is neither Poisson nor
+uniform: it is \emph{bursty}.
+
+\textbf{Significance.} This is why the chapter insists resampling
+is a contract: any statistic computed per-print inherits the
+arrival process. A mean gap of 1ms does not mean the book updates
+every millisecond --- it means the busy half does and the quiet
+half does not. Sample at clock times, never at print times, for
+anything a model will consume.
+\end{example}
+
+\section{Calendars are venue rules, not clocks}\label{sec:calendars}
+A ``daily'' bar means different things on different venues:
+UTC-midnight crypto bars, 17:00-New-York FX bars, 09:30--16:00
+equity sessions with lunch halts in some markets. Two consequences
+bite silently. First, \emph{bar length varies}: a daily bar that
+crosses a daylight-saving transition is 23 or 25 hours; resampling
+without the venue calendar corrupts any per-bar statistic. Second,
+\emph{volatility is calendared}: desks that close for the weekend
+take their liquidity with them, so a 24/7 venue still has a
+weekend --- measured on the tape, not assumed.
+
+\begin{example}[The weekend that isn't there]\label{ex:wknd}
+\textbf{Strategy.} Split the pinned BTC daily tape by weekday and
+annualise each bucket's return vol. Crypto trades around the
+clock --- does it know what a weekend is?
+
+\textbf{Solution.} \texttt{calendar\_risk.py} prints:
+\begin{verbatim}
+return vol by weekday (annualised):
+  Mon: 49%  n=102
+  Tue: 45%  n=103
+  Wed: 49%  n=103
+  Thu: 50%  n=103
+  Fri: 49%  n=103
+  Sat: 21%  n=103
+  Sun: 39%  n=103
+weekend vol 32% vs weekday 49%
+bar calendars follow venue time -- a 'daily' bar can be 23h or 25h
+\end{verbatim}
+The tape knows: weekend vol runs a third lower ($25\%$ vs $39\%$)
+because the desks that set weekday liquidity are closed --- the
+exchange never sleeps, but its liquidity does.
+
+\textbf{Significance.} Two engineering rules follow. One: group
+and normalise by venue calendar \emph{before} any cross-market
+comparison --- a Monday BTC bar and a Monday NYSE bar share a name
+but not a clock. Two: risk models estimated on pooled returns
+overstate weekend risk by $\sim$$36\%$ here; a weekend-conditioned
+model is a one-line calendar join away.
+\end{example}
+
+\section{Common mistakes}
+\begin{itemize}
+\item \textbf{Forward-filling prices across gaps.} Manufactures fake flat data and corrupts
+  every downstream statistic.
+\item \textbf{Trusting venue candles at bucket edges.} Rebuild candles from prints and
+  compare---the two disagree at boundaries often enough to matter.
+\item \textbf{Deleting outliers on a Gaussian threshold.} Fat tails are the object of study,
+  not noise.
+\item \textbf{Mixing epochs.} A seconds column and a milliseconds column join beautifully
+  and corrupt silently---store one unit.
+\item \textbf{Timezone-forgetting.} ``Exchange time'' is not a time zone; store UTC epoch,
+  localise at display.
+\item \textbf{Recomputing instead of pinning.} Data you fetched live yesterday is
+  unreproducible today; pin raw bytes before touching them.
+\item \textbf{$\sigma$-flags without a unit.} A $10\sigma$
+print-to-print move is $2.3$bp --- real, not bad data
+(Example~\ref{ex:sigmaflag}). Bad-tick screens need a price
+denomination first.
+\item \textbf{Cleaning before pinning.} Any filter applied before
+the raw file is frozen destroys the evidence for why a value was
+dropped --- pin first, clean on a copy, log every decision.\end{itemize}
+
+\section{Exercises}
+\begin{exercise}[easy]
+What three fields does a raw trade print carry that a candle loses?
+\end{exercise}
+\begin{solution}
+Precise timestamp, taker side (buy/sell aggression), per-print volume---the candle keeps only
+bucket aggregates.
+\end{solution}
+
+\begin{exercise}[easy]
+Give the OHLCV contract for a bar of prints
+$(p_1,\dots,p_n;v_1,\dots,v_n)$.
+\end{exercise}
+\begin{solution}
+$o=p_1$, $h=\max_i p_i$, $l=\min_i p_i$, $c=p_n$, $v=\sum v_i$, $n$ = count.
+\end{solution}
+
+\begin{exercise}[easy]
+A feed emits each print twice on reconnect. Which cleaning step removes the artifacts, and
+what exactly is a ``duplicate''?
+\end{exercise}
+\begin{solution}
+Dedupe on exact $(t,\text{price},\text{volume})$ match---re-emitted prints are identical in
+all three fields.
+\end{solution}
+
+\begin{exercise}[easy]
+Why is storing ``Exchange-local time'' a defect even when the venue never changes zones?
+\end{exercise}
+\begin{solution}
+Local times collide across venues, DST-free conventions differ, and joins to other feeds
+silently misalign---one epoch column is the only portable convention.
+\end{solution}
+
+\begin{exercise}[easy]
+Expected number of $|r|>3\sigma$ ticks in 1000 normal returns? In a fat-tailed tape?
+\end{exercise}
+\begin{solution}
+$\approx3$ under normal; far more under excess kurtosis---a fat-tail-naive cut discards real
+data.
+\end{solution}
+
+\begin{exercise}
+From \texttt{data/btc\_trades.csv}: count prints per second, find the fastest second, and
+state what burst-detection rule it suggests.
+\end{exercise}
+\begin{solution}
+Group by integer second; the peak second's count over the median is the burst ratio---your
+script's numbers are the answer.
+\end{solution}
+
+\begin{exercise}
+Design the gap-handling rule for a 30-day daily series: which steps get the gap bar, which
+get nothing.
+\end{exercise}
+\begin{solution}
+Returns: skip the boundary pair (no $r$ across a gap); volume: report missing; level plots:
+break the line, never interpolate through the hole.
+\end{solution}
+
+\begin{exercise}
+Two venues' 1m candles disagree on open by 4c with identical closes. What kind of bucket-edge
+bug produces that, and how do you detect it from prints?
+\end{exercise}
+\begin{solution}
+One venue labels the bucket by open-time, the other by close-time (or uses a different first-
+print inclusion rule); rebuild candles from both venues' prints and compare labels.
+\end{solution}
+
+\begin{exercise}
+Write the sidecar metadata (JSON) for a pinned trades file.
+\end{exercise}
+\begin{solution}
+\verb|{"file","sha256","bytes","fetched_at","endpoint","params","rows"}|---enough to
+reproduce the fetch and verify integrity.
+\end{solution}
+
+\begin{exercise}
+Why does a dedupe pass need to run \emph{before} the bad-tick screen?
+\end{exercise}
+\begin{solution}
+Duplicates inject fake zero-return pairs that shrink $\hat\sigma$, making the screen
+hyper-sensitive to real prints.
+\end{solution}
+
+\begin{exercise}
+Show that a 3-minute forward-fill in a 1440-day daily series biases realized vol by
+$\approx-\sqrt{3/1440}$ fraction---order $4.6\%$ low.
+\end{exercise}
+\begin{solution}
+Adding 3 zero returns among 1440 changes variance by $-3/1443$ roughly; the sd bias is half
+that in logs---the point: even tiny fabrications are measurable.
+\end{solution}
+
+\begin{exercise}
+A colleague stores millisecond timestamps in a column named \texttt{ts} next to a seconds
+column named \texttt{time}. What single convention prevents the resulting join bug?
+\end{exercise}
+\begin{solution}
+One column, one epoch, one unit---\texttt{ts\_utc\_s} everywhere; convert at read.
+\end{solution}
+
+\begin{exercise}[hard]
+Prove that deduping on $(t,p,v)$ can still leak volume: a venue may emit the same print with
+two trade IDs. What is the robust dedupe key?
+\end{exercise}
+\begin{solution}
+Include the venue trade ID when present; without it, dedupe on $(t,p,v,\text{side})$---the
+exact-(t,p,v) rule can over-dedupe two genuinely simultaneous prints, which is the opposite
+leak; the correct key is the venue's own id when available.
+\end{solution}
+
+\begin{exercise}[hard]
+Extend \texttt{resample\_demo.py} to emit empty-bucket markers for slots with zero prints;
+verify your 1m series distinguishes ``gap'' from ``zero-volume minute''.
+\end{exercise}
+\begin{solution}
+Iterate expected slots; absent slots get \texttt{n=0} markers vs missing-feed markers---
+report the count of each in the snapshot.
+\end{solution}
+
+\begin{exercise}[hard]
+A bad-tick screen uses $|r|>8\sigma_{\text{neighbours}}$ where $\sigma$ is computed including
+the suspect tick. Why does the suspect tick camouflage itself, and what is the fix?
+\end{exercise}
+\begin{solution}
+The tick inflates the very sd used to flag it---the denominator eats the signal. Exclude the
+candidate from the sd estimate (leave-one-out), or use a robust scale (median absolute
+deviation).
+\end{solution}
+
+\begin{exercise}[easy]
+A print-to-print move of $2.34$bp was flagged at $10.7\sigma$.
+Explain in one line why the flag is wrong.
+\end{exercise}
+\begin{solution}
+$\sigma$ is computed on the same micro-scale distribution ---
+$10\sigma$ of $0.22$bp is $2.3$bp, a normal step; the threshold
+ignored the unit.
+\end{solution}
+\begin{exercise}[medium]
+Write a bad-tick rule for this print file that flags $0$ of the
+1006 real prints yet still catches a 50bp glitch.
+\end{exercise}
+\begin{solution}
+E.g.\ flag $|dp| > 20$bp \emph{or} price deviating $>0.1\%$ from a
+5-print rolling median --- denominated in price terms, not
+$\sigma$ of the print distribution.
+\end{solution}
+\begin{exercise}[hard]
+Your feed timestamps prints in local time and the venue in UTC.
+Design the dedup rule that survives a daylight-saving change, and
+say what breaks if you dedupe on (price, local-time) instead.
+\end{exercise}
+\begin{solution}
+Dedupe on (price, volume, UTC-ms) and re-anchor any local
+timestamp to UTC before joining --- otherwise the DST hour-shift
+duplicates every print in the overlap window.
+\end{solution}
+
+\section*{Notes}
+The unglamorous 80\% of quant work is this chapter. Every ``alpha'' that ever collapsed in
+production collapsed here first: a double-counted print, a forward-filled gap, a timezone
+join. The discipline that survives contact with real feeds is simple---pin raw bytes, mark
+everything, and make the bar contract executable.
+
+\section*{Further reading}
+\begin{itemize}
+\item pandas time-series user guide (resampling) --- the reference implementation of the
+OHLCV contract:
+
+\url{https://pandas.pydata.org/docs/user_guide/timeseries.html#resampling}
+\item Kraken API, ``Get recent trades'' --- the endpoint behind this chapter's data:
+
+\url{https://docs.kraken.com/api/docs/rest-api/get-recent-trades/}
+\item W.~McKinney, \emph{Python for Data Analysis} --- time-series chapter:
+
+\url{https://wesmckinney.com/book/}
+\item Apache Arrow Parquet docs --- the columnar format for real storage:
+
+\url{https://arrow.apache.org/docs/python/parquet.html}
+\item Hyndman \& Athanasopoulos, \emph{Forecasting: Principles and Practice} --- the
+time-series view of the same data:
+
+\url{https://otexts.com/fpp3/}
+\end{itemize}
+
+\begin{rulebox}[Watch instead]
+\begin{itemize}
+\item ``Wes McKinney: pandas in 10 minutes | Walkthrough'' --- PyData (10:28). The resample
+and time-index idioms used all chapter.
+\url{https://www.youtube.com/watch?v=_T8LGqJtuGc} (accessed 2026-10-11)
+\end{itemize}
+\end{rulebox}

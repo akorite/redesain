@@ -1,0 +1,25 @@
+\begin{tikzpicture}
+\begin{axis}[width=0.48\linewidth,height=5.2cm,name=lef,
+  title={$\operatorname{ACF}(r_t)$},xlabel={lag},grid=major,
+  grid style={gray!25},xmin=0.5,xmax=15.5,ymin=-0.15,ymax=0.18,
+  title style={font=\small}]
+\addplot[ybar,fill=accent,draw=none,bar width=3pt] coordinates {
+(1,0.0399) (2,-0.0957) (3,0.0210) (4,0.0305) (5,-0.0439) (6,-0.0657)
+(7,0.0128) (8,0.0314) (9,-0.0013) (10,0.0197) (11,0.0144) (12,-0.0039)
+(13,0.0216) (14,0.0338) (15,0.0015)};
+\addplot[rulegray,dashed,domain=0.5:15.5]{0.026};
+\addplot[rulegray,dashed,domain=0.5:15.5]{-0.026};
+\end{axis}
+\begin{axis}[width=0.48\linewidth,height=5.2cm,
+  at={(lef.right of east)},anchor=left of west,xshift=0.6cm,
+  title={$\operatorname{ACF}(|r_t|)$},xlabel={lag},grid=major,
+  grid style={gray!25},xmin=0.5,xmax=15.5,ymin=-0.15,ymax=0.18,
+  title style={font=\small}]
+\addplot[ybar,fill=amber,draw=none,bar width=3pt] coordinates {
+(1,0.1451) (2,0.1376) (3,0.1245) (4,0.1229) (5,0.1218) (6,0.1268)
+(7,0.0805) (8,0.1075) (9,0.0936) (10,0.1394) (11,0.1290) (12,0.1072)
+(13,0.1070) (14,0.1156) (15,0.1351)};
+\addplot[rulegray,dashed,domain=0.5:15.5]{0.026};
+\addplot[rulegray,dashed,domain=0.5:15.5]{-0.026};
+\end{axis}
+\end{tikzpicture}

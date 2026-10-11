@@ -1,0 +1,13 @@
+\begin{tikzpicture}
+\begin{axis}[width=0.86\linewidth,height=0.32\linewidth,
+    xlabel={hour},ylabel={perp basis (bp)},
+    xmin=0,xmax=720,ymin=-60,ymax=60,
+    tick style={draw=none},axis line style={draw=slate},
+    xtick={0,180,360,540,720},font=\scriptsize]
+  \addplot[accent,thick] file{figures/data/B_BASIS.tex};
+  \addplot[slate,dotted] coordinates {(0,0)(720,0)};
+  \addplot[slate,dashed] coordinates {(0,20)(720,20)};
+  \addplot[slate,dashed] coordinates {(0,-20)(720,-20)};
+  \node[font=\scriptsize,text=slate] at (axis cs:60,32) {$\pm20$bp};
+\end{axis}
+\end{tikzpicture}

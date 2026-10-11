@@ -259,6 +259,30 @@ the winner's persistence. A grid can clear the deflated bar on a
 lucky fold; it cannot fake fold-after-fold OOS ranks. Run both.
 \end{example}
 
+
+\section{The multiplicity bar is a physical threshold}\label{sec:multbar}
+The deflated-Sharpe idea has a concrete face: how far does the
+acceptance bar move when the strategy was selected, not found?
+\texttt{deflated.py} prints:
+\begin{verbatim}
+N=   10  95% of max|t| < 2.81
+N=  100  95% of max|t| < 3.47
+N= 1000  95% of max|t| < 4.06
+Bonferroni t-bar at N=100: 3.29
+single-test t-bar: 1.96
+\end{verbatim}
+\begin{example}\label{ex:multbar}
+\textbf{The bar grows like $\sqrt{2\ln N}$, not like $N$.} A
+winner picked from 100 trials must clear $t\approx3.3$ --
+roughly the Bonferroni bound $3.29$ that the simulation finds
+from the other direction. From 1000 trials, $4.06$.
+\begin{solution}
+This is the multiplicity tax made mechanical: every extra
+variant you tested before ``finding'' the edge raises the bar
+the evidence must clear. The honest accounting logs every trial
+--- ch15's audit trail exists for exactly this reason.
+\end{solution}
+\end{example}
 \section{Common mistakes}
 \begin{itemize}
 \item \textbf{Counting only documented trials.} Every parameter you eyeballed and dropped

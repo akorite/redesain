@@ -1,0 +1,7 @@
+\begin{tikzpicture}[font=\scriptsize]
+  \draw[->,slate] (0,0)--(8.4,0) node[below left=-1pt]{cost decomposition};
+  \draw[fill=accent!25,draw=accent] (0.4,0) rectangle (2.2,2.4) node[midway,align=center]{arrival\\ price\\ risk};
+  \draw[fill=amber!40,draw=amber] (2.6,0) rectangle (4.4,1.6) node[midway,align=center]{tempo\\ (impact $\downarrow$\\ drift $\uparrow$)};
+  \draw[fill=good!30,draw=good] (4.8,0) rectangle (6.6,3.0) node[midway,align=center]{IS =\\ impact +\\ timing +\\ spread/fees};
+  \node[align=left,text=slate] at (9.6,1.2) {instant: 63bp\\ split: 44.7bp +\\ 3.8bp drift};
+\end{tikzpicture}

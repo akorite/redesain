@@ -55,7 +55,7 @@ strategy's capacity---a 20bp edge on a 63bp print is not a product.
 \input{figures/ch10-impact}
 \caption{Square-root impact: cost per unit grows slower than size, but the cost-to-edge
 ratio grows without bound.}
-\label{fig:impact}
+\label{fig:impact10}
 \end{figure}
 
 \section{Slicing: TWAP vs VWAP}\label{sec:slicing}
@@ -119,7 +119,7 @@ risk-management question, not a comfort question.
 \input{figures/ch10-path}
 \caption{The walk the schedule trades through: every slice pays the then-current price,
 so drift between decision and fill is uncompensated risk.}
-\label{fig:path}
+\label{fig:path10}
 \end{figure}
 
 \begin{figure}[htbp]\centering
@@ -263,6 +263,31 @@ depth --- another reason tape statistics mislead models that treat
 the book as honest.
 \end{example}
 
+
+\section{Speed and risk trade on one frontier}\label{sec:frontier2}
+The implementation-shortfall split is not a stylistic choice;
+it is a point on a frontier between two costs that cannot both
+be minimized. \texttt{is\_shortfall.py} prices both ends:
+\begin{verbatim}
+instant IS: +63.2bp
+split  IS: +44.7bp impact + +7.6bp drift on half = +48.5bp
+splitting trades speed for risk: less impact, more timing exposure
+\end{verbatim}
+\begin{example}\label{ex:frontier2}
+\textbf{Slower is cheaper on impact and dearer on drift.} The
+instant fill pays the full $63.2$bp impact; splitting halves
+the impact ($44.7$bp) but buys $7.6$bp of adverse drift on the
+unfilled half --- net $48.5$bp. The execution curve is the
+sum of a falling leg and a rising leg; the minimum is a choice
+of how much timing risk you can carry.
+\begin{solution}
+This is the algebra behind every TWAP/VWAP debate: splitting
+trades certainty of fill for uncertainty of path. On a
+directionless tape the split wins small; on a trending tape the
+drift term dominates and the frontier collapses to
+``fill now.''
+\end{solution}
+\end{example}
 \section{Common mistakes}
 \begin{itemize}
 \item \textbf{``Impact is linear.''} It is concave; big prints cost disproportionately.
@@ -276,7 +301,7 @@ the book as honest.
   footprint in ADV.
 \item \textbf{Minimising impact alone.} Slower trading
 always lowers impact but multiplies timing risk
-(Example~\ref{ex:frontier}) --- optimising one leg maximises the
+(Example~\ref{ex:frontier2}) --- optimising one leg maximises the
 other.
 \item \textbf{Treating TWAP as neutral.} A uniform schedule is
 still a bet: you hold market risk for the whole window and pay

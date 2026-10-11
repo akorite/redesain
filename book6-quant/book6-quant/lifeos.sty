@@ -1,0 +1,165 @@
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{lifeos}[2026/10/10 Academic book style for the Life OS and its study textbooks]
+
+% ============================================================
+%  Academic book style. Serif text, restrained rules, numbered
+%  boxes and checkpoints, notes and a numbered bibliography at
+%  the back. Intended for the book class, twoside.
+% ============================================================
+
+% ---------- page, fonts, maths ----------
+\RequirePackage[a4paper,top=29mm,bottom=31mm,inner=31mm,outer=25mm,headheight=14pt,headsep=9mm]{geometry}
+\RequirePackage[T1]{fontenc}
+\RequirePackage[utf8]{inputenc}
+\RequirePackage{mathpazo}                  % Palatino text and maths
+\RequirePackage[scaled=0.90]{helvet}       % sans for labels and headers
+\RequirePackage{courier}                   % PostScript monospace, no bitmap fonts
+\RequirePackage{amsmath,amssymb,amsthm,mathtools}
+\RequirePackage{microtype}
+\RequirePackage[dvipsnames,table]{xcolor}
+\RequirePackage{enumitem,booktabs,tabularx,array,longtable}
+\RequirePackage{titlesec,fancyhdr,emptypage}
+\RequirePackage{tikz}
+\usetikzlibrary{positioning,calc,arrows.meta}
+\RequirePackage{pgfplots}
+\pgfplotsset{compat=1.18}
+\RequirePackage[most]{tcolorbox}
+\RequirePackage{needspace}
+\linespread{1.07}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{5.5pt plus 1pt minus 1pt}
+\widowpenalty=10000
+\clubpenalty=10000
+
+% ---------- palette: black text, one navy accent ----------
+\definecolor{ink}{HTML}{111111}
+\definecolor{slate}{HTML}{555555}
+\definecolor{rulegray}{HTML}{BBBBBB}
+\definecolor{accent}{HTML}{1F3A68}
+\definecolor{accentsoft}{HTML}{EEF1F7}
+\definecolor{amber}{HTML}{8A4B08}
+\definecolor{amberbg}{HTML}{FBF5EC}
+\definecolor{good}{HTML}{1E5E3A}
+\definecolor{goodbg}{HTML}{EFF6F1}
+\definecolor{graybg}{HTML}{F4F4F4}
+
+\RequirePackage[colorlinks=true,linkcolor=accent,urlcolor=accent,citecolor=accent]{hyperref}
+\RequirePackage{xurl}
+
+% ---------- headings ----------
+\newcommand{\sansfont}{\fontfamily{phv}\selectfont}
+\titleformat{\part}[display]
+  {\centering\normalfont}
+  {\sansfont\color{slate}\Large\MakeUppercase{\partname}\ \thepart}
+  {14pt}
+  {\Huge\bfseries}
+\titlespacing*{\part}{0pt}{110pt}{0pt}
+\titleformat{\chapter}[display]
+  {\normalfont\bfseries}
+  {\sansfont\color{slate}\large\MakeUppercase{\chaptertitlename}\ \thechapter}
+  {6pt}
+  {\Huge\raggedright}
+  [\vspace{5pt}\titlerule]
+\titleformat{name=\chapter,numberless}[display]
+  {\normalfont\bfseries}
+  {}
+  {0pt}
+  {\Huge\raggedright}
+  [\vspace{5pt}\titlerule]
+\titlespacing*{\chapter}{0pt}{20pt}{26pt}
+\titleformat{\section}{\normalfont\Large\bfseries}{\thesection\hspace{0.6em}}{0pt}{}
+\titlespacing*{\section}{0pt}{20pt}{6pt}
+\newcommand{\sectionbreak}{\Needspace*{9\baselineskip}}
+\titleformat{\subsection}{\normalfont\large\bfseries}{\thesubsection\hspace{0.6em}}{0pt}{}
+\titlespacing*{\subsection}{0pt}{13pt}{4pt}
+\titleformat{\subsubsection}{\normalfont\normalsize\bfseries\itshape}{\thesubsubsection\hspace{0.6em}}{0pt}{}
+\titlespacing*{\subsubsection}{0pt}{10pt}{2pt}
+\titleformat{name=\section,numberless}{\normalfont\Large\bfseries}{}{0pt}{}
+
+% ---------- running headers: page numbers outside, chapter and section inside ----------
+\pagestyle{fancy}
+\fancyhf{}
+\renewcommand{\headrulewidth}{0.3pt}
+\renewcommand{\headrule}{\hbox to\headwidth{\color{rulegray}\leaders\hrule height \headrulewidth\hfill}}
+\fancyhead[LE]{\sansfont\small\thepage\quad\color{slate}\nouppercase{\leftmark}}
+\fancyhead[RO]{\sansfont\small\color{slate}\nouppercase{\rightmark}\quad\color{ink}\thepage}
+\fancypagestyle{plain}{\fancyhf{}\renewcommand{\headrulewidth}{0pt}\fancyfoot[C]{\sansfont\small\thepage}}
+\renewcommand{\chaptermark}[1]{\markboth{\ifnum\value{chapter}>0\thechapter\ \fi #1}{}}
+\renewcommand{\sectionmark}[1]{\markright{\thesection\ #1}}
+\newcommand{\lifeostitle}{Life OS}
+\newcommand{\setlifeostitle}[1]{\renewcommand{\lifeostitle}{#1}}
+
+% ---------- lists ----------
+\setlist{itemsep=2pt,topsep=4pt,parsep=0pt}
+\newlist{checklist}{itemize}{1}
+\setlist[checklist]{label=\ensuremath{\square},leftmargin=1.8em,itemsep=3pt}
+
+% ---------- tables ----------
+\newcolumntype{Y}{>{\raggedright\arraybackslash}X}
+\newcolumntype{P}[1]{>{\raggedright\arraybackslash}p{#1}}
+\newcommand{\thead}[1]{\textsf{\textbf{#1}}}
+\newcommand{\tablehead}{\rowcolor{graybg}}
+\renewcommand{\arraystretch}{1.22}
+
+% ---------- boxes: thin top and bottom rule, small-caps label ----------
+\tcbset{lifebox/.style={enhanced,breakable,boxrule=0pt,arc=0pt,sharp corners,
+  toprule=0.7pt,bottomrule=0.7pt,leftrule=0pt,rightrule=0pt,
+  left=8pt,right=8pt,top=6pt,bottom=6pt,before skip=11pt,after skip=11pt}}
+\newtcolorbox{principle}[1][Principle]{lifebox,colback=accentsoft,colframe=accent,
+  before upper={{\sansfont\bfseries\small\color{accent}\MakeUppercase{#1}}\par\smallskip}}
+\newtcolorbox{rulebox}[1][Decision rule]{lifebox,colback=graybg,colframe=ink,
+  before upper={{\sansfont\bfseries\small\color{ink}\MakeUppercase{#1}}\par\smallskip}}
+\newtcolorbox{tripwire}[1][Tripwire]{lifebox,colback=amberbg,colframe=amber,
+  before upper={{\sansfont\bfseries\small\color{amber}\MakeUppercase{#1}}\par\smallskip}}
+\newtcolorbox{wins}[1][Definition of done]{lifebox,colback=goodbg,colframe=good,
+  before upper={{\sansfont\bfseries\small\color{good}\MakeUppercase{#1}}\par\smallskip}}
+
+% ---------- checkpoints: numbered like exercises, tracked in the ledger ----------
+\newcounter{checkpoint}[chapter]
+\renewcommand{\thecheckpoint}{\thechapter.\arabic{checkpoint}}
+\newenvironment{checkpoint}[1][]{%
+  \par\medskip\refstepcounter{checkpoint}\noindent
+  \hangindent=2.6em\hangafter=1
+  {\sansfont\bfseries Checkpoint~\thecheckpoint}\ \ifx\relax#1\relax\else{\itshape #1.}\ \fi}{\par\medskip}
+
+% ---------- textbook environments (shared with the study textbooks) ----------
+\theoremstyle{plain}
+\newtheorem{theorem}{Theorem}[chapter]
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{proposition}[theorem]{Proposition}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{example}[theorem]{Example}
+\newtheorem{exercise}{Exercise}[chapter]
+\theoremstyle{remark}
+\newtheorem*{remark}{Remark}
+\newenvironment{solution}{\par\smallskip\noindent\textit{Solution.}\ }{\par\smallskip}
+\renewcommand{\qedsymbol}{\ensuremath{\blacksquare}}
+
+% ---------- code listings (numbered snippets, as in a programming text) ----------
+\RequirePackage{listings}
+\lstdefinestyle{lifeos}{basicstyle=\ttfamily\small,numbers=left,numberstyle=\tiny\color{slate},numbersep=8pt,
+  frame=lines,framerule=0.3pt,rulecolor=\color{rulegray},breaklines=true,columns=fullflexible,
+  keywordstyle=\bfseries,commentstyle=\itshape\color{slate},showstringspaces=false,xleftmargin=1.6em,captionpos=b}
+\lstset{style=lifeos}
+
+% ---------- notes and recommended reading at the end of a chapter ----------
+\newcommand{\chapternotes}{\section*{Notes}\addcontentsline{toc}{section}{Notes}}
+\newcommand{\chapterex}{\section*{Checkpoints for this chapter}\addcontentsline{toc}{section}{Checkpoints}}
+
+% ---------- title page ----------
+\newcommand{\makecover}[3]{%
+  \begin{titlepage}
+    \centering
+    \vspace*{34mm}
+    {\sansfont\color{slate}\large\MakeUppercase{#3}\par}
+    \vspace{14mm}
+    {\fontsize{36}{42}\selectfont\bfseries #1\par}
+    \vspace{8mm}
+    {\color{accent}\rule{40mm}{0.8pt}\par}
+    \vspace{8mm}
+    {\Large\itshape #2\par}
+    \vfill
+    {\sansfont\small\color{slate} First edition \textperiodcentered\ 10 October 2026\par}
+    \vspace{14mm}
+  \end{titlepage}}

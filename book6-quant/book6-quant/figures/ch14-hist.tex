@@ -1,0 +1,9 @@
+\begin{tikzpicture}
+\begin{axis}[width=0.86\linewidth,height=0.34\linewidth,
+    xlabel={daily log return},ylabel={count},
+    tick style={draw=none},axis line style={draw=slate},font=\scriptsize]
+  \addplot[fill=accent!30,draw=accent,thick] file{figures/data/RHIST.tex};
+  \addplot[slate,dashed,thick] file{figures/data/NCURVE.tex};
+  \node[font=\scriptsize,text=slate] at (axis cs:0.06,140) {normal fit};
+\end{axis}
+\end{tikzpicture}

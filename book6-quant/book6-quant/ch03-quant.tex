@@ -1,0 +1,610 @@
+\chapter{Market structure and the limit order book}\label{ch:lob}
+Chapters 1 and 2 treated prices as a given series. This chapter opens
+the mechanism that prints them: the limit order book (LOB) --- who is
+in it, how it matches, why a big order pays more than the quoted
+price, and what data the venue emits so you can replay all of it.
+Everything the harness in ch8 consumes was produced by the rules on
+these pages.
+
+\section{Who trades and why}\label{sec:whotrades}
+\index{liquidity}\index{informed trader}\index{market maker}
+Three kinds of flow share every book, and their incentives explain
+the mechanics that follow:
+
+\begin{itemize}
+\item \textbf{Liquidity (uninformed) traders} want the position, not
+the price --- they pay the spread to get filled now.
+\item \textbf{Informed traders} know something about where the price
+is going. They also cross the spread --- but only when their
+information covers it.
+\item \textbf{Market makers} sit on both sides, earning the spread
+for standing ready. Their adversary is the second group: every fill
+from someone who knows the near future is a loss waiting to be
+marked. \S\ref{sec:makers} quantifies that loss.
+\end{itemize}
+
+The book is a queue discipline, not a negotiation. You either join a
+queue (limit order, waits) or pay to jump it (market order, fills
+now at worse prices). Everything else --- fees, rebates, order
+types, even most ``signals'' --- is commentary on that choice.
+
+\section{Orders and the LOB}\label{sec:orders}
+\index{limit order book}\index{mid}\index{microprice}
+The \emph{bid} is the best price someone will pay; the \emph{ask}
+the best price someone will sell at. The \emph{spread} is their gap;
+the \emph{mid} is its midpoint. \emph{Depth} is the quantity resting
+at each level (Figure~\ref{fig:ladder}).
+
+The mid is a convention, not a fact --- it treats both sides as
+equally informative, and a book stacked on one side usually isn't.
+The \emph{microprice} weights the quote by the size on the opposite
+side:
+\[
+p_{\text{micro}}=\frac{a\,q_b + b\,q_a}{q_b+q_a},
+\]
+where $a,b$ are best ask/bid and $q_a,q_b$ their sizes.
+
+\begin{example}[Mid vs microprice]\label{ex:microprice}
+\texttt{code/microprice.py} on three book shapes. Real output:
+\begin{lstlisting}[numbers=none]
+balanced    book (4@100.0 | 2@100.5): mid=100.2500 microprice=100.3333
+ask heavy   book (4@100.0 | 40@100.5): mid=100.2500 microprice=100.0455
+bid heavy   book (40@100.0 | 2@100.5): mid=100.2500 microprice=100.4762
+\end{lstlisting}
+Same mid, three different honest mids: a wall on the ask side drags
+the fair value down, a wall on the bid side pushes it up.
+Microprice is the first ``information extraction'' computation of
+the book --- imbalance before trade.
+\end{example}
+
+\begin{figure}[ht]\centering
+\input{figures/ch03-ladder}
+\caption{The order-book ladder. Asks sorted low-to-high above the
+spread, bids high-to-low below it. Depth is the queue behind each
+price.}
+\label{fig:ladder}
+\end{figure}
+
+\begin{example}[Price--time priority, by hand]\label{ex:match}
+Into the Figure~\ref{fig:ladder} book goes a limit \emph{sell} of 5
+at 99.5 (\texttt{code/lob.py}). It is marketable: bids exist at or
+above 99.5. Real output:
+\begin{lstlisting}[numbers=none]
+top: (100.0, 100.5) mid: 100.25
+bids: [(100.0, 4), (99.5, 3), (99.0, 5)]
+asks: [(100.5, 2), (101.0, 3), (101.5, 6)]
+after sell 5@99.5: [(100.0, 4, 's'), (99.5, 1, 's')]
+top: (99.5, 100.5)
+\end{lstlisting}
+The seller did not choose who filled --- the book did: best price
+first (100.0), then time order within that level, and the leftover
+unit rested as the new best ask. Two lessons: a limit sell below
+the top bid \emph{trades immediately} (a limit order is ``pay up to
+here'', not ``exactly here''), and the new best \emph{ask} is 99.5
+because the seller's remainder now sits there.
+\end{example}
+
+\begin{checkpoint}[Which side trades?]
+A limit buy at 101.0 arrives against the
+Figure~\ref{fig:ladder} book. How many units fill, at what
+prices, and what rests? (5 fill --- 2@100.5 then 3@101.0; nothing
+rests; new ask top is 101.5.)
+\end{checkpoint}
+
+\section{Matching: walking the book is the slippage}\label{sec:match}
+\index{slippage}\index{price--time priority}
+A market order does not get ``the price'' --- it gets the queue.
+Each level it eats is paid that level's price, so the average fill
+is a volume-weighted walk up the ladder, and the gap to mid is
+\emph{slippage}.
+
+\begin{example}[A market order through the ladder]\label{ex:walk}
+Market buy 9 against asks $(100.5\!\times\!2,\;101.0\!\times\!3,\;
+101.5\!\times\!6,\;102.5\!\times\!10)$ ---
+\texttt{code/walk\_book.py}. Real output:
+\begin{lstlisting}[numbers=none]
+fills: [(100.5, 2, 'b'), (101.0, 3, 'b'), (101.5, 4, 'b')]
+filled 9 at avg 101.1111  vs mid 100.25
+slippage = +0.8611/unit = +0.859%
+posted spread was 0.5; paid avg above best ask by +0.6111
+\end{lstlisting}
+The poster's ``cost'' is not the 0.5 spread --- it is the average
+$+0.86$ above mid, convex in size (Figure~\ref{fig:slip}): each
+level eaten costs more than the last, and a 9-unit order never saw
+the quoted 2-unit price except for its first 2 units.
+\end{example}
+
+\begin{figure}[ht]\centering
+\input{figures/ch03-slip}
+\caption{Depth$\to$slippage on the Figure~\ref{fig:ladder} ladder
+extended with deeper levels: average-fill distance from mid grows
+convexly in order size.}
+\label{fig:slip}
+\end{figure}
+
+\begin{figure}[ht]\centering
+\input{figures/ch03-walk}
+\caption{The same walk, drawn: the market buy consumes levels
+cheapest-first and the unfilled remainder of the top level keeps
+resting.}
+\label{fig:walk}
+\end{figure}
+
+\begin{figure}[ht]\centering
+\input{figures/ch03-state}
+\caption{One resting order's life. Marketable orders skip the book
+entirely; everything else queues by price then time.}
+\label{fig:state}
+\end{figure}
+
+\section{Makers, takers, fees and adverse selection}\label{sec:makers}
+\index{maker/taker}\index{adverse selection}
+Venues charge the two sides differently: \emph{takers} (marketable
+orders, consume liquidity) pay more; \emph{makers} (resting orders,
+provide it) pay less --- sometimes nothing, sometimes a rebate.
+Figure~\ref{fig:fees} shows one venue's base tiers as an example;
+treat every such number as a dated claim, because tiers change and
+yours will not be the base.
+
+\begin{figure}[ht]\centering
+\input{figures/ch03-fees}
+\caption{Maker/taker fee asymmetry at one venue's base tier
+(Hyperliquid perp documentation, accessed 2026-10-10
+\textbf{[unverified --- re-check current tiers]}; volume tiers reduce
+both). Order-type names and fee schedules differ per venue; on
+Polymarket the CLOB displays prices as probabilities with its own
+midpoint display rule (docs accessed 2026-10-10 \textbf{[unverified]}).}
+\label{fig:fees}
+\end{figure}
+
+Why makers get paid at all: their real cost isn't the fee, it is
+\emph{adverse selection} --- the fills that come from people who
+know the next move.
+
+\begin{example}[Adverse selection, measured]\label{ex:mmgame}
+\texttt{code/mm\_game.py}: a maker quotes $\pm0.10$ around fair
+value for 3000 steps. Uninformed flow coin-flips; informed flow
+trades only when the next move covers the spread. 24 seeds per
+flow mix. Real output:
+\begin{lstlisting}[numbers=none]
+informed share 0.0: mean MM PnL   +298.51
+informed share 0.3: mean MM PnL   +191.02 | per informed trade -0.018
+informed share 0.6: mean MM PnL    +97.74 | per informed trade -0.019
+informed share 0.9: mean MM PnL    +39.17 | per informed trade -0.019
+\end{lstlisting}
+Same quotes, same spread --- only the flow changed. Every informed
+trade is a guaranteed loss of (move $-$ spread); the maker's entire
+job is widening or withdrawing quotes when informed share rises.
+This is why real quoting engines reprice on flow toxicity, not on
+the mid alone.
+\end{example}
+
+\begin{checkpoint}[Where did the edge go?]
+In Example~\ref{ex:mmgame} the maker still nets positive at 90\%
+informed. Why, and what two quote changes flip it negative?
+(Uninformed flow still pays $+0.10$ per trade; widening the spread
+or pulling quotes during informed bursts starves the adverse
+fills.)
+\end{checkpoint}
+
+\section{What the tape looks like}\label{sec:tape}
+\index{trades}\index{book deltas}
+A venue emits three streams: \emph{trades} (prints: price, size,
+taker side, time), \emph{book deltas} (incremental
+add/change/delete per level), and derived \emph{candles} (OHLC
+aggregates). Ch1's bars are the third stream; the first two are the
+raw material it is built from --- and you can rebuild it yourself to
+check.
+
+\begin{example}[Rebuilding candles from real prints]\label{ex:candles}
+Fetch $\sim$1000 real BTC trade prints from Kraken's public Trades
+endpoint, resample into 60-second candles, and compare with the
+venue's own 1-minute OHLC for the same window
+(\texttt{code/trades\_to\_candles.py}; endpoints verified
+2026-10-11, cached in \texttt{data/btc\_trades.csv}). Real output,
+aligned interior minutes:
+\begin{lstlisting}[numbers=none]
+resampled: t=...020 n=132 o=83812.8 h=83846.6 l=83812.7 c=83843.4
+venue:     t=...020       o=83812.8 h=83846.6 l=83812.7 c=83843.4
+resampled: t=...080 n=170 o=83843.4 h=83873.9 l=83843.3 c=83860.6
+venue:     t=...080       o=83843.4 h=83873.9 l=83843.3 c=83860.6
+resampled: t=...140 n=106 o=83857.9 h=83880.0 l=83853.6 c=83876.3
+venue:     t=...140       o=83857.9 h=83880.0 l=83853.6 c=83876.3
+\end{lstlisting}
+Every complete minute matches to the tick. The edge minutes differ
+--- the print window is partial there --- which is itself the lesson:
+candles are lossy views of a print stream; reconstruct before you
+trust. The buy/sell mix in the same fetch (748 taker buys vs 258
+sells) also shows how one-sided real flow is ---
+Figure~\ref{fig:bounce}.
+\end{example}
+
+\begin{figure}[ht]\centering
+\input{figures/ch03-bounce}
+\caption{Real Kraken prints, first 160 of the cached window: taker
+buys print at the ask, sells at the bid, and the inferred mid
+bounces between. Even in a trending window the two-side split is
+visible.}
+\label{fig:bounce}
+\end{figure}
+
+\begin{example}[Measuring signed impact on real prints]\label{ex:signimpact}
+\textbf{Strategy.} With no quotes pinned, proxy the half-spread by
+how far the price moves after a buy vs after a sell. On the pinned
+burst, split consecutive price changes by the sign of the
+\emph{previous} print.
+
+\textbf{Solution.} \texttt{signed\_impact.py} prints:
+\begin{verbatim}
+prints 1006: buys 748 sells 258
+zero-move prints: 54% of consecutive moves are 0
+avg next-print dp after a buy  = +0.3760
+avg next-print dp after a sell = -0.5101
+signed impact (spread/2 proxy) = 0.4431 per print
+avg |dp| = 0.655 = 6.55 ticks
+\end{verbatim}
+Buys push the next print up on average, sells push it down --- that
+is signed price impact, mechanically identical to the adverse
+selection the MM felt in Example~\ref{ex:mmgame}. The proxy
+half-spread $\approx 0.44$ per print ($\approx 4.4$ ticks) is far
+tighter than a naive ``last price'' read because 54\% of moves are
+zero --- most prints re-mark at the same level.
+
+\textbf{Significance.} You just estimated a transaction-cost number
+from raw trades alone: when quotes are missing, signed impact is
+the cheapest workable spread proxy. It is biased downward (it sees
+only \emph{realised} moves, not the queue), which is why real TCA
+keeps the book snapshots.
+\end{example}
+
+\section{A 60-line exchange simulator}\label{sec:sim}
+\index{simulator}
+\texttt{code/lob.py} is a working exchange in one file: price-level
+queues, price--time priority, immediate matching for marketable
+orders, resting for the rest --- everything in this chapter's WEs ran
+on it. Read it as the harness preview: ch8's backtest engine is this
+same event loop (arrive $\to$ match $\to$ mark) with fill realism,
+latency and the no-lookahead rule added. If you can explain every
+line of \texttt{lob.py}, you already understand what a backtester
+does all day.
+
+\section*{Summary sheet}
+\addcontentsline{toc}{section}{Summary sheet}
+\begin{table}[ht]\centering
+\begin{tabularx}{\linewidth}{@{}lYY@{}}
+\toprule
+\tablehead\thead{Object} & \thead{Definition} & \thead{When to use}\\
+\midrule
+Spread / mid & $a-b$, $(a+b)/2$ & quoting context, not a fair price\\
+Microprice & $(a\,q_b+b\,q_a)/(q_a+q_b)$ & imbalance-informed mid\\
+Price--time & best price, then FIFO & who fills first\\
+Slippage & avg fill $-$ mid & real cost of market orders\\
+Maker/taker & rest vs cross the spread & fee + adverse-selection
+trade-off\\
+Prints / deltas / candles & the three venue streams & raw data
+before aggregates\\
+\bottomrule
+\end{tabularx}
+\caption{Chapter 3 toolkit.}
+\end{table}
+
+\begin{example}[Order-flow imbalance predicts size, not side]\label{ex:ofi}
+\textbf{Strategy.} Without a book feed, reconstruct the closest
+thing to queue pressure: order-flow imbalance (signed volume in a
+rolling 100-print window) and test whether it predicts the next
+print's move in sign or in magnitude.
+
+\textbf{Solution.} \texttt{book\_regen.py} prints:
+\begin{verbatim}
+OFI vs next-print move over 1006 prints
+corr(OFI, dp_next) = -0.040
+mean |dp| when |OFI/vol|>0.5: 1.1680
+mean |dp| when |OFI/vol|<0.1: 0.9187
+\end{verbatim}
+Direction: nothing ($r=-0.04$). Magnitude: imbalanced flow
+precedes $27\%$ larger next-print moves --- the imbalance is
+energy, not a compass.
+
+\textbf{Significance.} This is the honest version of ``order flow
+predicts price'': at print granularity the signal is volatility,
+not drift. A model that trades the \emph{sign} of OFI buys noise;
+one that sizes around it is reading the tape correctly. It also
+validates the chapter's claim that microstructure edges need
+book-level state --- prints alone tell you only how hard it will
+move, not where.
+\end{example}
+
+\begin{example}[Fast fills are expensive fills]\label{ex:queue}
+\textbf{Strategy.} Your resting bid sits behind $60$ queued units.
+The queue drains two ways --- market sells eat the volume ahead of
+you, and your queue-mates cancel. Simulate time-to-fill under calm,
+busy and panic arrival rates, then mark out the mid after each
+fill: does a fast fill arrive with a bill?
+
+\textbf{Solution.} \texttt{queue\_sim.py} prints:
+\begin{verbatim}
+ calm: fill prob 1.00  median wait  27.1s  exp markout   +0.0bp
+ busy: fill prob 1.00  median wait  11.5s  exp markout  -11.6bp
+panic: fill prob 1.00  median wait   3.5s  exp markout  -35.4bp
+faster fills arrive when informed flow trades through you
+\end{verbatim}
+Wait time collapses $27\to3.5$s as flow intensifies, but the
+expected markout goes from $0$ to $-35$bp: the fills that come
+fastest are the ones informed sellers chose to give you.
+
+\textbf{Significance.} Queue mechanics convert two rates ---
+trade arrival and cancellation --- into a personal fill clock, and
+the clock runs fastest precisely when you least want the fill.
+This is the maker's dilemma in one table: your fill probability
+and your adverse-selection bill are the same variable. A quote's
+value is not set by the level's depth but by \emph{your rank} in it
+and by \emph{who} is consuming the queue.
+\end{example}
+
+\section{Common mistakes}\index{common mistakes}
+\begin{itemize}
+\item \textbf{Costing a market order as ``the spread''.} You pay
+spread once on top-of-book; size past the first level pays the
+ladder (Example~\ref{ex:walk}).
+\item \textbf{Treating mid as fair value.} Mid ignores imbalance;
+use microprice or better when the book is lopsided
+(Example~\ref{ex:microprice}).
+\item \textbf{Assuming a limit order fills at its limit.} It fills
+at the best available price --- a limit sell below the top bid
+trades at the bid (Example~\ref{ex:match}).
+\item \textbf{Forgetting your order joins a queue.} Behind 1000
+units at your price, the level can trade hundreds before you.
+\item \textbf{Trusting venue candles blindly.} They are aggregates;
+the print stream is the record --- rebuild and compare
+(Example~\ref{ex:candles}).
+\item \textbf{Quoting without a flow model.} A static spread earns
+$+0.10$ from noise traders and loses it back to informed flow
+(Example~\ref{ex:mmgame}).
+\item \textbf{Trusting ``last price'' as value.} 54\% of
+consecutive prints in the pinned burst mark no move
+(Example~\ref{ex:signimpact}) --- the last traded price is stale the
+moment it prints. Mid or microprice is the honest mark.
+\item \textbf{Forgetting impact has a sign.} Buys push up, sells
+push down, \emph{by construction}. A backtest that fills at last
+price assumes you moved the market $0.44$ ticks per trade in your
+favour --- it gives you the rebate you never earned.
+\end{itemize}
+
+\section*{Exercises}\addcontentsline{toc}{section}{Exercises}
+\begin{exercise}[easy]
+Book: bids $(99.8\!\times\!3, 99.7\!\times\!2)$, asks
+$(100.1\!\times\!2, 100.3\!\times\!4)$. Compute spread, mid,
+microprice.
+\end{exercise}
+\begin{solution}
+Spread $0.3$, mid $99.95$, microprice
+$(100.1\!\cdot\!3+99.8\!\cdot\!2)/5=99.98$.
+\end{solution}
+\begin{exercise}[easy]
+A market sell of 4 hits bids $(100.0\!\times\!2,99.9\!\times\!5)$.
+Average fill and slippage vs mid $100.15$?
+\end{exercise}
+\begin{solution}
+$(2\!\cdot\!100.0+2\!\cdot\!99.9)/4=99.95$; slippage
+$99.95-100.15=-0.20$ per unit.
+\end{solution}
+\begin{exercise}[easy]
+State price--time priority and what a limit order priced past the
+best opposite level does.
+\end{exercise}
+\begin{solution}
+Best price first, FIFO within a price; a marketable limit order
+fills immediately at better prices up to its limit.
+\end{solution}
+\begin{exercise}[easy]
+Define maker and taker, and say which typically pays the higher
+fee and why the venue prices it that way.
+\end{exercise}
+\begin{solution}
+Taker crosses the spread (consumes liquidity) and pays more; maker
+rests (provides liquidity) and is subsidised because depth is what
+the venue sells.
+\end{solution}
+\begin{exercise}[easy]
+Name the three data streams a venue emits and which one ch1's
+candles come from.
+\end{exercise}
+\begin{solution}
+Trades (prints), book deltas, and derived candles; candles are the
+derived aggregate of the print stream.
+\end{solution}
+\begin{exercise}[medium]
+Effective vs posted spread: a taker buys 3, paying 2@100.5 and
+1@101.0 against mid 100.25. Compute the effective spread (twice the
+signed distance from mid per unit) and compare with posted 0.5.
+\end{exercise}
+\begin{solution}
+Avg $100.667$; effective $=2\times(100.667-100.25)=0.83$ vs posted
+$0.5$ --- walking depth inflates the realized cost.
+\end{solution}
+\begin{exercise}[medium]
+Why does the mid move after fills even when no new quotes arrive?
+Trace one in Example~\ref{ex:match}.
+\end{exercise}
+\begin{solution}
+A fill can delete or demote the best level: the sell of 5 emptied
+100.0's queue and left a 99.5 ask, so the top became
+$(99.5,100.5)$ and mid fell from 100.25 to 100.0 --- trades
+\emph{are} quote updates.
+\end{solution}
+\begin{exercise}[medium]
+Queue position: you place a limit buy at the current best bid,
+behind 400 units. A 250-unit sell market order arrives, then a
+200-unit one. Do you fill? How much?
+\end{exercise}
+\begin{solution}
+The queue ahead absorbs 400 of the 450 sold; you fill 50 --- FIFO
+within the level, no pro-rata in a price--time book.
+\end{solution}
+\begin{exercise}[medium]
+Extend \texttt{lob.py} with a \texttt{cancel(side, price)} that
+removes the front order at a level. What does the deque need to
+support to cancel a \emph{specific} order id instead?
+\end{exercise}
+\begin{solution}
+Front-cancel is \texttt{popleft}; cancelling an arbitrary id needs
+either per-id index or tombstoning --- remove by marking, skip on
+match.
+\end{solution}
+\begin{exercise}[medium]
+In \texttt{trades\_to\_candles.py}, why do the edge minutes differ
+between resampled and venue candles while interiors match exactly?
+\end{exercise}
+\begin{solution}
+The fetched print window starts/ends mid-minute, so those buckets
+are partial; interior minutes contain every print in range, and OHLC
+of the same complete set is deterministic.
+\end{solution}
+\begin{exercise}[hard]
+Adverse-selection toy: with spread $S$, per-step move sd $\sigma$,
+and informed share $\eta$ trading only when $|move|>S$, write the
+expected per-trade maker PnL and find the $\eta$ where it crosses
+zero at $S=0.10$, $\sigma=0.05$.
+\end{exercise}
+\begin{solution}
+Uninformed pays $+S$ per trade (50\% of orders); informed costs
+$E[m-S\mid m>S]\approx$ a few $\sigma/100$. Break-even when informed
+flow's expected drag equals the uninformed capture --- numerically
+$\eta\gtrsim0.9$ in Example~\ref{ex:mmgame}'s run, sensitive to
+$\sigma/S$.
+\end{solution}
+\begin{exercise}[hard]
+Design the smallest change to \texttt{mm\_game.py} that lets the
+maker \emph{adapt}: which observable (hint: it is in every trade
+print) predicts adverse flow, and what quote response cuts the loss?
+\end{exercise}
+\begin{solution}
+Taker-side imbalance/flow toxicity: track recent buy vs sell share
+and skew quotes (widen the hit side, shade mid) or widen both when
+one-sided flow persists --- the queue then prices the information,
+not just the mid.
+\end{solution}
+\begin{exercise}[hard]
+A venue offers a maker rebate of $-1$bp. Your quotes fill 60\% of
+the time and adversely select 0.5bp on average. Is quoting
+profitable? What else must you check before concluding?
+\end{exercise}
+\begin{solution}
+Per fill you net $+1$bp rebate $-$ $0.5$bp adverse $=+0.5$bp gross
+--- but only if fills are random; check fill\emph{rate asymmetry}
+(you fill most when you're wrong), inventory cost, and fees on the
+hedging leg before concluding.
+\end{solution}
+\begin{exercise}[hard]
+Reconstruct \texttt{lob.py}'s matching as events: write the exact
+sequence of book mutations for a marketable limit sell of 5@99.5
+arriving at the Figure~\ref{fig:ladder} book (fill events and the
+residual add), then run it and diff against your trace.
+\end{exercise}
+\begin{solution}
+Fill(100.0,$\times$4$\to$0, delete level), fill(99.5,$\times$1 of 3
+$\to$ 2 left), residual 0 --- the output shows two fills and a new
+best ask 99.5... wait, verify by running: the trace must match
+\texttt{lob.py}'s real output exactly.
+\end{solution}
+\begin{exercise}[hard]
+Implement an effective-spread and a realized-spread function (fill
+list, mid, and a mark-out mid at $t{+}60$s); explain why the second
+splits adverse selection from liquidity cost.
+\end{exercise}
+\begin{solution}
+Effective $=2|\bar p-m_0|$; realized $=2\,\mathrm{sign}\cdot
+(\bar p-m_{t+60})$ --- the part that stays after the mark-out window
+is real cost, the part that reverts was informed-flow noise.
+\end{solution}
+
+\begin{exercise}[easy]
+In Example~\ref{ex:signimpact} the signed-impact proxy is
+$0.44$/print. Is that the spread, the half-spread, or neither?
+Justify in one line.
+\end{exercise}
+\begin{solution}
+A half-spread proxy: it measures one-sided impact per print
+(buy-vs-sell gap divided by two), i.e.\ what one side of the
+round trip costs --- not the full bid-ask width.
+\end{solution}
+\begin{exercise}[medium]
+In the burst, buys outnumber sells 748 to 258 yet price still finds
+sellers. Propose two mechanisms a live book provides that the print
+file hides.
+\end{exercise}
+\begin{solution}
+(a) Resting limit sells absorb buy aggression without printing
+``sell'' --- the tape shows the taker's side only; (b) market
+makers re-quote continuously, so the ask refills between prints.
+Print counts measure taker aggression, not liquidity.
+\end{solution}
+\begin{exercise}[hard]
+Design an estimator of the \emph{effective} spread using only the
+print file and a proxy mid built from a smoothed (e.g.\ 5-print
+median) price. What biases does the smoothed mid introduce vs a
+true quote mid?
+\end{exercise}
+\begin{solution}
+Eff.\ spread $= 2\cdot E[\,s_t(p_t - \tilde m_t)\,]$ with
+$\tilde m$ the smoothed mid. Bias: the smoothed mid lags fast moves
+so buy/sell classifications get noisier --- it understates the
+spread in trends, overstates in chop.
+\end{solution}
+
+\section*{Notes}\addcontentsline{toc}{section}{Notes}
+\textbf{Venue rules are dated claims.} Fee tiers, order-type names
+and display rules cited here (Hyperliquid, Polymarket) were read
+from venue docs on 2026-10-10 and are \textbf{[unverified]} --- see
+\texttt{docs/unverified.md}; re-check before relying.
+\textbf{Data.} \texttt{code/data/btc\_trades.csv} is a pinned Kraken
+Trades snapshot (fetched 2026-10-11); \texttt{btc\_daily.csv} covers
+ch1--2. \textbf{Standing disclaimer.} Research methods and market
+mechanics only; no investment, legal or tax advice.
+\textbf{Where this leads.} Ch4 adds the funding instrument that
+prices the dominant venue's perpetuals; ch10 prices the fills this
+chapter walked.
+
+\section*{Further reading}\addcontentsline{toc}{section}{Further reading}
+\begin{itemize}
+\item Polymarket developer docs --- a live CLOB with prices as
+probabilities; the midpoint-display rule cited in \S\ref{sec:makers}:
+
+\url{https://docs.polymarket.com/}
+
+\item Hyperliquid docs --- the venue whose base fee tiers appear in
+Figure~\ref{fig:fees} (accessed 2026-10-10, tiers
+\textbf{[unverified]}):
+
+\url{https://hyperliquid.gitbook.io/hyperliquid-docs/trading/fees}
+
+\item Kraken market-data REST docs --- the Trades and OHLC endpoints
+behind Example~\ref{ex:candles}:
+
+\url{https://docs.kraken.com/api-reference/market-data/get-recent-trades}
+
+\item M.~L\'opez de Prado, lecture library --- microstructure and
+adverse-selection lectures beyond this chapter:
+
+\url{https://www.quantresearch.org/Lectures.htm}
+
+\item W.~McKinney, \emph{Python for Data Analysis} --- the resampling
+idioms behind the candle-rebuild example:
+
+\url{https://wesmckinney.com/book/}
+\end{itemize}
+
+\begin{rulebox}[Watch instead]
+\begin{itemize}
+\item \textbf{Initial Return --- ``Limit order book / Fundamentals
+of trading / Episode 4''}, 18:56 --- inside quote, mid, price--time
+priority and round-trip cost; maps to
+\S\ref{sec:orders}--\S\ref{sec:match}. (Verified 2026-10-11.)
+\url{https://www.youtube.com/watch?v=BJt6PGKeO9I}
+\item \textbf{INFORMS --- ``Stochastic Market Microstructure Models
+of Limit Order Books''}, 1:28:22 --- the stochastic treatment behind
+queue dynamics and adverse selection; maps to
+\S\ref{sec:whotrades} and \S\ref{sec:makers}. (Verified 2026-10-11.)
+\url{https://www.youtube.com/watch?v=XoBjQqMmKoM}
+\end{itemize}
+\end{rulebox}

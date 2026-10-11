@@ -293,12 +293,12 @@ lines at the bottom.
 2024-10-22 00:00:00+00:00 67385.1 67750.0 66564.4 67387.6  0.000037
 2024-10-23 00:00:00+00:00 67384.2 67407.5 65199.0 66633.4 -0.011255
 bars: 721 | returns: 720
-mean r = +0.00028  sd = 0.01869  ann sd = 0.357
-skew   = -0.077   excess kurtosis = +2.010  (normal = 0)
+mean r = +0.00030  sd = 0.02324  ann sd = 0.444
+skew   = +0.037   excess kurtosis = +4.557  (normal = 0)
 |z|>3: 0.0125  (normal ~ 0.0027)
-sample 1%/50%/99% quantiles of z: [-2.541  0.018  2.792]
+sample 1%/50%/99% quantiles of z: [-2.489 -0.015  2.818]
 \end{lstlisting}
-Excess kurtosis $+2.01$: days beyond three standard deviations happen
+Excess kurtosis $+4.56$: days beyond three standard deviations happen
 $1.25\%$ of the time against the normal guess of $0.27\%$ --- roughly
 $5\times$ too often. The QQ plot (Figure~\ref{fig:qq}) says the same
 thing visually: both ends curl away from the diagonal. Skew is
@@ -443,14 +443,14 @@ GARCH simulation, and compare the decay rates.
 \textbf{Solution.} \texttt{rv\_sig.py} loads the pinned Kraken daily
 file and prints both ACFs side by side:
 \begin{verbatim}
-k= 1: acf(r)=+0.281   acf(|r|)=+0.237
-k= 2: acf(r)=-0.053   acf(|r|)=+0.087
-k= 5: acf(r)=+0.018   acf(|r|)=+0.112
-k=10: acf(r)=+0.006   acf(|r|)=+0.034
-k=15: acf(r)=-0.018   acf(|r|)=+0.026
+k= 1: acf(r)=-0.031   acf(|r|)=+0.163
+k= 2: acf(r)=+0.002   acf(|r|)=+0.111
+k= 5: acf(r)=+0.023   acf(|r|)=+0.119
+k=10: acf(r)=+0.017   acf(|r|)=-0.015
+k=15: acf(r)=-0.011   acf(|r|)=+0.002
 \end{verbatim}
-The return ACF is $+0.28$ at lag 1 --- unusually high; this window
-includes a trending run --- then falls through zero. The
+The return ACF is $-0.03$ at lag 1 --- essentially zero; on this
+tape, direction has no linear memory at all. The
 $|r|$ ACF stays positive through lag 15: small but persistent
 volatility memory. Figure~\ref{fig:acfmag} shows the two series
 side by side. Two honest caveats: a 720-day window is short for
@@ -710,8 +710,8 @@ $\operatorname{acf}(|r_t|)$? What does the ordering tell you?
 \end{exercise}
 \begin{solution}
 $\operatorname{acf}(r)$ crosses zero between lag 1 and 2
-($+0.281\to-0.053$); $\operatorname{acf}(|r|)$ stays positive past
-lag 15. Direction has nearly no memory; magnitude remembers for
+($-0.031\to+0.002$); $\operatorname{acf}(|r|)$ stays positive past
+lag 15, bar a dip at lag 10. Direction has nearly no memory; magnitude remembers for
 weeks.
 \end{solution}
 \begin{exercise}[medium]
@@ -727,11 +727,12 @@ as observed: persistent same-direction prints --- the MM's inventory
 is run over; adverse selection dominates.
 \end{solution}
 \begin{exercise}[hard]
-The lag-1 $\operatorname{acf}(r)=+0.281$ in
-Example~\ref{ex:acfmag} could be a trending regime or a small-sample
-fluctuation. Give two ways to distinguish them using only the pinned
-\texttt{btc\_daily.csv}, implement one, and state what you would
-conclude.
+The lag-1 $\operatorname{acf}(r)=-0.031$ in
+Example~\ref{ex:acfmag} is essentially zero on this tape, but a
+longer history might show real lag-1 memory. Give two ways to test
+whether the near-zero reading is regime or sample, using only the
+pinned \texttt{btc\_daily.csv}, implement one, and state what you
+would conclude.
 \end{exercise}
 \begin{solution}
 Options: (a) split the window in halves and compare acf(1) per half

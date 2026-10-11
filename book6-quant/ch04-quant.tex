@@ -330,7 +330,7 @@ maintenance margin $0.5\%$.
 position: long 10000 @ 50000, 5x, IM=2000, free acct=3000, MM=0.5%
 isolated liq px 40250 (-19.5%)
 cross    liq px 25250 (-49.5%)
-cross buys 15000 more room -- but ALL collateral is at risk, not just 2000
+cross buys 15000 more room -- but ALL collateral now at risk
 cross risk: losers share one pool -> both liquidate together
 \end{verbatim}
 Cross margin stretches the liquidation point from $-19.5\%$ to
@@ -347,6 +347,32 @@ applies: venue margin semantics are venue rules --- date-stamped
 \texttt{[unverified]}, re-check before relying on them.
 \end{example}
 
+
+\section{The premium is information}\label{sec:premsig}
+Funding pays the coupon; the premium path is what the market is
+\emph{saying}. On the pinned tape the two decouple sharply:
+\texttt{funding\_term.py} measures persistence and drift:
+\begin{verbatim}
+premium persistence: lag-1 +0.964  lag-24 +0.521
+corr(24h funding paid, 24h premium) = +0.762
+blocks where funding exceeded premium x2: 1/20
+annualised carry if sustained: 9.9%  realized premium: -84.5%
+\end{verbatim}
+\begin{example}\label{ex:prem18}
+\textbf{Read the premium like a slow-moving price.} Lag-1
+persistence of $+0.964$ means the basis is nearly a random walk
+hour to hour --- and the $-84.5\%$/yr realized premium level
+means the perp sat \emph{below} index for almost the whole
+window. A $+9.9\%$ floor charged \emph{to} longs while the perp
+discount widened is a crowded-longs signature, not free yield.
+\begin{solution}
+ch18's carry math prices this exactly: funding received minus
+premium change. The persistence tells you the premium is
+forecastable (it is where it was an hour ago); the level tells
+you the direction of the crowd. Carry books that ignore the
+second term are long the crowd's unwind.
+\end{solution}
+\end{example}
 \section{Common mistakes}
 \begin{itemize}
 \item \textbf{``$1/\text{leverage}$ is my liquidation distance.''} Maintenance margin pulls it

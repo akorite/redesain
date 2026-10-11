@@ -1,0 +1,8 @@
+\begin{tikzpicture}
+\begin{axis}[width=0.86\linewidth,height=0.32\linewidth,
+    xlabel={day},ylabel={cum.\ log return},
+    xmin=0,xmax=1160,
+    tick style={draw=none},axis line style={draw=slate},font=\scriptsize]
+  \addplot[accent,thick] file{figures/data/EQ12.tex};
+\end{axis}
+\end{tikzpicture}

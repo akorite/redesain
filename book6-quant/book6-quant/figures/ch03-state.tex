@@ -1,0 +1,14 @@
+\begin{tikzpicture}[font=\small,
+  st/.style={draw=slate,rounded corners,fill=graybg,minimum height=0.7cm,align=center},
+  ev/.style={->,accent,thick},
+  lbl/.style={font=\footnotesize,text=slate,fill=white,inner sep=1.5pt}]
+\node[st] (open) at (0,0) {open order\\(resting)};
+\node[st] (book) at (4.6,0) {in the book\\(queued by time)};
+\node[st] (fill) at (9.2,0) {filled};
+\node[st] (cxl)  at (4.6,-1.8) {cancelled};
+\draw[ev] (open) -- node[lbl,above]{not marketable} (book);
+\draw[ev] (book) -- node[lbl,above]{counterparty order arrives} (fill);
+\draw[ev] (book) -- node[lbl,right]{owner cancels / IOC timeout} (cxl);
+\draw[ev] (open) edge[bend left=25] node[lbl,above]{marketable: immediate match} (fill);
+\draw[ev] (open) edge[bend right=15] node[lbl,below]{cancel / expire} (cxl);
+\end{tikzpicture}

@@ -1,0 +1,9 @@
+\begin{tikzpicture}
+\begin{axis}[width=0.86\linewidth,height=0.34\linewidth,
+    xlabel={slice},ylabel={\% of day volume},
+    xmin=0,xmax=48,ymin=0,
+    tick style={draw=none},axis line style={draw=slate},font=\scriptsize]
+  \addplot[fill=slate!40,draw=slate] file{figures/data/VOL.tex};
+  \node[font=\scriptsize,text=slate] at (axis cs:24,3.4) {U-shape: heavy open \& close};
+\end{axis}
+\end{tikzpicture}

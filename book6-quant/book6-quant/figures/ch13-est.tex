@@ -1,0 +1,8 @@
+\begin{tikzpicture}[font=\scriptsize]
+  \draw[->,slate] (0,0)--(8.4,0) node[below left=-1pt]{$\hat\mu$ error};
+  \foreach \x/\e/\f in {0.7/-50\%/1.25, 2.3/-25\%/1.88, 3.9/0/2.50, 5.5/+25\%/3.12, 7.1/+50\%/3.75}{
+    \fill[accent!40] (\x,0) rectangle (\x+0.9,\f*0.7);
+    \node[below] at (\x+0.45,0) {\e};
+    \node[above] at (\x+0.45,\f*0.7) {\f};}
+  \node[above] at (4.2,3.2) {$\hat f = \hat\mu/\sigma^2$: the whole estimation error lands in the bet};
+\end{tikzpicture}

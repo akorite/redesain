@@ -272,9 +272,15 @@ clock --- does it know what a weekend is?
 
 \textbf{Solution.} \texttt{calendar\_risk.py} prints:
 \begin{verbatim}
-  Mon: 38%   Tue: 38%   Wed: 39%   Thu: 40%   Fri: 40%
-  Sat: 23%   Sun: 28%
-weekend vol 25% vs weekday 39%
+return vol by weekday (annualised):
+  Mon: 49%  n=102
+  Tue: 45%  n=103
+  Wed: 49%  n=103
+  Thu: 50%  n=103
+  Fri: 49%  n=103
+  Sat: 21%  n=103
+  Sun: 39%  n=103
+weekend vol 32% vs weekday 49%
 bar calendars follow venue time -- a 'daily' bar can be 23h or 25h
 \end{verbatim}
 The tape knows: weekend vol runs a third lower ($25\%$ vs $39\%$)

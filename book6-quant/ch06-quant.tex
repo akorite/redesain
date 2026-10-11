@@ -125,7 +125,7 @@ volume arrives faster than price moves.
 \textbf{LP vs HODL across seeds.} \texttt{lp\_sim.py} runs 40 GBM paths
 ($\sigma_{\mathrm{daily}}\approx3\%$, 180 days) with fee income at 8\% of TVL/day:
 \begin{lstlisting}[numbers=none]
-40 seeds: LP+fees-vs-hodl mean +2.48%  no-fees -1.93%
+40 seeds: LP+fees mean +2.48%  no-fees -1.93%
 best +4.41%  worst -12.27%
 \end{lstlisting}
 \begin{solution}
@@ -263,6 +263,29 @@ a wider range in a choppier regime --- re-run the sim before you
 re-run the range.
 \end{example}
 
+
+\section{Impermanent loss is sold convexity}\label{sec:lvr}
+The 40-seed LP-vs-HODL simulation deserves a second read:
+\texttt{lp\_sim.py} prints:
+\begin{verbatim}
+40 seeds: LP+fees mean +2.48%  no-fees -1.93%  worst -12.27%
+\end{verbatim}
+\begin{example}\label{ex:lvr}
+\textbf{Fees are the mean; convexity is the variance.} Without
+fees the LP loses $-1.93\%$ on average --- rebalancing buys
+high and sells low by construction, a systematic short on the
+spread of the path. Fees flip the mean positive ($+2.48\%$)
+but the \emph{worst} seed still loses $-12.27\%$: the fee income
+is smooth, the convexity cost arrives in lumps when price
+trends.
+\begin{solution}
+This is why ``LVR'' (loss-versus-rebalancing) is the clean
+mechanism name: the LP's rebalancing schedule sells the option
+on large moves. Pool selection is really a question about which
+path distributions you are willing to be short convexity
+against.
+\end{solution}
+\end{example}
 \section{Common mistakes}
 \begin{itemize}
 \item \textbf{``IL is only on downside.''} It is symmetric: $r=2$ and $r=0.5$ both cost

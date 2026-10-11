@@ -1,0 +1,9 @@
+\begin{tikzpicture}
+\begin{axis}[width=0.72\linewidth,height=0.36\linewidth,
+    xlabel={price ratio $r=p_1/p_0$},ylabel={LP vs HODL (\%)},
+    xmin=0.15,xmax=4,ymin=-22,ymax=2,
+    tick style={draw=none},axis line style=draw,axis lines=middle,
+    xtick={0.25,0.5,1,1.5,2,3,4},font=\scriptsize]
+  \addplot[accent,very thick] file{figures/data/I_IL.tex};
+\end{axis}
+\end{tikzpicture}

@@ -1,0 +1,28 @@
+\begin{tikzpicture}
+\begin{axis}[width=0.32\linewidth,height=4.6cm,name=p1,
+  title={ACF: random walk},xlabel={lag},grid=major,
+  grid style={gray!25},xmin=0.5,xmax=15.5,ymin=-0.1,ymax=1.05,
+  title style={font=\small},xlabel style={font=\small}]
+\addplot[ybar,fill=amber,draw=none,bar width=2.5pt] coordinates {(1,0.990) (2,0.979) (3,0.968) (4,0.957) (5,0.947) (6,0.936) (7,0.926) (8,0.916) (9,0.905) (10,0.896) (11,0.887) (12,0.878) (13,0.869) (14,0.859) (15,0.849)};
+\addplot[rulegray,dashed,domain=0.5:15.5]{0.09};
+\addplot[rulegray,dashed,domain=0.5:15.5]{-0.09};
+\end{axis}
+\begin{axis}[width=0.32\linewidth,height=4.6cm,
+  at={(p1.right of east)},anchor=left of west,xshift=0.4cm,name=p2,
+  title={ACF: AR(1) $\phi=0.85$},xlabel={lag},grid=major,
+  grid style={gray!25},xmin=0.5,xmax=15.5,ymin=-0.1,ymax=1.05,
+  title style={font=\small},xlabel style={font=\small}]
+\addplot[ybar,fill=accent,draw=none,bar width=2.5pt] coordinates {(1,0.858) (2,0.744) (3,0.643) (4,0.560) (5,0.489) (6,0.417) (7,0.360) (8,0.300) (9,0.238) (10,0.187) (11,0.160) (12,0.121) (13,0.078) (14,0.040) (15,0.008)};
+\addplot[rulegray,dashed,domain=0.5:15.5]{0.09};
+\addplot[rulegray,dashed,domain=0.5:15.5]{-0.09};
+\end{axis}
+\begin{axis}[width=0.32\linewidth,height=4.6cm,
+  at={(p2.right of east)},anchor=left of west,xshift=0.4cm,
+  title={ACF: OU $\theta=0.12$},xlabel={lag},grid=major,
+  grid style={gray!25},xmin=0.5,xmax=15.5,ymin=-0.1,ymax=1.05,
+  title style={font=\small},xlabel style={font=\small}]
+\addplot[ybar,fill=good,draw=none,bar width=2.5pt] coordinates {(1,0.872) (2,0.774) (3,0.674) (4,0.582) (5,0.500) (6,0.413) (7,0.334) (8,0.253) (9,0.174) (10,0.110) (11,0.060) (12,0.021) (13,-0.003) (14,-0.035) (15,-0.061)};
+\addplot[rulegray,dashed,domain=0.5:15.5]{0.09};
+\addplot[rulegray,dashed,domain=0.5:15.5]{-0.09};
+\end{axis}
+\end{tikzpicture}

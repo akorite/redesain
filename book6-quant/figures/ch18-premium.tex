@@ -1,0 +1,8 @@
+\begin{tikzpicture}
+\begin{axis}[width=0.82\linewidth, height=4.8cm, xlabel={hour},
+  ylabel={premium (bp)}, legend style={at={(0.98,0.98)},anchor=north east,font=\small}]
+\addplot[blue!60!black] table[x index=0,y index=1] {figures/data/ch18-premium.dat};
+\addplot[red, dashed, domain=0:500] {0};
+\legend{perp premium vs index, zero}
+\end{axis}
+\end{tikzpicture}

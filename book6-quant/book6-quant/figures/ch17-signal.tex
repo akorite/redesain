@@ -1,0 +1,10 @@
+\begin{tikzpicture}
+\begin{axis}[width=0.72\linewidth, height=5cm, ybar, bar width=12pt,
+  symbolic x coords={mom1,mom20}, xtick=data, ymin=-0.2, ymax=1.0,
+  ylabel={annualised Sharpe}, legend style={at={(0.5,1.02)},anchor=south,legend columns=-1,font=\small},
+  nodes near coords, every node near coord/.append style={font=\tiny}]
+\addplot table[x index=0,y=scram] {figures/data/ch17-signal.dat};
+\addplot table[x index=0,y=corr] {figures/data/ch17-signal.dat};
+\legend{on scrambled file, on corrected file}
+\end{axis}
+\end{tikzpicture}

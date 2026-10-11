@@ -1,0 +1,10 @@
+\begin{tikzpicture}[font=\scriptsize,every node/.style={align=center}]
+  \node[draw=ink,fill=goodbg,rounded corners=1pt] (e) at (0,2.4) {edge estimate\\ $\hat\mu,\hat\sigma$};
+  \node[draw=slate,fill=white,rounded corners=1pt] (h) at (-2.6,0.9) {halve it:\\ $\hat\mu/2$};
+  \node[draw=slate,fill=white,rounded corners=1pt] (f) at (0.4,0.9) {$f=\hat\mu/2\hat\sigma^2$\\ (half-Kelly)};
+  \node[draw=slate,fill=white,rounded corners=1pt] (c) at (3.4,0.9) {cap by\\ drawdown budget};
+  \draw[->,ink] (e.south) -- (h.north);
+  \draw[->,ink] (e.south) -- (f.north);
+  \draw[->,ink] (e.south) -- (c.north);
+  \node[text=slate] at (0.4,-0.4) {wrong on edge $\Rightarrow$ the cap, not the formula, saves you};
+\end{tikzpicture}

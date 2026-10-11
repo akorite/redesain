@@ -196,6 +196,34 @@ where the median path visits ruin --- is why desks quote
 ``half-Kelly'' as the standard rather than the optimum.
 \end{example}
 
+
+\section{Estimation error is the actual position size}\label{sec:esterr}
+Kelly's formula takes $\mu$ and $\sigma$ as \emph{given}; the
+practice gives you estimates. \texttt{kelly\_est.py} perturbs
+the mean on a $\mu{=}0.1,\sigma{=}0.2$ setup whose true
+$f^*=2.50$:
+\begin{verbatim}
+true: mu=0.1 sig=0.2  f*=2.50
+mu off -50%:  fhat=+1.25  sizing error +0.50x
+mu off -25%:  fhat=+1.88  sizing error +0.75x
+mu off +25%:  fhat=+3.12  sizing error +1.25x
+mu off +50%:  fhat=+3.75  sizing error +1.50x
+edge halves -> f* halves; bet size carries the whole estimation error
+\end{verbatim}
+\begin{example}\label{ex:esterr}
+\textbf{$\hat f^*$ inherits $\hat\mu$'s error one-for-one.}
+A $+50\%$ optimistic read on the edge doubles down into
+$f^*=3.75$ --- the formula amplifies the mistake into the bet.
+The table is linear because $f^*=\mu/\sigma^2$ is linear in
+$\mu$: there is no damping.
+\begin{solution}
+This is the deeper reason half-Kelly persists in practice: not
+superstition, but shrinkage. If $\hat\mu$ has relative error
+$\epsilon$, $\hat f^*$ has the same relative error --- a
+fractional haircut on $f$ is the cheapest insurance against the
+overbet that ruin math punishes hardest.
+\end{solution}
+\end{example}
 \section{Common mistakes}
 \begin{itemize}
 \item \textbf{Quoting Kelly without its CI.} The edge estimate carries the whole bet.

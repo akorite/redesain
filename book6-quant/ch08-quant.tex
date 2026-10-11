@@ -88,8 +88,8 @@ ever runs.
 (\texttt{data/btc\_daily.csv}, 721 bars):
 \begin{lstlisting}[numbers=none]
 bars 721  trades 15
-SMA20/60: ret +7.9%  sharpe +0.28  mdd -31.1%
-buy&hold: ret +22.7%  sharpe +0.47  mdd -53.0%
+SMA20/60: ret +7.5%  sharpe +0.28  mdd -27.5%
+buy&hold: ret +24.0%  sharpe +0.47  mdd -53.1%
 \end{lstlisting}
 
 \begin{example}\label{ex:sma}
@@ -114,7 +114,7 @@ equity---cheap here, fatal at high turnover.
 \input{figures/ch08-dd}
 \caption{The drawdown series of the same run; the $-31.1$\% floor is the number the
 return headline hides.}
-\label{fig:dd}
+\label{fig:dd08}
 \end{figure}
 
 \section{Lookahead: the canonical lie}\label{sec:lookahead}
@@ -123,16 +123,16 @@ return headline hides.}
 leaked signal peeks at \texttt{bars[i+1][4]} --- tomorrow's close; the honest one
 is a momentum rule on today's close only:
 \begin{lstlisting}[numbers=none]
-one-bar foresight (leak): ret +1343% sharpe +2.76 mdd -26.3%
-same-sign momentum (honest): ret -52.1% sharpe -0.38 mdd -56.8%
+one-bar foresight (leak): ret +4215850% sharpe +18.25 mdd -0.2%
+same-sign momentum (honest): ret -43.3% sharpe -0.46 mdd -59.3%
 leak turns a coin-flip into a crystal ball; nothing here is tradeable
 \end{lstlisting}
 
 \begin{example}\label{ex:leak}
-\textbf{What one bar of foresight buys.} The leaked rule earns +1343\% on the same tape
-where the honest momentum rule loses $-52$\%.
+\textbf{What one bar of foresight buys.} The leaked rule earns $+4.2$\emph{million} percent on the same tape
+where the honest momentum rule loses $-43$\%.
 \begin{solution}
-A single day of foresight is worth a Sharpe of +2.76 on daily crypto bars---because you are
+A single day of foresight is worth a Sharpe of +18.25 on daily crypto bars---because you are
 never on the wrong side of tomorrow. This is why every backtest audit starts with the fill
 rule and the feature timestamps: if your harness permits reading \texttt{bars[i+1]} in a
 signal, the output is fiction, and it is \emph{always} profitable fiction.
@@ -205,11 +205,11 @@ edge dies --- the cheapest sensitivity test a backtest owns.
 
 \textbf{Solution.} \texttt{fee\_sens.py} prints:
 \begin{verbatim}
-fee  0bp: ret    +9.5%  sharpe +0.30  mdd -30.5%  trades 15
-fee  5bp: ret    +7.9%  sharpe +0.28  mdd -31.1%  trades 15
-fee 10bp: ret    +6.4%  sharpe +0.26  mdd -31.7%  trades 15
-fee 25bp: ret    +1.8%  sharpe +0.19  mdd -33.4%  trades 15
-fee 50bp: ret    -5.4%  sharpe +0.07  mdd -36.2%  trades 15
+fee  0bp: ret    +9.1%  sharpe +0.30  mdd -27.3%  trades 15
+fee  5bp: ret    +7.5%  sharpe +0.28  mdd -27.5%  trades 15
+fee 10bp: ret    +6.0%  sharpe +0.27  mdd -27.6%  trades 15
+fee 25bp: ret    +1.4%  sharpe +0.21  mdd -29.4%  trades 15
+fee 50bp: ret    -5.7%  sharpe +0.11  mdd -32.7%  trades 15
 \end{verbatim}
 A $+9.5\%$ free-trading strategy loses $\sim$15 points of return
 by 50bp and turns negative --- the 15 round-trips each pay spread
@@ -230,13 +230,13 @@ untouched.
 
 \textbf{Solution.} \texttt{second\_strat.py} prints:
 \begin{verbatim}
-Donchian(50) breakout: ret -40.2%  sharpe -0.64  mdd -50.6%  trades 13
-RSI(14) mean-rev:    ret -38.0%  sharpe -0.80  mdd -42.7%  trades 86
+Donchian(50) breakout: ret -15.9%  sharpe -0.04  mdd -36.1%  trades 9
+RSI(14) mean-rev:    ret -24.0%  sharpe -0.32  mdd -37.7%  trades 90
 same harness, same data, same fees -- the strategy is the only variable
 \end{verbatim}
 Both lose --- and lose \emph{differently}: the breakout bleeds
-slowly on 13 round-trips ($-40\%$ over 721 bars), the RSI chops
-86 times for $-38\%$ (nearly 7$\times$ the trades for the same
+slowly on 9 round-trips ($-16\%$ over 721 bars), the RSI chops
+90 times for $-24\%$ (10$\times$ the trades for the same
 damage --- fee drag made visible again).
 
 \textbf{Significance.} Three strategies, one harness, one dataset:

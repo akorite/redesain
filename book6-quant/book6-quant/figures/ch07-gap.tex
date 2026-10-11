@@ -1,0 +1,12 @@
+\begin{tikzpicture}[font=\scriptsize]
+  \foreach \i in {0,...,10} {
+    \ifnum\i>4 \ifnum\i<8
+      \draw[fill=amberbg,draw=amber] (\i*0.85,0) rectangle ++(0.8,1.1);
+      \node[text=amber] at (\i*0.85+0.4,0.55) {?};
+    \else
+      \draw[fill=accentsoft,draw=accent] (\i*0.85,0) rectangle ++(0.8,1.1);
+    \fi\fi
+  }
+  \draw[->,slate] (0,0)--(10.2,0) node[below left=-1pt]{minute};
+  \node[text=slate] at (5.4,-0.6) {missing minutes are \emph{gaps}, not zeros---never fabricate bars};
+\end{tikzpicture}

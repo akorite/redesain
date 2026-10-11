@@ -1,0 +1,9 @@
+\begin{tikzpicture}[font=\scriptsize]
+  \foreach \y/\n/\b in {3.0/$N{=}1$/1.96, 2.0/$N{=}10$/2.81, 1.0/$N{=}100$/3.47}{
+    \draw[slate] (0,\y)--(7,\y);
+    \node[left] at (0,\y) {\n};
+    \draw[good,thick] (0,\y+0.35)--(\b,\y+0.35);
+    \node[right] at (\b,\y+0.35) {bar \b};
+    \fill[red] (2.9,\y+0.35) circle (1.8pt);}
+  \node[below] at (3.5,-0.35) {observed $t=2.9$: clears $N{=}1$, fails $N{=}10$ and $N{=}100$};
+\end{tikzpicture}
