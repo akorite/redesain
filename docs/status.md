@@ -20,7 +20,7 @@ Outline approved pending compliance check. 18 chapters planned. Not started.
 ## Book 6 — Quantitative research (`book6-quant`)
 Outline approved pending compliance check. 15 chapters planned. Not started.
 
-## Book 7 — Systems & CPU (`book7-systems`)
+## Book 7 — Systems & CPU (`book7-systems: 143pp, all 18ch merged; ch05-18 reviews back — all REVISE (WE/FR/ex floors, watch fabrications) — author fixing + depth pass to 180pp
 Outline approved pending compliance check. 18 chapters planned. Not started.
 
 ## Book 8 — Physics for engineers (`book8-physics`)
@@ -91,7 +91,7 @@ Pending a GitHub PAT: issue creation (pinned "Status" issue + `needs-user` label
 ## 2026-10-11 — book2 v0.2 TAGGED; elec complete at 224pp (ch17 file en route)
 - book2-discrete v0.2 tagged+pushed: 182pp, all 17 chapters independently re-reviewed PASS (elec session, 89/89 links live).
 - elec ch18+19 landed locally (KiCad + MCUs) + full consistency/link-rot pass (58 URLs re-curled, 16 dup labels fixed, ISA chain verified). ch17 source missing from delivery — requested.
-- elec-0006 now running linalg depth re-review; then picks up book7-systems.
+- elec-0006 now running linalg depth re-review; then picks up book7-systems: 143pp, all 18ch merged; ch05-18 reviews back — all REVISE (WE/FR/ex floors, watch fabrications) — author fixing + depth pass to 180pp
 - Needs reviewer assignment: elec ch14-19.
 
 ## 2026-10-11 — elec COMPLETE 224pp; linalg re-review resolved; systems dispatched
