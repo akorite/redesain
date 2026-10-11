@@ -1,0 +1,15 @@
+% fig_golden.tex -- golden-model testbench architecture
+\begin{tikzpicture}[font=\footnotesize, >=latex]
+  \node[draw, thick, fill=gray!8] (stim) at (0,1.6) {stimulus};
+  \node[draw, thick, fill=blue!8, minimum width=2.5cm] (dut) at (0,0.5)
+    {\texttt{DUT} (real design)};
+  \node[draw, thick, fill=amber!15, minimum width=2.5cm] (mod) at (0,-0.9)
+    {\texttt{model} (tb's clean copy)};
+  \node[draw, thick, fill=red!8] (cmp) at (3.8,-0.2) {\texttt{!==} compare};
+  \node[draw, thick] (ver) at (7,-0.2) {PASS / FAIL};
+  \draw[->] (stim) -- (dut); \draw[->] (stim) -- (mod);
+  \draw[->] (dut.east) -- (cmp); \draw[->] (mod.east) -- (cmp);
+  \draw[->] (cmp) -- (ver);
+  \node[align=center] at (3.9,-1.9) {the tb re-implements the spec;\\
+   every mismatch is a bug, in either copy};
+\end{tikzpicture}
