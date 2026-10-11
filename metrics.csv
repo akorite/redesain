@@ -66,3 +66,5 @@ book4-ml,review-ch12-18,246,,,,,"7 REVISE shared defect, fixes landed",book2
 book8-physics,depth-pass,180,,,,floor met,"E&M block deepened",physics-session
 book6-quant,ch16-review,180,,,,,book1-PASS-after-fixes,book1-agent
 book8-physics,depth-merge,180,,,,,pending-depth-review,
+book6-quant,v0.1-tag,180,,,,,all-18-reviewed,"Kelly fix + ex floors",
+book7-systems,ch10-18-merge,143,,,,,reviews-in-flight,
