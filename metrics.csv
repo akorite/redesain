@@ -45,3 +45,5 @@ book8-physics,ch18-19-complete,157,+11 fig,+2 lst,workshop,pend,84.4min tunnel +
 book1-cp,floor-gap-patch,206,+7 fig,,,closed,WE=5 figs=12 all flagged ch,book1+coordinator
 book6-quant,depth2,"ch03-10 real-data WEs",150,,,,verified live,,OFI/funding/PM/VWAP investigations all real,book2
 book4-ml,review-ch01-11,158,,,,11 REVISE,"WE<5 ch04-11, figs<6 several, ch06 ex14",book2
+book6-quant,depth3,"6 mechanism sections ch03-10",150,,,,verified live,,diminishing returns — ch16 commissioned,book2
+book8-physics,review-ch01-19,157,,,,15 PASS+4 REVISE,figs<6 ch06/07/10/15,book2

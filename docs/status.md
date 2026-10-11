@@ -109,3 +109,8 @@ Pending a GitHub PAT: issue creation (pinned "Status" issue + `needs-user` label
 - book1 delivered physics ch18 (AC machines/power) + ch19 capstone workshop (20 multi-topic problems, checks verified: 84.4-min tunnel, 1432 m/s Hohmann) + ch04 ex patch (14→15). Book complete at 157pp, clean build. PR#19 updated.
 - cp floor-gap patch: ch01/02/04/06/09 → WE=5, figs=12 each. 206pp, PR#20.
 - book1 resumed → quant ch01-15 independent review.
+
+## 2026-10-11 — physics review done (15/19 PASS); quant r3 at 150pp; ch16 commissioned
+- book2 physics review: 15 PASS / 4 REVISE (ch06/07/10/15 at 5 figs — verbatim figure specs delivered, all from existing scripts). 38/38 watch videos oembed-verified, all check scripts physically correct. Nit: docs/notation.md is the cp file — author rewrite queued.
+- quant round-3 structural pass: 6 new mechanism sections; still 150pp (content fills slack). book2's diminishing-returns read accepted — commissioned ch16 "portfolio construction" as the floor-gap chapter (recorded in decisions.md).
+- physics needs-user flag: none. Its 4 figure fixes + notation rewrite go to book1.
