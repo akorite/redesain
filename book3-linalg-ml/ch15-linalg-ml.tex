@@ -110,7 +110,7 @@ strings on frequent symbols. The idealized length for symbol $x$ is
 $-\log_2 p(x)$ --- Figure~\ref{fig:codeword} shows why: each bar's
 area is $p_i\cdot(-\log_2 p_i)$, and the total area is the entropy
 itself. If you design a code for distribution $q$ but the world sends
-$p$, the average length becomes $-\sum p(x)\log_2 q(x)$.
+$p$, the average length becomes $-\sum_{x} p(x)\log_2 q(x)$.
 
 \begin{example}[A Huffman code by hand]\label{ex:huffman}
 \textbf{Strategy.} Four symbols with
@@ -182,16 +182,16 @@ $p>0$.\index{Gibbs' inequality}
 \end{theorem}
 
 \begin{proof}[Hand derivation]
-In nats, $\ln x\le x-1$ for all $x>0$ (the tangent to $\ln$ at $x=1$
+In nats, $\log x\le x-1$ for all $x>0$ (the tangent to $\log$ at $x=1$
 lies above the curve). Apply it to $x=q(x)/p(x)$ at every $x$ with
 $p(x)>0$:
 \[
-\ln\frac{q(x)}{p(x)} \;\le\; \frac{q(x)}{p(x)} - 1
+\log\frac{q(x)}{p(x)} \;\le\; \frac{q(x)}{p(x)} - 1
 \;\;\Longrightarrow\;\;
-p(x)\ln\frac{q(x)}{p(x)} \;\le\; q(x) - p(x).
+p(x)\log\frac{q(x)}{p(x)} \;\le\; q(x) - p(x).
 \]
 Sum over $x$: the left side is $-D_{\mathrm{KL}}(p\|q)$; the right side
-is $\sum q(x) - \sum p(x) \le 1-1 = 0$ (strictly less only if $q$
+is $\sum_{x} q(x) - \sum_{x} p(x) \le 1-1 = 0$ (strictly less only if $q$
 places mass where $p$ does not --- which makes the bound even safer).
 Hence $D_{\mathrm{KL}}(p\|q)\ge0$; equality needs
 $q(x)/p(x)=1$ everywhere $p>0$. The listing verified it 2000/2000 times
@@ -227,7 +227,7 @@ needs the entropy of the data.
 \begin{exercise}[medium]
 For $p=(0.9,0.09,0.01)$, $q=(0.4,0.4,0.2)$, verify
 $D_{\mathrm{KL}}(p\|q)=0.816$ bits by hand: expand
-$\sum p\log_2(p/q)$ and check $H(p,q)=H(p)+D_{\mathrm{KL}}$ against the
+$\sum_{x} p\log_2(p/q)$ and check $H(p,q)=H(p)+D_{\mathrm{KL}}$ against the
 listing.
 \end{exercise}
 
@@ -271,11 +271,11 @@ zero without contradiction.
 
 For continuous $X$, the same construction gives
 \emph{differential entropy}\index{differential entropy}
-$h(X)=-\int p(x)\ln p(x)\,dx$ (nats). For
+$h(X)=-\int p(x)\log p(x)\,dx$ (nats). For
 $X\sim\mathcal N(\mu,\sigma^2)$, the derivation (a hard exercise)
 yields
 \[
-  h(X) \;=\; \tfrac12\ln(2\pi e\,\sigma^2).
+  h(X) \;=\; \tfrac12\log(2\pi e\,\sigma^2).
 \]
 Mean-free: location doesn't change spread, so it doesn't change
 entropy. At $\sigma=1$: $h=1.419$ nats. At $\sigma\approx0.242$:
@@ -314,7 +314,7 @@ p=0.5: CE = 1.000 bits
 p=0.05: CE = 4.322 bits
 \end{lstlisting}
 
-Two honest lessons. First, step~0's $0.6931=\ln2$: a fresh model says
+Two honest lessons. First, step~0's $0.6931=\log 2$: a fresh model says
 $\tfrac12$ to every label, exactly max-entropy. Second, accuracy
 saturated at step~80 while CE kept falling --- the model kept getting
 \emph{more confidently right}, and cross-entropy, unlike accuracy,
@@ -360,8 +360,8 @@ penalizes covering the wrong mass. Say which direction you mean.
 \end{tripwire}
 
 \begin{tripwire}[{Mixing bits and nats}]
-$\log_2$ gives bits, $\ln$ gives nats; they differ by a factor
-$\ln2\approx0.693$. PyTorch's \texttt{CrossEntropyLoss} uses nats;
+$\log_2$ gives bits, $\log$ gives nats; they differ by a factor
+$\log 2\approx0.693$. PyTorch's \texttt{CrossEntropyLoss} uses nats;
 Shannon's theorems are usually stated in bits. A loss of ``1.0'' means
 different things --- write the unit once per document.
 \end{tripwire}
@@ -399,7 +399,7 @@ Cross-entropy & $H(p,q)=$ cost of coding $p$ with a $q$-code \\
 KL & $H(p,q)-H(p)$; $\ge0$ (Gibbs); asymmetric, not a distance \\
 Mutual info & $I=H(X)+H(Y)-H(X,Y)=D_{\mathrm{KL}}(p(x,y)\|p(x)p(y))$;
 zero iff independent \\
-Gaussian $h$ & $\tfrac12\ln(2\pi e\sigma^2)$ nats; can go negative ---
+Gaussian $h$ & $\tfrac12\log(2\pi e\sigma^2)$ nats; can go negative ---
 not information \\
 CE loss & $=n\cdot H(\hat p,q_\theta)$; minimizing CE is MLE with the
 model as $q$ \\
@@ -519,7 +519,7 @@ Prove it is symmetric and bounded by 1 bit.
 \begin{exercise}[hard]
 Derive the Gaussian differential entropy: for
 $p(x)=\frac1{\sigma\sqrt{2\pi}}e^{-(x-\mu)^2/2\sigma^2}$, compute
-$h=-\int p\ln p\,dx=\tfrac12\ln(2\pi e\sigma^2)$. (Hint: expand the
+$h=-\int p\log p\,dx=\tfrac12\log(2\pi e\sigma^2)$. (Hint: expand the
 log; only $\mathbb E[(X-\mu)^2]$ survives.)
 \end{exercise}
 
@@ -541,9 +541,6 @@ estimate $\hat H$ from empirical frequencies, and plot the bias
 $\mathbb E[\hat H]-H$ vs.\ $n$ for $k=8$ uniform and $k=8$ skewed
 $(0.5,0.25,0.125,\dots)$. Which converges faster and why?
 \end{exercise}
-
-\section*{Notes}
-\addcontentsline{toc}{section}{Notes}
 
 \chapternotes{%
 The surprise$\to$entropy$\to$KL$\to$CE-loss arc and the figure

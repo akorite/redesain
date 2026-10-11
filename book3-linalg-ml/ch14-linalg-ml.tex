@@ -148,7 +148,7 @@ overshoot with $\eta$ past the eigenvalue cliff. Regenerate:
 computation rather than off anecdotes.
 
 \textbf{Solution.} $\eta=0.01$: $r\approx0.995$ --- 25 steps moved the
-error by only $\sim$5; $\eta=0.70$: $|1-0.7\cdot3.414|=1.39>1$ ---
+error by only $\sim$4; $\eta=0.70$: $|1-0.7\cdot3.414|=1.39>1$ ---
 the error multiplies by 1.39 every step. Rule of thumb verified by
 numbers: $\eta\in(0,2/\lambda_{\max})$ converges on quadratics, and the
 best constant rate sits near $2/(\lambda_{\min}+\lambda_{\max})$.
@@ -186,8 +186,8 @@ $\mathcal L(x,\lambda)=f(x)-\lambda(g(x)-c)$ turns the constrained
 problem into unconstrained stationarity: $\nabla_x\mathcal L=0$
 plus $g=c$. Inequality constraints $g\le c$ generalize to the
 \emph{KKT conditions}\index{KKT conditions}: stationarity, feasibility,
-complementary slackness $\lambda(g(x)-c)=0$ with $\lambda\ge0$ --- the
-constraint is either active ($g=c$) or silent ($\lambda=0$).
+complementary slackness $\lambda g(x)=0$ with $\lambda\ge0$ --- the
+constraint is either active ($g=0$) or silent ($\lambda=0$).
 
 \begin{figure}[htbp]
 \centering
@@ -680,9 +680,6 @@ Implement mini-batch SGD in \texttt{ch14\_tinynet.py} (batch 8): plot
 train/val curves vs.\ the full-batch run; report final MSEs and the
 noise floor you observe.
 \end{exercise}
-
-\section*{Notes}
-\addcontentsline{toc}{section}{Notes}
 
 \chapternotes{%
 Convexity basics, descent methods and the Lagrange/KKT framing follow

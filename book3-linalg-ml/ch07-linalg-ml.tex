@@ -538,7 +538,7 @@ content of the map (Figure~\ref{fig:complex-rot}).
 For $2\times2$, $\det(A-\lambda I)=(a-\lambda)(d-\lambda)-bc$; the
 cross-term is a \emph{minus} $bc$ and the $\lambda$ sits on the diagonal,
 not the off-diagonal. Guard yourself with the free checksum
-$\sum\lambda_i=\operatorname{tr}A$, $\prod\lambda_i=\det A$.
+$\sum_{i=1}^{n}\lambda_i=\operatorname{tr}A$, $\prod_{i=1}^{n}\lambda_i=\det A$.
 \end{tripwire}
 
 \begin{tripwire}[{Assuming every matrix diagonalises}]
@@ -570,7 +570,7 @@ not $\lambda_i$ again, and not unrelated values. Opposite eigenvalues
 Eigen equation & $A\mathbf v=\lambda\mathbf v$, $\mathbf v\ne\mathbf0$;
 direction preserved \\
 Characteristic poly & $\chi_A(\lambda)=\det(A-\lambda I)$; roots $=$
-eigenvalues; $\operatorname{tr}=\sum\lambda_i$, $\det=\prod\lambda_i$ \\
+eigenvalues; $\operatorname{tr}=\sum_{i=1}^{n}\lambda_i$, $\det=\prod_{i=1}^{n}\lambda_i$ \\
 Eigenspace & $E_\lambda=\ker(A-\lambda I)$; geometric $\le$ algebraic
 multiplicity \\
 Independence & eigenvectors of distinct $\lambda_i$ are linearly
@@ -604,7 +604,7 @@ eigenvalues of $A^{3}$, $A^{-1}$, $A+2I$ on the same vector?
 
 \begin{exercise}[easy]
 Compute $\chi_A$ for $A=\begin{bmatrix}1&3\\0&5\end{bmatrix}$ and confirm
-$\operatorname{tr}=\sum\lambda_i$, $\det=\prod\lambda_i$.
+$\operatorname{tr}=\sum_{i=1}^{n}\lambda_i$, $\det=\prod_{i=1}^{n}\lambda_i$.
 \end{exercise}
 
 \begin{exercise}[easy]
@@ -669,9 +669,6 @@ $P=\begin{bmatrix}0&0.5&1/3\\0.5&0&1/3\\0.5&0.5&1/3\end{bmatrix}$ plus a
 teleport term $0.85P+0.15\cdot\frac13J$ ($J$ all-ones). Find the PageRank
 vector by power iteration in code and confirm $\lambda_1=1$.
 \end{exercise}
-
-\section*{Notes}
-\addcontentsline{toc}{section}{Notes}
 
 \chapternotes{%
 The eigen-equation-first development and the applications section follow

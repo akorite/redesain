@@ -74,9 +74,9 @@ solve the $2\times2$ normal equations directly --- the sums are the
 arithmetic.
 
 \textbf{Solution.}
-$A^{T}A=\begin{bmatrix}4&10\\10&30\end{bmatrix}$ (rows: $n$, $\sum x_i$,
-$\sum x_i^{2}$) and $A^{T}\mathbf b=\begin{bmatrix}13\\37\end{bmatrix}$
-($\sum y_i$, $\sum x_iy_i$). Solve:
+$A^{T}A=\begin{bmatrix}4&10\\10&30\end{bmatrix}$ (rows: $n$, $\sum_{i=1}^{n}x_i$,
+$\sum_{i=1}^{n}x_i^{2}$) and $A^{T}\mathbf b=\begin{bmatrix}13\\37\end{bmatrix}$
+($\sum_{i=1}^{n}y_i$, $\sum_{i=1}^{n}x_iy_i$). Solve:
 $20a=4\cdot30$-determinant bookkeeping gives $a=1.0$, $m=0.9$ --- so
 $\hat y=1.0+0.9x$ (Figure~\ref{fig:linefit}). Residuals:
 $(0.1,0.2,-0.7,0.4)$, and indeed $A^{T}\mathbf r=\mathbf0$: the residual
@@ -625,9 +625,6 @@ Implement leave-one-out cross-validation for the capstone data in code:
 fit on $n-1$ rows, score the held-out row, average. Compare LOO $R^{2}$
 to train $R^{2}$ and explain any gap in the language of this chapter.
 \end{exercise}
-
-\section*{Notes}
-\addcontentsline{toc}{section}{Notes}
 
 \chapternotes{%
 Least squares as the application spine follows VMLS part III \cite{vmls}

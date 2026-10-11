@@ -228,7 +228,7 @@ $\mathbf x^{T}A\mathbf x$ & $(A+A^{T})\mathbf x$ \quad($2A\mathbf x$ if
 $A=A^{T}$)\\
 $\lVert A\mathbf x-\mathbf b\rVert^{2}$ & $2A^{T}(A\mathbf x-\mathbf b)$\\
 $\ell_i=\log\sum_j e^{z_j}-z_i$ (cross-entropy logits) &
-$\sigma(\mathbf z)-\mathbf e_i$, $\sigma$ the softmax\\
+$\operatorname{softmax}(\mathbf z)-\mathbf e_i$\\
 \bottomrule
 \end{tabularx}
 \end{center}
@@ -547,9 +547,6 @@ Prove: if $f$ is smooth and $\nabla f(\mathbf x_0)=0$ with $H(\mathbf
 x_0)\succ0$, there is a neighbourhood where $f(\mathbf x)>f(\mathbf x_0)$
 --- the second-order sufficient condition, via the SVD of $H$.
 \end{exercise}
-
-\section*{Notes}
-\addcontentsline{toc}{section}{Notes}
 
 \chapternotes{%
 The gradient-library table and the matrix layout conventions follow MML

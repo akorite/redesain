@@ -600,7 +600,7 @@ the formula look like ``just dot products.''
 \end{tripwire}
 
 \begin{tripwire}[Treating similar-looking projections as interchangeable]
-Projecting with an orthonormal basis ($\mathbf p=\sum(\mathbf q_i^{T}\mathbf b)\mathbf q_i$)
+Projecting with an orthonormal basis ($\mathbf p=\sum_{i=1}^{k}(\mathbf q_i^{T}\mathbf b)\mathbf q_i$)
 and with a general basis ($P=A(A^{T}A)^{-1}A^{T}\mathbf b$) give the same
 point only when the orthonormal vectors span the same $W$. The second
 formula works without orthogonality but costs an inverse.
@@ -630,7 +630,7 @@ and angles; $\det=\pm1$ \\
 Projection onto line & $\mathbf p=\frac{\mathbf a^{T}\mathbf b}{\mathbf a^{T}\mathbf a}\mathbf a$;
 $P=\mathbf a\mathbf a^{T}/\mathbf a^{T}\mathbf a$ \\
 Projection onto subspace & orthonormal basis:
-$\mathbf p=\sum(\mathbf q_i^{T}\mathbf b)\mathbf q_i$; general basis:
+$\mathbf p=\sum_{i=1}^{k}(\mathbf q_i^{T}\mathbf b)\mathbf q_i$; general basis:
 $P=A(A^{T}A)^{-1}A^{T}$; always $P^2=P$, $P^{T}=P$ \\
 Gram--Schmidt & $\mathbf u_j=\mathbf a_j-\sum_{i<j}\operatorname{proj}_{\mathbf u_i}\mathbf a_j$,
 $\mathbf q_j=\mathbf u_j/\|\mathbf u_j\|$; use the modified version \\
@@ -715,8 +715,6 @@ $\|Q^{T}Q-I\|_\infty$ and $\|A-QR\|_\infty$ for both, plus the residual of
 $Rx=Q^{T}b$ solving $Ax=b$. Explain any sign differences in $Q$ and $R$.
 (Reference implementation: \texttt{code/ch05\_gs\_stability.py}.)
 \end{exercise}
-
-\section*{Notes}
 
 \chapternotes{%
 Projection onto a line and the Gram--Schmidt--QR pipeline follow

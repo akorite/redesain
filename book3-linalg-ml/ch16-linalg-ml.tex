@@ -227,8 +227,8 @@ $\{3,4,5\}$; equal priors. Predict at $x=2.4$.
 \textbf{Solution.} $\mu_0=1$, $\mu_1=4$, both $\sigma^2=2/3$. At
 $x=2.4$:
 \[
-\ell_0=-\tfrac12\frac{1.4^2}{2/3}-\tfrac12\ln(2\pi\cdot\tfrac23)
-+\ln\tfrac12=-2.879,\qquad
+\ell_0=-\tfrac12\frac{1.4^2}{2/3}-\tfrac12\log(2\pi\cdot\tfrac23)
++\log\tfrac12=-2.879,\qquad
 \ell_1=-\tfrac12\frac{1.6^2}{2/3}-1.410=-3.329.
 \]
 Class 0 wins by $0.45$ of a log unit --- odds $\approx e^{0.45}=1.6:1$.
@@ -592,7 +592,7 @@ itself is deterministic given the seed in
 \texttt{code/ch16\_ridge.py}.
 \end{enumerate}
 
-\chapternotes{A student who has reached this page can read a
+{A student who has reached this page can read a
 machine-learning library --- theirs or anyone else's --- as
 mathematics instead of magic. The correct next reads are ISL for
 breadth and the scikit-learn user guide for practice; the wrong
