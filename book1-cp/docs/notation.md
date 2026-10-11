@@ -26,7 +26,7 @@ Conventions for `textbook-cp`. Chapters must use these names for these concepts;
 | \(a \bmod m\), \(a \equiv b \pmod m\) | remainder / congruence | Ch 14 |
 | \(\varphi(n)\) | Euler's totient (named; not taught) | Ch 14 |
 | \(\pi(s)\), \(z[i]\) | prefix-function values / Z-function values (bold-face convention: arrays named after the function) | Ch 15 |
-| \(\operatorname{mex}(S)\) | smallest nonnegative integer absent from \(S\) | Ch 17 |
+| \(\operatorname{mex}(S)\) | smallest nonnegative integer absent from \(S\) | Ch 2 (named; formal definition deferred) |
 | \(\Pr[A]\), \(\mathbb{E}[X]\) | probability of event \(A\) / expectation of \(X\); indicators \(1_A\) | Ch 17 (shared with Books 3/4/6) |
 | \(p\), \(q\) | generic primes / probabilities; context disambiguates | Ch 14, 17 |
 
@@ -64,7 +64,7 @@ Conventions for `textbook-cp`. Chapters must use these names for these concepts;
 | state | the tuple of parameters identifying a subproblem; always named and defined before the recurrence | Ch 11 |
 | transition | the recurrence; written as min/max/sum over choices | Ch 11 |
 | `mask`, `popcount(mask)` | subset bitmasks; `__builtin_popcount` in code | Ch 12 |
-| `tight`, `lead` | digit-DP flags (still-bound-by-prefix / no-digit-yet) | Ch 12 |
+| `tight`, `leading` | digit-DP flags (still-bound-by-prefix / no-digit-yet) | Ch 12 |
 
 ## Problem and technique naming
 
