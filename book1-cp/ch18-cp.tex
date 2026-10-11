@@ -1,0 +1,405 @@
+\chapter{The contest playbook}\label{ch:playbook}
+\index{contest strategy}\index{stress testing}\index{upsolving}\index{scoreboard}\index{time allocation}\index{practice ladder}
+
+Everything before this chapter taught you to solve problems.
+This last one is about the machine that wraps around solving:
+the half-hour before the clock starts, the scoreboard telling
+you where the points are, the decision to abandon a problem,
+the brute-force oracle that catches the bug your tests missed,
+and the week after, when the contest actually teaches you
+something. Technique gets you to a score; process gets you to a
+rating. After this chapter you can run a contest like an
+engineer: a plan going in, telemetry during, and a triage
+afterwards.
+
+\section{Before the contest}\label{sec:before}
+\index{pre-contest routine}
+The contest is decided before it starts more often than people
+admit. A fixed pre-contest routine removes the one-shot
+decisions that cost real minutes under pressure. Thirty minutes
+out: environment ready (compiler flags, template file, a
+\texttt{diff}-able checker), a fresh physical notebook, water,
+phone off. Ten minutes out: re-read the rules that cost points
+--- submission limits, penalty per wrong try, whether partial
+credit exists (IOI-style subtasks change the whole strategy;
+see \S\ref{sec:styles}). One minute out: nothing. Starting
+cold and calm beats starting warm and frantic.
+
+\begin{example}[The ten-minute setup]
+Write your setup down once and reuse it verbatim --- ours, used
+throughout this book: template file loaded,
+\texttt{g++ -O2 -std=c++17 -Wall} alias checked on a trivial
+compile, \texttt{stress.sh} reachable, scratch page split into
+``idea / invariant / test'' columns. It takes under ten
+minutes and removes the most common minute-zero stalls.
+\end{example}
+\begin{solution}
+The deliverable is a checklist, not a contest performance ---
+its entire purpose is to be executed without thinking. Real
+output of \texttt{stress.sh --help}-style first run on a fresh
+box:
+\begin{verbatim}
+MISMATCH seed=15  brute=-15  fast=0
+input:
+1
+-15
+\end{verbatim}
+--- proving the harness itself works before you need it.
+\end{solution}
+
+\section{Reading the scoreboard}\label{sec:board}
+\index{scoreboard!reading}
+The scoreboard is live information, not decoration. Three
+numbers matter per problem: how many teams solved it
+(difficulty proxy), how many \emph{tried} it (read effort
+proxy), and your own attempts (sunk cost to resist). Solving
+order follows the solved-count, not the problem letters --- the
+crowd has already ranked the set for you
+(Figure~\ref{fig:board}). ICPC rules make this sharper: penalty
+minutes accumulate on wrong submissions to \emph{solved}
+problems, so a speculative submit on a cold problem is cheap
+(zero penalty if never solved) while a third wrong guess on a
+problem you'll solve is expensive.
+\begin{figure}[ht]\centering
+\input{figures/fig90-scoreboard}
+\caption{A scoreboard five minutes in. Notice what each cell
+tells you: \texttt{+}/\texttt{-} counts reveal where attempts
+are going, and the top rows' unsolved letters are the de-facto
+hard end of the set.}
+\label{fig:board}
+\end{figure}
+
+\begin{example}[Five-minute scoreboard read]
+Snapshot: 4 of 7 problems solved by someone; B has 40
+submissions and 30 solves; E has 3 tries, 0 solves. You have
+solved nothing yet.
+\textbf{Strategy.} B is the intended entry --- a $3/4$ solve
+rate at volume means readable and mechanical. Skip A/C/D's
+lower traffic for now; E is untouched for a reason. Your order:
+B, then whichever of A/C shows the next-solve first (fresh
+telemetry), E last or never.
+\end{example}
+\begin{solution}
+Order set in under a minute, and it updates: if A gets the next
+solve before C, A moves ahead. The scoreboard re-ranks the set
+every few minutes --- check it whenever you finish a problem or
+go quiet for ten minutes.
+\end{solution}
+
+\begin{exercise}[easy] On the same snapshot, argue why ``start
+with E because nobody solved it, glory awaits'' is usually
+wrong --- and name the one situation (your specialty topic)
+where it is right.\end{exercise}
+
+\section{Time allocation and switching}\label{sec:time}
+\index{switching problems}\index{time cap}
+A four-hour contest is a budget: survey ($\sim$20 min),
+solve-in-rank-order, per-problem caps, reserve the last
+25 minutes for submit-or-stress only
+(Figure~\ref{fig:time}). The per-problem cap is the rule
+everyone agrees with and nobody obeys: \textbf{25 minutes of
+no new idea means switch}. Not 35, not ``one more thing to
+try.'' The trigger is not elapsed time but \emph{progress}
+--- a new formulation, a shrinking search space, a passing
+test. Staring blankly at the statement for the fifth time is
+the canonical no-progress signal (Figure~\ref{fig:switch}).
+\begin{figure}[ht]\centering
+\input{figures/fig91-timealloc}
+\caption{A 4-hour budget that survives contact. Notice the
+plan bar vs.\ the work bars: the buffer is scheduled, not
+stolen; the last block is for submitting and stress-checking
+only, never for starting something new.}
+\label{fig:time}
+\end{figure}
+\begin{figure}[ht]\centering
+\input{figures/fig93-switch}
+\caption{The switching decision. Notice it asks ``do you have
+a new idea,'' not ``have you spent long enough'' --- an
+unexplored approach resets the clock, a blank stare does not.}
+\label{fig:switch}
+\end{figure}
+
+\begin{example}[A contest log, annotated]
+Minute 0--18: survey all 7, sketch data ranges. 18--55: solve
+B (impl, first try). 55--80: D attempt, two wrong tries on
+samples, no new idea at minute 80 $\to$ switch. 80--110: solve
+C. 110--135: back on D with the trick seen while doing C ---
+solved. 135--200: stress A against brute; found and fixed an
+edge case, submitted. 200--240: writeup of E abandoned at 15\%
+confidence --- final reserve held.
+\textbf{Strategy.} The log shows the two habits that pay:
+switching on a progress trigger (not a clock), and returning
+with ammunition rather than stubbornness.
+\end{example}
+\begin{solution}
+Three solves plus a fourth saved by the stress reserve. The
+same contest played ``in order, no switches'' ends at two.
+\end{solution}
+
+\begin{exercise}[medium] Write your own caps: survey length,
+per-problem cap, switch trigger, reserve length --- for a 2-hour
+CF Div.~2 \emph{and} a 5-hour ICPC regional. Defend why the
+numbers differ.\end{exercise}
+
+\section{Stress testing}\label{sec:stress}
+\index{stress testing!harness}\index{brute-force oracle}
+The strongest debugging weapon in this book is two programs
+and a loop: a \emph{brute force} so simple it is obviously
+correct, your fast submission, a generator of small random
+inputs, and a comparator that stops on the first difference
+(Figure~\ref{fig:stress}). Small inputs are the point: bugs
+live in edge cases (empty, singleton, all-equal, negative,
+overflow-adjacent), and small cases let you run thousands of
+rounds per second while still being checkable by hand when one
+fails.
+\begin{figure}[ht]\centering
+\input{figures/fig92-stressflow}
+\caption{The harness. Notice there is no ``is it right?''
+step --- only ``do they agree?'' Correctness is borrowed from
+the brute force; the fast program only has to match it.}
+\label{fig:stress}
+\end{figure}
+
+\begin{example}[The harness, working]
+Chapter 1's maximum-subarray problem: Kadane's against the
+$O(n^3)$ triple loop, on 1--12 element arrays in $[-20,20]$.
+We feed it \texttt{mss\_buggy}, a Kadane variant that lets the
+empty segment in by starting \texttt{cur} and \texttt{best}
+at zero.
+\end{example}
+\begin{solution}
+\lstinputlisting{code/gen_mss.cpp}
+\lstinputlisting{code/mss_buggy.cpp}
+\lstinputlisting{code/stress.sh}
+Real output:
+\begin{verbatim}
+MISMATCH seed=15  brute=-15  fast=0
+input:
+1
+-15
+\end{verbatim}
+Fifteen seeds, and the harness hands you a one-element failing
+case: all-negative input, where the buggy version's empty
+segment answers $0$ instead of $-15$. Rerun on the corrected
+\texttt{mss\_linear}:
+\begin{verbatim}
+stress: 500/500 rounds identical (mss_linear vs mss_brute)
+\end{verbatim}
+\end{solution}
+
+The counterexample it gives you is usually already small; when
+it is not, \emph{shrink} it: delete elements while the outputs
+still differ. A failing case you cannot explain is a failing
+case you cannot fix --- the shrink loop is where the
+understanding lives.
+
+\begin{example}[When to reach for it]
+Rules of thumb: any greedy that ``looks right'' (ch.~3), any
+DP with boundary states (chs.~11--12), anything with a
+special case you added last (chs.~16--17 all hit this ---
+\texttt{seg\_int}'s endpoint-touch and \texttt{digitdp}'s
+adjacent rule were both harness-caught). If the problem has
+no cheap oracle, write the oracle: a slower correct solution
+exists for almost every problem in this book.
+\end{example}
+\begin{solution}
+The cost is real --- 20--40 minutes to build the pair. The
+return is a wrong-answer converted to a failing input, which
+is the difference between debugging and guessing.
+\end{solution}
+
+\begin{exercise}[medium] Build the pair for ch.~12's
+\emph{Counting Numbers}: the DP solver plus a brute
+\texttt{for(int x=a;x<=b;x++)} checker on small ranges.
+What input class did your own solver's bug live in?\end{exercise}
+
+\section{Upsolving}\label{sec:upsolve}
+\index{upsolving!discipline}
+The contest ends; the learning starts. Every problem you
+failed or skipped goes into one of three buckets within the
+week: knew-it-but-botched (rewrite cold, no reference), idea
+was close (one editorial line, then 30 more minutes alone),
+unknown technique (editorial + two more problems using it).
+Figure~\ref{fig:upsolve} makes it a pipeline with one exit:
+an accepted submission \emph{and} a one-line lesson in your
+log. ``I knew that one'' is not a lesson; ``break ties by the
+right endpoint, not the left'' is.
+\begin{figure}[ht]\centering
+\input{figures/fig95-upsolve}
+\caption{Upsolve triage. Notice each bucket has a different
+prescription --- reading the editorial is the \emph{last}
+bucket's tool, and applying it to the first two is how a
+contest teaches nothing.}
+\label{fig:upsolve}
+\end{figure}
+
+\begin{example}[Triage after a Div.~2]
+Post-contest pile: B (WA on test 4), D (skipped), E (no idea).
+B: your comparator forgot equal keys --- bucket 1, rewrite
+cold, accepted in 15 min, log: ``sort ties break on index.''
+D: one hint line (``think backwards'') $\to$ solved in 40 min,
+bucket 2. E: editorial says centroid decomposition --- bucket
+3: implement it, then find two centroid problems and log the
+pattern.
+\end{example}
+\begin{solution}
+Three problems, three different actions, three log lines.
+That is one contest converted to durable skill; skip the week
+and it was only a number.
+\end{solution}
+
+\begin{exercise}[easy] Take your last practice set and assign
+every unsolved item to a bucket. If everything lands in
+bucket 3, your contest level is too high --- explain
+why.\end{exercise}
+
+\section{The practice ladder and contest styles}\label{sec:styles}
+\index{practice ladder}\index{ICPC}\index{IOI}
+Rating climbs by repetition at the right altitude
+(Figure~\ref{fig:ladder}): solve where your success rate is
+40--60\%, move up when it passes 60\%, move down after three
+consecutive failures, and draw from named banks (CSES for
+fundamentals, USACO Guide lists for technique depth, CF
+div.~2 A--C for speed). Adjust the machinery per style:
+\textbf{ICPC} is teams, penalty minutes, and scoreboard
+meta-play --- pick off the solved-count leaders and guard
+your penalty. \textbf{IOI} is solo, subtask-scored, five
+hours --- partial credit means a brute-force subtask taken
+early is worth real points \emph{and} doubles as your stress
+oracle for the full score. \textbf{CF} sits between: short
+rounds, systests, and pretest gamesmanship --- never trust a
+pretest-pass as final.
+\begin{figure}[ht]\centering
+\input{figures/fig94-ladder}
+\caption{The 800$\to$2100 ladder. Notice the height is solve
+rate, not volume: the ladder moves you, not the other way
+around.}
+\label{fig:ladder}
+\end{figure}
+
+\begin{example}[A twelve-week plan]
+Weeks 1--4: CSES Introductory set (Weird Algorithm through
+Two Knights) --- unranked, fundamentals only, target 20+
+solves. Weeks 5--8: CF div.~2 A--B live, upsolve every C you
+miss; weekly contest regardless of result. Weeks 9--12:
+CSES Sorting/DP overlap + div.~2 C as the tracked metric.
+Target: consistent div.~2 A+B, occasional C --- rating
+$=$ consistency, not peak.
+\end{example}
+\begin{solution}
+The plan's only hard rule is the upsolve loop from
+\S\ref{sec:upsolve}; everything else is scheduling.
+\end{solution}
+
+\section{Common mistakes}
+\index{contest strategy!common mistakes}
+\begin{itemize}
+\item \textbf{Solving in statement order.} Problem letters are
+not difficulty ranks --- the scoreboard's solve counts are.
+\item \textbf{The sunk-cost stall.} ``I've spent an hour''
+argues for leaving, not staying; the cap triggers on
+progress, not investment.
+\item \textbf{Guessing a fix and resubmitting.} ICPC penalty
+minutes and CF failed-test locks both tax blind retries ---
+stress first, submit once.
+\item \textbf{No brute force, ever.} ``Too slow for the
+judge'' is the feature: the oracle only has to be right.
+\item \textbf{Upsolving by reading the editorial end-to-end.}
+It converts an unknown-technique problem into a trivia fact
+--- the bucket-3 treatment needs implementation, not
+comprehension.
+\item \textbf{Practicing only where you win.} A 90\% solve
+rate is a flat ladder: the altitude is wrong, not the volume.
+\end{itemize}
+
+\section*{Summary}
+\begin{tabularx}{\linewidth}{@{}lXl@{}}
+\textbf{Moment} & \textbf{Move} & \textbf{Tool}\\
+\midrule
+before clock & fixed checklist, harness ready & \S\ref{sec:before}\\
+first 20 min & survey all problems, sketch ranges & \S\ref{sec:board}\\
+rank order & solve by solved-count, not letters & scoreboard\\
+stuck & progress cap, not time cap & \S\ref{sec:time}\\
+before submit & brute-vs-fast until identical & \texttt{stress.sh}\\
+same week & triage fail/skip into 3 buckets & \S\ref{sec:upsolve}\\
+between rounds & 40--60\% altitude, named banks & \S\ref{sec:styles}\\
+\end{tabularx}
+
+\section*{Exercises}
+\begin{exercise}[easy] Write your pre-contest checklist (10 lines max), then time yourself executing it. \end{exercise}
+\begin{exercise}[easy] For a contest you already played, reconstruct the solve order the scoreboard was telling you at minute 30 vs.\ the order you actually used. \end{exercise}
+\begin{exercise}[easy] Implement \texttt{gen}/\texttt{brute}/\texttt{fast} for ch.~3's coin-change greedy vs.\ its DP --- the harness should find the canonical counterexample. \end{exercise}
+\begin{exercise}[easy] List the three smallest inputs that break \texttt{mss\_buggy}-class logic (empty, singleton negative, all-negative) and explain why each is the \emph{minimal} witness. \end{exercise}
+\begin{exercise}[medium] Time-cap experiment: run a 2-hour set twice --- once with a hard 25-minute switch rule, once ad-lib --- and compare solves and stress. \end{exercise}
+\begin{exercise}[medium] Extend \texttt{stress.sh} with input \emph{shrinking}: on MISMATCH, try deleting each element while outputs still differ. Report how small your failing cases get. \end{exercise}
+\begin{exercise}[medium] Upsolve your last 10 fails with the 3-bucket triage; log one line each. What fraction were bucket 1 --- and what does that say about your bottleneck? \end{exercise}
+\begin{exercise}[medium] Build a personal ``first-15-minutes'' routine: what you read, what you compute per problem, what you write down. Test it on a virtual contest. \end{exercise}
+\begin{exercise}[medium] ICPC vs.\ IOI scoring: take one problem and describe the optimal attempt plan under each --- where does brute-forcing a subtask sit in each plan? \end{exercise}
+\begin{exercise}[medium] Design a generator that adversarially covers your bug history: for each past WA, encode the input class that caught it. Run it as regression after every new solver. \end{exercise}
+\begin{exercise}[hard] Auto-verify a whole chapter: wire \texttt{stress.sh}-style oracles for five ch.~11--17 solvers, run 200 rounds each, and record which solver needed the largest generator space to stay green. \end{exercise}
+\begin{exercise}[hard] Model the scoreboard as data: given per-problem solve counts over time, write the re-ranking rule \S\ref{sec:board} uses informally and simulate its chosen order on a real contest's history. \end{exercise}
+\begin{exercise}[hard] Prove to yourself the ladder works: track solve-rate vs.\ CF rating over 30 problems and test the 60\% rule against your own trajectory (a spreadsheet is fine). \end{exercise}
+\begin{exercise}[hard] Write a ``contest minute'' postmortem template --- timeline, decision points, what the scoreboard said vs.\ what you did --- and use it on your next three contests; report what changed. \end{exercise}
+\begin{exercise}[hard] For a five-hour IOI-style set, write the attempt plan that maximizes expected partial credit given per-subtask point values; show where full-score attempts are worth their risk. \end{exercise}
+
+\chapternotes
+
+\section*{Further reading}
+\begin{itemize}
+\item USACO Guide, \emph{Practicing CP} --- the training
+method this chapter's ladder compresses; del Nor\'e's
+what-to-practice framework.
+\newline\url{https://usaco.guide/general/practicing}
+\item A.~Laaksonen, \emph{Competitive Programmer's Handbook}
+--- its advice chapters on contest technique and debugging.
+\newline\url{https://cses.fi/book/book.pdf}
+\item Topcoder Thrive, \emph{How To Find a Solution} ---
+classic problem-attack walkthroughs, same lineage as the
+survey-first habit. (Thrive articles $\to$ title above, under:)
+\newline\url{https://www.topcoder.com/}
+\item ICPC, \emph{World Finals Rules} --- the penalty model
+\S\ref{sec:board} reads from; worth reading once, primary
+source.
+\newline\url{https://icpc.global/worldfinals/rules}
+\item Kenkoooo AtCoder Problems --- the other major problem
+bank with rating tables; the ladder's alternate track.
+\newline\url{https://kenkoooo.com/atcoder/}
+\item cp-algorithms --- the reference for every technique an
+upsolve bucket-3 will send you to.
+\newline\url{https://cp-algorithms.com/}
+\item infoarena \emph{evaluator} notes --- how judges and
+partial scoring work, the IOI-side view.
+\newline\url{https://infoarena.ro/blog/evaluator}
+\item Codeforces problem set --- the bank itself
+[unverified from this session: CF serves 403 to curl].
+\newline\url{https://codeforces.com/problemset}
+\end{itemize}
+
+\begin{rulebox}[Watch instead]
+\begin{itemize}
+\item \textbf{Errichto --- ``How to test your solution in
+Competitive Programming, on Linux?''}, 26m56s,
+\url{https://www.youtube.com/watch?v=JXTVOyQpSGM} --- covers
+\S\ref{sec:stress}: the brute-vs-fast methodology built live.
+Watch this first. (Verified 2026-10-11.)
+\item \textbf{Colin Galen --- ``Competitive Programming: How
+to Learn from Contests''}, 20m58s,
+\url{https://www.youtube.com/watch?v=E-aylp6MZnM} --- covers
+\S\ref{sec:upsolve}--\ref{sec:styles}: post-contest analysis
+and rating mechanics. (Verified 2026-10-11.)
+\item \textbf{Errichto --- ``How to start Competitive
+Programming? For beginners!''}, 9m43s,
+\url{https://www.youtube.com/watch?v=xAeiXy8-9Y8} --- covers
+\S\ref{sec:before}--\ref{sec:board}: the survey and setup
+mentality. (Verified 2026-10-11.)
+\end{itemize}
+\emph{Notation note:} Galen uses ``rating'' for our ``ladder
+altitude''; Errichto's Linux shell maps one-to-one onto
+\texttt{stress.sh}.
+\end{rulebox}
+The harness methodology follows the standard
+generator--oracle--comparator pattern as practiced on this
+book's own code; the upsolve and ladder framing follows the
+USACO Guide's practice guidance~\cite{usacoguide}; scoring
+models from the ICPC rules~\cite{icpcrules} and the CSES
+problem set structure~\cite{cses}.

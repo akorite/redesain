@@ -1,0 +1,18 @@
+\begin{tikzpicture}[font=\tiny,node distance=4mm and 8mm,scale=0.78]
+\node[draw=accent,rounded corners=2pt,minimum width=2.0cm,minimum height=0.7cm,align=center] (gen) {generator\\(random seed)};
+\node[draw=slate,rounded corners=2pt,minimum width=2.0cm,minimum height=0.7cm,align=center,right=of gen] (inp) {one small\\input};
+\node[draw=slate,rounded corners=2pt,align=center,right=of inp,yshift=7mm] (fast) {fast (submission)};
+\node[draw=slate,rounded corners=2pt,align=center,right=of inp,yshift=-7mm] (brute) {brute (obviously right)};
+\node[draw=accent,rounded corners=2pt,align=center,right=of fast,xshift=2mm,yshift=-7mm] (cmp) {outputs\\equal?};
+\node[draw=good,rounded corners=2pt,right=of cmp] (pass) {next seed};
+\node[draw=amber,rounded corners=2pt,align=center,below=4mm of pass] (fail) {STOP: print input\\+ both answers};
+\draw[->,slate] (gen)--(inp);
+\draw[->,slate] (inp)--(fast.west);
+\draw[->,slate] (inp)--(brute.west);
+\draw[->,slate] (fast)--(cmp);
+\draw[->,slate] (brute)--(cmp);
+\draw[->,good] (cmp)--node[above]{same}(pass);
+\draw[->,amber] (cmp)|-(fail) node[pos=0.25,below]{diff};
+\draw[->,rulegray,dashed] (fail.west)-|([xshift=-3mm]gen.south west)|-(gen);
+\node[below=1mm of fail,align=center] {then shrink the\\failing input by hand};
+\end{tikzpicture}

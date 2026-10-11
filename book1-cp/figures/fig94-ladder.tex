@@ -1,0 +1,8 @@
+\begin{tikzpicture}[font=\tiny,scale=0.78]
+\draw[->,rulegray] (0,0)--(11,0) node[below left] {CF rating};
+\foreach \x/\r/\t in {0.4/800/impl+math,1.8/1100/greedy+sim,3.4/1300/dp+graphs lite,5.2/1600/full toolkit,7.4/1900/adv data structs,9.4/2100+/creative}
+  {\fill[accentsoft] (\x,0) rectangle (\x+1.2,0.5+0.12*\x);
+   \node at (\x+0.6,-0.4) {\r};
+   \node[align=center,below] at (\x+0.6,-0.7) {\t};}
+\node[align=left,anchor=west] at (0,3.2) {ladder rules:\\$\bullet$ solve rate $>60\%$: move up\\$\bullet$ 3+ fails in a row: move down, upsolve the misses\\$\bullet$ bank named sets: CSES, USACO guide lists, CF div2 A--C};
+\end{tikzpicture}
