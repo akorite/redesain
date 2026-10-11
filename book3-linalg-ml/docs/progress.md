@@ -16,3 +16,4 @@
 | ch13 Statistics/estimation/Bayesian | written, awaiting review | ~11 | 2026-10-10 |
 | ch14 Convexity/optimization/Lagrange | written, awaiting review | ~13 | 2026-10-10 |
 | ch15 Information theory | written, awaiting review | ~12 | 2026-10-11 |
+| ch16 Capstone: mlscratch toolkit | written, awaiting review | ~13 | 2026-10-11 |
