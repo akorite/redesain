@@ -1,0 +1,31 @@
+% Figure: double counting — incidence table rows vs columns.
+% Source for Figure~\ref{fig:doublecount}. TikZ only; regenerable by compiling main.tex.
+\begin{tikzpicture}[
+  cell/.style={draw,minimum size=7mm},
+  tick/.style={font=\footnotesize,text=accent},
+  hd/.style={font=\footnotesize\sffamily,text=slate},
+  lab/.style={font=\footnotesize\sffamily,text=slate,align=center}
+]
+% 4 people x 3 committees incidence matrix
+\foreach \c in {0,1,2} \node[hd] at (\c*0.75,0.45) {$C_{\c}$};
+\foreach \r/\nm in {0/Ana,1/Bo,2/Cid,3/Dan} {
+  \node[hd] at (-0.9,-\r*0.75) {\nm};
+}
+\foreach \r in {0,1,2,3} {\foreach \c in {0,1,2} {
+  \node[cell] at (\c*0.75,-\r*0.75) {};
+}}
+% memberships: Ana in C0,C1; Bo in C0; Cid in C1,C2; Dan in C0,C2
+\node[tick] at (0*0.75,-0*0.75) {\checkmark};
+\node[tick] at (1*0.75,-0*0.75) {\checkmark};
+\node[tick] at (0*0.75,-1*0.75) {\checkmark};
+\node[tick] at (1*0.75,-2*0.75) {\checkmark};
+\node[tick] at (2*0.75,-2*0.75) {\checkmark};
+\node[tick] at (0*0.75,-3*0.75) {\checkmark};
+\node[tick] at (2*0.75,-3*0.75) {\checkmark};
+\node[lab] at (0.75,-3.5) {Rows sum $2{+}1{+}2{+}2 = 7$ checkmarks;\\
+columns sum $3{+}2{+}2 = 7$};
+\node[lab,align=center]{same set,\\
+two orders\\
+of counting};
+\draw[->,thick,accent] (2.6,-1.0) -- (1.9,-1.0);
+\end{tikzpicture}

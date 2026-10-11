@@ -1,0 +1,29 @@
+% Figure: recursion tree of T(n) = 2T(n/2) + n — log n levels, n work each.
+% Source for Figure~\ref{fig:rectree}. TikZ only; regenerable by compiling main.tex.
+\begin{tikzpicture}[
+  nd/.style={circle,draw,minimum size=6.6mm,font=\tiny,fill=accent!8},
+  lab/.style={font=\footnotesize\sffamily,text=slate,align=center},
+  rw/.style={font=\footnotesize\sffamily,text=accent,align=right}
+]
+\node[nd] (r) at (0,0) {$n$};
+\node[nd] (a) at (-1.6,-0.9) {$n/2$};
+\node[nd] (b) at (1.6,-0.9) {$n/2$};
+\node[nd] (a1) at (-2.7,-1.9) {$n/4$};
+\node[nd] (a2) at (-0.5,-1.9) {$n/4$};
+\node[nd] (b1) at (0.5,-1.9) {$n/4$};
+\node[nd] (b2) at (2.7,-1.9) {$n/4$};
+\draw[->] (r) -- (a); \draw[->] (r) -- (b);
+\draw[->] (a) -- (a1); \draw[->] (a) -- (a2);
+\draw[->] (b) -- (b1); \draw[->] (b) -- (b2);
+\node[lab] at (-0.2,-2.6) {$\vdots$\quad $\log_2 n$ levels \quad $\vdots$};
+\node[nd] (l1) at (-1.4,-3.4) {$1$};
+\node[nd] (l2) at (0,-3.4) {$1$};
+\node[nd] (l3) at (1.4,-3.4) {$1$};
+\node[lab] at (0,-4.0) {\dots\quad$n$ leaves\quad\dots};
+% per-level work labels on the right
+\node[rw] at (4.5,0) {$+n$};
+\node[rw] at (4.5,-0.9) {$+n$};
+\node[rw] at (4.5,-1.9) {$+n$};
+\node[rw] at (4.5,-3.4) {$+n$};
+\node[lab] at (4.5,-4.35) {$T(n) = n\cdot\log_2 n + n$};
+\end{tikzpicture}

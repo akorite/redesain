@@ -1,0 +1,29 @@
+% Figure: existence and uniqueness are two separate acts.
+% Source for Figure~\ref{fig:uniq}. TikZ only; regenerable by compiling main.tex.
+\begin{tikzpicture}[
+  panel/.style={draw,rounded corners=2pt,inner sep=8pt},
+  obj/.style={circle,draw,inner sep=2pt,minimum size=4.5mm,font=\footnotesize},
+  good/.style={circle,draw,fill=accent!25,inner sep=2pt,minimum size=4.5mm,font=\footnotesize},
+  lab/.style={font=\footnotesize\sffamily,text=slate,align=center}
+]
+% left panel: existence
+\begin{scope}
+\node[lab] at (1.6,1.0) {Act 1 --- existence};
+\node[obj] (a1) at (0,0) {\tiny $x_1$};
+\node[good] (a2) at (0.9,0.45) {\tiny $x_2$};
+\node[obj] (a3) at (1.8,0.1) {\tiny $x_3$};
+\node[obj] (a4) at (2.7,0.5) {\tiny $x_4$};
+\node[lab] at (1.6,-0.9) {exhibit \emph{one} that works\\ (the filled node)};
+\node[panel] at (1.55,-0.05) {\phantom{XXXXXXX}};
+\end{scope}
+% right panel: uniqueness
+\begin{scope}[xshift=6.4cm]
+\node[lab] at (1.6,1.0) {Act 2 --- uniqueness};
+\node[obj] (b1) at (0,0.4) {\tiny $x_1$};
+\node[obj] (b2) at (1.1,0.4) {\tiny $x_2$};
+\draw[->,thick,rulegray] (1.7,0.4) -- (2.4,0.4);
+\node[good] (b3) at (3.1,0.4) {\tiny $x$};
+\node[lab,align=center]{any two candidates\\ must coincide: $x_1 = x_2$};
+\node[panel] at (1.55,-0.05) {\phantom{XXXXXXX}};
+\end{scope}
+\end{tikzpicture}

@@ -1,0 +1,16 @@
+% Figure: a biconditional is two separately proved one-way streets.
+% Source for Figure~\ref{fig:iffproof}. TikZ only; regenerable by compiling main.tex.
+\begin{tikzpicture}[
+  claim/.style={draw,inner sep=5pt,font=\small,rounded corners=1pt},
+  road/.style={->,very thick,accent},
+  lab/.style={font=\footnotesize\sffamily,text=slate,align=center}
+]
+\node[claim] (P) at (0,0) {$P$};
+\node[claim] (Q) at (6,0) {$Q$};
+\draw[road] (P.30) .. controls (2,1.3) and (4,1.3) .. (Q.150);
+\draw[road] (Q.210) .. controls (4,-1.3) and (2,-1.3) .. (P.330);
+\node[lab] at (3,1.5) {($\Rightarrow$) prove $P \Rightarrow Q$};
+\node[lab] at (3,-1.5) {($\Leftarrow$) prove $Q \Rightarrow P$};
+\node[lab] at (3,-2.6) {Each arrow is its own proof --- often by a
+\emph{different} technique.};
+\end{tikzpicture}

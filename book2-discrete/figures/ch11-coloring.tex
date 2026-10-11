@@ -1,0 +1,25 @@
+% Figure: a 3-coloring of a wheel-ish graph with color classes marked.
+% Source for Figure~\ref{fig:coloring}. TikZ only; regenerable by compiling main.tex.
+\begin{tikzpicture}[
+  c1/.style={circle,draw,fill=accent!55,minimum size=6mm},
+  c2/.style={circle,draw,fill=olive!55,minimum size=6mm},
+  c3/.style={circle,draw,fill=rulegray!60,minimum size=6mm},
+  lab/.style={font=\footnotesize\sffamily,text=slate,align=center}
+]
+% wheel W5: center + rim of 5
+\node[c1] (m) at (0,0) {};
+\foreach \i/\col in {0/c2,1/c3,2/c2,3/c3,4/c2} {
+  \node[\col] (v\i) at (90+72*\i:1.55cm) {};
+}
+\foreach \i in {0,...,4} {
+  \draw (m) -- (v\i);
+  \pgfmathtruncatemacro{\j}{mod(\i+1,5)}
+  \draw (v\i) -- (v\j);
+}
+\node[lab,align=center]{$\chi = 3$: the rim alternates two colours,\\
+and the hub takes a third --- three suffice,\\
+and two fail since the rim has odd length.};
+\node[c1,label=right:{class 1}] at (4.0,0.4) {};
+\node[c2,label=right:{class 2}] at (4.0,-0.3) {};
+\node[c3,label=right:{class 3}] at (4.0,-1.0) {};
+\end{tikzpicture}

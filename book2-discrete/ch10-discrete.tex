@@ -48,6 +48,14 @@ you see \emph{is} the $2^n - 1$.}
 \label{fig:hanoi}
 \end{figure}
 
+\begin{figure}[ht]\centering
+\input{figures/ch10-guessloop}
+\caption{The honest pipeline: a computed guess is \emph{evidence}, the
+check is a filter, and induction is what converts pattern into theorem.
+Skipping the loop is how false patterns get published.}
+\label{fig:guessloop}
+\end{figure}
+
 \section{Characteristic equations}\label{sec:chareq}
 \index{characteristic equation}
 \index{linear recurrence!homogeneous}
@@ -174,6 +182,23 @@ $F(x) = \frac{x}{1 - x - x^2}$; partial fractions on the denominator's
 roots $\varphi, \psi$ recover Binet. The GF turns ``solve a
 recurrence'' into ``solve one equation, then do algebra''.
 
+\begin{example}\label{ex:gf3n}
+Solve $a_n = 3a_{n-1} + 2$, $a_0 = 1$, by generating functions.
+\par\smallskip
+\textbf{Strategy.} One conversion: write $A(x) = \sum a_n x^n$, multiply
+the recurrence by $x^n$ and sum $n \ge 1$, then solve the linear
+equation for $A$ and extract coefficients from a partial-fraction split.
+\par\smallskip
+\begin{solution}
+$\sum_{n\ge1} a_n x^n = 3\sum_{n\ge1} a_{n-1} x^n + 2\sum_{n\ge1} x^n$
+gives $A - 1 = 3xA + \frac{2x}{1-x}$, so
+$A(x) = \frac{1+x}{\,(1-x)(1-3x)} = \frac{2}{1-3x} - \frac{1}{1-x}$.
+Reading coefficients: $a_n = 2\cdot 3^n - 1$. Check: $a_1 = 5 = 2\cdot3-1$
+and $a_2 = 17 = 2\cdot9-1$; the recurrence holds since
+$3(2\cdot3^{n-1}-1)+2 = 2\cdot 3^n - 1$.
+\end{solution}
+\end{example}
+
 \section{A feel for growth orders}\label{sec:growth}
 \index{growth order}
 You can often read the growth order off the recursion tree without
@@ -183,6 +208,14 @@ two half-size problems; the tree has $\log_2 n$ levels of $n$ work
 each, so $T(n) \approx n \log_2 n$. Chapter-17's algorithms live in
 this vocabulary; the discipline is to see the \emph{tree} before
 reaching for the \emph{formula}.
+
+\begin{figure}[ht]\centering
+\input{figures/ch10-rectree}
+\caption{The recursion tree of $T(n) = 2T(n/2) + n$: $\log_2 n$ levels,
+$n$ units of work per level. The closed form is read off the shape ---
+$n\log_2 n$, before any formula is invoked.}
+\label{fig:rectree}
+\end{figure}
 
 \begin{exercise}[easy]\label{exr:rec1}
 Unroll $b_n = 3b_{n-1}$, $b_0 = 2$; closed form? Verify $b_4$.
@@ -274,6 +307,73 @@ Extend \texttt{fib\_closed.py} to use \texttt{Decimal} at 50 digits:
 does Binet's failure move to a larger $n$, and does \emph{exact}
 arithmetic (algebraic form) ever fail? Explain.
 \end{exercise}
+\begin{exercise}[easy]
+Solve $a_n = 2a_{n-1} + 1$, $a_0 = 0$, three ways: unrolling, the
+guess-check-prove loop, and the GF of Example~\ref{ex:gf3n}.
+\end{exercise}
+\begin{exercise}[medium]
+Solve $a_n = a_{n-1} + n$, $a_0 = 1$ (arithmetic forcing term ---
+which catalog GF produces $n$?).
+\end{exercise}
+\begin{exercise}[medium]
+A path on a staircase of $n$ stones uses steps of $1$ or $3$. Set up
+and solve the recurrence for $n \le 9$; where does the characteristic
+equation's missing root enter?
+\end{exercise}
+\begin{exercise}[medium]
+Draw the recursion tree of $T(n) = 3T(n/2) + n$ and read off the
+growth order without a formula. Compare against $2T(n/2)+n$ ---
+what does the branching factor do to the level sums?
+\end{exercise}
+\begin{exercise}[hard]
+Solve the nonhomogeneous $a_n = 4a_{n-1} - 4a_{n-2} + 2^n$,
+$a_0 = a_1 = 1$ (resonance: the forcing term is itself a solution of
+the homogeneous part --- what replaces the usual ansatz?).
+\end{exercise}
+
+\section*{Further reading}
+\begin{itemize}
+\item R.~Hammack, \emph{Book of Proof}, 3rd ed., Ch.~21 ---
+\url{https://richardhammack.github.io/BookOfProof/}
+--- free PDF;
+induction on sequences and recurrences.
+\item E.~Lehman, F.~T.~Leighton, A.~R.~Meyer, \emph{Mathematics for
+Computer Science}, Ch.~22 ---
+\url{https://courses.csail.mit.edu/6.042/spring18/mcs.pdf}
+--- free PDF;
+recurrences, characteristic equations and the recursion-tree method.
+\item E.~Chen, \emph{Summation} --- generating-function solutions of
+linear recurrences:
+
+\url{https://web.evanchen.cc/handouts/Summation/Summation.pdf}
+\item Y.~Zhao, \emph{Summations and Combinatorial Identities} ---
+olympiad recurrences and the identities they generate:
+
+\url{https://yufeizhao.com/olympiad/comb1.pdf}
+\item MIT OpenCourseWare, \emph{6.042J} (Fall 2010) ---
+\url{https://ocw.mit.edu/6-042JF10}
+--- the recurrences lectures this
+chapter follows.
+\item Cut-the-Knot, Fibonacci ---
+\url{https://www.cut-the-knot.org/}
+--- alternate derivations of Binet's
+formula for comparison with \S\ref{sec:recgf}.
+\end{itemize}
+
+\begin{rulebox}[Watch instead]
+\begin{itemize}
+\item \textbf{TrevTutor --- ``RECURRENCE RELATIONS''}, 15:24,
+\url{https://www.youtube.com/watch?v=eAaP4XaB8hM}
+--- Fibonacci and
+geometric recurrences, setting up the \S\ref{sec:guess}--%
+\S\ref{sec:chareq} pipeline. (Verified 2026-10-11.)
+\item \textbf{TrevTutor --- ``HOMOGENEOUS RECURRENCE RELATIONS''}, 25:15,
+\url{https://www.youtube.com/watch?v=7mhvA5L7KqY}
+--- characteristic
+equations worked end to end: \S\ref{sec:chareq}--\S\ref{sec:fib}.
+(Verified 2026-10-11.)
+\end{itemize}
+\end{rulebox}
 
 \chapternotes
 The recursion-tree viewpoint and the characteristic-equation pipeline

@@ -1,0 +1,26 @@
+% Figure: English-to-symbols decision flow for quantified statements.
+% Source for Figure~\ref{fig:flow}. TikZ only; regenerable by compiling main.tex.
+\begin{tikzpicture}[
+  q/.style={draw,inner sep=4pt,font=\footnotesize,rounded corners=1pt,align=center},
+  a/.style={draw,inner sep=4pt,font=\footnotesize,align=center,fill=rulegray!8},
+  arr/.style={->,thick,rulegray},
+  lab/.style={font=\tiny\sffamily,text=slate}
+]
+\node[q] (start) at (0,0) {``\emph{Every / All / Each}''?};
+\node[q] (some) at (0,-1.5) {``\emph{Some / There is / At least one}''?};
+\node[q] (onlyif) at (0,-3.0) {``\emph{Only if / unless / whenever}''?};
+
+\node[a] (fa) at (6.2,0) {$\forall x\,(\mathrm{scope}(x)\Rightarrow \mathrm{claim}(x))$\\
+\tiny restrict the domain, then require};
+\node[a] (ex) at (6.2,-1.5) {$\exists x\,(\mathrm{scope}(x)\land \mathrm{claim}(x))$\\
+\tiny restrict the domain, then exhibit};
+\node[a] (oi) at (6.2,-3.0) {reverse the arrow:\\
+\tiny ``$P$ only if $Q$'' $=$ $P\Rightarrow Q$};
+
+\draw[arr] (start) -- (fa);
+\draw[arr] (some) -- (ex);
+\draw[arr] (onlyif) -- (oi);
+
+\node[lab,anchor=west] at (-4.9,-4.15) {Universal quantifiers pair with $\Rightarrow$; existential with $\land$.
+Swapping the connective is the single most common mistranslation.};
+\end{tikzpicture}

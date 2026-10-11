@@ -1,0 +1,15 @@
+% Figure: the guess -> check -> prove loop for recurrences.
+% Source for Figure~\ref{fig:guessloop}. TikZ only; regenerable by compiling main.tex.
+\begin{tikzpicture}[
+  st/.style={draw,minimum height=11mm,text width=30mm,align=center,font=\footnotesize,fill=accent!8},
+  lab/.style={font=\footnotesize\sffamily,text=slate,align=center}
+]
+\node[st] (g) at (0,0) {\textbf{Guess}\\compute $a_1..a_6$,\\spot a pattern};
+\node[st] (c) at (4.6,0) {\textbf{Check}\\predict $a_7$ from the\\formula, verify};
+\node[st] (p) at (2.3,-2.0) {\textbf{Prove}\\induction: base hit,\\step inherited};
+\draw[->,thick,accent] (g) -- (c) node[midway,above,lab] {\scriptsize honest trial};
+\draw[->,thick,accent] (c) -- (p) node[midway,right,lab,xshift=1mm] {\scriptsize survived};
+\draw[->,thick,rulegray,dashed] (p) -- (g) node[midway,left,lab,xshift=-1mm] {\scriptsize failed? refine};
+\node[lab] at (2.3,-3.3) {The loop only exits at \emph{Prove} --- a guess\\
+that merely fits the data is data, not a theorem.};
+\end{tikzpicture}

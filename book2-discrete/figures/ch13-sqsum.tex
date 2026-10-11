@@ -1,0 +1,24 @@
+\begin{tikzpicture}[scale=0.85]
+  % a^2 + b^2 >= 2ab : two squares vs two rectangles, leftover (a-b)^2
+  \def\a{3.4}\def\b{1.6}
+  % left: a^2 + b^2
+  \draw[fill=accent!25] (0,0) rectangle (\a,\a);
+  \node at (\a/2,\a/2) {$a^2$};
+  \draw[fill=accent!50] (\a+0.3,0) rectangle (\a+0.3+\b,\b);
+  \node at (\a+0.3+\b/2,\b/2) {$b^2$};
+  \node[below] at (\a/2,-0.15) {$a$};
+  \node[below] at (\a+0.3+\b/2,-0.15) {$b$};
+  \node[font=\large] at (\a/2-0.2+2.6,-0.9) {area $= a^2+b^2$};
+  % right: ab rectangle + ab rectangle + (a-b)^2 hole idea via two ab bars
+  \begin{scope}[xshift=7.6cm]
+    \draw[fill=good!30] (0,0) rectangle (\a,\b);
+    \node at (\a/2,\b/2) {$ab$};
+    \draw[fill=good!55] (0,\b+0.2) rectangle (\b,\b+0.2+\a);
+    \node[rotate=90] at (\b/2,\b+0.2+\a/2) {$ab$};
+    \node[below] at (\a/2,-0.15) {$a$};
+    \node[font=\large] at (\a/2+0.4,-0.9) {area $= 2ab$};
+  \end{scope}
+  % equivalence note
+  \node[font=\small,align=center] at (6.4,2.6) {$a^2+b^2-2ab$\\[2pt]$=(a-b)^2 \ge 0$};
+  \node[font=\small] at (6.4,4.4) {vs};
+\end{tikzpicture}

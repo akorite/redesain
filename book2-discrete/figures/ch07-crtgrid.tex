@@ -1,0 +1,24 @@
+% Figure: CRT bijection Z/15 -> (Z/3)x(Z/5) as a filled grid.
+% Source for Figure~\ref{fig:crtgrid}. TikZ only; regenerable by compiling main.tex.
+\begin{tikzpicture}[
+  cell/.style={draw,minimum size=7.5mm,font=\tiny},
+  lab/.style={font=\footnotesize\sffamily,text=slate,align=center},
+  hd/.style={font=\footnotesize\sffamily,text=slate}
+]
+% x mod 15 in cell (row = x mod 3, col = x mod 5)
+\foreach \r in {0,1,2} {\foreach \c in {0,1,2,3,4} {
+  \pgfmathsetmacro{\v}{int(mod(mod(\c-\r,5)*3*2 - mod(\c-\r,5)*3*0 + \r*10 + \c*0, 15))}
+}}
+% fill explicitly: x with x mod 3 = r, x mod 5 = c
+\foreach \x in {0,...,14} {
+  \pgfmathsetmacro{\r}{int(mod(\x,3))}
+  \pgfmathsetmacro{\c}{int(mod(\x,5))}
+  \node[cell] at (\c*0.78,-\r*0.78) {\x};
+}
+\foreach \c in {0,1,2,3,4} \node[hd] at (\c*0.78,0.55) {\c};
+\node[hd] at (3.2,0.55) {$\leftarrow \bmod\ 5$};
+\foreach \r in {0,1,2} \node[hd] at (-0.55,-\r*0.78) {\r};
+\node[hd,rotate=90] at (-1.05,-0.78) {$\bmod\ 3$};
+\node[lab] at (1.55,-2.9) {Every cell holds exactly one $x \in \{0,\dots,14\}$:\\
+CRT says the map $x \mapsto (x \bmod 3,\ x \bmod 5)$ is a bijection.};
+\end{tikzpicture}

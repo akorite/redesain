@@ -47,6 +47,23 @@ $k$-permutation (ordered selection of $k$ from $n$) is
 $n!/(n-k)!$: the last $n-k$ slots ``don't matter'', and dividing by
 their arrangements is honest cancellation, not a trick.
 
+\begin{example}\label{ex:mississippi}
+How many distinct arrangements does \textsc{mississippi} have?
+\par\smallskip
+\textbf{Strategy.} Count as if all $11$ letters were distinct, then undo
+the overcount: identical letters can't be told apart, so each arrangement
+was counted once per internal shuffle of every repeated letter.
+\par\smallskip
+\begin{solution}
+$11$ letters: one M, four I's, four S's, two P's. Naive count $11!$
+treats the I's as distinguishable $I_1, \dots, I_4$ --- each real
+arrangement appears $4!$ times (I-shuffles) $\times$ $4!$ (S-shuffles)
+$\times$ $2!$ (P-shuffles). So the count is
+$\dfrac{11!}{4!\,4!\,2!} = 34\,650$. The same division-by-shuffles gives
+the multinomial formula $\binom{n}{n_1,\dots,n_k}$ in general.
+\end{solution}
+\end{example}
+
 \begin{exercise}[easy]\label{exr:perm}
 How many ways to award gold, silver, bronze in a 20-runner race? What if
 ties were allowed --- does the formula still apply?
@@ -263,6 +280,15 @@ non-members. Vandermonde $\sum_i \binom{m}{i}\binom{n}{k-i} =
 number of women chosen. Every algebraic identity in this chapter has a
 committee behind it --- finding it is the exercise.
 
+\begin{figure}[ht]\centering
+\input{figures/ch08-doublecount}
+\caption{Double counting in its rawest form: memberships as a
+$\{\text{person}\}\times\{\text{committee}\}$ table. Row-sums and
+column-sums both total $7$ --- and that tautology,
+$\sum_i |C_i| = \sum_j |P_j|$, is the engine of every committee proof.}
+\label{fig:doublecount}
+\end{figure}
+
 \begin{exercise}[medium]\label{exr:vandermonde}
 Prove Vandermonde's identity by naming the set both sides count.
 \end{exercise}
@@ -355,6 +381,58 @@ Extend \texttt{count\_check.py} to enumerate \emph{restricted}
 stars-and-bars solutions ($x_i \le c_i$) for $k = 3$ and verify the
 inclusion--exclusion count (the tool of Chapter~9) on 200 random cases.
 \end{exercise}
+\begin{exercise}[easy]
+Count the arrangements of \textsc{banana} and of \textsc{bookkeeper} ---
+three double letters in a row in the second one is not a special case,
+just the same division-by-shuffles.
+\end{exercise}
+\begin{exercise}[medium]
+A class of $12$ students splits into three groups of $4$ for projects.
+Count the divisions --- and then recount if the groups are labelled
+\emph{Red, Green, Blue}. (What does labelling multiply by?)
+\end{exercise}
+\begin{exercise}[hard]
+Prove $\sum_{k=0}^{n} k\binom{n}{k} = n\,2^{n-1}$ two ways: once by
+counting (a committee plus a named chair) and once by differentiating
+$(1+x)^n$. Say which proof generalises to $\sum_k k^2\binom{n}{k}$ and why.
+\end{exercise}
+
+\section*{Further reading}
+\begin{itemize}
+\item R.~Hammack, \emph{Book of Proof}, 3rd ed., Ch.~3 ---
+\url{https://richardhammack.github.io/BookOfProof/} --- free PDF;
+counting, factorials and the binomial theorem.
+\item E.~Lehman, F.~T.~Leighton, A.~R.~Meyer, \emph{Mathematics for
+Computer Science}, Ch.~14--17 ---
+\url{https://courses.csail.mit.edu/6.042/spring18/mcs.pdf} --- free PDF;
+the sum/product rules, pigeonhole and counting-in-two-ways framing used
+throughout this chapter.
+\item Y.~Zhao, \emph{Bijections} ---
+\url{https://yufeizhao.com/olympiad/bijections.pdf} --- the bijective
+proof drill behind \S\ref{sec:biject}--\S\ref{sec:committee}.
+\item Berkeley CS70 notes ---
+\url{https://www.eecs70.org/} --- counting and discrete probability with
+worked problems.
+\item MIT OpenCourseWare, \emph{6.042J} (Fall 2010) ---
+\url{https://ocw.mit.edu/6-042JF10} --- the counting lectures behind
+\S\ref{sec:rules}--\S\ref{sec:pigeon}.
+\item Cut-the-Knot, combinatorics ---
+\url{https://www.cut-the-knot.org/} --- committee proofs of the binomial
+identities in \S\ref{sec:binom}--\S\ref{sec:committee}.
+\end{itemize}
+
+\begin{rulebox}[Watch instead]
+\begin{itemize}
+\item \textbf{Spanning Tree --- ``What Is the Pigeonhole Principle?''},
+8:23, \url{https://www.youtube.com/watch?v=B2A2pGrDG8I} --- the
+principle plus three real applications (chessboard, planets, compression):
+\S\ref{sec:pigeon}. (Verified 2026-10-11.)
+\item \textbf{TrevTutor --- ``Discrete Math'' playlist}
+\url{https://www.youtube.com/playlist?list=PLDDGPdw7e6Ag1EIznZ-m-qXu4XX3A0cIz}
+--- its counting unit covers \S\ref{sec:rules}--\S\ref{sec:stars}
+(permutations, combinations, stars and bars). (Verified 2026-10-11.)
+\end{itemize}
+\end{rulebox}
 
 \chapternotes
 The two-rules-first presentation and committee-proof discipline follow

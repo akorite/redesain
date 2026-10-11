@@ -1,0 +1,21 @@
+% Figure: divisors of 360 = 2^3*3^2*5 as an exponent grid (4*3*2 = 24 cells).
+% Source for Figure~\ref{fig:divgrid}. TikZ only; regenerable by compiling main.tex.
+\begin{tikzpicture}[
+  cell/.style={draw,minimum size=6.6mm,font=\tiny},
+  lab/.style={font=\footnotesize\sffamily,text=slate,align=center}
+]
+% rows: exponent of 5 (0,1); inside each row a 4x3 grid of (2^a 3^b)
+\foreach \r in {0,1} {
+  \foreach \a in {0,1,2,3} {
+    \foreach \b in {0,1,2} {
+      \node[cell] at (0.72*\a, -0.72*\b - 2.4*\r) {};
+    }
+  }
+}
+\node[lab] at (1.0,0.75) {exponent of $2$: $0,1,2,3$};
+\node[lab,rotate=90] at (-0.85,-0.8) {exponent of $3$: $0,1,2$};
+\node[lab] at (3.3,-0.8) {exponent of $5$: $0$};
+\node[lab] at (3.3,-3.2) {exponent of $5$: $1$};
+\node[lab,align=center]{Each cell is a divisor $2^a 3^b 5^c$:\\
+$(3{+}1)\times(2{+}1)\times(1{+}1) = 24$ divisors of $360$.};
+\end{tikzpicture}

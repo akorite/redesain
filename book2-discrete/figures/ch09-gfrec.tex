@@ -1,0 +1,21 @@
+% Figure: Fibonacci GF pipeline — recurrence -> closed GF -> coefficients.
+% Source for Figure~\ref{fig:gfrec}. TikZ only; regenerable by compiling main.tex.
+\begin{tikzpicture}[
+  stage/.style={draw,minimum height=11mm,text width=34mm,align=center,font=\footnotesize,fill=accent!8},
+  lab/.style={font=\footnotesize\sffamily,text=slate,align=center}
+]
+\node[stage] (r) at (0,0) {$F_n = F_{n-1} + F_{n-2}$\\[1pt]
+\scriptsize the recurrence};
+\node[stage] (g) at (4.4,0) {$F(x) = \dfrac{x}{1 - x - x^2}$\\[1pt]
+\scriptsize multiply by $x^n$, sum, solve};
+\node[stage] (p) at (8.8,0) {$\dfrac{A}{1-\alpha x} + \dfrac{B}{1-\beta x}$\\[1pt]
+\scriptsize partial fractions};
+\node[stage] (c) at (4.4,-1.9) {$F_n = \dfrac{\alpha^n - \beta^n}{\sqrt5}$,\quad
+$\alpha,\beta = \dfrac{1 \pm \sqrt5}{2}$\\[1pt]
+\scriptsize read the coefficient of $x^n$};
+\draw[->,thick,accent] (r) -- (g);
+\draw[->,thick,accent] (g) -- (p);
+\draw[->,thick,accent] (p) |- (c);
+\node[lab,align=center]{Each step is mechanical --- the recurrence is translated once,\\
+and the closed form is read back as a catalog series.};
+\end{tikzpicture}
