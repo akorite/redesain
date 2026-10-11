@@ -14,3 +14,4 @@
 | ch11 Gradients/Jacobians/Hessians | written, awaiting review | ~11 | 2026-10-10 |
 | ch12 Probability and random variables | written, awaiting review | ~11 | 2026-10-10 |
 | ch13 Statistics/estimation/Bayesian | written, awaiting review | ~11 | 2026-10-10 |
+| ch14 Convexity/optimization/Lagrange | written, awaiting review | ~13 | 2026-10-10 |
