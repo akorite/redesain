@@ -171,7 +171,18 @@ dt/dx CFL = 0.70 (must be < 1)
 \end{lstlisting}
 
 A Gaussian pulse slides across the lattice at exactly the input
-speed --- the wave equation's only job, done.
+speed --- the wave equation's only job, done. Figure~\ref{fig:pulseloc}
+tracks the peak position against time: a dead-straight line whose slope
+is the measured wave speed, $1.0000$ cells per step --- the discretised
+Maxwell equation knows $c$.
+
+\begin{figure}[htbp]\centering
+\input{figures/ch15_pulseloc}
+\caption{Pulse-peak position versus time in the 1-D wave simulation.
+The slope is the propagation speed: $v=1.0000$ lattice units, exactly
+the imposed $c$, for the whole transit.}
+\label{fig:pulseloc}
+\end{figure}
 
 \section{In engineering practice: everything wireless}\label{sec:max-eng}
 

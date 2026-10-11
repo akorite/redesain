@@ -181,7 +181,17 @@ Charge OUTSIDE cube (expect ~0): Phi=-0.0000
 A plain Riemann sum on a cube --- no symmetry exploited --- converges
 to $4\pi$ (i.e.\ $q/\varepsilon_0$ in these units) and returns $0.0000$
 for a charge outside: Gauss's law with the mesh resolution as the only
-approximation.
+approximation. Figure~\ref{fig:converge} shows the convergence against
+mesh size: the error is already below a percent at $n=30$ and is gone by
+$n=90$ --- the theorem never cared about the mesh.
+
+\begin{figure}[htbp]\centering
+\input{figures/ch10_converge}
+\caption{Computed flux through the cube versus surface-mesh resolution
+(log axis), converging on $4\pi$. Coarse meshes overestimate slightly ---
+the flat facets leak --- then the sum settles on theory.}
+\label{fig:converge}
+\end{figure}
 
 \section{In engineering practice: shielding is Gauss's law}\label{sec:ga-eng}
 

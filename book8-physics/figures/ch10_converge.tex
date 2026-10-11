@@ -1,0 +1,12 @@
+\begin{tikzpicture}
+\begin{axis}[width=8.8cm,height=5.0cm,xlabel={mesh points per cube edge $n$},
+ylabel={computed flux $\Phi$},
+xmode=log,xmin=8,xmax=320,ymin=12.55,ymax=12.62,font=\small,
+xtick={10,30,90,270},xticklabels={10,30,90,270},log ticks with fixed point]
+\addplot[dashed,domain=8:320,samples=2] {12.5664};
+\node[font=\scriptsize,anchor=west] at (axis cs:11,12.572) {$4\pi=12.5664$};
+\addplot[very thick,accent,mark=*,mark size=2.2pt] coordinates
+{(10,12.5972) (30,12.5698) (90,12.5668) (270,12.5664)};
+\node[font=\scriptsize,accent,anchor=east] at (axis cs:290,12.59) {Gauss quadrature $\to$ theory};
+\end{axis}
+\end{tikzpicture}

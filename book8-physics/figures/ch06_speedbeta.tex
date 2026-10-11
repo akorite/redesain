@@ -1,0 +1,13 @@
+\begin{tikzpicture}
+\begin{axis}[width=8.8cm,height=5.2cm,xlabel={shape factor $\beta$ of $I=\beta mr^{2}$},
+ylabel={finish speed (m/s)},
+xmin=-0.08,xmax=1.08,ymin=0,ymax=7,font=\small,legend pos=north east,
+xtick={0,0.4,0.5,1.0},xticklabels={slide,sphere,disk,hoop}]
+\addplot[very thick,accent,mark=*,mark size=2.2pt] coordinates
+{(0,6.261) (0.4,5.292) (0.5,5.112) (1.0,4.427)};
+\addlegendentry{race simulation}
+\addplot[dashed,domain=-0.08:1.08,samples=2] {6.261/sqrt(1+x)};
+\node[font=\scriptsize,anchor=west] at (axis cs:0.05,3.6) {$v=\sqrt{2gh/(1+\beta)}$};
+\node[font=\scriptsize,accent,anchor=west] at (axis cs:0.42,6.0) {$K_{\rm rot}$ tax grows with $\beta$};
+\end{axis}
+\end{tikzpicture}

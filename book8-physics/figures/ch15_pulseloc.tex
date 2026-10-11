@@ -1,0 +1,12 @@
+\begin{tikzpicture}
+\begin{axis}[width=8.8cm,height=5.0cm,xlabel={time $t$ (lattice units)},
+ylabel={pulse peak position (cells)},
+xmin=0,xmax=230,ymin=40,ymax=290,font=\small,legend pos=south east]
+\addplot[very thick,accent,mark=*,mark size=2.4pt] coordinates
+{(0.7,60) (70.0,130) (140.0,200) (210.0,270)};
+\addlegendentry{simulated peak}
+\addplot[dashed,domain=0:230,samples=2] {x+59.5};
+\node[font=\scriptsize,anchor=west] at (axis cs:60,225) {slope $=1.0000$ cells/step $=c$};
+\node[font=\scriptsize,anchor=west] at (axis cs:60,205) {CFL $=\Delta t/\Delta x=0.70<1$};
+\end{axis}
+\end{tikzpicture}

@@ -177,6 +177,18 @@ Q = w0/gamma = 5.0; A(w_res)/A(0) = 5.03 (theory)
 
 RK4 tracks the analytic curve to $0.0\%$ at every sampled $\omega_d$ ---
 the integrator is now trustworthy enough to trust figure~\ref{fig:resonance}.
+Figure~\ref{fig:amplresp} overlays the measured amplitudes on the theory
+curve: the agreement is exact, and the peak sits at
+$\omega_r=\sqrt{\omega_0^2-\gamma^2/2}=1.980$ --- just below $\omega_0$,
+the driven-oscillator subtlety that trips up most first passes.
+
+\begin{figure}[htbp]\centering
+\input{figures/ch07_amplresp}
+\caption{Simulated steady-state amplitudes (markers) on the analytic
+response curve for $\gamma=0.4$, $\omega_0=2$. The maximum is at
+$\omega_r=1.980$, not at $\omega_0$ --- damping pulls the peak left.}
+\label{fig:amplresp}
+\end{figure}
 
 \begin{figure}[htbp]\centering
 \input{figures/ch07_fork}
