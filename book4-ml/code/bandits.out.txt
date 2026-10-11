@@ -1,0 +1,5 @@
+greedy           mean-reward(1000)=1.044  %optimal(last100)=36%
+eps-greedy .1    mean-reward(1000)=1.362  %optimal(last100)=80%
+UCB c=2          mean-reward(1000)=1.482  %optimal(last100)=86%
+optimistic Q0=5  mean-reward(1000)=1.447  %optimal(last100)=70%
+saved /tmp/bandit_curves.npy

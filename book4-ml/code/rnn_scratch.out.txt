@@ -1,0 +1,22 @@
+it    0: loss/char 4.098  ppl 60.2
+it 1000: loss/char 2.427  ppl 11.3
+it 2000: loss/char 2.486  ppl 12.0
+it 3000: loss/char 2.233  ppl 9.3
+it 3999: loss/char 2.193  ppl 9.0
+
+--- sample after training ---
+TI fe hislliI oirq
+
+NIRIUS:
+
+IUS:
+Korisel ter the and
+
+hemaT in ghat jy lr of theR cemfan
+A bray hamll hr lomas, heond ?ou
+
+Me ae fithe cnat onh ild Lof sony yome iled,
+
+OORTTNM?TNart shat he thlas.
+
+B

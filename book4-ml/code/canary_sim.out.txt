@@ -1,0 +1,5 @@
+full-stream acc: old 0.7318  new 0.8262  (delta +0.0945)
+canary   1% (n=  200): old 0.7550 new 0.8250  d +0.0700  2SE 0.0812  inside noise
+canary   5% (n= 1000): old 0.7530 new 0.8360  d +0.0830  2SE 0.0359  |d| > 2*SE -> call it
+canary  10% (n= 2000): old 0.7385 new 0.8220  d +0.0835  2SE 0.0261  |d| > 2*SE -> call it
+canary  50% (n=10000): old 0.7315 new 0.8234  d +0.0919  2SE 0.0117  |d| > 2*SE -> call it

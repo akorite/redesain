@@ -1,0 +1,13 @@
+(a) scale->split 0.974 at k=11   split->scale 0.982 at k=5   diff -0.9 pp
+    tiny here: iid rows share statistics, so the leaked scaler
+    barely differs from the honest one. Leak size is not fixed --
+    it scales with how much test information the step consumed.
+
+(b) fraction of test set duplicated into training:
+    0% leaked -> 1-NN test acc 0.921
+    10% leaked -> 1-NN test acc 0.939
+    25% leaked -> 1-NN test acc 0.956
+    50% leaked -> 1-NN test acc 0.965
+    1-NN answers each leaked row with itself: distance 0, label
+    memorised. Every leak ultimately works this way -- the model
+    is given an answer key, and 'accuracy' stops meaning anything.

@@ -1,0 +1,30 @@
+shape: (891, 15)
+dtypes (first 8):
+ survived      int64
+pclass        int64
+sex          object
+age         float64
+sibsp         int64
+parch         int64
+fare        float64
+embarked     object
+dtype: object 
+
+survival rate by class x sex:
+               survival_%    n
+class  sex                    
+First  female        96.8   94
+       male          36.9  122
+Second female        92.1   76
+       male          15.7  108
+Third  female        50.0  144
+       male          13.5  347
+
+as a wide table:
+sex     female    male
+class                 
+First   96.8 %  36.9 %
+Second  92.1 %  15.7 %
+Third   50.0 %  13.5 %
+
+First-class women aged <=16, survival: 0.833

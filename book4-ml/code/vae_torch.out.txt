@@ -1,0 +1,6 @@
+it 0: loss 44.4  bce 44.3  kld 0.1
+it 500: loss 24.5  bce 21.5  kld 3.1
+it 1000: loss 24.3  bce 20.8  kld 3.5
+it 1500: loss 24.0  bce 20.4  kld 3.6
+it 2000: loss 24.2  bce 20.5  kld 3.7
+sample->nearest-train L2: mean 1.17 min 0.79 (0 would be memorisation)

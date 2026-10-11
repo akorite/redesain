@@ -1,0 +1,37 @@
+=== SUCCESS TRACE ===
+[0] Thought: need the unit price first
+Action: search(unit price)
+[0] OBS: 12.50
+[1] Thought: have price 12.50; compute 3*12.50
+Action: calc(3*12.50)
+[1] OBS: 37.5
+[2] Thought: have the total
+Final: 37.50
+=> 37.50
+
+=== FAILURE TRACE (tool error injected) ===
+[0] Thought: need the unit price first
+Action: search(unit price)
+[0] OBS: TOOL_ERROR timeout
+[1] Thought: need the unit price first
+Action: search(unit price)
+[1] OBS: TOOL_ERROR timeout
+[2] Thought: need the unit price first
+Action: search(unit price)
+[2] OBS: TOOL_ERROR timeout
+[3] Thought: need the unit price first
+Action: search(unit price)
+[3] OBS: TOOL_ERROR timeout
+[4] Thought: need the unit price first
+Action: search(unit price)
+[4] OBS: TOOL_ERROR timeout
+[5] Thought: need the unit price first
+Action: search(unit price)
+[5] OBS: TOOL_ERROR timeout
+[6] Thought: need the unit price first
+Action: search(unit price)
+[6] OBS: TOOL_ERROR timeout
+[7] Thought: need the unit price first
+Action: search(unit price)
+[7] OBS: TOOL_ERROR timeout
+=> MAX_STEPS

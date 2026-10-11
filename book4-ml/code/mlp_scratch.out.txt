@@ -1,0 +1,7 @@
+epoch   0: loss 2.510  train acc 0.078  test acc 0.087
+epoch  10: loss 1.469  train acc 0.720  test acc 0.716
+epoch  20: loss 0.783  train acc 0.882  test acc 0.889
+epoch  30: loss 0.504  train acc 0.915  test acc 0.918
+epoch  40: loss 0.375  train acc 0.925  test acc 0.929
+epoch  50: loss 0.361  train acc 0.901  test acc 0.907
+epoch  60: loss 0.268  train acc 0.938  test acc 0.947

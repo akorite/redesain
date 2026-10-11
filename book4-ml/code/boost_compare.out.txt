@@ -1,0 +1,12 @@
+boosting by hand (depth-3 trees, lr=0.3):
+  stage  0: train RMSE 1.1523  test RMSE 1.1607
+  stage  1: train RMSE 0.9815  test RMSE 0.9940
+  stage  2: train RMSE 0.8725  test RMSE 0.8903
+  stage  4: train RMSE 0.7535  test RMSE 0.7769
+  stage  8: train RMSE 0.6297  test RMSE 0.6551
+  stage 16: train RMSE 0.5537  test RMSE 0.5816
+
+library models:
+    single tree: test R2 0.604   fit 90 ms
+  random forest: test R2 0.801   fit 1989 ms
+         HistGB: test R2 0.828   fit 1395 ms

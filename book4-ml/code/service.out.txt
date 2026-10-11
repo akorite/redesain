@@ -1,0 +1,4 @@
+idx 0: pred 7 (p=1.000) true 7
+idx 1: pred 2 (p=1.000) true 2
+idx 2: pred 1 (p=0.999) true 1
+service module OK -- fastapi app (fastapi not installed; tensor path verified)

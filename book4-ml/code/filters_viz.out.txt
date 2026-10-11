@@ -1,0 +1,2 @@
+digit label 7; conv1 filters (8, 1, 5, 5); feature maps (1, 8, 24, 24)
+wrote figures/ch09/filters_maps.pdf

@@ -1,0 +1,9 @@
+dataset: 150 rows -> 190 after planting 40 duplicate rows
+split-then-eval, duplicates in:    0.979 mean test acc (10 seeds)
+dedup first, then split and eval:  0.967 mean test acc (10 seeds)
+phantom gain: +1.2 percentage points
+
+blobs: 500 rows -> 650 with 150 planted duplicates
+split-then-eval, duplicates in:    0.766 mean test acc (10 seeds)
+dedup first, then split and eval:  0.651 mean test acc (10 seeds)
+phantom gain: +11.5 percentage points

@@ -1,0 +1,10 @@
+mean monthly passengers by year (1949-1951, 1959-1960):
+year
+1949    126.7
+1950    139.7
+1951    170.2
+1959    428.3
+1960    476.2
+
+1949 -> 1960 growth: 275.9%
+wrote figures/ch02/two_plots.pdf

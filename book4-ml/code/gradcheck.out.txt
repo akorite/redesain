@@ -1,0 +1,13 @@
+check five entries of dW1 (analytic vs numeric):
+  W1[0,0]: -0.005196 vs -0.005196   diff 1.1e-11
+  W1[0,3]: -0.059354 vs -0.059354   diff 1.2e-10
+  W1[2,0]: -0.021218 vs -0.021218   diff 4.4e-11
+  W1[2,3]: -0.186626 vs -0.186626   diff 1.7e-10
+  W1[4,0]: +0.020523 vs +0.020523   diff 4.2e-11
+  W1[4,3]: -0.251728 vs -0.251728   diff 2.1e-11
+check two entries of db1:
+  b1[0]: -0.030323 vs -0.030323   diff 6.2e-11
+  b1[3]: +0.214777 vs +0.214777   diff 1.2e-10
+
+now break it: drop row 0 of db1 on purpose
+  buggy b1[0]: +0.000000 vs numeric -0.030323   diff 3.0e-02  <-- gradcheck catches it instantly

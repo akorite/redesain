@@ -1,0 +1,9 @@
+model loaded in 1s: distilbert/distilbert-base-uncased-finetuned-sst-2-english
+  NEGATIVE 0.996  | This chapter took longer than the LSTM chapter.
+  NEGATIVE 0.998  | The mask leak was subtle and I nearly shipped it.
+  POSITIVE 0.901  | Perplexity 8.9 is honest but not impressive.
+fill-mask model: distilbert/distilroberta-base
+mask token for this model: <mask>
+   give      0.050
+   love      0.032
+   receive   0.030

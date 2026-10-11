@@ -1,0 +1,12 @@
+per department:
+sex             men  women
+dept                      
+Computer Sci. 20.0%  24.0%
+History       80.0%  85.0%
+
+pooled across departments:
+sex
+men     68.0%
+women   34.2%
+
+verdict: women beat men in BOTH departments (85.0%>80.0%, 24.0%>20.0%) yet lose the pooled comparison (34.2% < 68.0%)

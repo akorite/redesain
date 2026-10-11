@@ -1,0 +1,13 @@
+digit label: 7
+ours [0,:4] : [37. 27. 16. 12.]
+scipy [0,:4]: [37. 27. 16. 12.]
+max abs diff: 0.0
+output shape: (6, 6) (8-3+1 = 6, matches)
+
+out = floor((H + 2p - k)/s) + 1:
+  H= 28 k= 3 pad=1 stride=1  ->  out=28
+  H= 28 k= 5 pad=0 stride=1  ->  out=24
+  H= 28 k= 3 pad=0 stride=2  ->  out=13
+  H= 32 k= 5 pad=2 stride=1  ->  out=32
+  H=224 k=11 pad=0 stride=4  ->  out=54
+  H=  7 k= 3 pad=1 stride=2  ->  out=4

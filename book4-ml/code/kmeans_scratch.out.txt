@@ -1,0 +1,14 @@
+k=2: inertia    152.3  purity-vs-species 0.667  converged in 5 iters
+k=3: inertia     78.9  purity-vs-species 0.887  converged in 11 iters
+
+init sensitivity at k=3 (10 seeds):
+  seed 0: inertia    142.8
+  seed 1: inertia     78.9
+  seed 2: inertia     78.9
+  seed 3: inertia     78.9
+  seed 4: inertia     78.9
+  seed 5: inertia     78.9
+  seed 6: inertia     78.9
+  seed 7: inertia     78.9
+  seed 8: inertia     78.9
+  seed 9: inertia     78.9
