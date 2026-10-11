@@ -99,3 +99,8 @@ Pending a GitHub PAT: issue creation (pinned "Status" issue + `needs-user` label
 - linalg depth re-review (elec session): 12 PASS + ch03 REVISE→RESOLVED (Beezer URL→Wayback). All review rows logged.
 - elec-0006 now authoring textbook-systems ch01+; ml-f668 got elec ch14-19 independent review queued behind ml + cp re-review.
 - Tags: book1-cp-v0.1 (200pp), book2-discrete-v0.2 (182pp). Next candidates: linalg (re-review done → v0.1), elec (needs ch14-19 review → v0.1).
+
+## 2026-10-11 — book7 systems ch01-03 landed (38pp); book3 v0.1 tagged
+- systems ch01-03 merged: ELF/linking, data representation, RV32I asm (real clang cross-compile + sim). Two delivery defects fixed at merge (wrong test_ch01, fig misroute).
+- book3-linalg-ml-v0.1 TAGGED (208pp, all 16ch reviewed). Tags now: cp v0.1, disc v0.2, linalg v0.1.
+- elec-0006 authoring systems at speed; ch04+ in flight. Independent reviews owed: systems ch01+, elec ch14-19 (ml-f668 queued), quant/ml/physics (TBD).
