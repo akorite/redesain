@@ -293,12 +293,12 @@ lines at the bottom.
 2024-10-22 00:00:00+00:00 67385.1 67750.0 66564.4 67387.6  0.000037
 2024-10-23 00:00:00+00:00 67384.2 67407.5 65199.0 66633.4 -0.011255
 bars: 721 | returns: 720
-mean r = +0.00030  sd = 0.02324  ann sd = 0.444
-skew   = +0.037   excess kurtosis = +4.556  (normal = 0)
+mean r = +0.00028  sd = 0.01869  ann sd = 0.357
+skew   = -0.077   excess kurtosis = +2.010  (normal = 0)
 |z|>3: 0.0125  (normal ~ 0.0027)
-sample 1%/50%/99% quantiles of z: [-2.489 -0.015  2.818]
+sample 1%/50%/99% quantiles of z: [-2.541  0.018  2.792]
 \end{lstlisting}
-Excess kurtosis $+4.56$: days beyond three standard deviations happen
+Excess kurtosis $+2.01$: days beyond three standard deviations happen
 $1.25\%$ of the time against the normal guess of $0.27\%$ --- roughly
 $5\times$ too often. The QQ plot (Figure~\ref{fig:qq}) says the same
 thing visually: both ends curl away from the diagonal. Skew is
@@ -672,7 +672,7 @@ slower than $\sqrt t$).
 \begin{exercise}[hard]
 On the BTC fetch, compute a \emph{weekly}-aggregated return series
 (group bars by ISO week) and compare excess kurtosis with the daily
-$+4.56$. Explain the direction using the CLT.
+$+2.01$. Explain the direction using the CLT.
 \end{exercise}
 \begin{solution}
 Implementation exercise; weekly kurtosis should drop (typically into

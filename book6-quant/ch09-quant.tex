@@ -85,7 +85,7 @@ single-test t-bar: 1.96
 \textbf{The correction, in numbers.} At $N{=}100$ trials the honest 5\% bar is
 $t=3.29$---not 1.96.
 \begin{solution}
-Bonferroni divides $\alpha$ by $N$: $\bar t_N=\Phi^{-1}(1-\alpha/(2N))$. A Sharpe that
+Bonferroni divides $\alpha$ by $N$: $\bar t_N=\Phi^{-1}(1-\alpha/N)$ (one-sided). A Sharpe that
 ``passed'' at $t=2.9$ fails the family-wise bar at 100 trials. The honest $N$ is not the
 number of strategies you wrote down---it is every variant you \emph{looked at} before
 choosing, including the ones you discarded silently.
@@ -290,7 +290,7 @@ The expected maximum of a null distribution---a measurement of $N$, not of edge.
 Bonferroni 5\% bar at $N{=}100$?
 \end{exercise}
 \begin{solution}
-$\Phi^{-1}(1-0.05/200)\approx3.29$.
+$\Phi^{-1}(1-0.05/100)\approx3.29$.
 \end{solution}
 
 \begin{exercise}[easy]
@@ -328,7 +328,7 @@ $t\approx\sqrt{2\ln N}$.
 A strategy Sharpe 2.9 at $N{=}1{,}000$ estimated tries. Significant?
 \end{exercise}
 \begin{solution}
-Bonferroni bar $\approx\Phi^{-1}(1-0.025/1000)\approx3.9$---rejected.
+Bonferroni bar $\approx\Phi^{-1}(1-0.05/1000)\approx3.9$---rejected.
 \end{solution}
 
 \begin{exercise}
@@ -393,7 +393,7 @@ Propose a deflated-Sharpe threshold for a fund that tries $\approx$500 live cand
 a year, and justify the extra margin.
 \end{exercise}
 \begin{solution}
-$\bar t\approx\Phi^{-1}(1-0.025/500)\approx3.7$; add margin for unstated micro-choices and
+$\bar t\approx\Phi^{-1}(1-0.05/500)\approx3.7$; add margin for unstated micro-choices and
 non-independent tries---a working bar of $t\gtrsim4$ is reasonable.
 \end{solution}
 
@@ -442,7 +442,7 @@ an edge---it was a forking path that happened to be named.
 \url{https://link.springer.com/book/10.1007/978-0-387-21736-9}
 \item A.~Lo, ``The Statistics of Sharpe Ratios'' --- sampling properties:
 
-\url{https://alo.mit.edu/wp-content/uploads/2017/06/The-Statistics-of-Sharpe-Ratios.pdf}
+\url{https://web.archive.org/web/2024/https://alo.mit.edu/wp-content/uploads/2017/06/The-Statistics-of-Sharpe-Ratios.pdf}
 \item E.~Chan, \emph{Algorithmic Trading} --- overfitting pitfalls:
 
 \url{https://epchan.blogspot.com/}

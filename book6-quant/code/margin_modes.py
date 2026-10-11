@@ -15,4 +15,4 @@ print(f"isolated liq px {liq_iso():.0f} ({(liq_iso()/entry-1)*100:+.1f}%)")
 print(f"cross    liq px {liq_cross():.0f} ({(liq_cross()/entry-1)*100:+.1f}%)")
 print(f"cross buys {liq_iso()-liq_cross():.0f} more room -- but ALL collateral is at risk, not just {im}")
 # cascading: two positions sharing cross collateral
-print("cross risk: a second losing pos drains the same pool -> both liq together; isolation caps loss at IM each")
+print("cross risk: losers share one pool -> both liquidate together")

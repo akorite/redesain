@@ -331,7 +331,7 @@ position: long 10000 @ 50000, 5x, IM=2000, free acct=3000, MM=0.5%
 isolated liq px 40250 (-19.5%)
 cross    liq px 25250 (-49.5%)
 cross buys 15000 more room -- but ALL collateral is at risk, not just 2000
-cross risk: a second losing pos drains the same pool -> both liq together; isolation caps loss at IM each
+cross risk: losers share one pool -> both liquidate together
 \end{verbatim}
 Cross margin stretches the liquidation point from $-19.5\%$ to
 $-49.5\%$ --- the whole $5{,}000$ pool absorbs losses instead of

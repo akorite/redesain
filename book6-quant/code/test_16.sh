@@ -1,0 +1,13 @@
+#!/bin/bash
+cd "$(dirname "$0")"
+echo "[1] port_corr.py"
+python3 port_corr.py | grep -q "lag 1: +0.237" && python3 port_corr.py | grep -q "lag 1: +0.281" && echo "   ok: corr"
+echo "[2] vol_target.py"
+python3 vol_target.py | grep -q "mdd -64%" && python3 vol_target.py | grep -q "sd 6%" && echo "   ok: voltgt"
+echo "[3] risk_parity.py"
+python3 risk_parity.py | grep -q "sharpe +0.12" && python3 risk_parity.py | grep -q "0.333 0.333 0.333" && echo "   ok: rp"
+echo "[4] dd_budget.py"
+python3 dd_budget.py | grep -q "maxDD -17%" && python3 dd_budget.py | grep -q "final eq 1.30 vs 1.23" && echo "   ok: dd"
+echo "[5] capstone.py"
+python3 capstone.py | grep -q "corr(spot, carry) = -0.348" && python3 capstone.py | grep -q "sharpe +107.07" && echo "   ok: capstone"
+echo "ALL ch16 CHECKS PASS"

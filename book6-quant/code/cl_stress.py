@@ -11,4 +11,4 @@ for w in [0.05,0.10,0.25]:
     mult = 1/(2*np.sqrt(w))
     print(f"range +/-{int(w*100):2d}%: in-range {inr}/300 ({inr/300*100:.0f}%)  "
           f"conc-mult {mult:.1f}x  fee-days-equiv {inr*mult:.0f}")
-print("uptime falls with width but each inside day earns a multiple -- width choice is uptime x concentration")
+print("narrower width = fewer inside days x higher multiple")

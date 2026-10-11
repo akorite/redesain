@@ -31,3 +31,5 @@ Every entry was opened and confirmed (YouTube oembed + page metadata) before lis
 | ch14 | MIT 18.S096 Lec 11 Time Series Analysis II | MIT OCW | 1:23:47 | 2026-10-11 |
 | ch15 | MIT 18.S096 Lec 12 Risk Analysis | MIT OCW | 1:20:32 | 2026-10-11 |
 | ch15 | PyData McKinney pandas walkthrough | PyData | 10:28 | 2026-10-11 |
+| 16 | How to Build a Recession-Proof Investment Portfolio | Real Vision | 52:39 | https://youtu.be/SkfgEZtJ9LA | 16.2-16.5 | 2026-10-11 |
+| 16 | How The Economic Machine Works | Principles by Ray Dalio | 31:00 | https://youtu.be/PHe0bXAIuk0 | 16.1,16.5 | 2026-10-11 |

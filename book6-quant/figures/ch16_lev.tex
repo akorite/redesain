@@ -1,0 +1,11 @@
+\begin{tikzpicture}
+\begin{axis}[width=0.75\linewidth,height=0.4\linewidth,
+  xlabel={day},ylabel={leverage},xmin=0,xmax=720,ymin=0,ymax=2.3,
+  ytick={0,0.5,1,1.5,2}]
+\addplot[blue!70,thick] table[x index=0,y index=1] {figures/data/ch16_lev.dat};
+\addplot[red!60,dashed] coordinates {(0,1)(720,1)};
+\addplot[gray!60,dotted] coordinates {(0,2)(720,2)};
+\node[anchor=west,font=\scriptsize] at (axis cs:500,1.05) {fixed $1\times$};
+\node[anchor=west,font=\scriptsize] at (axis cs:500,2.05) {cap $2\times$};
+\end{axis}
+\end{tikzpicture}
