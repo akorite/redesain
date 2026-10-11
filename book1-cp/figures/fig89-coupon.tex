@@ -1,0 +1,9 @@
+\begin{tikzpicture}[scale=0.85,font=\tiny]
+\draw[-{stealth},slate] (0,0)--(7.4,0) node[right]{draws};
+\foreach \x/\l in {0/1, 1.2/2, 2.7/3, 4.6/4, 7.0/{5\ldots}}{
+  \draw[ink] (\x,0.12)--(\x,-0.12) node[below]{$\l$};}
+\foreach \a/\b/\e in {0/1.2/{1}, 1.2/2.7/{6/5}, 2.7/4.6/{6/4}, 4.6/7.0/{6/3}}{
+  \draw[decorate,decoration={brace,amplitude=3pt},accent] (\a,0.35)--(\b,0.35)
+    node[midway,above=4pt]{$E=\e$};}
+\node[align=left] at (3.6,-1.3) {geometric waits: $\frac66+\frac65+\frac64+\frac63+\frac62+\frac61=14.7$};
+\end{tikzpicture}

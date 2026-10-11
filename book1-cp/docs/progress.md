@@ -15,3 +15,5 @@
 | 13 — Fenwick and segment trees | written, compiles clean (0 overfull >3pt, 0 undefined refs) | ~8 (book 135pp) | 2026-10-10 |
 | 14 — Number theory and combinatorics | written, compiles clean (0 overfull >3pt, 0 undefined refs); +Further reading +Watch (new contract) | ~9 (book 144pp) | 2026-10-11 |
 | 15 — Strings: hashing, KMP, Z | written, compiles clean (0 overfull >3pt, 0 undefined refs); +Further reading +Watch (new contract) | ~11 (book 158pp) | 2026-10-11 |
+| 16 — Geometry basics (optional) | written, compiles clean (0 overfull >3pt, 0 undefined refs); +Further reading +Watch (new contract) | ~12 (book 171pp) | 2026-10-11 |
+| 17 — Probability basics (optional) | written, compiles clean (0 overfull >3pt, 0 undefined refs); +Further reading +Watch (new contract) | ~12 (book 183pp) | 2026-10-11 |
