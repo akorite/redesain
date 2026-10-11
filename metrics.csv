@@ -34,3 +34,6 @@ book1-cp,ch16-17-review-fix,1,0,0,0,1,0/0/1 URL (live-checked 404→200),review-
 book1-cp,v0.1-tag,200,,,,,,release,coordinator
 book2-discrete,watchlist-appendix,+3,0,0,0,0,0/0/0,coordinator-assembly,coordinator
 book3-linalg-ml,depth-retrofit-ch01-13,208,11 new,+FR/Watch/WEs,+ex,3 batches,0,book1,~10min
+book5-electronics,ch14,194cum,6,5,15,1,0:1math:1code:0cite:0style,120min,elec-0006+coordinator
+book5-electronics,ch15,194cum,6,4,15,1,0:0math:0code:0cite:0style,120min,elec-0006+coordinator
+book5-electronics,ch16,194cum,6,7,15,1,0:0math:1code:0cite:0style,150min,elec-0006+coordinator
