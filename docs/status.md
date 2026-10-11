@@ -109,3 +109,8 @@ Pending a GitHub PAT: issue creation (pinned "Status" issue + `needs-user` label
 - book2 delivered the full quant book: all 15 chapters + figures + code + data (Kraken/HL/PM JSON+CSV). Coordinator fixed two portability defects at merge: /tmp/*.tex figure data regenerated into committed figures/data/, and lifeos.sty local patch (pgfplots/xurl) moved to main.tex — lifeos.sty identical to shared/ again.
 - Builds clean: 0 `!` errors, 0 undefined, 0 overfull >3pt, 132pp. PR#18 open; chapters await independent review before merge-complete.
 - book2 resumed → quant depth pass to ~220pp (same spec as disc pass).
+
+## 2026-10-11 — book8 physics ch01-17 landed (141pp); book2 on quant depth pass
+- book1 delivered physics ch01-17 fast-batch (~140pp author-side). Landed coordinator-side: 0/0/0 clean, 141pp. Defect: deliveries never carried a physics main.tex — reconstructed scaffold + inputs mechanically. PR#19.
+- Known nit: ch04 at 14/15 exercises (author-flagged; patch queued for depth pass).
+- book2 resumed → quant depth pass (132→~220). elec-0006 resumed → systems ch04+. ml-f668 → ml ch01+ then cp-depth re-review + elec ch14-19 reviews queued.
