@@ -1,0 +1,14 @@
+digits (10 true digits):
+           KMeans k=10: ARI 0.665  silhouette 0.182
+    Agglomerative ward: ARI 0.794  silhouette 0.178
+
+k-sweep on iris (k-means silhouette):
+  k=2: silhouette 0.681  ARI-vs-species 0.540
+  k=3: silhouette 0.553  ARI-vs-species 0.730
+  k=4: silhouette 0.498  ARI-vs-species 0.650
+
+the trap: k-means on pure uniform noise
+  uniform data, k=3: silhouette 0.099
+  uniform data, k=5: silhouette 0.106
+  non-trivial silhouette on *noise* -- the score measures cluster
+  shape, not cluster truth. Compare against a null baseline first.

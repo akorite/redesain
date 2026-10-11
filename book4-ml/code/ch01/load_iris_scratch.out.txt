@@ -1,0 +1,5 @@
+feature names: ['sepal_length', 'sepal_width', 'petal_length', 'petal_width']
+X.shape = (150, 4)  X.dtype = float64
+y.shape = (150,)  classes: ['setosa', 'versicolor', 'virginica']
+split: 120 train / 30 test (seed 7)
+distance-to-mean test accuracy: 0.967  (29/30)

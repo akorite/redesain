@@ -1,0 +1,14 @@
+missing cells per column:
+  bill_length_mm    2
+  bill_depth_mm     2
+  flipper_length_mm 2
+  body_mass_g       2
+  sex               11
+
+rows with >=1 missing numeric: 2 of 344
+column means  drop-rows vs fill-median:
+  bill_length_mm       43.92      43.93
+  bill_depth_mm        17.15      17.15
+  flipper_length_mm   200.92     200.89
+  body_mass_g        4201.75    4200.87
+corr(bill_length, body_mass)  drop / fill: 0.595 / 0.595
