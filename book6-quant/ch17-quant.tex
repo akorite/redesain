@@ -407,4 +407,39 @@ suspicious?
 What does the pipeline additionally require before the book is
 honest again? (Hint: tests, figures, and prose all carry
 numbers.)
+\item \textbf{The autopsy that almost wasn't.} The scrambled file
+passed its sha256 pin for a year of writing --- the hash proved the
+bytes were stable, not that they meant what the header claimed.
+Write the two-line audit that would have caught the defect on day
+one, state which invariant it checks, and explain why no amount of
+pinning substitutes for it.
+\begin{solution}
+two order-relation checks, no model:
+\texttt{assert all(o[i]==c[i-1])} (open equals prior close), and
+\texttt{assert} \texttt{all(h[i]>=max(o[i],c[i]))}. On the scrambled file the first fails with a
+\$10{,}115 maximum gap and the second on all 721 rows. A pin
+answers \emph{did the bytes change}; a contract answers \emph{do
+the bytes mean what the header claims}. They are orthogonal audits
+--- one is integrity, the other is semantics --- and the pin said
+nothing about semantics.
+\end{solution}
+\item \textbf{When \texttt{REJECTED} is the expensive answer.}
+ch17's memo kills mom20 on 720 bars. A colleague objects: ``the
+strategy was only ever run on this tape; of course it failed ---
+try another market.'' Steelman and rebut: when is extending the
+universe legitimate next-step research, and when is it just
+shopping for a tape the idea survives? Give the protocol that
+separates the two.
+\begin{solution}
+Legitimate if the \emph{hypothesis} was written asset-agnostically
+before the first tape was seen --- momentum is an asset-class
+claim, so testing it on a second venue's tape with the same
+convention is the same experiment. Shopping if the kill conditions
+move: rephrasing the claim to fit where it survived, dropping the
+OOS gate, or moving the horizon to one that works. The protocol:
+the memo's kill conditions are frozen; a new tape is a new trial
+under the same gate, logged in the multiplicity count of ch09. If
+it survives on tape 2 it is still only 1-of-2 --- the bar rises,
+it does not reset.
+\end{solution}
 \end{enumerate}

@@ -351,4 +351,38 @@ the venue rule.
 re-check protocol: what would you measure, what result would
 promote \texttt{CONDITIONAL} to \texttt{ACCEPTED}, and what
 demotes it to \texttt{REJECTED}?
+\item \textbf{Autocorrelation honesty.} \texttt{cycle2\_se.py}
+reports $t=3.85$ on $n=499$ hourly carries, but warns the
+observations are autocorrelated (premium lag-1 persistence
+$+0.96$). Derive the effective sample size under an AR(1)-style
+correction $n_{\mathrm{eff}}\approx n\frac{1-\rho}{1+\rho}$,
+recompute the honest $t$, and state whether the carry survives
+your own bar.
+\begin{solution}
+$\rho=0.96$ gives $n_{\mathrm{eff}}\approx499\times0.02\approx10$
+--- twenty days of mean-reverting tape carries roughly ten
+independent observations' worth of evidence. The SE inflates by
+$\sqrt{499/10}\approx7.1$, so the honest $t\approx3.85/7.1\approx0.54$
+--- deep inside the noise band. The carry does \emph{not} survive
+the corrected bar on this window: exactly why the memo is
+\texttt{CONDITIONAL} on a longer tape, not \texttt{ACCEPTED}.
+(The iid $t$ was the optimistic bound, not the answer.)
+\end{solution}
+\item \textbf{The counterparty that isn't a price.} The carry's
+risk model treats funding receipts and basis moves as market
+variables. Name the three non-market failure modes this framing
+drops, and for each give the observable that would warn you before
+the loss.
+\begin{solution}
+(i)~\emph{Venue failure} --- the exchange halts withdrawals or
+re-values the funding rule; warning observable: venue-rule change
+logs and withdrawal latency, not the tape. (ii)~\emph{Liquidity
+gap} --- the short leg cannot be topped up or closed when the
+basis gaps; observable: order-book depth at the 2--3$\sigma$ band
+and spread widening. (iii)~\emph{Basis regime change} --- a
+structural shift in who pays funding (e.g. the crowd flips short);
+observable: the rolling premium level and the floor-occupancy rate
+--- the two quantities this chapter already measured. None appear
+in the mean/SE math; all three belong in the memo's risk section.
+\end{solution}
 \end{enumerate}
