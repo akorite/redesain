@@ -46,3 +46,5 @@ book5-electronics,v0.1-tag,224,,,,6/6 ACCEPT ch14-19,3 floor flags→author patc
 book4-ml,ch01-11-land,158,~66 fig,~33 lst,~165 ex,pending,9 fig artifacts missing→resend requested,ml-f668+coordinator
 book1-cp,depth-rereview-fix,200,,,,11 ACCEPT+3 REVISE-lite,CPH chapter refs + Makefile bash fixed,ml-f668+coordinator
 book6-quant,depth1,"all ch01-15 depth pass",146,~6/ch,~3/ch,+3/ch,1,0,0,0,1,~120,1
+book8-physics,ch18-19-complete,157,+11 fig,+2 lst,workshop,pend,84.4min tunnel + Hohmann verified,book1+coordinator
+book1-cp,floor-gap-patch,206,+7 fig,,,closed,WE=5 figs=12 all flagged ch,book1+coordinator

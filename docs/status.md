@@ -103,23 +103,9 @@ Pending a GitHub PAT: issue creation (pinned "Status" issue + `needs-user` label
 ## 2026-10-11 — book7 systems ch01-03 landed (38pp); book3 v0.1 tagged
 - systems ch01-03 merged: ELF/linking, data representation, RV32I asm (real clang cross-compile + sim). Two delivery defects fixed at merge (wrong test_ch01, fig misroute).
 - book3-linalg-ml-v0.1 TAGGED (208pp, all 16ch reviewed). Tags now: cp v0.1, disc v0.2, linalg v0.1.
-- elec-0006 authoring systems at speed; ch04+ in flight. Independent reviews owed: systems ch01+, elec ch14-19 (ml-f668 queued), quant/ml/physics (TBD).
+- elec-0006 authoring systems at speed; ch04+ in flight. Reviews: elec ch14-19 all ACCEPT (ml-f668); ml ch01-11 reviewing now (book2); quant ch01-15 review queued (book1); systems/physics TBD. book5-electronics-v0.1 tagged 224pp.
 
-## 2026-10-11 — book6 quant ch01-15 landed (132pp); depth pass dispatched
-- book2 delivered the full quant book: all 15 chapters + figures + code + data (Kraken/HL/PM JSON+CSV). Coordinator fixed two portability defects at merge: /tmp/*.tex figure data regenerated into committed figures/data/, and lifeos.sty local patch (pgfplots/xurl) moved to main.tex — lifeos.sty identical to shared/ again.
-- Builds clean: 0 `!` errors, 0 undefined, 0 overfull >3pt, 132pp. PR#18 open; chapters await independent review before merge-complete.
-- book2 resumed → quant depth pass to ~220pp (same spec as disc pass).
-
-## 2026-10-11 — book8 physics ch01-17 landed (141pp); book2 on quant depth pass
-- book1 delivered physics ch01-17 fast-batch (~140pp author-side). Landed coordinator-side: 0/0/0 clean, 141pp. Defect: deliveries never carried a physics main.tex — reconstructed scaffold + inputs mechanically. PR#19.
-- Known nit: ch04 at 14/15 exercises (author-flagged; patch queued for depth pass).
-- book2 resumed → quant depth pass (132→~220). elec-0006 resumed → systems ch04+. ml-f668 → ml ch01+ then cp-depth re-review + elec ch14-19 reviews queued.
-
-## 2026-10-11 — book5-electronics v0.1 TAGGED; cp depth re-review fixes landed
-- ml-f668 delivered elec ch14-19 independent review: 6/6 ACCEPT (sims/uart/ngspice/gerbers all live-verified). 3 floor flags → author patch queued (ch17/18 WE 3→5, ch19 ex 13→15).
-- ml-f668 delivered cp ch01-13 depth re-review: 11 ACCEPT / 3 REVISE-lite (CPH chapter refs ch04/05/07 + Makefile sh→bash) — verbatim fixes applied+verified, 200pp.
-- Tags now: book1-cp-v0.1, book2-discrete-v0.2, book3-linalg-ml-v0.1, book5-electronics-v0.1 (4/8).
-
-## 2026-10-11 — quant depth pass landed (146pp); ml review dispatched
-- quant depth pass 132→146pp merged on main (PR#18 updated). Contract met everywhere; still <180 floor — book2 queued for round-2 on thin chapters after its ml review.
-- Reviews: ml ch01-11 reviewing now (book2); quant ch01-15 review queued (book1); systems/physics TBD.
+## 2026-10-11 — physics COMPLETE (157pp); cp floor patch landed (206pp)
+- book1 delivered physics ch18 (AC machines/power) + ch19 capstone workshop (20 multi-topic problems, checks verified: 84.4-min tunnel, 1432 m/s Hohmann) + ch04 ex patch (14→15). Book complete at 157pp, clean build. PR#19 updated.
+- cp floor-gap patch: ch01/02/04/06/09 → WE=5, figs=12 each. 206pp, PR#20.
+- book1 resumed → quant ch01-15 independent review.
