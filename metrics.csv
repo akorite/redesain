@@ -58,3 +58,4 @@ book4-ml,ch12-18,164,,,,complete,"all artifacts landed, 0 err",ml-f668
 book7-systems,ch05-09,84,,,,in-progress,"RV32I pipeline + memory hier, 0 err",elec-0006
 book6-quant,ch16,158,,,,complete,"portfolio construction + REVISE batch",book2
 book8-physics,review-fixes,160,,,,,"figs→6 ch06/07/10/15, notation.md",book1
+book4-ml,review-fixes,246,,,,TAGGED v0.1,"code/chNN layout + full inputs",coordinator
