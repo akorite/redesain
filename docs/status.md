@@ -81,3 +81,9 @@ Pending a GitHub PAT: issue creation (pinned "Status" issue + `needs-user` label
 - book1 now authoring textbook-physics ch01→18 (session cap full — authored in-session rather than spawning).
 - Owed reviews: linalg-depth re-review ch01-13 (→ elec-0006 queue after disc re-review); cp-depth re-review (ml-f668, queued); disc-depth re-review (elec-0006, queued); ml chapters (TBD); elec ch14-19 (TBD).
 - Page ledger: cp 200 ✓v0.1 · disc 182 · linalg 208 · elec 153 · ml writing · quant writing · physics starting · systems unassigned.
+
+## 2026-10-11 — elec ch14-16 landed (194pp); ml/quant/physics writing
+- elec ch14 (ALU), ch15 (regfile/datapath), ch16 (CPU capstone: cpu8 + asm8 + fib/count/mult/uart + synth reports) merged — full Verilog+tb+asm+hex+vcd artifact set. 194pp clean.
+- elec remaining: ch17-19 + consistency pass → v0.1.
+- Session notes: book2 (quant) + book1 (physics) auto-paused on SWE-2 transient — resumed manually.
+- Page ledger: cp 200 v0.1 · disc 182 · linalg 208 · elec 194 · ml/quant/physics writing · systems unassigned.
