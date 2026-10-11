@@ -15,6 +15,7 @@ URL = ("https://api.kraken.com/0/public/OHLC"
 
 
 def fetch(url=URL):
+    """Live fetch kept for manual refresh; __main__ uses the pinned file."""
     with urllib.request.urlopen(url, timeout=30) as f:
         j = json.load(f)
     assert not j["error"], j["error"]
@@ -28,8 +29,15 @@ def fetch(url=URL):
     return df[["time", "o", "h", "l", "c"]]
 
 
+def pinned():
+    """Offline path promised by code/README.md: the committed snapshot."""
+    df = pd.read_csv("data/btc_daily.csv")
+    df["time"] = pd.to_datetime(df["time"], unit="s", utc=True)
+    return df
+
+
 if __name__ == "__main__":
-    df = fetch()
+    df = pinned()
     df["r"] = np.log(df["c"] / df["c"].shift(1))
     rr = df["r"].dropna()
     print(df.head(3).to_string(index=False))

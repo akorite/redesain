@@ -8,4 +8,4 @@ for tag,px in [("flat tape",px_flat),("close-pop tape",px_pop)]:
     tw = px.mean(); vw = (px*vol).sum()
     print(f"{tag:>14}: TWAP {tw:.4f}  VWAP {vw:.4f}  VWAP-TWAP {(vw-tw)*1e4:+.1f}bp (buyer)")
 # the asymmetry: VWAP cannot dodge the auction it is designed to join
-print("VWAP tracks volume; when volume and price spike together, VWAP buys the top")
+print("VWAP tracks volume -- it buys the top when volume+price spike")

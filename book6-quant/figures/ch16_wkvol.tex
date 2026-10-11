@@ -1,0 +1,7 @@
+\begin{tikzpicture}
+\begin{axis}[width=0.7\linewidth,height=0.45\linewidth,ybar,bar width=9pt,
+  symbolic x coords={0,1,2,3,4,5,6},xticklabels={Mon,Tue,Wed,Thu,Fri,Sat,Sun},
+  xtick=data,ylabel={annualised vol (\%)},ymin=0,ymax=45]
+\addplot+[ybar,fill=blue!55] table[x index=0,y index=1] {figures/data/ch16_wkvol.dat};
+\end{axis}
+\end{tikzpicture}

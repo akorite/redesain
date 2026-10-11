@@ -281,7 +281,7 @@ b=100: start price 0.500
 buy 50 YES: paid 28.09  avg px 0.562  new YES px 0.622
 buy 50 more: paid 33.92  avg px 0.678  new YES px 0.731
 market-maker worst case = b*ln2 = 69.3
-vs orderbook: LMSR always quotes (depth=b), book depth vanishes when you need it
+LMSR always quotes; book depth vanishes when you need it
 \end{verbatim}
 The first block fills at $0.562$ average, the second at $0.678$ ---
 the AMM \emph{is} the book, and your own order walks you up its

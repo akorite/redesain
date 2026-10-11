@@ -1,0 +1,428 @@
+\chapter{Portfolio construction}\label{ch:portfolio}
+
+\noindent\emph{Nothing in this book is investment advice. Every
+number is a lesson, not a recommendation.}
+
+\medskip
+\noindent Fifteen chapters produced strategies and the tools to
+test them. This last chapter asks the question every allocator
+asks second: \emph{how much of each?} Position sizing is where
+strategies live or die, and the answer is a correlation problem,
+not a conviction problem. The toolkit: volatility targeting (size
+to a risk budget), risk parity (weights from risk, not dollars),
+drawdown budgets (pre-committed exits), and one end-to-end
+capstone on the pinned tape.
+
+\section{Position sizing is a correlation problem}\label{sec:corrsize}
+
+Two strategies that each look good on their own can be the same
+bet twice. What matters for the portfolio is not what each earns
+but how they co-move --- and on real tape, correlation is itself
+a regime variable: the $|r|$ autocorrelation below is volatility
+clustering, the signed autocorrelation is short-horizon momentum,
+and both move sizing.
+
+\begin{figure}[htbp]\centering
+\input{figures/ch16_corr}
+\caption{Autocorrelation of absolute vs signed daily returns on
+the pinned BTC tape: $|r|$ clusters (+0.24 at lag~1), signed $r$
+carries its own +0.28 --- two different signals for sizing.}
+\label{fig:autocorr}
+\end{figure}
+
+\begin{example}\label{ex:corr16}
+\textbf{Vol clusters; direction does not commute.} Measure both
+autocorrelations on the pinned tape before believing any
+correlation assumption.
+\begin{solution}
+\texttt{port\_corr.py} prints:
+\begin{verbatim}
+corr(|r_t|, |r_t-k|) -- vol clustering on real tape:
+  lag 1: +0.237   lag 2: +0.087   lag 5: +0.112   lag 10: +0.034
+corr(r_t, r_t-k) -- signed:
+  lag 1: +0.281   lag 2: -0.053   lag 5: +0.018   lag 10: +0.006
+\end{verbatim}
+Absolute returns predict tomorrow's \emph{vol} (lag-1 +0.24) far
+better than signed returns predict direction after day one ---
+which is exactly why sizing can be forecast while edge cannot.
+\end{solution}
+\end{example}
+
+\section{Volatility targeting}\label{sec:voltgt}
+
+A fixed dollar position has a variable risk. Vol targeting flips
+it: hold $w_t=\sigma^{\star}/\hat\sigma_t$ units of risk, where
+$\hat\sigma_t$ is a trailing estimate and $\sigma^{\star}$ the
+budget. The result is a position whose \emph{risk} is roughly
+constant even though its size breathes.
+
+\begin{figure}[htbp]\centering
+\input{figures/ch16_lev}
+\caption{Vol-target leverage on the real tape: capped at $2\times$,
+the position delevers in storms and re-levers in calm --- the
+opposite of what a fixed $1\times$ holder experiences.}
+\label{fig:lev}
+\end{figure}
+
+\begin{example}\label{ex:voltgt}
+\textbf{A risk dial, not an edge.} Run a 40\%-vol target on the
+pinned tape and compare honesty.
+\begin{solution}
+\texttt{vol\_target.py} prints:
+\begin{verbatim}
+      buy&hold: annvol  35.7%  sharpe +0.29  mdd -53%
+       vol-tgt: annvol  43.8%  sharpe -0.04  mdd -64%  mean lev 1.25
+realized vol of targeted port: mean 44%  sd 6% (target 40%)
+\end{verbatim}
+The targeting works mechanically --- realized vol holds
+$44\pm6\%$ --- but the Sharpe went \emph{down}: the rule delevered
+the rally and re-levered into the crash. Vol targeting controls
+the risk you take, not the return you get.
+\end{solution}
+\end{example}
+
+\section{Risk parity}\label{sec:riskparity}
+
+Equal dollar weights give unequal risk shares: a high-vol sleeve
+dominates the P\&L. Risk parity assigns weights so each sleeve
+contributes equal \emph{risk} --- for uncorrelated sleeves,
+$w_i\propto 1/\sigma_i$.
+
+\begin{figure}[htbp]\centering
+\input{figures/ch16_weights}
+\caption{Equal weights vs $1/\sigma$ weights on three synthetic
+sleeves (momentum, carry, market beta): the quiet carry sleeve
+goes from 33\% to 69\% of the capital.}
+\label{fig:weights}
+\end{figure}
+
+\begin{example}\label{ex:rp}
+\textbf{Same money, different risk.} Three sleeves, two weighting
+schemes, one honest comparison.
+\begin{solution}
+\texttt{risk\_parity.py} prints:
+\begin{verbatim}
+sleeve vols: 0.97% 0.31% 2.53%
+       equal: w=[0.333 0.333 0.333] port vol 0.92%  sharpe +0.04
+ risk-parity: w=[0.221 0.694 0.085] port vol 0.38%  sharpe +0.12
+risk-parity contributions ~equal: [0.333 0.333 0.333]
+\end{verbatim}
+Portfolio vol drops $0.92\%\to0.38\%$ and Sharpe triples ---
+the improvement is real because the equal-weight book was
+$85\%$ market-beta risk. Each sleeve now owns exactly a third
+of the risk budget.
+\end{solution}
+\end{example}
+
+\section{Drawdown budgets}\label{sec:ddbudget}
+
+Every sizing rule above is symmetric: it scales up as happily as
+it scales down. A drawdown budget is asymmetric by design ---
+a pre-committed state machine that cuts exposure as losses
+accumulate, decided before the pain arrives, not during it.
+
+\begin{figure}[htbp]\centering
+\input{figures/ch16_dd}
+\caption{Drawdown on the pinned tape: buy-and-hold sinks to
+$-53\%$ and spends $63\%$ of days under $-10\%$; the budgeted
+variant caps at $-17\%$ and still finishes ahead.}
+\label{fig:dd}
+\end{figure}
+
+\begin{example}\label{ex:ddbudget}
+\textbf{Rules that fire when you won't.} A two-level budget
+(halve below $-10\%$, flat below $-20\%$) on the real tape.
+\begin{solution}
+\texttt{dd\_budget.py} prints:
+\begin{verbatim}
+buy&hold: days 720  maxDD -53%  days under -10%: 452 (63%)
+dd-budget:  maxDD -17%  days under -10%: 618  final eq 1.30 vs 1.23
+\end{verbatim}
+The budgeted book's worst drawdown is $-17\%$ vs $-53\%$, and it
+\emph{finishes ahead} ($1.30$ vs $1.23$) --- it was out of the
+worst cascade and re-entered for the recovery. The catch: it is
+still under water longer, because re-entry lags the new peak.
+\end{solution}
+\end{example}
+
+\section{Capstone: two sleeves on the real tape}\label{sec:capstone}
+
+Assemble it: sleeve A is BTC spot (the book's pinned Kraken
+daily bars); sleeve B is a funding-carry book --- long spot,
+short perp, collecting the pinned Hyperliquid funding tape's
+net stream. Beta cancels inside B; what remains is carry. Then
+let risk parity choose the weights and audit the result.
+
+\begin{figure}[htbp]\centering
+\input{figures/ch16_eq}
+\caption{Twenty-day equity curves: spot (+17\%), funding carry
+(+0.5\% at near-zero vol), and the risk-parity portfolio ---
+which is 99.8\% carry because $1/\sigma$ ignores capacity.}
+\label{fig:capstone}
+\end{figure}
+
+\begin{example}\label{ex:capstone}
+\textbf{When the optimizer is right and wrong at once.}
+\begin{solution}
+\texttt{capstone.py} prints:
+\begin{verbatim}
+funding sleeve: 20 days, mean 2.69bp/day, vol 0.48bp
+    btc spot: ret  +17.1%  sharpe +7.09  mdd -6%
+funding carry: ret   +0.5%  sharpe +107.07  mdd 0%
+rp (w 0.002/0.998): ret   +0.6%  sharpe +99.94  mdd 0%
+corr(spot, carry) = -0.348
+\end{verbatim}
+The carry sleeve's Sharpe is absurd ($+107$) because its vol is
+nearly zero --- it is a drip, not a trade. $1/\sigma$ correctly
+hands it 99.8\% of the book \emph{and is meaningless}: a
+near-deterministic 2.7bp/day stream cannot absorb institutional
+size. Real allocation adds the two constraints the formula lacks:
+leverage limits and capacity limits. This is the chapter's final
+lesson --- every sizing formula is a proposal, and the
+constraints are the answer.
+\end{solution}
+\end{example}
+
+\begin{figure}[htbp]\centering
+\input{figures/ch16_wkvol}
+\caption{Calendar risk on the same tape: weekend vol 23--28\%
+vs weekday 38--40\%. Portfolios that ignore the venue calendar
+misprice a third of the year.}
+\label{fig:wkvol}
+\end{figure}
+
+\section{Common mistakes}
+\begin{itemize}
+\item \textbf{Conviction sizing.} Doubling the position because
+the story is good. The formula's answer to ``how much?'' is a
+vol number and a correlation matrix, never a feeling.
+\item \textbf{Equal weights as ``diversified.''} Three equal
+dollars in sleeves of $1\%$, $0.3\%$ and $2.5\%$ vol is a
+portfolio that is $85\%$ the loud one.
+\item \textbf{Trusting the optimizer's Sharpe.} A near-zero-vol
+sleeve reports an absurd Sharpe and gets 99.8\% weight ---
+$1/\sigma$ is a proposal that still needs capacity and leverage
+limits.
+\item \textbf{Vol targeting as alpha.} Targeting controls risk,
+not return --- on this tape it mechanically held vol at $44\%$
+and still lost the Sharpe to buy-and-hold.
+\item \textbf{Budgeting on vibes.} A drawdown rule invented
+mid-cascade is a panic sale with extra steps. Commit the
+thresholds before the drawdown, or do not pretend they exist.
+\end{itemize}
+
+\section*{Summary}
+\begin{center}
+\begin{tabular}{@{}lll@{}}
+\toprule
+Tool & Question answered & Failure mode \\
+\midrule
+Correlation sizing & is this one bet or two? & corr. estimated in calm regime \\
+Vol targeting & what is today's risk? & controls vol, not return \\
+Risk parity & who owns the risk? & uncapped $1/\sigma$ fantasy \\
+Drawdown budget & when do we stop? & threshold invented mid-loss \\
+Capacity limits & can the book hold it? & Sharpe of a drip sleeve \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\section*{Additional exercises}
+\addcontentsline{toc}{section}{Additional exercises}
+
+\begin{exercise}[easy]
+A sleeve has 60\% annual vol and your budget is 30\%. What
+vol-target weight applies, and what does the $2\times$ cap change
+when realized vol falls to 15\%?
+\end{exercise}
+\begin{solution}
+$w=0.5$ at 60\%; at 15\% the uncapped weight is $2.0$, so the
+cap binds --- realized vol then exceeds target.
+\end{solution}
+
+\begin{exercise}[easy]
+Two sleeves have vols 20\% and 5\%. Write the $1/\sigma$ weights
+and the risk shares.
+\end{exercise}
+\begin{solution}
+$w=(0.2,0.8)$; each sleeve contributes exactly $0.5$ of risk.
+\end{solution}
+
+\begin{exercise}[easy]
+A portfolio spends 452 of 720 days under $-10\%$. What fraction
+of the year is that, and why does a drawdown budget not shorten it?
+\end{exercise}
+\begin{solution}
+$63\%$. The budget caps depth, not duration --- re-entry rules
+lag the recovery, so time-under-water can lengthen.
+\end{solution}
+
+\begin{exercise}[easy]
+On the pinned tape, corr(spot, funding carry) $=-0.348$. Why is
+a negative correlation between a beta sleeve and a carry sleeve
+plausible rather than a data bug?
+\end{exercise}
+\begin{solution}
+Funding pays more when longs crowd (rallies), and the carry
+sleeve's return is the funding stream minus small basis noise ---
+its sign tracks positioning stress, not spot direction.
+\end{solution}
+
+\begin{exercise}[easy]
+Your risk-parity output hands 99.8\% to a 0.5bp-vol sleeve.
+Name the two constraints the formula ignored.
+\end{exercise}
+\begin{solution}
+Leverage limits (financing the outsized book) and capacity limits
+(the sleeve's liquidity cannot absorb the implied size).
+\end{solution}
+
+\begin{exercise}[medium]
+Show that for two uncorrelated sleeves, $w_i\propto1/\sigma_i$
+minimizes portfolio vol subject to weights summing to 1.
+\end{exercise}
+\begin{solution}
+Minimize $w_1^2\sigma_1^2+w_2^2\sigma_2^2$ with $w_1+w_2=1$:
+FOC gives $w_1\sigma_1^2=w_2\sigma_2^2$; wait --- that gives
+$1/\sigma^2$. Correcting honestly: equal \emph{risk contribution}
+$w_i\sigma_i$ equal gives $w\propto1/\sigma$; minimum-variance
+gives $1/\sigma^2$. State which you meant --- they differ.
+\end{solution}
+
+\begin{exercise}[medium]
+The vol-target rule uses trailing 20-day $\hat\sigma$. Give two
+failure windows where the realized vol will overshoot the target.
+\end{exercise}
+\begin{solution}
+Gap openings (vol arrives inside the bar, before the estimate
+updates) and vol spikes faster than the 20-day window decays
+(leverage stays high through the first days of a regime break).
+\end{solution}
+
+\begin{exercise}[medium]
+A drawdown budget halves at $-10\%$ and exits at $-20\%$. Sketch
+the equity-path where this \emph{loses} to buy-and-hold.
+\end{exercise}
+\begin{solution}
+A $-19\%$ dip that V-shapes to new highs: the budget halves into
+the bottom and re-enters late --- whipsaw cost. Budgets lose in
+sharp recoveries, win in cascades.
+\end{solution}
+
+\begin{exercise}[medium]
+The capstone reports carry Sharpe $+107$. Why is that number
+meaningless even though it is correctly computed?
+\end{exercise}
+\begin{solution}
+Sharpe divides by realized vol; a near-deterministic funding drip
+has $\sigma\approx0.5$bp/day, so the ratio explodes. It measures
+the sleeve's smoothness, not its capacity to make money at size.
+\end{solution}
+
+\begin{exercise}[medium]
+Weekend vol is 25\% vs weekday 39\%. You trade both regimes at
+one vol target. What systematic mistake does that bake in?
+\end{exercise}
+\begin{solution}
+Weekends get over-levered relative to their true risk budget ---
+the trailing $\hat\sigma$ lags the calendar; a regime-conditioned
+target fixes it.
+\end{solution}
+
+\begin{exercise}[hard]
+Derive the risk-parity weight update when sleeves are correlated:
+why does $1/\sigma$ stop being the answer?
+\end{exercise}
+\begin{solution}
+With $\Sigma\ne\mathrm{diag}$, risk contribution is
+$w_i(\Sigma w)_i/\sigma_p$; equalizing needs iterative solve
+(Spinu/Newton), not a closed form --- $1/\sigma_i$ is only exact
+when $\Sigma$ is diagonal.
+\end{solution}
+
+\begin{exercise}[hard]
+Design a funding-carry sleeve's risk budget: given the pinned
+tape's 2.69bp/day mean and 0.48bp vol, what breaks the strategy
+at $100\times$ scale?
+\end{exercise}
+\begin{solution}
+Funding flips sign in stressed regimes (the sleeve becomes the
+payer); perp borrow/locates and venue capacity cap the size;
+cross-margin liquidation paths on the hedge leg.
+\end{solution}
+
+\begin{exercise}[hard]
+Formulate the full constrained problem: maximize expected return
+s.t.\ risk contributions equal, leverage $\le L$, sleeve $i$
+size $\le C_i$. Which constraint binds first on our tape?
+\end{exercise}
+\begin{solution}
+The capacity constraint on the carry sleeve --- its tiny vol
+wants huge weight but real funding depth is finite; then leverage.
+\end{solution}
+
+\begin{exercise}[hard]
+Your $1/\sigma$ weights were estimated on 20 days of carry data.
+Estimate the standard error of $\hat\sigma$ at $n=20$ and say what
+it does to the weights.
+\end{exercise}
+\begin{solution}
+$\mathrm{se}(\hat\sigma)\approx\sigma/\sqrt{2n}\approx11\%$ ---
+the dominant sleeve's weight carries $\sim$$15\%$ estimation
+error; small samples invert to large weight errors.
+\end{solution}
+
+\begin{exercise}[hard]
+Argue for or against: ``drawdown budgets are stop-losses for
+cowards.'' Use the tape's numbers.
+\end{exercise}
+\begin{solution}
+Against as stated: the budgeted book beat B\&H ($1.30$ vs $1.23$)
+with a third the drawdown --- but the honest version is
+regime-conditional: in V-shaped markets the same rule whipsaws.
+The budget is insurance, and insurance has a premium.
+\end{solution}
+
+\section*{Notes}
+This chapter deliberately ends on a constraint, not a formula.
+Every earlier chapter asked ``is this real?''; this one asks
+``how much, and who pays when it is wrong?'' --- the allocator's
+question, and the one a retail book most often skips.
+
+\section*{Further reading}
+\begin{itemize}
+\item T.~Roncalli, \emph{Introduction to Risk Parity and
+Budgeting} --- the reference text for the $1/\sigma$ family
+(borrow or library).
+\item R.~Grinold \& R.~Kahn, \emph{Active Portfolio Management},
+chs.~2--4 --- the institutional formulation of sizing (borrow or
+library).
+\item A.~Ilmanen, \emph{Expected Returns} --- the allocator's
+survey of what drives sleeve returns (borrow or library).
+\item Risk parity, overview with further links:
+
+\url{https://en.wikipedia.org/wiki/Risk_parity}
+\item Portfolio construction theory:
+
+\url{https://en.wikipedia.org/wiki/Modern_portfolio_theory}
+\item Position sizing via the growth-optimal rule:
+
+\url{https://en.wikipedia.org/wiki/Kelly_criterion}
+\item Portfolio Visualizer --- free backtester for sanity-checking
+allocations:
+
+\url{https://www.portfoliovisualizer.com}
+\end{itemize}
+
+\begin{rulebox}[Watch instead]
+\begin{itemize}
+\item ``How to Build a Recession-Proof Investment Portfolio'' ---
+Real Vision, Chris Cole interviewed by D.~DiMartino Booth
+(52:39). Vol targeting, risk parity, and crisis-era allocation
+by a practitioner; opened and verified 2026-10-11.
+\url{https://www.youtube.com/watch?v=SkfgEZtJ9LA}
+\item ``How The Economic Machine Works'' --- Ray Dalio,
+Principles (31:00). The debt-cycle macro backdrop allocators
+size against; opened and verified 2026-10-11.
+\url{https://www.youtube.com/watch?v=PHe0bXAIuk0}
+\end{itemize}
+\end{rulebox}

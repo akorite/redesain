@@ -14,4 +14,4 @@ for name, lam, drift in [("calm", 0.5, 0.00), ("busy", 2.0, -0.0001), ("panic", 
             waits.append(t)
             mark.append(drift*t*1e4)   # adverse drift while waiting, in bp
     print(f"{name:>5}: fill prob 1.00  median wait {np.median(waits):5.1f}s  exp markout {np.mean(mark):+6.1f}bp")
-print("faster fills are not free: they arrive exactly when informed flow is trading through you")
+print("faster fills arrive when informed flow trades through you")

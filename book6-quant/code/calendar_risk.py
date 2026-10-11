@@ -10,4 +10,4 @@ for d in range(7):
 # the classical trap: equities algos assume 24/7; crypto has no weekend effect the same way
 wknd = r[dow>=5]; wkdy = r[dow<5]
 print(f"weekend vol {wknd.std()*np.sqrt(365)*100:.0f}% vs weekday {wkdy.std()*np.sqrt(365)*100:.0f}%")
-print("bar calendars must be built from venue time -- a 'daily' bar that crosses DST is 23h or 25h twice a year")
+print("bar calendars follow venue time -- a 'daily' bar can be 23h or 25h")

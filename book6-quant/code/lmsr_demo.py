@@ -15,4 +15,4 @@ print(f"buy 50 more: paid {c3-c2:.2f}  avg px {(c3-c2)/50:.3f}  new YES px {pric
 # subsidy property: max loss = b*ln2
 print(f"market-maker worst case = b*ln2 = {b*np.log(2):.1f}")
 # compare to orderbook: same trade on a 0.5-spread book at depth d needs liquidity
-print("vs orderbook: LMSR always quotes (depth=b), book depth vanishes when you need it")
+print("LMSR always quotes; book depth vanishes when you need it")
