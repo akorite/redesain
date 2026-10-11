@@ -45,3 +45,4 @@ Pending a GitHub PAT: issue creation (pinned "Status" issue + `needs-user` label
 - 2026-10-11T14:30Z: book1 cp ch18 landed — ALL 18 chapters in (196pp clean). Consistency pass dispatched to book1; ch18 review queued to book2. PR#8 open pending review.
 - 2026-10-11T14:50Z: book2 depth pass ch14-17 landed (157pp). cp review-log updated: ch18 ACCEPTED — all 18 chapters now have verdicts; ch16/17 rows pending (PRs #6, #8 wait). Depth-passed chapters queued for re-review to book1.
 - 2026-10-11T15:20Z: book3 ch16 capstone landed — ALL 16 chapters in (191pp clean). Consistency pass next on book3; ch16 review queued to book5. elec ch09-12 reviews all PASS → PR#7 merged. PR#10 open.
+- 2026-10-11T15:50Z: book5 ch13 FPGA flow landed (153pp, tests OK) → PR#11 pending review. linalg ch16 RESOLVED→ACCEPTED → PR#10 merged; book3 on consistency pass. Queues: book5→elec-ch14; book3→consistency→idle→ml session wakes.
