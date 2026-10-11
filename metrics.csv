@@ -61,3 +61,5 @@ book8-physics,review-fixes,160,,,,,"figs→6 ch06/07/10/15, notation.md",book1
 book4-ml,review-fixes,246,,,,TAGGED v0.1,"code/chNN layout + full inputs",coordinator
 book1-cp,floor-micropatch,206,,,,above floor,"+content ch01/02/04/06/09",book1
 book7-systems,review-ch01-04,84,,,,,"PASS×3, ch04 REVISE (9ex<10, watch rows)",book1
+book6-quant,depth-pass,180,,,,floor met,"ch17/18 + csv unscramble, all tests PASS",book2
+book4-ml,review-ch12-18,246,,,,,"7 REVISE shared defect, fixes landed",book2
