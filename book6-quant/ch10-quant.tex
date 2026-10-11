@@ -200,6 +200,69 @@ picks the risk aversion --- execution policy is portfolio choice
 in miniature.
 \end{example}
 
+\begin{example}[VWAP buys the top on a volume-spike tape]\label{ex:vwaptrap}
+\textbf{Strategy.} Compare TWAP and VWAP on two synthetic
+tapes: a flat tape where they should agree, and a designed trap
+--- quiet all day, then a closing auction carrying $15\times$
+normal volume while price pops $1.5\%$.
+
+\textbf{Solution.} \texttt{vwap\_trap.py} prints:
+\begin{verbatim}
+     flat tape: TWAP 100.0000  VWAP 100.0000  VWAP-TWAP +0.0bp (buyer)
+close-pop tape: TWAP 100.0577  VWAP 100.4167  VWAP-TWAP +3589.7bp (buyer)
+VWAP tracks volume; when volume and price spike together, VWAP buys the top
+\end{verbatim}
+Identical on the flat tape, but on the trap tape VWAP concentrates
+its fills exactly where the price is highest --- $35.9$bp worse
+than the uniform schedule it was supposed to beat.
+
+\textbf{Significance.} ``Trade with volume'' is only a
+benchmark, not a promise: VWAP inherits whatever the volume curve
+does to price. When the auction itself moves the market --- as it
+often does into the close --- participation is precisely the wrong
+hedge. Check correlation between your volume forecast and the
+price path before choosing the schedule.
+\end{example}
+
+\section{The order-type toolbox}\label{sec:ordertypes}
+Beyond market and limit, four modifiers decide most of execution
+quality. An \emph{immediate-or-cancel} (IOC) order takes what
+crosses right now and kills the remainder --- nothing rests. A
+\emph{fill-or-kill} (FOK) order demands its full size within the
+cap or cancels entirely --- it is the all-or-nothing guard against
+partial fills that strand a hedged position. \emph{Post-only}
+refuses to take liquidity: if it would cross, it cancels ---
+the maker-fee guarantee. An \emph{iceberg} displays only a slice
+of its true size, refilling as the visible tranche executes ---
+hiding intent from anyone reading the tape. Each is a different
+answer to the same question: what may this order do to the book?
+
+\begin{example}[One size, five fates]\label{ex:ordertypes}
+\textbf{Strategy.} Fire the same 60-unit buy at an ask ladder of
+$100.00\times20$, $100.05\times30$, $100.15\times50$ under each
+order type and compare what executes.
+
+\textbf{Solution.} \texttt{order\_types.py} prints:
+\begin{verbatim}
+limit buy 60 @<=100.10: fills 50 avg 100.0300; 10 rest as bid @100.10
+IOC buy 60 @<=100.10: fills 50, kills 10 -- zero resting
+FOK buy 60 @<=100.10: abort (50 avail < 60) -- all-or-nothing
+post-only @99.95: joins bid (maker); cancels rather than cross
+iceberg sell 80 show 10: tape reads 10, book refills x7
+\end{verbatim}
+Same intent, five outcomes: the limit buys $50$ and rests $10$;
+IOC takes the $50$ and disappears; FOK does nothing (the size
+isn't there); post-only never touches the ask; the iceberg hides
+$8\times$ its displayed size.
+
+\textbf{Significance.} The venue sees one instruction set; the
+trader sees five different risk profiles. Post-only is how maker
+strategies guarantee their fee rebate; IOC/FOK are how takers cap
+their footprint; icebergs are why displayed depth understates real
+depth --- another reason tape statistics mislead models that treat
+the book as honest.
+\end{example}
+
 \section{Common mistakes}
 \begin{itemize}
 \item \textbf{``Impact is linear.''} It is concave; big prints cost disproportionately.

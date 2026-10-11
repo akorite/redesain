@@ -283,6 +283,70 @@ Mark vs last & PnL on mark, trades on last & liquidations trigger off mark\\
 \end{tabular}
 \end{table}
 
+\begin{example}[The premium is persistent; the floor is not cheap]\label{ex:fundterm}
+\textbf{Strategy.} Split the pinned 500-hour funding tape into
+its two additive parts --- the interest floor and the premium
+component --- and test whether today's premium carries into
+tomorrow (i.e.\ whether funding is a forecastable term structure).
+
+\textbf{Solution.} \texttt{funding\_term.py} prints:
+\begin{verbatim}
+premium persistence: lag-1 +0.964  lag-24 +0.521
+corr(24h funding paid, 24h premium) = +0.762
+blocks where funding exceeded premium x2: 1/20
+annualised carry if sustained: 9.9%  realized premium: -84.5%
+\end{verbatim}
+Premium deviations persist strongly ($+0.96$ at one hour, $+0.52$
+a day out) --- the basis has memory. But the realized premium was
+\emph{negative} $84.5\%$/yr while funding still cost $+9.9\%$/yr:
+the floor charged longs on top of a discount that never showed up
+in the headline rate.
+
+\textbf{Significance.} Two lessons in one tape: the premium leg
+is forecastable enough to time entries (half-day persistence), and
+the floor leg means ``funding $=0.125$bp'' is never ``free'' even
+when the perp trades under index. Venue-rule statements like this
+one are date-stamped --- re-verify before sizing.
+\end{example}
+
+\section{Isolated vs.\ cross margin}\label{sec:marginmodes}
+The leverage slider chooses a number; the margin mode chooses a
+\emph{budget}. Under \emph{isolated} margin each position posts
+its own collateral and liquidates on its own --- the worst case is
+capped at that position's initial margin. Under \emph{cross}
+margin every position draws from one shared pool: a losing trade
+can eat collateral you meant for something else, but it survives
+much deeper drawdowns before liquidation. Same position, same
+leverage --- two different failure geometries.
+
+\begin{example}[Same position, two liquidation prices]\label{ex:margmodes}
+\textbf{Strategy.} A $10{,}000$ BTC long at $50{,}000$ with 5x
+leverage posts $2{,}000$ initial margin; the account holds another
+$3{,}000$ free. Compute the liquidation price under both modes with
+maintenance margin $0.5\%$.
+
+\textbf{Solution.} \texttt{margin\_modes.py} prints:
+\begin{verbatim}
+position: long 10000 @ 50000, 5x, IM=2000, free acct=3000, MM=0.5%
+isolated liq px 40250 (-19.5%)
+cross    liq px 25250 (-49.5%)
+cross buys 15000 more room -- but ALL collateral is at risk, not just 2000
+cross risk: a second losing pos drains the same pool -> both liq together; isolation caps loss at IM each
+\end{verbatim}
+Cross margin stretches the liquidation point from $-19.5\%$ to
+$-49.5\%$ --- the whole $5{,}000$ pool absorbs losses instead of
+the position's $2{,}000$ alone. The trade: under cross, a second
+losing position drains the same pool and \emph{both} liquidate
+together.
+
+\textbf{Significance.} Isolation is blast-radius control; cross is
+drawdown tolerance. Choose cross when positions hedge each other
+(shared pool shares their P\&L correctly); choose isolation when a
+position is allowed to die without orphans. And the standing rule
+applies: venue margin semantics are venue rules --- date-stamped
+\texttt{[unverified]}, re-check before relying on them.
+\end{example}
+
 \section{Common mistakes}
 \begin{itemize}
 \item \textbf{``$1/\text{leverage}$ is my liquidation distance.''} Maintenance margin pulls it

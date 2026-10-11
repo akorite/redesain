@@ -205,6 +205,60 @@ the \emph{market}. It catches overfit that IS/OOS splits miss
 because the OOS half was searched too.
 \end{example}
 
+\begin{example}[The cost-drag floor on discovery]\label{ex:costfloor}
+\textbf{Strategy.} Before asking ``is this Sharpe real?'', ask
+``what Sharpe does this strategy \emph{need} to exist?'' Tabulate
+the gross edge that just covers trading costs at various turnover
+and fee levels --- the minimum viable discovery.
+
+\textbf{Solution.} \texttt{sr\_required.py} prints:
+\begin{verbatim}
+  10 tr/yr @ 0.1% cost: needs 1.0%/yr gross edge just to break even
+  50 tr/yr @ 0.5% cost: needs 25.0%/yr gross edge just to break even
+  200 tr/yr @ 0.5% cost: needs 100.0%/yr gross edge just to break even
+  500 tr/yr @ 1.0% cost: needs 500.0%/yr gross edge just to break even
+\end{verbatim}
+At 200 round-trips a year and $0.5\%$ cost, the strategy must find
+\emph{25--100\%}/yr of true edge before the first basis point of
+profit --- a bar almost nothing clears honestly.
+
+\textbf{Significance.} This is the multiplicity filter made
+physical: every additional trade multiplies the gross-edge
+requirement linearly. Before mining the grid for a winner, compute
+the floor --- if it exceeds what a Sharpe-2 world can deliver, the
+``best IS'' you find is definitionally noise, whatever the number
+says.
+\end{example}
+
+\begin{example}[Probability of backtest overfitting]\label{ex:pbo}
+\textbf{Strategy.} Deflated Sharpe asks ``was the best Sharpe high
+enough?''; combinatorially-symmetric CV asks a different question:
+\emph{does the IS winner keep winning out-of-sample?} Split 720
+days into 4 folds; each fold trains on 3 and measures where the
+IS-best strategy ranks on the held-out one. $PBO$ is the fraction
+of folds where it lands below the OOS median.
+
+\textbf{Solution.} \texttt{pbo\_check.py} prints (60 strategies,
+one weak real edge of Sharpe $0.15$):
+\begin{verbatim}
+fold 0: IS pick strat  3 -> OOS rank 3/59 (0.05)
+fold 1: IS pick strat  3 -> OOS rank 0/59 (0.00)
+fold 2: IS pick strat  3 -> OOS rank 7/59 (0.12)
+fold 3: IS pick strat  3 -> OOS rank 3/59 (0.05)
+PBO = 0.00  (IS-best lands below OOS median this often)
+no-edge control PBO = 0.25
+\end{verbatim}
+Even a weak consistent edge is found by every fold and stays
+near the top OOS ($PBO=0$). With \emph{no} edge at all, the
+IS-best is pure luck: it falls below the OOS median a quarter of
+the time already at 4 folds, and $\sim\tfrac12$ asymptotically.
+
+\textbf{Significance.} The two methods are complementary:
+deflated Sharpe prices the multiplicity of the search, PBO audits
+the winner's persistence. A grid can clear the deflated bar on a
+lucky fold; it cannot fake fold-after-fold OOS ranks. Run both.
+\end{example}
+
 \section{Common mistakes}
 \begin{itemize}
 \item \textbf{Counting only documented trials.} Every parameter you eyeballed and dropped

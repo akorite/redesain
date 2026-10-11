@@ -229,6 +229,73 @@ wearing a disguise. This is the same lesson as the LOB chapter,
 one market microstructure up.
 \end{example}
 
+\begin{example}[How much does the market know?]\label{ex:conviction}
+\textbf{Strategy.} Treat each market's YES-price as a forecast and
+ask the Brier score what it \emph{expects} to score if the market
+were perfectly calibrated. That converts 100 price ticks into an
+information budget.
+
+\textbf{Solution.} \texttt{scoring\_stakes.py} prints:
+\begin{verbatim}
+conviction |2p-1| over 100 binary markets
+mean 0.553   >0.9: 25   <0.1: 20
+E[Brier] if market calibrated = 0.1386 vs 50c baseline 0.25
+info gain over coin-flip = 45%
+\end{verbatim}
+A quarter of the board prices near-certainty ($|2p-1|>0.9$) and a
+fifth sits near $50/50$ --- the market is either very sure or
+barely guessing, rarely in between. If it were calibrated, its
+expected Brier ($0.139$) beats the coin-flip baseline by $45\%$.
+
+\textbf{Significance.} Calibration is a property of the
+\emph{population of prices}, not one market: $E[p(1-p)]$ prices the
+information content of the whole board in one number. It also
+quantifies the stakes --- at $45\%$ better than guessing, a
+forecaster who is merely ``as calibrated as the board'' already
+carries real edge.
+\end{example}
+
+\section{The automated alternative: LMSR}\label{sec:lmsr}
+Every market so far was an order book. Prediction markets grew up
+on a different mechanism: the \emph{logarithmic market scoring
+rule}. The operator keeps a cost function
+$C(q_Y,q_N)=b\log\!\big(e^{q_Y/b}+e^{q_N/b}\big)$ where $q_i$ are
+shares sold and $b$ is a liquidity parameter; the instantaneous
+YES-price is the share of ``mass'' on YES,
+$p=\frac{e^{q_Y/b}}{e^{q_Y/b}+e^{q_N/b}}$, and a buyer pays the
+cost-function difference. Two properties made it the default
+mechanism for thin markets: the maker's worst-case loss is bounded
+at $b\ln 2$ (a fixed subsidy), and it \emph{always} quotes a price
+--- no depth, no empty book. The trade-off: it is a house that
+bleeds slowly to informed flow, which is exactly why live venues
+migrated to order books.
+
+\begin{example}[LMSR quotes slope up as you buy]\label{ex:lmsr}
+\textbf{Strategy.} Instantiate a binary LMSR with $b=100$ and buy
+two consecutive $50$-share YES blocks; compare the average fill to
+an order book.
+
+\textbf{Solution.} \texttt{lmsr\_demo.py} prints:
+\begin{verbatim}
+b=100: start price 0.500
+buy 50 YES: paid 28.09  avg px 0.562  new YES px 0.622
+buy 50 more: paid 33.92  avg px 0.678  new YES px 0.731
+market-maker worst case = b*ln2 = 69.3
+vs orderbook: LMSR always quotes (depth=b), book depth vanishes when you need it
+\end{verbatim}
+The first block fills at $0.562$ average, the second at $0.678$ ---
+the AMM \emph{is} the book, and your own order walks you up its
+price curve. The operator's exposure never exceeds
+$b\ln 2 \approx 69.3$.
+
+\textbf{Significance.} LMSR is the missing link between the two
+books: it is an AMM (like the constant-product pools of the next
+chapter) specialised to binary payout space, with a bounded-loss
+guarantee no order book offers. When a venue must quote on 2000
+long-tail questions at once, a $b\ln2$ subsidy per market is
+cheaper than hiring a market-maker for each.
+\end{example}
+
 \section{Common mistakes}
 \begin{itemize}
 \item \textbf{Reading price as certainty.} $p=0.9$ is a probability, not a promise; one in ten

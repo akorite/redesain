@@ -288,6 +288,59 @@ before aggregates\\
 \caption{Chapter 3 toolkit.}
 \end{table}
 
+\begin{example}[Order-flow imbalance predicts size, not side]\label{ex:ofi}
+\textbf{Strategy.} Without a book feed, reconstruct the closest
+thing to queue pressure: order-flow imbalance (signed volume in a
+rolling 100-print window) and test whether it predicts the next
+print's move in sign or in magnitude.
+
+\textbf{Solution.} \texttt{book\_regen.py} prints:
+\begin{verbatim}
+OFI vs next-print move over 1006 prints
+corr(OFI, dp_next) = -0.040
+mean |dp| when |OFI/vol|>0.5: 1.1680
+mean |dp| when |OFI/vol|<0.1: 0.9187
+\end{verbatim}
+Direction: nothing ($r=-0.04$). Magnitude: imbalanced flow
+precedes $27\%$ larger next-print moves --- the imbalance is
+energy, not a compass.
+
+\textbf{Significance.} This is the honest version of ``order flow
+predicts price'': at print granularity the signal is volatility,
+not drift. A model that trades the \emph{sign} of OFI buys noise;
+one that sizes around it is reading the tape correctly. It also
+validates the chapter's claim that microstructure edges need
+book-level state --- prints alone tell you only how hard it will
+move, not where.
+\end{example}
+
+\begin{example}[Fast fills are expensive fills]\label{ex:queue}
+\textbf{Strategy.} Your resting bid sits behind $60$ queued units.
+The queue drains two ways --- market sells eat the volume ahead of
+you, and your queue-mates cancel. Simulate time-to-fill under calm,
+busy and panic arrival rates, then mark out the mid after each
+fill: does a fast fill arrive with a bill?
+
+\textbf{Solution.} \texttt{queue\_sim.py} prints:
+\begin{verbatim}
+ calm: fill prob 1.00  median wait  27.1s  exp markout   +0.0bp
+ busy: fill prob 1.00  median wait  11.5s  exp markout  -11.6bp
+panic: fill prob 1.00  median wait   3.5s  exp markout  -35.4bp
+faster fills are not free: they arrive exactly when informed flow is trading through you
+\end{verbatim}
+Wait time collapses $27\to3.5$s as flow intensifies, but the
+expected markout goes from $0$ to $-35$bp: the fills that come
+fastest are the ones informed sellers chose to give you.
+
+\textbf{Significance.} Queue mechanics convert two rates ---
+trade arrival and cancellation --- into a personal fill clock, and
+the clock runs fastest precisely when you least want the fill.
+This is the maker's dilemma in one table: your fill probability
+and your adverse-selection bill are the same variable. A quote's
+value is not set by the level's depth but by \emph{your rank} in it
+and by \emph{who} is consuming the queue.
+\end{example}
+
 \section{Common mistakes}\index{common mistakes}
 \begin{itemize}
 \item \textbf{Costing a market order as ``the spread''.} You pay

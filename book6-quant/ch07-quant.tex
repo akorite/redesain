@@ -228,6 +228,67 @@ terms} (bp or ticks) with the sampling rate attached, then
 $\sigma$ can assist --- never lead.
 \end{example}
 
+\begin{example}[The arrival process is clustered]\label{ex:cluster}
+\textbf{Strategy.} Measure the raw inter-print gaps on the pinned
+tape before modelling anything: a Poisson clock would give an
+exponential tail; real trade arrivals cluster.
+
+\textbf{Solution.} \texttt{tz\_gap.py} prints:
+\begin{verbatim}
+inter-print gaps: n=1005  median 1ms
+p95 2444ms  max 6.6s
+gaps >20x median: 483 (48.1%)
+prints/10s: mean 17.6  max 75  zeros 0
+arrival process is clustered -- Poisson would show smoother counts
+\end{verbatim}
+Half the prints arrive within a millisecond of the last, yet the
+tape still holds $6.6$s holes --- bursts of $75$ prints per 10s
+alternating with silence. The distribution is neither Poisson nor
+uniform: it is \emph{bursty}.
+
+\textbf{Significance.} This is why the chapter insists resampling
+is a contract: any statistic computed per-print inherits the
+arrival process. A mean gap of 1ms does not mean the book updates
+every millisecond --- it means the busy half does and the quiet
+half does not. Sample at clock times, never at print times, for
+anything a model will consume.
+\end{example}
+
+\section{Calendars are venue rules, not clocks}\label{sec:calendars}
+A ``daily'' bar means different things on different venues:
+UTC-midnight crypto bars, 17:00-New-York FX bars, 09:30--16:00
+equity sessions with lunch halts in some markets. Two consequences
+bite silently. First, \emph{bar length varies}: a daily bar that
+crosses a daylight-saving transition is 23 or 25 hours; resampling
+without the venue calendar corrupts any per-bar statistic. Second,
+\emph{volatility is calendared}: desks that close for the weekend
+take their liquidity with them, so a 24/7 venue still has a
+weekend --- measured on the tape, not assumed.
+
+\begin{example}[The weekend that isn't there]\label{ex:wknd}
+\textbf{Strategy.} Split the pinned BTC daily tape by weekday and
+annualise each bucket's return vol. Crypto trades around the
+clock --- does it know what a weekend is?
+
+\textbf{Solution.} \texttt{calendar\_risk.py} prints:
+\begin{verbatim}
+  Mon: 38%   Tue: 38%   Wed: 39%   Thu: 40%   Fri: 40%
+  Sat: 23%   Sun: 28%
+weekend vol 25% vs weekday 39%
+bar calendars must be built from venue time -- a 'daily' bar that crosses DST is 23h or 25h twice a year
+\end{verbatim}
+The tape knows: weekend vol runs a third lower ($25\%$ vs $39\%$)
+because the desks that set weekday liquidity are closed --- the
+exchange never sleeps, but its liquidity does.
+
+\textbf{Significance.} Two engineering rules follow. One: group
+and normalise by venue calendar \emph{before} any cross-market
+comparison --- a Monday BTC bar and a Monday NYSE bar share a name
+but not a clock. Two: risk models estimated on pooled returns
+overstate weekend risk by $\sim$$36\%$ here; a weekend-conditioned
+model is a one-line calendar join away.
+\end{example}
+
 \section{Common mistakes}
 \begin{itemize}
 \item \textbf{Forward-filling prices across gaps.} Manufactures fake flat data and corrupts
