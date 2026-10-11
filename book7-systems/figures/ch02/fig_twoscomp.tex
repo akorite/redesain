@@ -1,0 +1,22 @@
+\begin{tikzpicture}[font=\scriptsize, >=latex]
+% two's complement wrap-around number line, int8
+\draw[->, thick] (0.4,2.6) -- (9.9,2.6);
+\foreach \x/\v/\u in {
+  0.6/{0000 0000}/{0},
+  2.0/{0000 0001}/{1},
+  3.4/{0111 1111}/{127},
+  4.8/{1000 0000}/{-128},
+  6.2/{1000 0001}/{-127},
+  8.4/{1111 1110}/{-2},
+  9.4/{1111 1111}/{-1}}{
+  \draw[thick] (\x,2.5) -- (\x,2.7);
+  \node[font=\tiny, above] at (\x,2.75) {\v};
+  \node[font=\tiny, below] at (\x,2.45) {\u};
+}
+\draw[->, very thick, accent] (3.4,3.4) to[bend left=45] (4.8,3.4);
+\node[font=\tiny, text=accent] at (4.1,4.1) {$127+1 \to -128$};
+\node[align=left, text=slate, text width=10cm] at (5.0,1.6)
+  {Two's complement is one hardware story, not two: adding and
+   subtracting are the same circuit, and the ``wrap'' at the ends is
+   why signed overflow is a cliff, not a curve.};
+\end{tikzpicture}

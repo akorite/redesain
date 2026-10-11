@@ -1,0 +1,34 @@
+\begin{tikzpicture}[font=\scriptsize, >=latex]
+% struct A vs B padding map (real offsetof output)
+\node[align=left, font=\footnotesize\bfseries] at (2.0,4.6)
+  {\ttfamily struct A\{char c; double d; int i;\}};
+\node[align=left, font=\footnotesize\bfseries] at (8.0,4.6)
+  {\ttfamily struct B\{double d; int i; char c;\}};
+% A layout: c@0 pad1-7 d@8-15 i@16-19 pad20-23
+\draw[thick, fill=accentsoft] (0.4,3.8) rectangle (0.9,4.4);
+\node[font=\tiny] at (0.65,4.1) {c};
+\draw[thick, fill=graybg]
+  (0.9,3.8) rectangle (2.4,4.4);
+\node[font=\tiny] at (1.65,4.1) {pad 7 B};
+\draw[thick, fill=goodbg] (2.4,3.8) rectangle (5.4,4.4);
+\node[font=\tiny] at (3.9,4.1) {d (8 B, needs 8-aligned)};
+\draw[thick, fill=accentsoft] (5.4,3.8) rectangle (6.9,4.4);
+\node[font=\tiny] at (6.15,4.1) {i (4 B)};
+\draw[thick, fill=graybg]
+  (6.9,3.8) rectangle (7.9,4.4);
+\node[font=\tiny] at (7.4,4.1) {pad};
+\node[font=\tiny, text=slate] at (4.15,3.5)
+  {\ttfamily sizeof=24 --- real \ttfamily offsetof\rmfamily output};
+% B layout: d@0-7 i@8-11 c@12 pad13-15
+\draw[thick, fill=goodbg] (6.2,2.6) rectangle (9.2,3.2);
+\node[font=\tiny] at (7.7,2.9) {d (8 B)};
+\draw[thick, fill=accentsoft] (9.2,2.6) rectangle (10.4,3.2);
+\node[font=\tiny] at (9.8,2.9) {i (4 B)};
+\draw[thick, fill=accentsoft] (10.4,2.6) rectangle (10.8,3.2);
+\node[font=\tiny] at (10.6,2.9) {c};
+\node[font=\tiny, text=slate] at (8.5,2.3)
+  {\ttfamily sizeof=16 --- same fields, 8 bytes cheaper};
+\node[align=left, text=slate, text width=10.4cm] at (5.2,1.5)
+  {The compiler pads to each field's alignment and the struct's worst
+   member; reordering fields is free bytes. Measured, not theorised.};
+\end{tikzpicture}

@@ -1,0 +1,23 @@
+\begin{tikzpicture}[font=\scriptsize, >=latex]
+% symbol + relocation
+\draw[thick, fill=accentsoft] (0.2,2.8) rectangle (4.4,4.6);
+\node[align=center, font=\footnotesize] at (2.3,4.1) {sum.o};
+\node[align=left, font=\tiny, text width=3.9cm] at (2.3,3.4)
+{\texttt{F sum} defined here\\symbol table: \texttt{0000... g F .text sum}};
+\draw[thick, fill=graybg] (5.4,2.8) rectangle (9.6,4.6);
+\node[align=center, font=\footnotesize] at (7.5,4.1) {broken.o};
+\node[align=left, font=\tiny, text width=3.9cm] at (7.5,3.4)
+{\texttt{U sum}, \texttt{U missing}\\undefined --- the call sites hold
+a promise, not an address};
+\draw[->, thick] (4.4,3.7) -- (5.4,3.7)
+  node[midway, above, font=\tiny] {link};
+\draw[thick, fill=goodbg] (3.6,0.8) rectangle (6.2,2.2);
+\node[align=center, font=\tiny] at (4.9,1.7) {resolved: \texttt{sum}};
+\node[align=center, font=\tiny, text=amber] at (4.9,1.25) {unresolved:
+\texttt{missing} $\to$ error};
+\draw[->, thick] (7.5,2.8) -- (6.0,1.7);
+\node[align=left, text=slate, text width=10cm] at (5.1,-0.4)
+{Relocation = the linker's bookkeeping: every undefined \texttt{U}
+must find a defined \texttt{F/g} in another object --- or the real
+error you just saw appears.};
+\end{tikzpicture}

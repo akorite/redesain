@@ -1,0 +1,19 @@
+\begin{tikzpicture}[font=\scriptsize, >=latex]
+% book5 cpu8 -> real machine hand-off
+\draw[thick, fill=accentsoft] (0.3,1.4) rectangle (4.1,3.6);
+\node[align=center, font=\footnotesize] at (2.2,3.1) {Book 5, ch14--16};
+\node[align=left, font=\tiny, text width=3.5cm] at (2.2,2.3)
+{cpu8: 302 cells, 10 opcodes,\\
+2-state FSM, Fibonacci\\on 12 real OUT writes};
+\draw[thick, fill=goodbg] (5.9,1.4) rectangle (9.7,3.6);
+\node[align=center, font=\footnotesize] at (7.8,3.1) {Book 7, ch5--8};
+\node[align=left, font=\tiny, text width=3.5cm] at (7.8,2.3)
+{pipelined RV32I: 5 stages,\\
+forwarding, hazards, traps ---\\
+the same shape, real speed};
+\draw[->, very thick, accent] (4.1,2.5) -- (5.9,2.5)
+  node[midway, above, font=\tiny] {this book};
+\node[align=left, text=slate, text width=10cm] at (5.0,0.5)
+{The hand-off this book exists for: the machine you built proves the
+shape; the chapters ahead prove it at scale.};
+\end{tikzpicture}

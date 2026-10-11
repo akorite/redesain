@@ -1,0 +1,23 @@
+\begin{tikzpicture}[font=\scriptsize, >=latex]
+% process address space, low->high
+\draw[thick] (0.6,0.4) rectangle (2.4,4.8);
+\foreach \y/\t/\c in {
+  4.4/{high: stack (grows down)}/{graybg},
+  3.5/{mmap region}/{white},
+  2.7/{heap (grows up)}/{graybg},
+  2.1/{.bss + .data}/{white},
+  1.5/{.text}/{accentsoft},
+  0.8/{low: unused + kernel-reserved}/{white}}{
+  \draw[fill=\c] (0.6,\y-0.35) rectangle (2.4,\y+0.35);
+  \node[font=\tiny] at (1.5,\y) {\t};
+}
+\node[right, align=left, font=\tiny, text width=6.8cm] at (3.0,3.5)
+{the ELF's PT\_LOAD segments become text+data here};
+\node[right, align=left, font=\tiny, text width=6.8cm] at (3.0,2.7)
+{the loader builds this space; the CPU only sees the addresses};
+\node[right, align=left, font=\tiny, text width=6.8cm] at (3.0,1.5)
+{entry point jumps here --- your cpu8's pc=0x0, grown up};
+\node[align=left, text=slate, text width=10cm] at (5.3,-0.4)
+{Same layout idea as the machine you built in Book 5, same reason:
+the hardware reads addresses, the software draws the map.};
+\end{tikzpicture}

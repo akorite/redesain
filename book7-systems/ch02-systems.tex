@@ -1,0 +1,479 @@
+\chapter{How the machine sees data}
+\label{ch:02}
+
+Chapter~1 followed a program from text to running code. This chapter asks
+the companion question: once it is running, \emph{what does the machine
+think the data is}? The honest answer is short and unsettling: nothing.
+A memory cell holds bytes; a register holds bits. Types --- signed or
+unsigned, integer or pointer or float --- are agreements between your
+source code and the generated instructions, and the CPU keeps no record
+of them. Most of this chapter is spent making that concrete: we decode
+the same four bytes three ways, measure what struct layout really costs,
+and run an alignment experiment whose result surprised us --- the numbers
+are real, and they disagree with the folklore. That disagreement is the
+lesson.
+
+\index{endianness}\index{alignment}\index{two's complement}%
+\index{IEEE 754}\index{floating point}\index{struct padding}%
+\index{pointer}\index{array}\index{LP64}\index{type punning}
+
+\section{Bytes, words and addresses}
+\label{sec:bytes02}
+
+\index{word}\index{address}
+A \emph{byte} is the smallest thing a modern machine addresses: 8 bits,
+one address. A \emph{word} is the machine's working size --- 32 bits on
+RV32, 64 on the laptop you are probably using. When a program says
+``the value at address \texttt{0x2000}'', it means ``the byte at
+\texttt{0x2000}''; a 4-byte \texttt{int} stored there occupies
+\texttt{0x2000} through \texttt{0x2003} and belongs to whichever
+interpretation reads it. The machine's data types table is short enough
+to memorise:
+
+\begin{figure}[htbp]
+\centering
+\input{figures/ch02/fig_typetable.tex}
+\caption{C type sizes: LP64 (what this book's dev box runs) vs ILP32
+(the RV32 model the capstone targets). \texttt{long} and pointers are
+the two that move.}
+\label{fig:typetable02}
+\end{figure}
+
+\begin{tripwire}[\texttt{long} is a trap on every platform]
+On LP64 \texttt{long} is 8 bytes; on ILP32 --- including RV32, the ISA
+your capstone CPU runs --- it is 4. Code that assumes \texttt{sizeof(long)
+== 8} breaks silently when cross-compiled. Use \texttt{int32\_t} /
+\texttt{uint64\_t} from \texttt{<stdint.h>} whenever the size matters,
+and it always matters in this book.
+\end{tripwire}
+
+\section{Two's complement, in one page}
+\label{sec:twos02}
+
+\index{sign bit}\index{overflow}
+Book~5 ch8 derived this properly; here is the working version. An
+$n$-bit signed integer stores $-2^{n-1} + \sum b_i 2^i$ --- the top bit
+contributes \emph{minus} its weight. That single negative weight buys
+three things: one zero, one adder for both addition and subtraction,
+and a clean wrap from most-positive to most-negative. Figure
+\ref{fig:twos02} shows the 8-bit case on a line: $127 + 1$ does not
+saturate, it jumps to $-128$.
+
+\begin{figure}[htbp]
+\centering
+\input{figures/ch02/fig_twoscomp.tex}
+\caption{Two's complement as a number line: the wrap at the ends is
+hardware fact, not an error message.}
+\label{fig:twos02}
+\end{figure}
+
+\begin{principle}
+The CPU does arithmetic on \emph{bit patterns}, not on numbers. Whether
+\texttt{0x80000000} is $-2^{31}$ or $+2^{31}$ is decided entirely by the
+instruction that consumes it --- \texttt{slt} vs \texttt{sltu} in RV32I,
+same bits, two opinions.
+\end{principle}
+
+\section{Endianness: which byte goes first}
+\label{sec:endian02}
+
+\index{little-endian}\index{big-endian}
+A 4-byte value has to go into 4 one-byte slots, and there are two
+conventions. Little-endian puts the least-significant byte at the
+lowest address; big-endian puts the most-significant first. RV32 is
+little-endian, x86 is little-endian, ARM defaults to little --- the
+network protocols you will meet in other books are big-endian, which is
+why the conversion functions are called \texttt{htonl}/\texttt{ntohl}.
+
+\begin{example}[Real bytes on real hardware]
+\label{ex:bytes02}
+\texttt{code/ch02\_bytes.c} stores \texttt{0x0A0B0C0D} in a
+\texttt{uint32\_t} and prints the four memory bytes in address order.
+Real output on the dev box (arm64, LP64):
+
+\begin{lstlisting}[basicstyle=\ttfamily\scriptsize]
+bytes (LE order): 0d 0c 0b 0a
+as int32 : 168496141
+as float : 6.69487e-33
+0x3FC00000 as float: 1.5
+\end{lstlisting}
+
+The least-significant byte \texttt{0x0d} lands first: little-endian,
+confirmed by experiment rather than documentation. The same four bytes
+then get read as a signed int (\texttt{168496141} --- same value, the
+top bit happened to be zero) and as a float (nonsense:
+\texttt{6.69e-33} --- the exponent field is tiny). Three different
+worlds from one bit pattern; the next section formalises the third.
+\end{example}
+
+\begin{figure}[htbp]
+\centering
+\input{figures/ch02/fig_endian.tex}
+\caption{\texttt{0x0A0B0C0D} in memory, both conventions. RV32, x86 and
+ARM all pick the left column.}
+\label{fig:endian02}
+\end{figure}
+
+\begin{checkpoint}
+You receive the four bytes \texttt{78 56 34 12} (in address order) over
+a little-endian memory-mapped register. What 32-bit value did the
+sender write?
+\end{checkpoint}
+\begin{solution}
+\texttt{0x12345678} --- little-endian means the first byte is the
+least significant, so read the sequence backwards as hex pairs.
+\end{solution}
+
+\section{Alignment and struct layout}
+\label{sec:align02}
+
+\index{padding}\index{offsetof@\texttt{offsetof}}\index{aligned access}
+Hardware prefers a $n$-byte value at an address divisible by $n$ ---
+an \emph{aligned} access. Compilers honour this by inserting
+\emph{padding}: invisible bytes between struct fields so every field
+sits at its natural offset. The rule chain: each field's offset must be
+a multiple of its alignment; the struct's size is rounded up to the
+largest member's alignment; arrays of the struct need that tail padding
+to keep every element aligned.
+
+\begin{example}[The same three fields, two prices]
+\label{ex:pad02}
+\texttt{code/ch02\_pad.c} declares \texttt{struct A\{char;double;int;\}}
+and \texttt{struct B\{double;int;char;\}} --- identical fields, different
+order. Real output:
+
+\begin{lstlisting}[basicstyle=\ttfamily\scriptsize]
+A: sizeof=24  c@0 d@8 i@16
+B: sizeof=16  d@0 i@8 c@12
+\end{lstlisting}
+
+In \texttt{A}, \texttt{char c} occupies byte 0, then \texttt{double d}
+must start at an 8-aligned address: bytes 1--7 are padding. \texttt{int i}
+lands at 16, and four tail bytes pad the total to 24. Reordering the
+same three fields into \texttt{B} costs 16 bytes --- a third less
+memory, for free, just by sorting fields largest-first.
+\end{example}
+
+\begin{figure}[htbp]
+\centering
+\input{figures/ch02/fig_padding.tex}
+\caption{Padding maps of \texttt{A} vs \texttt{B}: measured
+\texttt{offsetof} values, not a sketch.}
+\label{fig:padding02}
+\end{figure}
+
+\subsection{Measurement: the alignment tax that wasn't}
+\label{sec:measure02}
+
+Folklore says misaligned access is slow: the CPU splits the load across
+two cache lines and pays double. \texttt{code/ch02\_align.c} tests it
+directly --- sum a 4\,M-element \texttt{uint32} array once through an
+aligned pointer, once through the same pointer offset by one byte
+(every load misaligned). Real timings, Apple M-series, 32 passes:
+
+\begin{lstlisting}[basicstyle=\ttfamily\scriptsize]
+offset 0: 151.2 ms  (s=2260630400663552)
+offset 1: 110.4 ms  (s=4521260264456192)
+\end{lstlisting}
+
+The misaligned version is \emph{faster} --- repeatably, in both loop
+orders, by $\sim$25\%. Two honest conclusions. First, the expected tax
+is absent: Apple Silicon performs unaligned loads at full speed, as do
+most modern cores. Second --- the reason this section exists --- a
+consistent 25\% delta in the \emph{wrong direction} means the benchmark
+is measuring something else (loop layout, prefetcher behaviour, uarch
+quirks), not alignment. When the data contradicts the folklore, the
+data wins and the model gets revised. That is the book's method in
+miniature: predict, measure, reconcile.
+
+\begin{tripwire}[``Misaligned is slow'' is hardware folklore]
+It was true on 1980s CPUs and still holds on some embedded cores ---
+and it is false on the chip in your laptop. Rules about performance
+expire; measurements do not. Re-test before you re-tell.
+\end{tripwire}
+
+\section{IEEE-754 in one breath}
+\label{sec:float02}
+
+\index{mantissa}\index{exponent}\index{biased exponent}
+A \texttt{float} is 32 bits partitioned $S\,|\,E\,|\,F$: one sign bit,
+an 8-bit biased exponent, a 23-bit fraction with an implied leading 1.
+Value: $(-1)^S \times (1 + F/2^{23}) \times 2^{E-127}$ for
+$0 < E < 255$; the extremes $E{=}0$ and $E{=}255$ are reserved for
+denormals/zero and inf/NaN. Precision is about 7 decimal digits; the
+spacing between neighbours near $2^e$ is $2^{e-23}$, and round-to-nearest
+keeps each operation within half that --- the ``$.5$ ulp'' you will hear
+cited every time someone says ``floats are exact enough''.
+
+\begin{example}[Decode \texttt{0x40490FDB} by hand, then by code]
+\label{ex:float02}
+$S{=}0$, exponent field \texttt{0x80} ($=128$),
+fraction field \texttt{0x490fdb}. Value
+$= 1.5707964 \times 2^{128-127} = 3.1415928$ --- $\pi$ to float
+precision. \texttt{code/ch02\_float.c} performs the same decode
+bit-by-bit and prints:
+
+\begin{lstlisting}[basicstyle=\ttfamily\scriptsize]
+sign=0 exp=128(E-1) frac=0x490fdb
+value = 3.141592741
+\end{lstlisting}
+
+The last digit differs from $\pi$ because the 23-bit fraction itself is
+the approximation --- the stored value \emph{is} the rounding.
+\end{example}
+
+\begin{figure}[htbp]
+\centering
+\input{figures/ch02/fig_ieee.tex}
+\caption{IEEE-754 single precision anatomy, decoded for $\pi$.}
+\label{fig:ieee02}
+\end{figure}
+
+\begin{checkpoint}
+In \texttt{0x3FC00000} (the \texttt{1.5} printed in
+Example~\ref{ex:bytes02}), what are $S$, $E$ and the implied mantissa?
+\end{checkpoint}
+\begin{solution}
+$S{=}0$; $E{=}\texttt{0x7F}{=}127$ so the real exponent is $127-127=0$;
+$F{=}\texttt{0x400000}$, mantissa $=1 + 0.5 = 1.5$; value
+$= 1.5 \times 2^0$.
+\end{solution}
+
+\section{Pointers as typed addresses; arrays vs pointers}
+\label{sec:ptr02}
+
+\index{pointer arithmetic}
+A pointer is an address wearing a type. \texttt{p+1} advances by
+\texttt{sizeof(*p)} bytes --- the arithmetic is scaled, which is why
+walking an \texttt{int32\_t*} moves 4 bytes per step and a
+\texttt{uint8\_t*} moves 1. The type is only a scale factor to the
+code generator; the CPU sees an address either way. The difference
+between \texttt{int a[4]} and \texttt{int *p} is subtler: the array's
+base address is fixed at compile time, while the pointer's value is
+itself data --- stored, loaded, changeable. In generated code
+\texttt{a[i]} is one load off a known base; \texttt{p[i]} is two: load
+\texttt{p}, then load \texttt{p[i]}.
+
+\begin{figure}[htbp]
+\centering
+\input{figures/ch02/fig_ptrarr.tex}
+\caption{Array vs pointer in generated code: the array \emph{is} its
+address; the pointer must be fetched first.}
+\label{fig:ptrarr02}
+\end{figure}
+
+\begin{example}[Reading the same bytes three ways, safely]
+\label{ex:pun02}
+Example~\ref{ex:bytes02} reinterpreted the four bytes of
+\texttt{0x0A0B0C0D} as \texttt{int32\_t} (same value, bit-compatible)
+and as \texttt{float} ($6.69 \times 10^{-33}$, nonsense) --- both via
+\texttt{memcpy}, not pointer casts. That detail matters: type-punning through a
+\texttt{float*} cast violates strict aliasing and lets the optimiser
+reorder or delete your reads; \texttt{memcpy} is the standards-strict
+way to ask ``what do these bytes mean as a different type?'' and
+compiles to zero instructions.
+\end{example}
+
+\begin{wins}
+\begin{itemize}
+\item You can say what a byte, a word and an address are --- and that
+types are compile-time agreements, not machine facts.
+\item You read endianness off real bytes and explain why RV32 chose
+little-endian.
+\item You predict struct \texttt{sizeof} and \texttt{offsetof} before
+running the probe --- and reorder fields to save real bytes.
+\item You decode an IEEE-754 bit pattern by hand and with the decoder.
+\item You know the alignment-folklore experiment, what it actually
+showed, and why ``measure it'' beats ``everyone knows''.
+\end{itemize}
+\end{wins}
+
+\section{Common mistakes}
+\label{sec:mistakes02}
+
+\begin{itemize}
+  \item \textbf{``The variable is signed/unsigned/float.''} The
+        \emph{bytes} are just bytes; the type lives in which instructions
+        touch them. \texttt{0x0A0B0C0D} was an int and a float in the
+        same object, at the same address, in the same second.
+  \item \textbf{Assuming \texttt{long} is fixed.} It changes size
+        between LP64 and ILP32 --- including your RV32 target. Use
+        fixed-width types.
+  \item \textbf{``Arrays and pointers are the same.''}
+        \texttt{sizeof(a)} vs \texttt{sizeof(p)} disagrees, and the
+        generated code shows the extra load. Decay happens at call
+        boundaries, not in your head.
+  \item \textbf{``Misaligned access is slow.''} Measure first ---
+        modern cores largely don't care, and our own experiment inverted
+        the prediction.
+  \item \textbf{Type-punning through casts.} \texttt{*(float*)\&u} is
+        strict-aliasing UB; \texttt{memcpy} is free and correct.
+  \item \textbf{``Floats can't represent that.''} They represent
+        \emph{nearest} values: $0.1$ is not stored, its neighbour is.
+        Equality tests belong on integers; floats get tolerances.
+\end{itemize}
+
+\section*{Exercises}
+\label{sec:exercises02}
+\addcontentsline{toc}{section}{Exercises}
+
+\begin{exercise}\label{ex:e02a}
+\texttt{uint8\_t} vs \texttt{int8\_t}: which changes when you print the
+same bit pattern \texttt{0xFF}, and what does each show?
+\end{exercise}
+\begin{solution}[hint]
+The bits are identical; only the interpretation differs. One prints
+255, the other $-1$ --- name which is which.
+\end{solution}
+
+\begin{exercise}\label{ex:e02b}
+A \texttt{struct} with \texttt{char,int,char} fields reports
+\texttt{sizeof=12}. Account for every byte.
+\end{exercise}
+\begin{solution}[hint]
+\texttt{int} needs 4-alignment: c@0, pad 1--3, i@4--7, c@8, tail pad
+9--11 so the struct is a multiple of 4.
+\end{solution}
+
+\begin{exercise}\label{ex:e02c}
+Convert \texttt{0xBF800000} to a decimal float.
+\end{exercise}
+\begin{solution}[hint]
+$S{=}1$, $E{=}127$, $F{=}0$: $-1.0 \times 2^0 = -1.0$.
+\end{solution}
+
+\begin{exercise}\label{ex:e02d}
+Why does the size of \texttt{"hello"} come out 6 on every
+platform, while the size of a \texttt{char*} differs between
+data models?
+\end{exercise}
+\begin{solution}[hint]
+The string literal is an array of 6 chars including the NUL; the
+pointer is an address, and addresses are the thing that changes size.
+\end{solution}
+
+\begin{exercise}\label{ex:m02a}
+On a big-endian machine, what would \texttt{ch02\_bytes.c} print in
+the first line instead of \texttt{0d 0c 0b 0a}?
+\end{exercise}
+\begin{solution}[hint]
+Reverse the stored order: MSB first ---
+\texttt{0a 0b 0c 0d}.
+\end{solution}
+
+\begin{exercise}\label{ex:m02b}
+The alignment experiment measured misaligned as \emph{faster}. Give
+two reasons this could happen that have nothing to do with alignment.
+\end{exercise}
+\begin{solution}[hint]
+Loop ordering/warm-up, code layout, prefetcher behaviour, uarch
+quirks, different accumulated work --- name any two; the point is that
+a wrong-direction result indicts the benchmark, not the folklore's
+opposite.
+\end{solution}
+
+\begin{exercise}\label{ex:m02c}
+\texttt{double d = 0.1 + 0.2;} prints \texttt{0.30000000000000004}.
+Which IEEE-754 fact explains the 4?
+\end{exercise}
+\begin{solution}[hint]
+Neither 0.1 nor 0.2 has a finite binary fraction; both round to a
+neighbour, and the sum of the neighbours is one more neighbour ---
+the ``4'' is the accumulated rounding surfacing.
+\end{solution}
+
+\begin{exercise}\label{ex:m02d}
+Your RV32 code does \texttt{*(volatile uint32\_t*)0x10013000} to read
+a UART register. Why must the access be exactly 4 bytes, and what
+breaks if the compiler splits it into byte loads?
+\end{exercise}
+\begin{solution}[hint]
+MMIO registers are word-sized state machines: reading one byte can
+acknowledge the whole register (e.g.\ consume the RX FIFO entry).
+Split loads change device behaviour, not just performance.
+\end{solution}
+
+\begin{exercise}[hard]\label{ex:h02a}
+Write a standards-strict float-bits printer (sign, exponent,
+fraction fields) without type-punning UB and without assuming
+IEEE-754 --- verify the format macro first.
+\end{exercise}
+\begin{solution}[hint]
+Copy the float's bytes into a \texttt{uint32\_t} with
+\texttt{memcpy}, mask the fields, and guard the whole thing with a
+\texttt{\_\_FLT\_RADIX\_\_} check --- C never promised IEEE-754; it
+just happens to hold everywhere you will ship.
+\end{solution}
+
+\begin{exercise}[hard]\label{ex:h02b}
+Design a fair alignment benchmark that would actually isolate the
+misalignment cost on a machine that hides it. Name three confounders
+and how you'd control each.
+\end{exercise}
+\begin{solution}[hint]
+Interleave the two loops (kill ordering effects), keep \texttt{s}
+identical (kill work differences), use a dependent-load chain or
+volatile store (kill OOO hiding), pin to one core and average many
+trials. List any three.
+\end{solution}
+
+\section*{Summary}
+\label{sec:summary02}
+\addcontentsline{toc}{section}{Summary}
+
+\begin{center}
+\begin{tabularx}{\linewidth}{lX}
+\toprule
+\textbf{Idea} & \textbf{One-line version} \\
+\midrule
+types & compile-time agreements; the CPU sees bytes \\
+two's complement & top bit has negative weight; one adder does both \\
+endianness & byte order on the wire/in RAM; RV32 is little \\
+alignment+padding & fields sit at natural offsets; reorder fields
+for free bytes \\
+IEEE-754 & $S|E|F$; $\approx$7 digits; neighbours are the truth \\
+measurement & folklore expired; our own alignment test inverted \\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+\section*{Further reading}
+\label{sec:fr02}
+\addcontentsline{toc}{section}{Further reading}
+
+\begin{itemize}
+  \item Bryant \& O'Hallaron, \emph{Computer Systems: A Programmer's
+        Perspective}, ch.\,2 --- the standard full treatment of every
+        section here.
+  \item Suzanne J.\ Matthews, Tia Newhall, Kevin C.\ Webb,
+        \emph{Dive into Systems}, ch.\,4 --- free online, C-focused
+        coverage of representation.
+        \url{https://diveintosystems.org/book/C4-Data_rep/}
+  \item IEEE-754-2019 standard summary at
+        \url{https://en.wikipedia.org/wiki/IEEE_754} --- the format
+        table this chapter compresses.
+  \item ``What Every Computer Scientist Should Know About Floating-
+        Point Arithmetic'' (Goldberg), Sun docs reprint.
+  \item[] \href{https://docs.oracle.com/cd/E19957-01/806-3568/ncg_goldberg.html}{docs.oracle.com/cd/E19957-01/806-3568/ncg\_goldberg.html}
+  \item RISC-V unprivileged ISA spec, \S2 (base integer model,
+        little-endian note) ---
+        \url{https://riscv.org/specifications/}
+\end{itemize}
+
+\section*{Watch instead}
+\label{sec:watch02}
+\addcontentsline{toc}{section}{Watch instead}
+
+\begin{rulebox}
+\textbf{Watch instead.}
+\begin{itemize}
+  \item ``Endianness Explained With an Egg'' --- Computerphile, 10:46.
+        The boiled-egg walkthrough of Section~\ref{sec:endian02}.
+        \url{https://youtu.be/NcaiHcBvDR4}
+  \item ``Floating Point Numbers'' --- Computerphile, 9:16. The
+        IEEE-754 fields animated; matches Section~\ref{sec:float02}.
+        \url{https://youtu.be/PZRI1IfStY0}
+\end{itemize}
+\end{rulebox}
+
+\chapternotes

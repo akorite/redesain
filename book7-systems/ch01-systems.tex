@@ -1,0 +1,589 @@
+\chapter{How a program becomes a running thing}
+\label{ch:01}
+
+You wrote a CPU. In Book~5 you designed an 8-bit ALU, wired it into a
+datapath, and drove it with a two-state FSM until Fibonacci numbers came
+out of a serial pin. That machine is small enough to hold in your head ---
+302 synthesis cells, ten opcodes, two states --- but it is not a toy. The
+CPU you are using right now runs \emph{more} code than yours, not
+\emph{different} code. Somewhere between \texttt{int main(void)} and the
+transistors of your cpu8 there is a journey every program takes, and this
+book is about travelling it on foot. This chapter walks the first mile: how
+source text becomes a file of machine code, how that file gets into memory,
+and where your cpu8 meets the real silicon. Along the way you will
+compile, disassemble and link \emph{real} binaries and read their real
+output --- nothing in this chapter is simulated.
+
+\index{compilation pipeline}\index{ELF}\index{linker}\index{loader}%
+\index{relocation}\index{symbol table}\index{object file}%
+\index{execve@\texttt{execve}}
+
+\section{The four-stage journey}
+
+\index{preprocessor}\index{compiler}\index{assembler}
+Type \texttt{cc sum.c -o sum} and four programs run in sequence, each
+handing a new file to the next. The names differ between toolchains ---
+\texttt{gcc}, \texttt{clang}, \texttt{cc} --- the shape does not:
+
+\begin{enumerate}
+  \item \textbf{Preprocess} --- text in, text out. \texttt{\#include}
+        splices header files in place; \texttt{\#define} substitutes
+        macros; conditionals (\texttt{\#ifdef}) delete code before the
+        compiler ever sees it. Output: a ``translation unit'', still plain
+        C.
+  \item \textbf{Compile} --- the translation unit becomes assembly:
+        mnemonics, register names, labels --- the same language your cpu8
+        assembler spoke, with a bigger vocabulary. Output: \texttt{.s}.
+  \item \textbf{Assemble} --- mnemonics become machine-code bytes plus
+        bookkeeping (which bytes are code, which are data, which names are
+        exported). Output: an \emph{object file}, \texttt{.o} --- already
+        ELF, just not yet executable.
+  \item \textbf{Link} --- object files are stitched together: symbols
+        resolved, sections merged, addresses assigned, one entry point
+        recorded. Output: an executable ELF.
+\end{enumerate}
+
+\begin{example}[The pipeline, hands on]
+\label{ex:pipeline}
+Here is the whole journey on \texttt{code/ch01\_sum.c}, a six-line
+freestanding sum. Each stage was run on the dev box
+(Apple clang 21, targeting x86-64 Linux so the output is real ELF):
+
+\begin{lstlisting}[basicstyle=\ttfamily\scriptsize]
+clang -E     ch01_sum.c > ch01_sum.i     # 1: preprocess
+clang -S     ch01_sum.i                  # 2: compile -> ch01_sum.s
+clang -c     ch01_sum.s                  # 3: assemble -> ch01_sum.o
+ld.lld -o ch01_sum.elf ch01_start.o ch01_sum.o   # 4: link
+\end{lstlisting}
+
+Stage 2 emits assembly you can already read. Real output from
+\texttt{clang -S} (first lines of \texttt{sum}):
+
+\begin{lstlisting}[basicstyle=\ttfamily\scriptsize]
+sum:                                    # @sum
+        pushq   %rbp
+        movq    %rsp, %rbp
+        movq    %rdi, -8(%rbp)
+        movl    %esi, -12(%rbp)
+        movl    $0, -16(%rbp)           # s = 0
+        movl    $0, -20(%rbp)           # i = 0
+.LBB0_1:                                # loop:
+        movl    -20(%rbp), %eax         #   eax = i
+        cmpl    -12(%rbp), %eax         #   compare i, n
+        jge     .LBB0_4                 #   done when i >= n
+        movq    -8(%rbp), %rax
+        movslq  -20(%rbp), %rcx
+        movl    (%rax,%rcx,4), %eax     #   eax = a[i]
+        addl    %eax, -16(%rbp)         #   s += a[i]
+\end{lstlisting}
+
+Every line is one instruction the CPU will execute; \texttt{-8(\%rbp)}
+is the array pointer spilled to the stack exactly the way your cpu8's
+indirect addressing would have handled it.
+\end{example}
+
+\begin{figure}[htbp]
+\centering
+\input{figures/ch01/fig_pipeline.tex}
+\caption{The four-stage journey from source to running program. Each
+stage's product is a file you can inspect; none is magic.}
+\label{fig:pipeline01}
+\end{figure}
+
+\begin{checkpoint}
+In one sentence each: what does the preprocessor hand to the compiler,
+and what does the assembler hand to the linker?
+\end{checkpoint}
+\begin{solution}
+The preprocessor hands \emph{expanded C source} (one translation unit,
+no \texttt{\#}-lines) to the compiler. The assembler hands the linker an
+\emph{object file}: machine-code bytes plus a symbol table and
+relocation records --- not yet a program, but already ELF.
+\end{solution}
+
+\begin{tripwire}[The pipeline has four stages, not one]
+When a student writes ``gcc compiles my program'', they hide three of the
+four jobs under one word. You will meet students who cannot tell a
+\emph{compile} error (bad syntax) from a \emph{link} error (missing
+symbol) --- the fix is different every time, and the fix-time is the
+difference between seconds and an afternoon.
+\end{tripwire}
+
+\section{Object files and ELF sections}
+\label{sec:elf01}
+
+\index{section (ELF)}\index{.text@\texttt{.text}}\index{.data@\texttt{.data}}
+An object file is not a blob: it is a filing cabinet. The bytes from
+stage~3 arrive sorted into \emph{sections}, each with a name, a size, a
+job. Compile the sum program and look inside --- real output, dev box,
+clang 21 targeting x86-64 ELF:
+
+\begin{lstlisting}[basicstyle=\ttfamily\scriptsize]
+$ objdump -h ch01_sum.o
+Sections:
+Idx Name            Size     VMA              Type
+  1 .strtab         00000073 0000000000000000
+  2 .text           00000076 0000000000000000 TEXT
+  3 .rela.text      00000030 0000000000000000
+  4 .data           00000014 0000000000000000 DATA
+  7 .eh_frame       00000058 0000000000000000 DATA
+  8 .rela.eh_frame  00000030 0000000000000000
+\end{lstlisting}
+
+Read the four that matter:
+
+\begin{itemize}
+  \item \texttt{.text} --- 0x76 = 118 bytes of machine code. This is what
+        a CPU's instruction fetch unit reads. It is called ``text'' for
+        the same reason a teletype's paper tape was: the name is older
+        than most programmers, and it means \emph{code}, not English.
+  \item \texttt{.data} --- 0x14 = 20 bytes of initialised data: the
+        five-element array \texttt{v} inside \texttt{main}, stored as
+        real bytes.
+  \item \texttt{.rela.text} --- 48 bytes of relocation records: places in
+        \texttt{.text} the linker must patch once it knows the final
+        addresses.
+  \item \texttt{.symtab} (hidden in this excerpt, present in the file)
+        --- the symbol table: the names \texttt{sum}, \texttt{main},
+        whether each is defined or referenced, and where.
+\end{itemize}
+
+\begin{example}[Find \texttt{main}'s machine code]
+\label{ex:disasm}
+\texttt{objdump -d} walks the \texttt{.text} section and prints every
+instruction with its offset and its encoding bytes. Real output for
+\texttt{main} in \texttt{ch01\_sum.o}:
+
+\begin{lstlisting}[basicstyle=\ttfamily\scriptsize]
+0000000000000050 <main>:
+  50: 55                    pushq   %rbp
+  51: 48 89 e5              movq    %rsp, %rbp
+  54: 48 83 ec 10           subq    $0x10, %rsp
+  58: c7 45 fc 00 00 00 00  movl    $0x0, -0x4(%rbp)
+  5f: 48 8d 3d 00 00 00 00  leaq    (%rip), %rdi  # 0x66
+  66: be 05 00 00 00        movl    $0x5, %esi
+  6b: e8 00 00 00 00        callq   0x70 <main+0x20>
+  70: 48 83 c4 10           addq    $0x10, %rsp
+  74: 5d                    popq    %rbp
+  75: c3                    retq
+\end{lstlisting}
+
+Three things to notice. First, the middle column is the machine code ---
+\texttt{55}, \texttt{48 89 e5}: the exact bytes Book~5 ch16's ROM would
+have held. Second, \texttt{callq} at \texttt{6b} encodes
+\texttt{00 00 00 00} for its target: the assembler left a hole because it
+did not yet know where \texttt{sum} would live --- the linker's relocation
+step fills it. Third, \texttt{movl \$0x5, \%esi} is your accumulator
+pattern: load a constant into a register, then hand it to the call.
+\end{example}
+
+\begin{figure}[htbp]
+\centering
+\input{figures/ch01/fig_elf.tex}
+\caption{The section map of the real \texttt{ch01\_sum.elf}: code, data,
+bookkeeping --- one file, four jobs.}
+\label{fig:elf01}
+\end{figure}
+
+\begin{tripwire}[\texttt{.text} is not text, \texttt{.data} is not ``all
+the data'']
+New readers lose hours to naming. \texttt{.text} = instructions.
+\texttt{.data} = only \emph{initialised writable} globals.
+\texttt{.bss} = initialised-to-zero globals (not stored in the file at
+all --- the loader zero-fills it, which is why a 1~MB zero array costs
+no disk space).
+\end{tripwire}
+
+\section{Symbols and relocation}
+\label{sec:sym01}
+
+\index{symbol (linker)}\index{relocation record}\index{undefined symbol}
+The symbol table is the linker's contract. Two kinds of entries decide
+whether a program links: \emph{defined} symbols (the file provides them)
+and \emph{undefined} symbols (the file promises to get them from
+somewhere else). \texttt{objdump -t} shows both:
+
+\begin{lstlisting}[basicstyle=\ttfamily\scriptsize]
+$ objdump -t ch01_sum.elf          # after linking
+00000000002011c0 g       .text   _start
+0000000000202260 g       .data   data
+00000000002011e0 g     F .text   sum          # defined function
+0000000000201230 g     F .text   main         # defined function
+\end{lstlisting}
+
+While the object is still a \texttt{.o}, the assembler records a
+\emph{relocation} for every address it could not finish. Real
+\texttt{objdump -r} on \texttt{ch01\_broken.o}:
+
+\begin{lstlisting}[basicstyle=\ttfamily\scriptsize]
+RELOCATION RECORDS FOR [.text]:
+OFFSET           TYPE            VALUE
+0000000000000012 R_X86_64_PC32   .data-0x4
+000000000000001c R_X86_64_PLT32  sum-0x4
+0000000000000024 R_X86_64_PLT32  missing-0x4
+\end{lstlisting}
+
+Each row says: ``patch \texttt{.text} at this offset, against the
+final address of that symbol.'' The linker runs through these records,
+looks up every undefined symbol in every other object's symbol table,
+and either patches the hole --- or reports the failure you saw live:
+
+\begin{lstlisting}[basicstyle=\ttfamily\scriptsize]
+$ ld.lld -o broken ch01_broken.o
+ld.lld: error: undefined symbol: sum
+>>> referenced by ch01_broken.c
+>>>            ch01_broken.o:(main)
+ld.lld: error: undefined symbol: missing
+>>> referenced by ch01_broken.c
+>>>            ch01_broken.o:(main)
+\end{lstlisting}
+
+\begin{figure}[htbp]
+\centering
+\input{figures/ch01/fig_reloc.tex}
+\caption{Relocation is bookkeeping: the assembler records holes, the
+linker resolves them --- or names the missing symbol.}
+\label{fig:reloc01}
+\end{figure}
+
+\begin{example}[Hand-link, and watch the error message change]
+\label{ex:handlink}
+Link \texttt{ch01\_sum.o} alone and \texttt{ld.lld} reports
+\texttt{undefined symbol: sum} plus \texttt{undefined symbol: missing} ---
+two separate records, two separate complaints. Add \texttt{ch01\_sum.o}
+to the link line and \texttt{sum} disappears from the error list but
+\texttt{missing} remains. That is the whole game: undefined symbols are
+holes to fill; a link is complete when every hole has a defined home.
+\end{example}
+
+\begin{checkpoint}
+Your build reports \texttt{undefined symbol: \_\_stack\_chk\_fail}.
+Is this a compile error or a link error, and what does the linker want?
+\end{checkpoint}
+\begin{solution}
+A link error --- the compiler emitted a call to a helper that exists in
+the C library but is not on your link line. The linker wants any object
+file or library that \emph{defines} that symbol; adding it is the fix,
+not editing your source.
+\end{solution}
+
+\section{The loader and \texttt{execve}}
+\label{sec:exec01}
+
+\index{execve@\texttt{execve}}\index{address space}\index{page table}
+Linking produced a file; something still has to make it \emph{run}. That
+is the loader's job, and on Linux it is invoked by \texttt{execve}: the
+kernel opens the ELF, checks the magic bytes \texttt{\textbackslash
+x7f~E~L~F}, builds a fresh address space, maps the loadable segments to
+virtual pages, sets the program counter to the entry point, and hands
+the CPU to it. After the link above, the real executable's sections
+look like this:
+
+\begin{lstlisting}[basicstyle=\ttfamily\scriptsize]
+$ objdump -h ch01_sum.elf
+Sections:
+Idx Name          Size     VMA              Type
+  1 .eh_frame     0000005c 0000000000200158 DATA
+  2 .text         00000096 00000000002011c0 TEXT
+  3 .data         00000034 0000000000202260 DATA
+  5 .symtab       000000a8 0000000000000000
+\end{lstlisting}
+
+Compare with the \texttt{.o}: the \texttt{VMA} column is no longer zero.
+The linker assigned real addresses --- \texttt{.text} at
+\texttt{0x2011c0} --- and the loader maps those sections at exactly those
+virtual addresses. The program counter lands at \texttt{\_start}
+(\texttt{0x2011c0}), and the machine runs.
+
+\begin{figure}[htbp]
+\centering
+\input{figures/ch01/fig_address.tex}
+\caption{The process address space the loader builds: the ELF's
+segments become mapped pages; the CPU reads only addresses.}
+\label{fig:address01}
+\end{figure}
+
+\begin{example}[Where the map meets the metal]
+\label{ex:bridge}
+On your cpu8, \texttt{pc=0x0} meant ROM offset zero. On a real machine,
+\texttt{pc=0x2011c0} means ``page \texttt{0x20000} plus \texttt{0x1c0}'',
+and a page table translates that to DRAM. The idea is identical ---
+\emph{the CPU fetches from an address, and something decides what lives
+there}. What changed is who decides: on your cpu8, you did; on Linux,
+the page table your OS maintains does. That is the one sentence this
+book is about.
+\end{example}
+
+\section{Where Book 5's CPU meets real silicon}
+\label{sec:bridge01}
+
+\index{RV32I}\index{cpu8}\index{Book 5}
+Book~5's cpu8 and a RISC-V RV32I are the same machine at different
+scales. The mapping table you already know:
+
+\begin{center}
+\begin{tabularx}{\linewidth}{lX}
+\toprule
+\textbf{cpu8 (Book 5 ch14--16)} & \textbf{RV32I (this book)} \\
+\midrule
+8-bit regs, r0 = accumulator A &
+   32 32-bit regs, x0 wired to 0 \\
+10 opcodes, 4-bit op field &
+   RV32I base: 37 instructions, 7-bit opcode \\
+2-state FSM: fetch, execute &
+   5-stage pipeline: IF ID EX MEM WB \\
+\texttt{JMP}/\texttt{JZ} flags &
+   \texttt{beq}/\texttt{bne}/\dots compare-and-branch \\
+16-byte ROM, \texttt{pc=0x0} &
+   virtual memory, \texttt{pc} = entry VA \\
+UART prints a byte &
+   \texttt{ecall} asks the OS to print \\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+The right column is not a different kind of computer --- it is the same
+datapath+FSM shape with more bits and more stages. Chapters 5--8 build
+the pipelined RV32I core for real; this section is the signpost that
+says you have already built its skeleton once.
+
+\begin{figure}[htbp]
+\centering
+\input{figures/ch01/fig_journey.tex}
+\caption{The hand-off: Book 5 proved the shape; this book proves it at
+scale.}
+\label{fig:handoff01}
+\end{figure}
+
+\section{A map of the book}
+\label{sec:map01}
+
+Six parts, one question each. The order matters: each part runs the
+tools the previous one installed.
+
+\begin{figure}[htbp]
+\centering
+\input{figures/ch01/fig_roadmap.tex}
+\caption{The roadmap: source $\to$ machine code $\to$ a real core
+$\to$ memory $\to$ the OS $\to$ craft.}
+\label{fig:roadmap01}
+\end{figure}
+
+\begin{wins}
+\begin{itemize}
+\item You can name the four pipeline stages and what each produces.
+\item You can read \texttt{objdump -h/-d/-t/-r} output and find code,
+data, symbols and relocations.
+\item You know a \emph{link} error from a \emph{compile} error and how
+to fix each.
+\item You can place Book 5's cpu8 inside a real address space and name
+the piece of hardware that made it real: the page table.
+\end{itemize}
+\end{wins}
+
+\section{Common mistakes}
+\label{sec:mistakes01}
+
+\begin{itemize}
+  \item \textbf{``Compile'' is one step.} It is four. Students lose hours
+        calling a linker error a compiler bug; the fix is always
+        different.
+  \item \textbf{\texttt{.o} is ``half a program''.} It is a whole ELF,
+        just not yet executable --- sections, symbols, relocations are
+        already real. Nothing is created at link time except the
+        \emph{layout}.
+  \item \textbf{\texttt{.bss} wastes disk.} It does not exist in the
+        file; the loader zero-fills pages. A gigabyte of zeros costs
+        zero bytes on disk.
+  \item \textbf{Disassembly ``proves'' optimisation.} \texttt{objdump -d}
+        shows bytes; -O0 vs -O2 differences are layout and constants,
+        not magic. Measure before attributing speed.
+  \item \textbf{``The CPU runs the file.''} The CPU runs \emph{mapped
+        pages}; the file is only the blueprint. \texttt{execve} is the
+        step that turns one into the other.
+\end{itemize}
+
+\section*{Exercises}
+\label{sec:exercises01}
+\addcontentsline{toc}{section}{Exercises}
+
+% ---- inline checkpoints (2, embedded above) already count; additional graded:
+\begin{exercise}\label{ex:easy01}
+On \texttt{ch01\_sum.o}, which section holds the machine code, and which
+holds the relocation records that patch it?
+\end{exercise}
+\begin{solution}[hint]
+\texttt{objdump -h} lists both by name: the code lives in one, the patch
+list in another whose name starts with the code's.
+\end{solution}
+
+\begin{exercise}\label{ex:easy02}
+\texttt{objdump -t} on \texttt{ch01\_sum.elf} lists \texttt{sum} as
+\texttt{g F .text}. What do the two flags mean?
+\end{exercise}
+\begin{solution}[hint]
+One flag says ``global'' (visible outside this file); the other says
+``function''. Undefined entries would show \texttt{U} instead.
+\end{solution}
+
+\begin{exercise}\label{ex:easy03}
+A program's \texttt{.bss} is 500~KB but its file on disk is 40~KB.
+Why is this not a contradiction?
+\end{exercise}
+\begin{solution}[hint]
+\texttt{.bss} records a size and a destination, not bytes; the loader
+zero-fills the pages it names.
+\end{solution}
+
+\begin{exercise}\label{ex:easy04}
+Your build prints \texttt{undefined symbol: main}
+(from \texttt{ld.lld}). Which of the four pipeline stages failed?
+\end{exercise}
+\begin{solution}[hint]
+The stage that resolves names --- the one that runs \emph{after}
+\texttt{.o} files exist.
+\end{solution}
+
+\begin{exercise}\label{ex:med01}
+\texttt{callq} in \texttt{main} encodes \texttt{00 00 00 00}. In one
+sentence each: who left that hole, and who fills it?
+\end{exercise}
+\begin{solution}[hint]
+The stage that did not know the address left it; the stage that learns
+final addresses fills it via a relocation record.
+\end{solution}
+
+\begin{exercise}\label{ex:med02}
+Compare \texttt{objdump -h} on \texttt{ch01\_sum.o} and
+\texttt{ch01\_sum.elf}: what did the linker add, and what stayed
+the same?
+\end{exercise}
+\begin{solution}[hint]
+Addresses (VMA) appeared; section \emph{names} and \emph{jobs} did not
+change. One section disappeared into runtime metadata.
+\end{solution}
+
+\begin{exercise}\label{ex:med03}
+\texttt{execve} maps \texttt{.text} read-execute and \texttt{.data}
+read-write. Which single bit of your cpu8's memory would have had to
+become two bits, and why?
+\end{exercise}
+\begin{solution}[hint]
+The page-table permission bits your flat RAM did not need ---
+\texttt{.text} must not be writable, \texttt{.data} must not be
+executable.
+\end{solution}
+
+\begin{exercise}\label{ex:med04}
+\texttt{-O0} vs \texttt{-O2} on \texttt{ch01\_sum.c} changed
+\texttt{.text} from 0x76 to 0x96 bytes. Was the faster version larger
+or smaller here, and what does that tell you about ``optimise =
+smaller''?
+\end{exercise}
+\begin{solution}[hint]
+Faster was \emph{larger} (0x96 $>$ 0x76) --- unrolling/inlining trades
+size for speed. Optimisation is about time, not bytes.
+\end{solution}
+
+\begin{exercise}[hard]\label{ex:hard01}
+Hand-link the two objects from
+Example~\ref{ex:handlink} and explain, per relocation record, which
+hole each resolves and which it cannot. Then name the single symbol
+whose absence forces the linker to fail.
+\end{exercise}
+\begin{solution}[hint]
+The \texttt{PC32} record resolves within the same file; the two
+\texttt{PLT32} records need other objects: the \texttt{sum} record is
+satisfied once the second object joins the link, while the
+\texttt{missing} record has no home anywhere --- that one is the error.
+\end{solution}
+
+\begin{exercise}[hard]\label{ex:hard02}
+Design the minimum change to your cpu8 that would let it run an ELF
+\texttt{.text} section directly. What two pieces of metadata does
+\texttt{.text} carry that your ROM already has, and what two does
+your ROM lack?
+\end{exercise}
+\begin{solution}[hint]
+Your ROM already has bytes and an implied base address. It lacks a
+\texttt{VMA} (which virtual page it lands on) and a protection mode
+(read-execute vs read-write) --- the two fields that make an ELF a
+program rather than a tape.
+\end{solution}
+
+\begin{exercise}[hard]\label{ex:hard03}
+A student claims the entry point \texttt{\_start} is ``where the OS
+starts the program''. Correct the claim in one sentence, then name
+the field in the ELF header that actually points to the first
+instruction.
+\end{exercise}
+\begin{solution}[hint]
+\texttt{\_start} is not magic --- it is the symbol the linker recorded
+in the ELF header's \texttt{e\_entry} field; the loader reads that
+address and jumps to it, whoever named the symbol.
+\end{solution}
+
+\section*{Summary}
+\label{sec:summary01}
+\addcontentsline{toc}{section}{Summary}
+
+\begin{center}
+\begin{tabularx}{\linewidth}{lX}
+\toprule
+\textbf{Stage} & \textbf{What it produces} \\
+\midrule
+Preprocess & expanded C (one translation unit) \\
+Compile & assembly (\texttt{.s}) \\
+Assemble & ELF object (\texttt{.o}): sections + symbols + relocations \\
+Link & executable ELF: resolved symbols, assigned VMAs \\
+Load (\texttt{execve}) & mapped pages, \texttt{pc} $\to$ entry VA \\
+\midrule
+\textbf{You can now} & \\
+\midrule
+read \texttt{objdump} & code, data, symbols, relocations at a glance \\
+name the failure & compile vs assemble vs link vs load --- different
+fixes \\
+place cpu8 in the map & page table is the piece that makes it real \\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+\section*{Further reading}
+\label{sec:fr01}
+\addcontentsline{toc}{section}{Further reading}
+
+\begin{itemize}
+  \item Randal E. Bryant and David R. O'Hallaron, \emph{Computer Systems:
+        A Programmer's Perspective}, ch.\,7 ``Linking'' --- the standard
+        walk-through of symbols and relocation this chapter compresses.
+  \item Ulrich Drepper, ``How To Write Shared Libraries'', \S1
+        (ELF basics, sections vs segments).
+        \url{https://www.akkadia.org/drepper/dsohowto.pdf}
+  \item Compiler Explorer documentation --- try \texttt{clang -S} on your
+        own sum online and match the output to Example~\ref{ex:pipeline}.
+        \url{https://github.com/compiler-explorer/compiler-explorer}
+  \item The ELF specification (System V ABI, \S4--5) --- the byte-level
+        reference for every field \texttt{objdump} printed.
+  \item Linux \texttt{execve(2)} and \texttt{elf(5)} man pages ---
+        the loader's side of the contract.
+\end{itemize}
+
+\section*{Watch instead}
+\label{sec:watch01}
+\addcontentsline{toc}{section}{Watch instead}
+
+\begin{rulebox}
+\textbf{Watch instead.} If a video explains it faster than the prose,
+watch these and come back:
+\begin{itemize}
+  \item ``In-depth: ELF --- The Extensible \& Linkable Format'' ---
+        stacksmashing, 19:02. Byte-level walk of the format this
+        chapter uses; matches Sections~\ref{sec:elf01}--\ref{sec:sym01}.
+        \url{https://youtu.be/nC1U1LJQL8o}
+  \item ``Writing a Linux ELF Binary by Hand'' --- Simon Racz, 59:11.
+        Builds the file from hex --- the same journey with no toolchain.
+        \url{https://youtu.be/JM9jX2aqkog}
+\end{itemize}
+\end{rulebox}
+
+\chapternotes
