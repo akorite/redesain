@@ -15,6 +15,32 @@ The skill that homework never exercises is abandonment: knowing that a
 problem you \emph{could} solve in three hours is a loss if the other
 five were solvable in thirty minutes each.
 
+\begin{example}[Triage by rate, not by difficulty]
+An exam offers problems worth 7 points each: $P_1$ looks solvable in
+40 minutes, $P_2$ in 90, $P_3$ is interesting and you have spent 25
+minutes already with no progress. Rank the next hour.
+\par\smallskip
+\textbf{Strategy.} Score is additive; time is the constraint ---
+maximize expected points per \emph{hour}, not per problem, and treat
+sunk cost as zero.
+\par\smallskip
+\begin{solution}
+$P_1$: $\approx 7/\tfrac{2}{3} = 10.5$ pts/hr; $P_2$:
+$\approx 7/1.5 \approx 4.7$; $P_3$: unknown remainder, likely $>60$
+min more for at most 4.7. The 25 minutes on $P_3$ are gone either way
+--- they do not raise its rate. Order: $P_1$ first, then re-evaluate
+$P_2$ vs returning to $P_3$ with fresh eyes (Figure~\ref{fig:triage}).
+\end{solution}
+\end{example}
+
+\begin{figure}[ht]\centering
+\input{figures/ch17-triage}
+\caption{Triage orders by expected points per hour, not by how close a
+problem \emph{feels}. Notice $P_3$'s sunk cost buys nothing --- only
+the remaining estimate counts.}
+\label{fig:triage}
+\end{figure}
+
 \section{The four-hour budget}\index{contest!budget}
 Triage first, always: read every problem before writing any
 (Figure~\ref{fig:gantt}). First pass solves the problems you already
@@ -108,7 +134,32 @@ Last thirty minutes, in order of value: (1) re-read each submission's
 claim --- does the proof actually end at it? (2) check boundary cases
 --- the $n=0$, empty-set, single-element input. (3) verify find-all
 answers in both directions: candidates found \emph{and} verified.
-(4) recompute any arithmetic that appeared only once on the page.
+(4) recompute any arithmetic that appeared only once on the page
+(Figure~\ref{fig:checkloop}).
+
+\begin{figure}[ht]\centering
+\input{figures/ch17-checkloop}
+\caption{The check loop: three cheap checks before submit, and any
+failure routes back to solving. Notice checks are ordered by cost ---
+dimensions are seconds, plug-back is the thorough audit.}
+\label{fig:checkloop}
+\end{figure}
+
+\begin{example}[A check that catches the answer]
+A solution claims the sequence $a_{n+1}=2a_n+1$, $a_0=0$ has closed
+form $a_n = 2^{n-1}-1$. Run the check loop.
+\par\smallskip
+\textbf{Strategy.} Cheap check first: the boundary value $n=1$ must
+already satisfy it.
+\par\smallskip
+\begin{solution}
+$a_1 = 1$ from the recurrence; the formula gives
+$2^0-1=0$ --- contradiction at the first check, costing seconds.
+The correct form is $a_n = 2^n - 1$: $2^1-1=1$, $2^2-1=3$ match the
+recurrence's $a_1, a_2$, and induction confirms. One boundary case
+turned a confidently-wrong answer into a fix before submission.
+\end{solution}
+\end{example}
 
 \section{The 20-proof portfolio}\index{proof portfolio}
 Twenty proofs, written and self-graded on the rubric
@@ -278,6 +329,64 @@ problems under it, and report where the plan broke.
 Most plans break at the deep-work cap --- the discipline being tested
 is stopping, not solving.
 \end{solution}
+\begin{exercise}[easy]\label{exr:ea11}
+A 3-problem exam is worth 21 points total (7 each). You solve $P_1$ in
+25 min, $P_2$ in 50 min, and spend the last 15 checking. Sketch the
+timeline.
+\end{exercise}
+\begin{solution}
+$0$--$10$ triage/read; $10$--$35$ $P_1$; $35$--$85$ $P_2$;
+$85$--$135$ $P_3$ attempt; $135$--$150$ checks --- the check block is
+scheduled, never squeezed.
+\end{solution}
+\begin{exercise}[medium]\label{exr:ea12}
+Rewrite this scratch into a submittable claim--lemma--proof: ``mod 7
+squares are only 0,1,2,4, so $x^2+y^2=7z$ only if 7|x,y.''
+\end{exercise}
+\begin{solution}
+\textbf{Claim.} $x^2+y^2\equiv0\pmod7 \Rightarrow 7\mid x,y$.
+\textbf{Lemma.} $a^2\bmod7\in\{0,1,2,4\}$ (check $a=0..6$).
+\textbf{Proof.} Pairs summing to $0\bmod7$ among
+$\{0,1,2,4\}$: only $0+0$; hence $x^2\equiv y^2\equiv0$, and $7$
+prime gives $7\mid x$, $7\mid y$.\ \qed
+\end{solution}
+\begin{exercise}[medium]\label{exr:ea13}
+Two students claim ``I basically solved it'' after finding the right
+method but writing no proof. Using the rubric, score each: (a) method
+named, zero steps written; (b) method plus lemma statements, no
+proofs.
+\end{exercise}
+\begin{solution}
+(a) $0$---$1$: method recognition earns at most the setup point;
+(b) $2$---$3$: correctly stated lemmas earn partial credit, but the
+claim is unproven --- ``basically solved'' is a partial-credit
+self-report, not a solve.
+\end{solution}
+\begin{exercise}[hard]\label{exr:ea14}
+Design a verification protocol for a ``find all $f$'' solution that
+found $\{f=0, f=\mathrm{id}\}$: list the three checks that catch the
+two classic errors.
+\end{exercise}
+\begin{solution}
+(1) \emph{Existence}: verify each member satisfies the equation
+literally; (2) \emph{Completeness}: re-derive the family and confirm
+no branch was dropped (e.g.\ $c^2=c$ allows both roots);
+(3) \emph{Domain}: check the found functions are defined on all of
+the stated domain. The classic errors are dropped branches and
+unverified members.
+\end{solution}
+\begin{exercise}[hard]\label{exr:ea15}
+Autopsy this fake-solve: ``Clearly $f$ is linear since additive
+functions are lines, so $f(x)=kx$.'' Identify the two dishonest steps
+and write the honest version.
+\end{exercise}
+\begin{solution}
+Dishonest: ``clearly'' hides the hard part ($\mathbb R$ vs
+$\mathbb Q$ domains), and ``additive functions are lines'' skips the
+regularity hypothesis entirely. Honest: state the domain, derive
+$f(q)=qf(1)$ on $\mathbb Q$, then name the regularity (continuity,
+monotonicity, or boundedness) that extends it to $\mathbb R$.
+\end{solution}
 
 \section*{Notes}
 Grading, fake-solve and checking conventions follow Chen's
@@ -286,5 +395,41 @@ format~\cite{otis}; write-up mechanics follow Hammack~\cite{hammack}
 and Velleman's technique summary~\cite{velleman}. Case-study problems
 already cited: 2024 AIME I P10; 2021 AIME I P10; 2024 USAJMO P1;
 USAMO 2003 rubric (olympiad.html)~\cite{chen-english}.
+
+\section*{Further reading}
+\begin{itemize}
+\item E.~Chen, \emph{Remarks on English} --- how graders actually
+read proofs; the reference for the write-up and fake-solve sections:
+\url{https://web.evanchen.cc/handouts/english/english.pdf}
+\item L.~Lamport, \emph{How to Write a 21st Century Proof} (paper)
+--- the hierarchical proof structure the claim--lemma--proof style
+descends from:
+\url{https://lamport.azurewebsites.net/pubs/proof.pdf}
+\item R.~Hammack, \emph{Book of Proof} ---
+\url{https://richardhammack.github.io/BookOfProof/} --- the write-up
+mechanics chapter.
+\item D.~Velleman, \emph{How to Prove It} --- technique summaries for
+each proof pattern the portfolio drills.
+\item MIT OpenCourseWare, \emph{6.042J} ---
+\url{https://ocw.mit.edu/6-042JF10} --- the proof-writing recitations.
+\item The OTIS walkthrough archive (E.~Chen's olympiad training
+materials) ---
+\url{https://web.evanchen.cc/otis.html} --- model write-ups at contest
+standard.
+\end{itemize}
+
+\begin{rulebox}[Watch instead]
+\begin{itemize}
+\item \textbf{Art of Problem Solving --- ``Work Backwards'' (Richard
+Rusczyk)}, 12:00,
+\url{https://www.youtube.com/watch?v=ZlKUhwNniOo} --- the work-backwards
+tactic that saves stalled exam problems. (Verified 2026-10-11.)
+\item \textbf{Leslie Lamport --- ``How to Write a 21st Century
+Proof''} (Heidelberg Laureate Forum 2017), $\sim$28 min,
+\url{https://av.tib.eu/media/40137} --- why claim--lemma--proof
+structure beats prose proofs: the Write-up-standards section's
+ancestor. (Verified 2026-10-11.)
+\end{itemize}
+\end{rulebox}
 
 \chapternotes

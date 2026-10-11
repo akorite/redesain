@@ -1,20 +1,19 @@
 # Progress log
 | Chapter | Status | Pages | Date |
 |---|---|---|---|
-| 01 Logic and quantifiers | drafted (ch01-logic.tex), compiles clean: 0 overfull >3pt, 0 undefined refs | 13 | 2026-10-10 |
-| 02 How to write a proof | drafted (ch02-discrete.tex), compiles clean | 13 | 2026-10-10 |
-| 03 Induction | drafted (ch03-discrete.tex), compiles clean | 12 | 2026-10-10 |
-| 04 Sets, relations and functions | drafted (ch04-discrete.tex), compiles clean | 11 | 2026-10-10 |
-| 05 Divisibility and primes | drafted (ch05-discrete.tex), compiles clean | 10 | 2026-10-10 |
-| 06 Modular arithmetic | drafted (ch06-discrete.tex), compiles clean | 10 | 2026-10-10 |
-| 07 CRT and Fermat-Euler | drafted (ch07-discrete.tex), compiles clean | 10 | 2026-10-10 |
-| 08 Counting principles | drafted (ch08-discrete.tex), compiles clean | 10 | 2026-10-10 |
-| 09 Inclusion-exclusion and generating functions | drafted (ch09-discrete.tex), compiles clean | 10 | 2026-10-10 |
-| 10 Recurrences | drafted (ch10-discrete.tex), compiles clean | 10 | 2026-10-10 |
-| 11 Graphs, trees and planarity | drafted (ch11-discrete.tex), compiles clean | 10 | 2026-10-10 |
-| 12 Probability on finite spaces | drafted (ch12-discrete.tex), compiles clean | 10 | 2026-10-10 |
-| 13 Inequalities | drafted (ch13-discrete.tex), compiles clean | 10 | 2026-10-10 |
-| 14 Functional equations | drafted (ch14-discrete.tex), compiles clean | 10 | 2026-10-10 |
-| 15 Olympiad geometry | drafted (ch15-discrete.tex), compiles clean | 10 | 2026-10-10 |
-| ch16 | Invariants, monovariants and extremal arguments | drafted | ~7 | 6 | 16 | 1 |
-| backmatter | Hints for all [hard] + rotating solutions | drafted | ~14 | -- | -- | -- |
+| 01 Logic and quantifiers | depth pass: +2 figs (6 total), 6 WEs, 16 additional exercises, +3 mistakes, Further reading (6 verified) + Watch (3 verified) | ~11 | 2026-10-11 |
+| 02 How to write a proof | depth pass: +2 figs (6 total), 5 WEs, 15 additional exercises, Further reading (6 verified) + Watch (2 verified) | ~11 | 2026-10-11 |
+| 03 Induction | depth pass: +2 figs (6 total), 5 WEs, 15 additional exercises, Further reading (6 verified) + Watch (2 verified) | ~11 | 2026-10-11 |
+| 04 Sets, relations and functions | depth pass: +1 fig (6 total), 5 WEs, 15 additional exercises, Further reading (6 verified) + Watch (2 verified) | ~12 | 2026-10-11 |
+| 05 Divisibility and primes | depth pass: +2 figs (6 total), 5 WEs, 15 additional exercises, Further reading (6 verified) + Watch (2 verified) | ~12 | 2026-10-11 |
+| 06 Modular arithmetic | depth pass: +1 WE (5 total), +2 figs (6 total), 15 additional exercises, Further reading (6 verified) + Watch (2 verified) | ~12 | 2026-10-11 |
+| 07 CRT and Fermat--Euler | depth pass: +2 figs (6 total), 5 WEs, 15 additional exercises, Further reading (6 verified) + Watch (2 verified) | ~12 | 2026-10-11 |
+| 08 Counting principles | depth pass: +1 WE (5 total), +1 fig (6 total), 15 additional exercises, Further reading (6 verified) + Watch (2 verified) | ~12 | 2026-10-11 |
+| 09 Inclusion--exclusion and GFs | depth pass: +1 WE (5 total), +2 figs (6 total), 15 additional exercises, Further reading (6 verified) + Watch (2 verified) | ~12 | 2026-10-11 |
+| 10 Recurrences | depth pass: +1 WE (5 total), +2 figs (6 total), 15 additional exercises, Further reading (6 verified) + Watch (2 verified) | ~13 | 2026-10-11 |
+| 11 Graphs, trees and planarity | depth pass: +1 WE (5 total), +1 fig (6 total), 15 additional exercises, Further reading (6 verified) + Watch (2 verified) | ~13 | 2026-10-11 |
+| 12 Probability on finite spaces | depth pass: +1 WE (5 total), +2 figs (6 total), 15 additional exercises, Further reading (6 verified) + Watch (2 verified) | ~12 | 2026-10-11 |
+| 13 Inequalities | depth pass: +1 WE (5 total), +2 figs (6 total), 15 additional exercises, Further reading (6 verified) + Watch (2 verified) | ~15 | 2026-10-11 |
+| 14 Functional equations | depth pass: +1 WE (5 total), +2 figs (6 total), 15 additional exercises, Further reading (6 verified) + Watch (1 verified) | ~14 | 2026-10-11 |
+| 15 Olympiad geometry | depth pass: +1 WE (5 total), 8 figs, 15 additional exercises, Further reading (6 verified) + Watch (2 verified) | ~14 | 2026-10-11 |
+| ch16 | Invariants, monovariants and extremal arguments | drafted | ~7 | 6 | 16 Invariants and extremal | depth pass: 5 WEs, 6 figs, 15 additional exercises, Further reading (6 verified) + Watch (2 verified) | ~15 | 2026-10-11 | Hints for all [hard] + rotating solutions | drafted | ~14 | -- | -- | -- |
