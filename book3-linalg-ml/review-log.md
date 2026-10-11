@@ -1,0 +1,34 @@
+# Review log
+| Chapter | Author | Reviewer | Findings | Resolution |
+|---|---|---|---|---|
+| ch01 | book3 session | book5 session (devin-360c...) | REVISE — 1 blocker: Example 1.1 reuses Strang's signature 3x3 verbatim; re-roll + regen outputs. Nits: dead best_of() vs min(); ~11pp vs 14; [hard] hint convention | RESOLVED 2026-10-10: new system (x+2y+z=7, 3x+8y+z=17, 2y+3z=11 → (2,1,3)), outputs regenerated, recompiled clean |
+| ch02 matrices | book3 session | book5 session (devin-360c...) | ACCEPTED 2026-10-10 — PASS 0 blockers (delivered 18:00); ex2.1 clause clarified; timings nit noted (machine-specific by design) | |
+| ch03 vector spaces/4 subspaces | book3 session | book5 session | PENDING — 0 overfull>3pt/0 undef 2026-10-10 | |
+| ch04 linear maps/change of basis | book3 session | book5 session | ACCEPTED 2026-10-10 — 0 blockers; B^-1AB direction verified; ex:changebasis stumble already signalled in text | |
+| ch05 orthogonality/projections/QR | book3 session | book5 session | PENDING — 0 overfull>3pt/0 undef 2026-10-10 | |
+| ch05 orthogonality/QR | book3 session | book5 session | PENDING — 0 overfull>3pt/0 undef, 63pp 2026-10-10 | |
+| ch06 determinants | book3 session | book5 session | PENDING — 0 overfull>3pt/0 undef, 72pp 2026-10-10 | |
+| ch07 eigenvalues | book3 session | book5 session | PENDING — 0 overfull>3pt/0 undef, 85pp 2026-10-10 | |
+| ch08 least squares | book3 session | book5 session | RESOLVED 2026-10-10 — cond² caption fixed: 3.267e15 is float64-computed, 14% off exact 2.86e15, caption now says so honestly (was "exactly")| |
+| ch09 spectral theorem | book3 session | ACCEPTED 2026-10-10 — PASS (all 3 scripts byte-exact; both proofs sound; nit: tag-case drift noted)| PENDING — 0 overfull>3pt/0 undef, 109pp 2026-10-10 | |
+| ch10 SVD + PCA (capstone 2) | book3 session | ACCEPTED 2026-10-10 — PASS (4 scripts byte-exact; SVD hand-verified)| PENDING — 0 overfull>3pt/0 undef, 120pp 2026-10-10 | |
+| ch11 gradients/Jacobians/Hessians | book3 session | ACCEPTED 2026-10-10 — PASS (FD U-shape byte-exact; proofs sound)| PENDING — 0 overfull>3pt/0 undef, 131pp 2026-10-10 | |
+| ch12 probability/RVs | book3 session | ACCEPTED 2026-10-10 — PASS (all 4 scripts byte-exact; tag-case drift fixed)| PENDING — 0/0, 142pp 2026-10-10 | |
+| ch13 statistics/Bayes | book3 session | book5 session | ACCEPTED 2026-10-10 — PASS (all 4 .py byte-exact; Beta post-mean 0.500→0.646 verified) | |
+| ch13 statistics/Bayes (re-review, byte-identical file) | book5 session | ACCEPTED 2026-10-11 — PASS re-confirmed (diff vs accepted file = identical; full-book recompile 167pp, 0/0/0) | |
+| ch14 optimization/GD/Lagrange | book5 session | RESOLVED→ACCEPTED 2026-10-11 — REVISE item (ex:gdstep "~4"→"~5", actual factor 5.2) applied verbatim + grep-verified by coordinator; rest of review passed as logged (all 4 .py byte-exact, Lagrange/Newton hand-verified, contract met), 167pp 0/0/0 | |
+| ch15 information theory | book3 session | book5 session | ACCEPTED 2026-10-11 — PASS. All 3 .py byte-exact live-runs (info: h(0.9)=0.469/KL 0.8160/1.2572/H(p,q)=H(p)+KL; huffman: 4.212 vs 4.177 floor, lengths ~-log2 p; ce_loss: ln2 start 0.6931, acc saturates step 80 while CE falls to 0.0785, per-sample bits). Hand-verified: dyadic Huffman=H=1.75, KL both directions, H(p) 0.811/CE 1.000/DKL 0.189, MI 0.278, Gaussian h sigma=1/sqrt(2pi e)=0.242, Gibbs proof (ln x<=x-1 dir), chain rule. Contract: 5 WEs/6 figs/15 addl+4 inline/Further reading 5 items all URLs 200/Watch 2 videos title+channel verified via oEmbed. 178pp, 0 err/0 overfull>3pt/0 undef. Nits (book-wide, not ch15-specific): section*{Notes}+chapternotes double-prints the Notes heading (same in ch11-14) -> drop manual two lines; h(p) Bernoulli vs h(X) differential entropy reuse unnamed in notation.md. |
+| ch16 capstone mlscratch (PCA/ridge/GNB/pipeline) | book3 session | book5 session | RESOLVED→ACCEPTED 2026-10-11 — REVISE item (overflowing note node in figures/ch16_gnb.tex) deleted verbatim + grep-verified by coordinator; rest of review passed as logged. Original findings: REVISE 2026-10-11 — one visual defect. VERIFIED: all 4 runs byte-exact (check: ridge->OLS 7.42e-10, PCA recon 1.858/0.855->0.658, ridge grad FD=88.1285=analytic relerr 4.28e-10, GNB predict=1=manual; pipeline: var 0.513, mlscratch 0.967/0.867 vs sklearn 0.956/0.867 on sklearn 1.6.1 confirmed installed; ridge sweep 9.46->0.63 w1, test MSE U-shape 28.07->18.71->34.41). Hand-verified: ridge w=2/(2+lam) centering excludes intercept; PCA C=[[2,4/3],[4/3,2]] eigs 10/3,2/3 -> 83.3% @ (1,1)/sqrt2, projections 2.121/0.707; GNB -2.879 vs -3.329, e^0.45=1.6:1, boundary 2.5. Contract: 5 WEs/6 figs/15 addl+5 inline ex/6-item Further reading all URLs verified/Watch 3 videos w/ honest duration-unconfirmed flag. 191pp, 0 errors, 0 undefined. BLOCKER-ish nit (1 fix): figures/ch16_gnb.tex lines 14-17 inline note overflows 101pt and visibly clips at page edge ('...equal variances make it' cut). Verbatim fix: delete that node entirely — the caption already carries 'Equal variances make the crossing point — linear'. Book-wide nit persists: manual section*{Notes}+addcontentsline before chapternotes double-prints the Notes heading. |
+| ch01 Systems and Gaussian elimination | book3/book1 | elec session | PASS 2026-10-11 — links live, math sampled clean | |
+| ch02 Matrix algebra | book3/book1 | elec session | PASS 2026-10-11 — links live, (A²)ii/tr(A³) verified | |
+| ch03 Vector spaces and rank–nullity | book3/book1 | elec session | REVISE 2026-10-11 — linear.ups.edu dead (000) — RESOLVED: Wayback URL substituted verbatim, unverified.md row added | ACCEPTED |
+| ch04 Projections and orthogonality | book3/book1 | elec session | PASS 2026-10-11 — links live, projection iff verified | |
+| ch05 Orthogonalisation and inner products | book3/book1 | elec session | PASS 2026-10-11 — links live, Gram–Schmidt exercise verified | |
+| ch06 Determinants | book3/book1 | elec session | PASS 2026-10-11 — links live, det(A⁻¹) verified | |
+| ch07 Eigenvalues and eigenvectors | book3/book1 | elec session | PASS 2026-10-11 — links live, Markov-chain example verified | |
+| ch08 Least squares and regression | book3/book1 | elec session | PASS 2026-10-11 — links live, normal-equations exercise verified | |
+| ch09 Symmetric matrices and quadratic forms | book3/book1 | elec session | PASS 2026-10-11 — links live, Rayleigh principle verified | |
+| ch10 The SVD | book3/book1 | elec session | PASS 2026-10-11 — links live, Eckart–Young rank-1 verified | |
+| ch11 Gradients and optimisation | book3/book1 | elec session | PASS 2026-10-11 — links live, ∇⊥level-sets verified | |
+| ch12 Probability for ML | book3/book1 | elec session | PASS 2026-10-11 — links live, CLT exercise sound | |
+| ch13 Estimation and inference | book3/book1 | elec session | PASS 2026-10-11 — links live, Bessel bias verified | |
