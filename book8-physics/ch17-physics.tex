@@ -1,0 +1,322 @@
+\chapter{Thermodynamics essentials}\label{ch:thermo}
+
+Heat is chapter~4's energy bookkeeping applied to $10^{23}$ actors:
+the same conservation law, now tracking which share of the energy is
+\emph{organised} (work) and which is \emph{scattered} (heat). Engines,
+batteries and climate systems are all audits of that split.
+
+\section{Temperature, equilibrium and the gas law}\label{sec:th-gas}
+
+Temperature is the scale-free way of saying ``equally spread''; ideal
+gas ties the macro bookkeeping to it: $PV=nRT$. Microscopically
+(figure~\ref{fig:wall}) pressure is momentum flux: each wall hit
+deposits $2mv_x$, and summing the rate gives
+$P=\tfrac{1}{3}nm\overline{v^{2}}/V$ --- the same Newton's law as
+chapter~2, averaged.
+
+\begin{figure}[htbp]\centering
+\input{figures/ch17_wall}
+\caption{Kinetic theory: pressure is the sum of wall collisions.}
+\label{fig:wall}
+\end{figure}
+
+\section{Internal energy and equipartition}\label{sec:th-internal}
+
+For a monatomic gas each particle's average KE is $\tfrac32k_BT$, so
+$E_{\rm int}=\tfrac32nRT$: temperature \emph{is} the mean per-particle
+kinetic energy, and the distribution of speeds is not a spike but
+figure~\ref{fig:mb} --- the Maxwell--Boltzmann shape the code samples.
+
+\begin{figure}[htbp]\centering
+\input{figures/ch17_mb}
+\caption{Maxwell--Boltzmann: most particles near $\sigma$, a fast
+tail doing the chemistry.}
+\label{fig:mb}
+\end{figure}
+
+\section{The first law: the fixed sign convention}\label{sec:th-first}
+
+\begin{equation}
+  \Delta E_{\rm int}=Q-W_{\rm by},\label{eq:first}
+\end{equation}
+with $Q$ the heat \emph{into} the gas and $W_{\rm by}$ the work done
+\emph{by} it --- one convention, used throughout (a compression then
+has $W_{\rm by}<0$: the gas gains energy).
+
+\section{Processes on the $PV$ plane}\label{sec:th-proc}
+
+Four archetypes (figure~\ref{fig:pv}): isochore ($W=0$), isobar
+($W=P\Delta V$), isotherm ($PV$ const, $Q=W$), adiabat ($Q=0$,
+$PV^{\gamma}$ const, steeper than the isotherm). Work is the area under
+the process curve --- so a cycle's \emph{enclosed area} is its net work
+(figure~\ref{fig:cycle}).
+
+\begin{figure}[htbp]\centering
+\input{figures/ch17_pv}
+\caption{The four process archetypes: the adiabat always beats the
+isotherm's steepness.}
+\label{fig:pv}
+\end{figure}
+
+\begin{figure}[htbp]\centering
+\input{figures/ch17_cycle}
+\caption{Any clockwise cycle nets the enclosed area as work.}
+\label{fig:cycle}
+\end{figure}
+
+\begin{example}[Isothermal expansion + audit]\label{ex:iso}
+$2$\,mol of gas expands isothermally at $300$\,K from $1$ to $2$\,m$^{3}$.
+Find $W$, and audit $Q$ and $\Delta E_{\rm int}$.
+\par\smallskip
+\textbf{Strategy.} $W=\int P\,dV=nRT\ln(V_2/V_1)$.
+\begin{solution}
+$W=2(8.314)(300)\ln2=3458$\,J. Ideal-gas $E_{\rm int}$ depends only on
+$T$: $\Delta E_{\rm int}=0$, so the first law forces
+$Q=W=3458$\,J --- every joule in becomes a joule out.
+\checkmark
+\end{solution}
+\end{example}
+
+\begin{example}[Two-process cycle: net work from the area]\label{ex:cyc}
+A cycle: isobaric expansion $1\to2$\,m$^{3}$ at $2\times10^{5}$\,Pa,
+then isochoric cooling back to the start state, then isobaric
+compression $2\to1$\,m$^{3}$ at $1\times10^{5}$\,Pa, then isochoric
+heating home. Net work per cycle?
+\par\smallskip
+\textbf{Strategy.} Enclosed rectangle on the $PV$ plane.
+\begin{solution}
+$W_{\rm net}=(2-1)\times10^{5}\times(2-1)=1.0\times10^{5}$\,J --- the
+rectangle's area, no calculus needed. \checkmark
+\end{solution}
+\end{example}
+
+\begin{example}[Adiabatic compression work]\label{ex:adiab}
+$1$\,mol of air ($\gamma=1.4$, $C_V=\tfrac52R$) at $300$\,K, $0.02$\,m$^{3}$
+is compressed adiabatically to $0.01$\,m$^{3}$. Find $T_2$ and the work
+done \emph{on} the gas.
+\par\smallskip
+\textbf{Strategy.} $TV^{\gamma-1}$ const; $W_{\rm on}=-\Delta E_{\rm int}$.
+\begin{solution}
+$T_2=300(2)^{0.4}=396$\,K; $\Delta E_{\rm int}=nC_V\Delta T
+=2.5(8.314)(96)=1995$\,J, all arriving as work done on the gas since
+$Q=0$. \checkmark
+\end{solution}
+\end{example}
+
+\section{Heat engines and the Carnot bound}\label{sec:th-carnot}
+
+An engine (figure~\ref{fig:engine}) banks $Q_H$, pays $W$, dumps $Q_C$:
+$\eta=W/Q_H=1-Q_C/Q_H$. The ideal-gas Carnot cycle (two isotherms + two
+adiabats) computes $Q_C/Q_H=T_C/T_H$, giving the universal bound
+\begin{equation}
+  \eta\le1-\frac{T_C}{T_H},\label{eq:carnot}
+\end{equation}
+a rectangle on the $T$--$S$ plane (figure~\ref{fig:ts}) --- no real
+engine does better.
+
+\begin{figure}[htbp]\centering
+\input{figures/ch17_engine}
+\caption{The engine schematic: efficiency is the take vs the bank.}
+\label{fig:engine}
+\end{figure}
+
+\begin{figure}[htbp]\centering
+\input{figures/ch17_ts}
+\caption{Carnot on $T$--$S$: a rectangle whose width is $\Delta S$.}
+\label{fig:ts}
+\end{figure}
+
+\begin{example}[Carnot bound number]\label{ex:carnot}
+An engine runs between $600$\,K and $300$\,K. Bound on $\eta$; if it
+takes $1000$\,J per cycle, best possible $W$?
+\par\smallskip
+\textbf{Strategy.} Apply \eqref{eq:carnot}.
+\begin{solution}
+$\eta\le1-300/600=50\%$; $W\le500$\,J --- half the heat must leave as
+$Q_C$ no matter the engineering. \checkmark
+\end{solution}
+\end{example}
+
+\begin{example}[Isothermal entropy of expansion]\label{ex:entropy}
+For \ref{ex:iso}'s expansion, find $\Delta S$ of the gas.
+\par\smallskip
+\textbf{Strategy.} $\Delta S=Q_{\rm rev}/T$.
+\begin{solution}
+$\Delta S=3458/300=11.5$\,J/K $=nR\ln2$ exactly --- the gas's states
+multiplied by $2^{n}$ (each particle's volume doubled, in counting
+terms). \checkmark
+\end{solution}
+\end{example}
+
+\begin{lstlisting}[language=Python,caption={\texttt{code/ch17\_maxwell\_boltzmann.py} --- Kac-model thermalisation vs 2-D MB theory.},label={lst:mb}]
+rx, ry = c*wx - s*wy, s*wx + c*wy   # rotate relative velocity
+\end{lstlisting}
+
+Output of a real run:
+\begin{lstlisting}[numbers=none]
+mean <v^2> = 1.0 (1.0: collisions conserve KE)
+rms speed   = 1.0
+mean speed  = 0.8876  2D MB theory = 0.8862
+hist (0.4 bins) = [590, 1307, 1138, 657, 229, 69, 10, 0, 0, 0]
+P(v>2.5) sim = 0.001  theory exp(-v^2/(2*0.5)) = 0.0019
+\end{lstlisting}
+
+Starting from \emph{every} particle at the same speed, random-angle
+collisions alone build the MB shape: mean speed within $0.2\%$ of
+theory and the tail in the right place.
+
+\section{In engineering practice: the heat budget}\label{sec:th-eng}
+
+Power plants are figure~\ref{fig:engine} at gigawatt scale (cooling
+towers are the $T_C$ dump); refrigeration is the same loop reversed;
+the Carnot bound is why no one sells a $90\%$ engine --- it isn't
+engineering, it's counting.
+
+\section{Common mistakes}\label{sec:th-mistakes}
+
+\begin{tripwire}[$W$ sign flipped]
+Our convention: $W_{\rm by}$ the gas. Compression is negative by
+definition --- flip once and every subsequent sign follows.
+\end{tripwire}
+\begin{tripwire}[$Q=0$ read as $\Delta T=0$]
+Adiabatic $\ne$ isothermal: no heat exchanged, yet work still changes
+$T$ ($PV^\gamma$ steeper for a reason).
+\end{tripwire}
+\begin{tripwire}[Real efficiency vs Carnot conflated]
+$\eta=1-Q_C/Q_H$ is bookkeeping that always holds; the bound
+$T_C/T_H$ holds only for reversible cycles.
+\end{tripwire}
+\begin{tripwire}[Celsius in a ratio]
+Every $T$ in \eqref{eq:carnot} and $PV=nRT$ is kelvin --- ratios in
+${}^{\circ}$C are meaningless.
+\end{tripwire}
+\begin{tripwire}[Entropy mysticism]
+$\Delta S=Q_{\rm rev}/T$ is counting states, not ``disorder'' ---
+\ref{ex:entropy} computed it exactly.
+\end{tripwire}
+
+\section{Summary}\label{sec:th-summary}
+
+\begin{table}[ht]\centering
+\begin{tabularx}{\linewidth}{@{}lY@{}}
+\toprule
+\tablehead\thead{Idea} & \thead{One-line version}\\
+\midrule
+gas law & $PV=nRT$; $P=\tfrac13nm\overline{v^2}/V$ micro \\
+energy & $\tfrac32k_BT$ per particle, monatomic \\
+first law & $\Delta E_{\rm int}=Q-W_{\rm by}$ \\
+processes & work $=$ area; adiabat $PV^\gamma$ steepest \\
+Carnot & $\eta\le1-T_C/T_H$, universal \\
+entropy & $\Delta S=Q_{\rm rev}/T$, counting states \\
+\bottomrule
+\end{tabularx}
+\caption{Thermo cheat sheet.}
+\label{tab:thsummary}
+\end{table}
+
+\begin{wins}[Definition of done]
+You can now: read any process off the $PV$ plane, apply the first law
+with the fixed sign, compute isothermal/adiabatic work, bound any
+engine, and run the thermalisation check.
+\end{wins}
+
+\chapternotes{%
+The order follows OpenStax vol.~2 chs.~1--4 \cite{openstax1}; MIT
+5.60 for the deeper development; Feynman~I \S39--45 the kinetic
+picture \cite{feynman1}. The numbers are the listing's real output.}
+
+\begin{rulebox}[{Watch instead}]
+\begin{enumerate}
+\item \emph{Lec 1: Thermodynamics \& Kinetics} --- MIT 5.60, MIT
+OpenCourseWare, 46:46, \url{https://youtu.be/kLqduWF6GXE} ---
+\S\ref{sec:th-gas}--\S\ref{sec:th-first} (accessed 2026-10-11).
+\item \emph{Kinetic Theory of Gases Part 1} --- MIT OpenCourseWare,
+78:39, \url{https://youtu.be/BhVyiU_dWps} --- \S\ref{sec:th-gas} and
+\S\ref{sec:th-internal} at full length (accessed 2026-10-11).
+\item \emph{Carnot cycle and Carnot engine} --- Khan Academy, 20:53,
+\url{https://youtu.be/aAfBSJObd6Y} --- \S\ref{sec:th-carnot} worked
+(accessed 2026-10-11).
+\end{enumerate}
+\end{rulebox}
+
+\section*{Further reading}
+\addcontentsline{toc}{section}{Further reading}
+
+\begin{itemize}
+\item OpenStax \emph{College Physics 2e}, chs.~13--15 --- gas laws,
+first law, engines: \url{https://openstax.org} (verified 2026-10-11).
+\item MIT OCW \emph{5.60 Thermodynamics \& Kinetics} --- the full
+course: at \url{https://ocw.mit.edu}, course ``5.60'' (verified
+2026-10-11).
+\item R.~P. Feynman, \emph{The Feynman Lectures on Physics} I,
+\S39--45 --- kinetic theory at its clearest (in print).
+\item Khan Academy, \emph{Thermodynamics} --- drills matching
+\S\ref{sec:th-proc}--\S\ref{sec:th-carnot}: verified 2026-10-11 at
+\url{https://www.khanacademy.org} (science $\to$ physics $\to$
+thermodynamics).
+\item PhET, \emph{Gas Properties} interactive --- pressure, temperature
+and the microscopic picture: at \url{https://phet.colorado.edu}
+(verified 2026-10-11).
+\end{itemize}
+
+\section*{Additional exercises}
+\addcontentsline{toc}{section}{Additional exercises}
+
+\begin{exercise}[easy]
+A gas at $300$\,K occupies $2$\,m$^{3}$ at $10^{5}$\,Pa: find $n$.
+(AP-style)
+\end{exercise}
+\begin{exercise}[easy]
+Read the signs: gas gains $500$\,J heat and does $200$\,J work --- what
+is $\Delta E_{\rm int}$? (AP-C)
+\end{exercise}
+\begin{exercise}[easy]
+Which process is horizontal on the $PV$ plane? Which is vertical?
+(F=ma)
+\end{exercise}
+\begin{exercise}[easy]
+Why is $C_P>C_V$? One sentence, first law reasoning. (AP-C)
+\end{exercise}
+\begin{exercise}[easy]
+A monatomic gas at $400$\,K: mean KE per particle in eV?
+(AP-style)
+\end{exercise}
+\begin{exercise}[medium]
+Adiabatic compression of $1$\,mol air ($\gamma=1.4$) halves the volume:
+find $\Delta T$. (AP-C FR-style)
+\end{exercise}
+\begin{exercise}[medium]
+A cycle encloses a $1$\,m$^{3}\times10^{5}$\,Pa square: net work per
+cycle? (F=ma)
+\end{exercise}
+\begin{exercise}[medium]
+Best efficiency between $800$\,K and room temperature? (F=ma)
+\end{exercise}
+\begin{exercise}[medium]
+Entropy change of $1$\,mol expanding isothermally at $300$\,K to twice
+the volume. (USAPhO-lite)
+\end{exercise}
+\begin{exercise}[medium]
+Show $PV^\gamma=\mathrm{const}$ from the first law for an adiabat.
+(derive)
+\end{exercise}
+\begin{exercise}[hard]
+Free expansion ($Q=W=0$) still raises $S$: argue why without
+violating the first law. (USAPhO-style)
+\end{exercise}
+\begin{exercise}[hard]
+An engine between two \emph{finite} reservoirs that equilibrate:
+find the maximum total work. (APhO-style)
+\end{exercise}
+\begin{exercise}[medium]
+Sketch a refrigerator's $PV$ loop and label $Q_C$, $Q_H$, $W$.
+(AP-C)
+\end{exercise}
+\begin{exercise}[medium]
+Which is steeper on $PV$: adiabat or isotherm through the same point?
+Prove it. (derive)
+\end{exercise}
+\begin{exercise}[medium]
+Estimate the rms speed of a nitrogen molecule at room temperature.
+(estimation)
+\end{exercise}

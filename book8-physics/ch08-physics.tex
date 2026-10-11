@@ -1,0 +1,380 @@
+\chapter{Gravitation and orbits}\label{ch:grav}
+
+Newton's inverse-square law is the first ``field'' in the book: a
+$1/r^{2}$ fall-off that runs from falling apples to GPS. This chapter
+does the useful part --- the shell theorem, escape and orbital speeds,
+and orbits as bookkeeping on $E$ and $L$.
+
+\section{Newton's law and the field picture}\label{sec:grav-law}
+
+\begin{equation}
+  F=G\frac{m_1m_2}{r^{2}},\qquad
+  \mathbf g(\mathbf r)=-G\frac{M}{r^{2}}\hat r,\label{eq:grav}
+\end{equation}
+where $G=6.674\times10^{-11}$ SI. The field picture separates cause and
+test: $M$ builds $\mathbf g$, and any $m$ placed in it feels
+$m\mathbf g$. Cavendish weighed the Earth with this: $g=GM/R^{2}$.
+
+\section{The shell theorem}\label{sec:grav-shell}
+
+Newton invented the shell theorem to justify treating the Earth as a
+point: outside a spherical shell its field is that of all mass at the
+centre; inside it the field is \emph{zero} (figure~\ref{fig:shell}).
+Consequence: inside a uniform planet only the mass beneath you pulls
+(figure~\ref{fig:gr}).
+
+\begin{figure}[htbp]\centering
+\input{figures/ch08_shell}
+\caption{Shell theorem: mass above the point contributes zero; mass below
+acts from the centre. Gravitational depth-charge accounting.}
+\label{fig:shell}
+\end{figure}
+
+\begin{figure}[htbp]\centering
+\input{figures/ch08_gr}
+\caption{$g(r)$ inside a uniform Earth (linear) and outside
+($1/r^{2}$) --- the two regimes of the shell theorem.}
+\label{fig:gr}
+\end{figure}
+
+\begin{example}[$g(r)$ inside the Earth]\label{ex:ginside}
+Find $g$ at radius $r<R$ in a uniform Earth.
+\par\smallskip
+\textbf{Strategy.} Only mass below: $M(r)=M(r/R)^{3}$.
+\begin{solution}
+$g(r)=GM(r)/r^{2}=GM r/R^{3}=g_{0}\,r/R$: gravity drops linearly to zero
+at the centre. The fastest ``tunnel'' is down to $g=0$ at $r=0$, not up.
+\checkmark
+\end{solution}
+\end{example}
+
+\section{Gravitational potential energy}\label{sec:grav-u}
+
+The work integral over \eqref{eq:grav} gives
+\begin{equation}
+  U(r)=-G\frac{Mm}{r},\qquad \Delta U=GMm\!\left(\tfrac1{r_1}-\tfrac1{r_2}\right).
+  \label{eq:ug}
+\end{equation}
+The zero at infinity is the clean choice: bound systems carry negative
+energy. Near the surface it reduces to $mgh$: expand
+$\Delta U\approx GMm\,h/R^{2}=mgh$.
+
+\begin{example}[Escape velocity]\label{ex:escape}
+Find the speed to leave Earth from the surface and explain why direction
+doesn't matter.
+\par\smallskip
+\textbf{Strategy.} Escape means arriving at infinity with $K\ge0$:
+$K_0+U_0\ge0$.
+\begin{solution}
+$\tfrac12mv_{\rm esc}^{2}=GMm/R \Rightarrow
+v_{\rm esc}=\sqrt{2GM/R}=11.2$\,km/s for Earth. Energy is scalar ---
+aim up, sideways or through a canyon (if it could): the bill is the same.
+Compare orbital speed $\sqrt{GM/R}=7.9$\,km/s: escape is
+$\sqrt2$ times orbital. \checkmark
+\end{solution}
+\end{example}
+
+\begin{exercise}[easy]
+At what altitude is $v_{\rm esc}$ down to half its surface value? (F=ma)
+\end{exercise}
+
+\section{Circular orbits}\label{sec:grav-orbit}
+
+Centripetal balance gives
+\begin{equation}
+  v_{\rm orb}=\sqrt{GM/r},\quad T=2\pi\sqrt{r^{3}/GM},\quad
+  E=-\frac{GMm}{2r},\label{eq:orb}
+\end{equation}
+and the energy bookkeeping is odd: $K=+GMm/2r$, $U=-GMm/r$, so $E=-K$
+--- a satellite that loses energy (drag) \emph{speeds up} as it sinks.
+
+\begin{example}[ISS energy audit]\label{ex:iss}
+The ISS ($m=4.2\times10^{5}$\,kg) orbits at $r\approx6800$\,km.
+Find $v$, $K$, $U$, $E$ and the energy to raise it $10$\,km.
+\par\smallskip
+\textbf{Strategy.} Equation~\eqref{eq:orb} line by line; the last answer
+is $\Delta E>0$ for a \emph{larger} $r$.
+\begin{solution}
+$v=\sqrt{GM/r}=\sqrt{3.99\times10^{14}/6.8\times10^{6}}=7.66$\,km/s.
+$K=\tfrac12mv^{2}=1.23\times10^{13}$\,J, $U=-2.47\times10^{13}$\,J,
+$E=-1.23\times10^{13}$\,J.
+Raising $r$ by $10$\,km: $\Delta E=GMm\,\Delta r/2r^{2}
+\approx9.1\times10^{9}$\,J --- nine GJ buys ten kilometres.
+\checkmark
+\end{solution}
+\end{example}
+
+\section{Kepler's laws, derived}\label{sec:grav-kepler}
+
+\begin{enumerate}
+\item \emph{Ellipses}: the $1/r^{2}$ law's bound orbits are conics ---
+stated here and used everywhere below.
+\item \emph{Equal areas}: $dA/dt=L/2m$ is constant --- conservation of
+angular momentum, nothing else (figure~\ref{fig:kepler}).
+\item \emph{$T^{2}\propto a^{3}$}: from \eqref{eq:orb},
+$T^{2}=4\pi^{2}a^{3}/GM$ --- our code check recovers it to a constant.
+\end{enumerate}
+
+\begin{example}[Perihelion vs aphelion speed]\label{ex:kepler2}
+An orbit has $e=0.6$: find $v_{\rm peri}/v_{\rm apo}$.
+\par\smallskip
+\textbf{Strategy.} Kepler II is $L$-conservation: $rv$ equal at the two
+axis ends.
+\begin{solution}
+$r_p=a(1-e)=0.4a$, $r_a=a(1+e)=1.6a$;
+$v_p/v_a=r_a/r_p=(1+e)/(1-e)=4$. Four-to-one speed ratio --- comets'
+sun-grazing sprints are this exact arithmetic. \checkmark
+\end{solution}
+\end{example}
+
+\begin{figure}[htbp]\centering
+\input{figures/ch08_kepler}
+\caption{Kepler's second law is $L$-conservation drawn: equal areas in
+equal times.}
+\label{fig:kepler}
+\end{figure}
+
+\begin{example}[Hohmann transfer bookkeeping]\label{ex:hohmann}
+Move a satellite from $r_1=R$ to $r_2=2R$ (Earth radii). Find $\Delta v$
+at each burn: $v_1=\sqrt{GM/R}=7.9$\,km/s, $v_2=\sqrt{GM/2R}=5.6$\,km/s.
+\par\smallskip
+\textbf{Strategy.} Transfer ellipse has $a_t=(r_1+r_2)/2=1.5R$; its
+peri/apo speeds come from energy.
+\begin{solution}
+Vis-viva $v^{2}=GM(2/r-1/a_t)$: at $r_1$,
+$v_{t1}=\sqrt{GM(2/R-2/3R)}=\sqrt{4GM/3R}=9.1$\,km/s
+$\Rightarrow\Delta v_1=+1.2$\,km/s; at $r_2$,
+$v_{t2}=\sqrt{GM(1/R-2/3R)}=4.6$\,km/s
+$\Rightarrow\Delta v_2=+1.0$\,km/s. Total $2.2$\,km/s ---
+figure~\ref{fig:hohmann}. \checkmark
+\end{solution}
+\end{example}
+
+\begin{figure}[htbp]\centering
+\input{figures/ch08_hohmann}
+\caption{Hohmann transfer: two burns, one ellipse, the cheapest lane
+between circular orbits.}
+\label{fig:hohmann}
+\end{figure}
+
+\begin{figure}[htbp]\centering
+\input{figures/ch08_ea}
+\caption{Energy vs semi-major axis: $E=-GMm/2a$, so raising an orbit
+means paying the gap.}
+\label{fig:ea}
+\end{figure}
+
+\section{$E$ and $L$: the orbit's conserved labels}\label{sec:grav-cons}
+
+An orbit is fully labelled by $(E,L)$; the effective potential
+$U_{\rm eff}=L^{2}/2mr^{2}-GMm/r$ (figure~\ref{fig:ur}) shows why:
+$L^{2}/2mr^{2}$ pushes you out at short range, $-GMm/r$ pulls in at
+long, and the bound orbit oscillates in the bowl --- perihelion and
+aphelion are the turning points of chapter~7's $U(x)$ grammar.
+
+\begin{figure}[htbp]\centering
+\input{figures/ch08_ur}
+\caption{$U(r)$ and $U_{\rm eff}(r)$ for nonzero $L$: the centrifugal
+barrier makes bound states possible.}
+\label{fig:ur}
+\end{figure}
+
+\begin{lstlisting}[language=Python,caption={\texttt{code/ch08\_orbit\_verlet.py} --- velocity-Verlet orbit; $E,L$ drift and Kepler check.},label={lst:orbit}]
+        ax_, ay_ = -GM*x/r3, -GM*y/r3
+        x += vx*dt + 0.5*ax_*dt*dt
+        y += vy*dt + 0.5*ay_*dt*dt
+        ax2, ay2 = -GM*x/(r_new**3), -GM*y/(r_new**3)
+        vx += 0.5*(ax_+ax2)*dt
+        vy += 0.5*(ay_+ay2)*dt
+\end{lstlisting}
+
+Output of a real run (200{,}000 steps each):
+\begin{lstlisting}[numbers=none]
+a=1.0 e=0.0: drift E=0.000% L=0.000%  T=6.283
+a=1.0 e=0.5: drift E=0.000% L=0.000%  T=6.283
+a=1.5 e=0.7: drift E=0.000% L=0.000%  T=11.543
+
+Kepler III check (T^2/a^3 should be const):
+  a=0.8: T=4.496  T^2/a^3=39.4784
+  a=1.0: T=6.283  T^2/a^3=39.4784
+  a=1.3: T=9.313  T^2/a^3=39.4784
+  a=1.6: T=12.716  T^2/a^3=39.4784
+\end{lstlisting}
+
+Velocity-Verlet holds $E$ and $L$ to $<0.001\%$ even at $e=0.7$ ---
+the symplectic lesson of chapter~4's energy-check code paying off ---
+and recovers $T^{2}=4\pi^{2}a^{3}/GM=39.4784$ to all printed digits.
+
+\section{Satellites, tides and GPS in two paragraphs}\label{sec:grav-sat}
+
+Real orbits pay rent: LEO drag costs tens of m/s per year, geostationary
+station-keeping $\sim50$\,m/s/yr, and GPS clocks tick $45$\,\textmu s/day
+fast (relativity) that must be designed out. Tides are the
+$d/dr$ of gravity: the Moon's pull differs by $\sim7\%$ across Earth's
+diameter, stretching oceans toward and away from it --- the third
+derivation nobody expected to be useful in a textbook chapter.
+
+\section{In engineering practice: the launch-and-station budget}\label{sec:grav-eng}
+
+Rocket sizing runs this chapter backwards: the mission's $\Delta v$
+ledger (launch $\sim9.4$\,km/s with losses, Hohmann legs, plane changes
+at $2v\sin(\theta/2)$) divides by the rocket equation from chapter~3 to
+mass ratios; orbit choice runs forwards --- LEO cheap, MEO for nav,
+GEO parked. Every constellation on Earth is a worked example of
+figure~\ref{fig:ea}.
+
+\section{Common mistakes}\label{sec:grav-mistakes}
+
+\begin{tripwire}[$U=mgh$ used past its altitude]
+$mgh$ is the tangent-line approximation of \eqref{eq:ug}; at
+$h\sim0.1R$ it's already off by 10\%.
+\end{tripwire}
+\begin{tripwire}[Escape needs a direction]
+The $\sqrt{2GM/R}$ bill is in energy --- any direction works except
+into the ground.
+\end{tripwire}
+\begin{tripwire}[``Weightless'' means ``no gravity'']
+LEO $g$ is $\sim90\%$ of surface: astronauts float because ship and crew
+fall together --- chapter~2's free-fall frame again.
+\end{tripwire}
+\begin{tripwire}[$E=-K$ sign confusion]
+$E<0$ is bound; $-E$ is the energy to escape from that orbit. And a
+sinking satellite speeds up --- the sign flips intuition.
+\end{tripwire}
+\begin{tripwire}[Kepler III constant confusion]
+$T^{2}/a^{3}=4\pi^{2}/GM$ depends on the central mass only: same for
+all planets of one star, different per star.
+\end{tripwire}
+
+\section{Summary}\label{sec:grav-summary}
+
+\begin{table}[ht]\centering
+\begin{tabularx}{\linewidth}{@{}lY@{}}
+\toprule
+\tablehead\thead{Idea} & \thead{One-line version}\\
+\midrule
+law & $F=GMm/r^{2}$; $\mathbf g=-GM\hat r/r^{2}$ \\
+shell & inside uniform planet $g\propto r$; shell interior $=0$ \\
+$U$ & $-GMm/r$; $v_{\rm esc}=\sqrt{2GM/R}$ \\
+orbit & $v=\sqrt{GM/r}$, $E=-GMm/2r$ \\
+Kepler & ellipses; equal areas $=L$; $T^{2}\propto a^{3}$ \\
+transfer & Hohmann: ellipse $a_t=(r_1+r_2)/2$, two burns \\
+\bottomrule
+\end{tabularx}
+\caption{Gravitation cheat sheet.}
+\label{tab:gravsummary}
+\end{table}
+
+\begin{wins}[Definition of done]
+You can now: apply the shell theorem, derive escape and orbital speeds,
+balance Hohmann transfers, read orbits off $(E,L)$, and run a
+conserving orbit integrator.
+\end{wins}
+
+\chapternotes{%
+The field-first order follows MIT 8.01SC \cite{ocw801} and AP Physics C
+\cite{apced}; the Hohmann numbers are standard mission-analysis figures
+(cf.\ Morin \cite{morin} and Feynman vol.~I \cite{feynman1} for the
+$C_3$/transfer bookkeeping). The integrator numbers are the listing's
+real output.}
+
+\begin{rulebox}[{Watch instead}]
+\begin{enumerate}
+\item \emph{Kepler's Laws, Elliptical Orbits, Satellites, Orbital Changes}
+--- Walter Lewin, MIT 8.01x Lecture 22, 49:09,
+\url{https://youtu.be/9wDAm-dlht4} ---
+\S\ref{sec:grav-orbit}--\S\ref{sec:grav-cons} at full length (accessed
+2026-10-11).
+\item \emph{Gravitational potential energy at large distances} --- Khan
+Academy, 5:04, \url{https://youtu.be/9Pp_LtKgTQg} ---
+\S\ref{sec:grav-u} worked quickly (accessed 2026-10-11).
+\end{enumerate}
+\end{rulebox}
+
+\section*{Further reading}
+\addcontentsline{toc}{section}{Further reading}
+
+\begin{itemize}
+\item MIT OpenCourseWare, \emph{8.01SC Classical Mechanics}, gravitation
+module --- shell theorem, orbits and Kepler with recitations. At
+\url{https://ocw.mit.edu}, course ``8.01SC'' (verified 2026-10-11).
+\item OpenStax, \emph{College Physics 2e}, ch.~6 ``Uniform Circular
+Motion and Gravitation'' --- free text at \url{https://openstax.org}
+(verified 2026-10-11).
+\item College Board, \emph{AP Physics C: Mechanics CED}, Unit 4
+(gravitation). At \url{https://apstudents.collegeboard.org} (verified
+2026-10-11).
+\item R.~P. Feynman, \emph{Lectures on Physics}, vol.~I, ch.~7 ``The
+Theory of Gravitation'' --- free at Caltech's site.
+\item D.~Morin, \emph{Introduction to Classical Mechanics}, ch.~10 ---
+orbits and transfers at the harder level; ISBN 978-0521876223.
+\item Khan Academy, \emph{Centripetal force and gravitation} --- drills
+matching \S\ref{sec:grav-law}--\S\ref{sec:grav-kepler}, at
+\url{https://www.khanacademy.org} (verified 2026-10-11).
+\end{itemize}
+
+\section*{Additional exercises}
+\addcontentsline{toc}{section}{Additional exercises}
+
+\begin{exercise}[easy]
+Find the orbital speed and period of a satellite at altitude $2R_E$
+above Earth's surface. (AP-C)
+\end{exercise}
+\begin{exercise}[easy]
+Explain why a geostationary orbit's radius is unique, and estimate it
+from $T=24$\,h. (AP-C)
+\end{exercise}
+\begin{exercise}[easy]
+Show $v_{\rm esc}=\sqrt2\,v_{\rm orb}$ at the surface and find the
+ratio at altitude $R$. (F=ma)
+\end{exercise}
+\begin{exercise}[easy]
+A planet has twice Earth's mass and half its radius: find surface $g$
+in Earth-$g$. (F=ma)
+\end{exercise}
+\begin{exercise}[easy]
+Compute the work to lift $1$\,kg from Earth's surface to infinity vs to
+orbit radius $2R$. (AP-C)
+\end{exercise}
+\begin{exercise}[medium]
+Estimate the energy per kg for a Hohmann transfer from Earth's orbit to
+Mars's ($a=1.5$\,AU) in Solar-System units. (F=ma)
+\end{exercise}
+\begin{exercise}[medium]
+How much does a mine shaft's $g$ drop at depth $R/2$ in a uniform Earth
+--- and why is the real drop different? (F=ma)
+\end{exercise}
+\begin{exercise}[medium]
+An elliptical orbit has $a=4R$, $e=0.5$: find peri/apo radii and
+speeds, and the period in terms of LEO's. (AP-C)
+\end{exercise}
+\begin{exercise}[medium]
+Explain, with energy signs, why a satellite losing energy to drag moves
+faster. (concept)
+\end{exercise}
+\begin{exercise}[medium]
+Find the fraction of Earth's mass ``felt'' by an object at $r=R/2$
+inside a uniform Earth, and the resulting $g$. (F=ma)
+\end{exercise}
+\begin{exercise}[medium]
+A plane change of $30^{\circ}$ on a circular LEO orbit: find $\Delta v$
+in terms of $v_{\rm orb}$. (engineering)
+\end{exercise}
+\begin{exercise}[hard]
+Show the transfer ellipse of a Hohmann between $r_1$ and $r_2$ has
+$T_{\rm tr}=\pi\sqrt{a_t^{3}/GM}$ and compute it for the ISS-to-GEO
+case ($r_1=1.05R$, $r_2=6.6R$). (USAPhO)
+\end{exercise}
+\begin{exercise}[hard]
+A satellite in a highly eccentric orbit loses energy only at perigee
+drag: argue qualitatively what shrinks and what stays fixed.
+(APhO-style)
+\end{exercise}
+\begin{exercise}[medium]
+Two stars of equal mass orbit each other at separation $d$: find the
+period in terms of $G,M,d$. (F=ma)
+\end{exercise}
+\begin{exercise}[medium]
+Using $U_{\rm eff}$, explain why no orbit with $L\ne0$ can have
+$r\to0$. (concept)
+\end{exercise}

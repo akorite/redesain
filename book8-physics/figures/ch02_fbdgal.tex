@@ -1,0 +1,45 @@
+\begin{tikzpicture}[scale=1.0,force/.style={->,thick,accent}]
+% 1: free fall
+\begin{scope}[xshift=0cm]
+  \filldraw[fill=gray!20] (0,0) rectangle (0.5,0.5);
+  \draw[force] (0.25,0.25) -- (0.25,-0.8) node[below,font=\scriptsize]{$m\mathbf g$};
+  \node[font=\scriptsize] at (0.25,-1.2) {free fall};
+\end{scope}
+% 2: on table
+\begin{scope}[xshift=1.9cm]
+  \draw[thick] (-0.3,-0.15) -- (0.8,-0.15);
+  \filldraw[fill=gray!20] (0,0) rectangle (0.5,0.5);
+  \draw[force] (0.25,0.25) -- (0.25,-0.8) node[below,font=\scriptsize]{$m\mathbf g$};
+  \draw[force] (0.25,0.5) -- (0.25,1.3) node[above,font=\scriptsize]{$\mathbf N$};
+  \node[font=\scriptsize] at (0.25,-1.2) {table};
+\end{scope}
+% 3: hanging mass
+\begin{scope}[xshift=3.8cm]
+  \draw[thick] (-0.2,1.6) -- (0.7,1.6);
+  \draw (0.25,1.6) -- (0.25,0.5);
+  \filldraw[fill=gray!20] (0,0) rectangle (0.5,0.5);
+  \draw[force] (0.25,0.25) -- (0.25,-0.8) node[below,font=\scriptsize]{$m\mathbf g$};
+  \draw[force] (0.25,0.5) -- (0.25,1.3) node[above,font=\scriptsize]{$\mathbf T$};
+  \node[font=\scriptsize] at (0.25,-1.2) {hanging};
+\end{scope}
+% 4: pushed with friction
+\begin{scope}[xshift=5.7cm]
+  \draw[thick] (-0.3,-0.15) -- (0.8,-0.15);
+  \filldraw[fill=gray!20] (0,0) rectangle (0.5,0.5);
+  \draw[force] (0.25,0.25) -- (0.25,-0.8) node[below,font=\scriptsize]{$m\mathbf g$};
+  \draw[force] (0.25,0.5) -- (0.25,1.3) node[above,font=\scriptsize]{$\mathbf N$};
+  \draw[force] (-0.5,0.25) -- (0,0.25) node[midway,above,font=\scriptsize]{$\mathbf F$};
+  \draw[force] (0,0.1) -- (-0.4,0.1) node[above left=-2pt,font=\scriptsize]{$\mathbf f$};
+  \node[font=\scriptsize] at (0.25,-1.2) {pushed};
+\end{scope}
+% 5: spring
+\begin{scope}[xshift=7.6cm]
+  \draw[thick] (-0.3,-0.15) -- (0.9,-0.15);
+  \filldraw[fill=gray!20] (0.2,0) rectangle (0.7,0.5);
+  \draw[thick] (-0.2,0.25) -- (-0.13,0.35) -- (-0.06,0.15) -- (0.01,0.35) -- (0.08,0.15) -- (0.15,0.35) -- (0.2,0.25);
+  \draw[force] (0.45,0.25) -- (0.45,-0.8) node[below,font=\scriptsize]{$m\mathbf g$};
+  \draw[force] (0.45,0.5) -- (0.45,1.3) node[above,font=\scriptsize]{$\mathbf N$};
+  \draw[force] (0.7,0.4) -- (1.3,0.4) node[right,font=\scriptsize]{$k\mathbf x$};
+  \node[font=\scriptsize] at (0.45,-1.2) {spring};
+\end{scope}
+\end{tikzpicture}

@@ -1,0 +1,11 @@
+\begin{tikzpicture}[scale=1.0,force/.style={->,thick,accent}]
+\draw[thick] (0,0) -- (2.5,0);
+\fill (0,0) circle (0.05) node[below,font=\scriptsize]{pivot};
+\draw[thick] (2.5,0) ellipse (0.25 and 0.7);
+\draw[force] (2.5,0) -- (2.5,-0.9) node[below,font=\scriptsize]{$mg$};
+\draw[force,very thick,amber] (1.2,0) -- (3.2,0) node[right,font=\scriptsize]{$\mathbf L$};
+\draw[force,amber] (0,0.3) -- (0,0.9) node[above,font=\scriptsize]{$\boldsymbol\tau$};
+\draw[->,dashed] (1.2,-1.6) arc (0:50:1.2) node[midway,right,font=\scriptsize]{precession};
+\node[font=\scriptsize,align=left] at (4.6,0.4) {$\Omega=\frac{\tau}{L}$:\\gravity makes\\it precess};
+\node[font=\scriptsize,align=left] at (4.6,0.4) {};
+\end{tikzpicture}

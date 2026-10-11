@@ -1,0 +1,12 @@
+\begin{tikzpicture}
+\begin{axis}[width=8.5cm,height=5.2cm,xlabel={$r$},ylabel={energy},
+xmin=0.4,xmax=4,ymin=-2.2,ymax=1.2,font=\small,legend pos=south east]
+\addplot[very thick,accent,domain=0.45:4,samples=80] {-1/x};
+\addlegendentry{$U=-GMm/r$}
+\addplot[very thick,amber,domain=0.45:4,samples=80] {0.5/x^2 - 1/x};
+\addlegendentry{$U_{\rm eff}$ ($L>0$)}
+\addplot[dashed] coordinates {(0.4,0) (4,0)};
+\node[font=\scriptsize] at (axis cs:1.0,-0.55) {bound};
+\node[font=\scriptsize] at (axis cs:3.0,0.35) {free};
+\end{axis}
+\end{tikzpicture}

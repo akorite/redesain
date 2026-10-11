@@ -1,0 +1,22 @@
+% Figure 6.x: det = signed volume of the column parallelepiped.
+\begin{tikzpicture}[scale=0.85,>=stealth,
+  vec/.style={->,very thick}]
+  % parallelepiped with edge vectors a,b,c
+  \coordinate (O) at (0,0);
+  \coordinate (A) at (2.6,0.2);
+  \coordinate (B) at (0.9,1.1);
+  \coordinate (C) at (0.5,2.5);
+  \coordinate (AB) at ($(A)+(B)$);
+  \coordinate (AC) at ($(A)+(C)$);
+  \coordinate (BC) at ($(B)+(C)$);
+  \coordinate (ABC) at ($(A)+(B)+(C)$);
+  \draw[thick,fill=accentsoft,opacity=0.55] (O)--(A)--(AB)--(B)--cycle;
+  \draw[thick,fill=accentsoft,opacity=0.35] (B)--(AB)--(ABC)--(BC)--cycle;
+  \draw[thick,fill=accentsoft,opacity=0.45] (A)--(AB)--(ABC)--(AC)--cycle;
+  \draw[thick,dashed] (O)--(C) (C)--(AC) (C)--(BC);
+  \draw[thick] (AC)--(ABC) (BC)--(ABC) (AB)--(ABC);
+  \draw[vec] (O)--(A) node[midway,below,font=\small] {$\mathbf a$};
+  \draw[vec] (O)--(B) node[midway,left,font=\small] {$\mathbf b$};
+  \draw[vec,dashed] (O)--(C) node[midway,left,font=\small] {$\mathbf c$};
+  \node[font=\small] at (2.2,1.9) {$\det[\,\mathbf a\ \mathbf b\ \mathbf c\,]=\pm V$};
+\end{tikzpicture}

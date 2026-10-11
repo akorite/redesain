@@ -1,0 +1,7 @@
+\begin{tikzpicture}[scale=0.9,font=\scriptsize]
+\draw[very thick] (-2.2,-0.7) rectangle (2.2,0.7);
+\foreach \p in {(-1.5,-0.2),(-0.8,0.3),(-0.1,-0.4),(0.6,0.1),(1.3,-0.3)}{\fill[gray] \p circle (0.04);}
+\foreach \p in {(-1.5,-0.2),(-0.8,0.3),(-0.1,-0.4),(0.6,0.1),(1.3,-0.3)}{\draw[->,thick,amber] \p -- ++(0.4,0);}
+\node at (0,-1.2) {$v_d\sim$ mm/s drift over fast random hops};
+\draw[->,thick,accent] (-2.6,0) -- (-2.9,0) node[left]{$\mathbf E$};
+\end{tikzpicture}

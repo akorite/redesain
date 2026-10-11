@@ -1,0 +1,8 @@
+\begin{tikzpicture}[scale=0.9,font=\scriptsize]
+\draw[very thick,accent,domain=0:6.28,samples=80] plot (\x,{0.9*sin(180*\x)}) ;
+\draw[very thick,dashed,accent!50,domain=0:6.28,samples=80] plot (\x,{-0.9*sin(180*\x)}) ;
+\draw[->] (0,0) -- (6.6,0);
+\foreach \x/\l in {0/N,3.14/N,6.28/N}{\draw[thick] (\x,-0.15) -- (\x,0.15) node[above]{\l};}
+\foreach \x/\l in {1.57/A,4.71/A}{\draw[thick] (\x,-0.15) -- (\x,0.15) node[above]{\l};}
+\node[align=left] at (3.14,-1.6) {n-th harmonic: $f_n=nv/2L$,\\$\lambda_n=2L/n$};
+\end{tikzpicture}

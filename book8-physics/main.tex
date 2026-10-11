@@ -1,22 +1,39 @@
 \documentclass[11pt,a4paper,twoside,openany]{book}
 \usepackage{lifeos}
 \usepackage{pgfplots}\pgfplotsset{compat=1.17}
+\usepackage{siunitx}
 \usepackage{circuitikz}
 \usepackage{graphicx}
 \usepackage[font=small,labelfont=bf]{caption}
 \usepackage{subcaption}
 \usepackage{makeidx}\makeindex
-\setlifeostitle{BOOK TITLE}
+\setlifeostitle{Physics for Engineers}
 \setcounter{tocdepth}{1}
 
 \begin{document}
 \frontmatter
 \pagestyle{empty}
-\makecover{BOOK TITLE}{Subtitle}{Study textbook}
+\makecover{Physics for Engineers}{Mechanics, fields, and circuits}{Study textbook}
 \newpage\pagestyle{fancy}
 \tableofcontents
 \mainmatter
-\input{ch01-smoke}
+\input{ch01-physics}
+\input{ch02-physics}
+\input{ch03-physics}
+\input{ch04-physics}
+\input{ch05-physics}
+\input{ch06-physics}
+\input{ch07-physics}
+\input{ch08-physics}
+\input{ch09-physics}
+\input{ch10-physics}
+\input{ch11-physics}
+\input{ch12-physics}
+\input{ch13-physics}
+\input{ch14-physics}
+\input{ch15-physics}
+\input{ch16-physics}
+\input{ch17-physics}
 \backmatter
 \input{bib}
 \printindex

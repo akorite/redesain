@@ -1,0 +1,344 @@
+\chapter{Faraday's law, inductance, RL and RLC}\label{ch:faraday}
+
+The last symmetry to break: changing magnetic flux \emph{creates}
+electric field --- a non-conservative one whose loops replace the
+conservative fields of chapters 9--11. Motors, generators, transformers
+and every wireless charger are this chapter monetised.
+
+\section{Flux and motional EMF: the sliding rod first}\label{sec:far-rod}
+
+A rod sliding on rails through $\mathbf B$ (figure~\ref{fig:rod}) sweeps
+area: $\Phi_B=BLx$, so $\mathcal E=-d\Phi_B/dt=-BLv$. The same answer
+comes from Lorentz force on the rod's charges --- motional EMF is
+Faraday's law's first instance.
+
+\begin{figure}[htbp]\centering
+\input{figures/ch14_rod}
+\caption{Sliding rod: the swept flux gives $\mathcal E=BLv$, and Lenz's
+law retards the motion.}
+\label{fig:rod}
+\end{figure}
+
+\begin{example}[Sliding rod power audit]\label{ex:rod}
+$B=0.8$\,T, $L=0.5$\,m, $R=4\,\Omega$, pulled at $v=3$\,m/s. Find
+$\mathcal E$, $I$, the retarding force, and audit the powers.
+\par\smallskip
+\textbf{Strategy.} $\mathcal E=BLv$; $F=ILB$ opposes $v$ by Lenz.
+\begin{solution}
+$\mathcal E=1.20$\,V, $I=0.30$\,A, $F=0.12$\,N. Mechanical power in
+$Fv=0.360$\,W; electrical generated $\mathcal EI=0.360$\,W; resistor
+burns $I^{2}R=0.360$\,W. Three ways, one number --- the code prints
+all of them. \checkmark
+\end{solution}
+\end{example}
+
+\section{Faraday's law}\label{sec:far-law}
+
+\begin{equation}
+  \mathcal E=-\frac{d\Phi_B}{dt}
+  =-\frac{d}{dt}\int\mathbf B\cdot d\mathbf A,\label{eq:far}
+\end{equation}
+counting every way flux can change: move, rotate, grow the loop or grow
+$\mathbf B$ (figure~\ref{fig:flux4}). The minus sign is Lenz ---
+the next section's whole job.
+
+\begin{figure}[htbp]\centering
+\input{figures/ch14_flux4}
+\caption{Four ways to change flux: move, rotate, grow the loop, or
+change $\mathbf B$ itself.}
+\label{fig:flux4}
+\end{figure}
+
+\section{Lenz's law: direction by conservation}\label{sec:far-lenz}
+
+The induced current's field opposes the \emph{change} --- not the
+field. If it aided the change you'd get a runaway free-energy machine;
+Lenz's minus is energy conservation wearing a sign. Applications:
+the rod's retarding force, eddy braking (figure~\ref{fig:eddy}),
+and every inductor's stubbornness.
+
+\begin{figure}[htbp]\centering
+\input{figures/ch14_eddy}
+\caption{Eddy braking: a falling magnet's induced currents fight its
+descent --- magnetic drag.}
+\label{fig:eddy}
+\end{figure}
+
+\begin{example}[Lenz on entry and exit]\label{ex:lenz}
+A square loop enters a uniform-$B$ region at constant $v$, crosses,
+and exits. Describe the current and the required pulling force at each
+stage.
+\par\smallskip
+\textbf{Strategy.} Only \emph{changes} count: entry, transit, exit.
+\begin{solution}
+Entry: flux grows $\Rightarrow$ opposing field $\Rightarrow$ current
+counterclockwise; force opposes entry, magnitude
+$B^{2}L^{2}v/R$. Transit: $\Phi$ constant, no current, no force.
+Exit: flux falls $\Rightarrow$ field-adding current $\Rightarrow$
+clockwise; same retarding magnitude. The loop is dragged \emph{in both
+directions} --- braking on the way in and on the way out. \checkmark
+\end{solution}
+\end{example}
+
+\section{Induced $\mathbf E$: the non-conservative leap}\label{sec:far-e}
+
+Faraday's law written locally says
+$\oint\mathbf E\cdot d\boldsymbol\ell=-d\Phi_B/dt$: an electric field
+that circulates, whose ``potential'' can't exist (the loop integral is
+nonzero). Around a changing solenoid the field curls in rings
+(figure~\ref{fig:sole}) --- the betatron principle, and the conceptual
+break from every $\mathbf E$ in chapters 9--11.
+
+\begin{figure}[htbp]\centering
+\input{figures/ch14_sole}
+\caption{Induced $\mathbf E$ circulates around changing flux: no
+potential describes it.}
+\label{fig:sole}
+\end{figure}
+
+\section{Inductance: a circuit element's inertia}\label{sec:far-ind}
+
+A solenoid's own flux links itself:
+$L=\mu_0n^{2}A\ell$ (from Amp\`ere's $B=\mu_0nI$ and
+$\Phi$ per turn); its EMF is $-L\,dI/dt$. Mutual inductance is the same
+number between two circuits --- the transformer's measure.
+
+\begin{example}[Solenoid inductance end-to-end]\label{ex:solL}
+Derive $L$ for a solenoid of $N$ turns, length $\ell$, area $A$.
+\par\smallskip
+\textbf{Strategy.} $B$ by Amp\`ere, flux linkage, divide by $I$.
+\begin{solution}
+$B=\mu_0nI$ gives flux per turn $\Phi=BA=\mu_0nIA$; linkage over all
+turns: $N\Phi=\mu_0n^{2}A\ell I$, so
+$L=N\Phi/I=\mu_0n^{2}A\ell$. Numbers: $n=1000$/m, $A=2$\,cm$^{2}$,
+$\ell=10$\,cm give $L=0.25$\,mH. \checkmark
+\end{solution}
+\end{example}
+
+\begin{example}[RL energisation]\label{ex:rl}
+A $50$\,mH inductor energises through $10\,\Omega$ from $12$\,V.
+Find $\tau$, the initial slope $dI/dt$, and $I_\infty$.
+\par\smallskip
+\textbf{Strategy.} $\mathcal E-L\,dI/dt=IR$; same ODE family as RC.
+\begin{solution}
+$\tau=L/R=5$\,ms; at $t=0$ the inductor acts open so
+$dI/dt=\mathcal E/L=240$\,A/s; $I_\infty=1.2$\,A.
+Current climbs the same $1-e^{-t/\tau}$ curve that charge did in
+chapter~12 (figure~\ref{fig:rlcur}). \checkmark
+\end{solution}
+\end{example}
+
+\begin{figure}[htbp]\centering
+\input{figures/ch14_rlcur}
+\caption{RL energisation: $i$ approaches $I_\infty$ on $\tau=L/R$ while
+$V_L$ decays --- the mirror of RC.}
+\label{fig:rlcur}
+\end{figure}
+
+\section{Stored energy and the field density}\label{sec:far-u}
+
+Charging an inductor to $I$ stores $U=\tfrac12LI^{2}$; per volume the
+magnetic energy density is $u_B=B^{2}/2\mu_0$ --- twin to the electric
+$u_E=\varepsilon_0E^{2}/2$ of chapter~11.
+
+\section{LC and RLC: the electric oscillator}\label{sec:far-lc}
+
+With no battery the charge sloshes: $U_E\leftrightarrow U_B$ at
+$\omega_0=1/\sqrt{LC}$ (figure~\ref{fig:slosh}) --- equation
+\eqref{eq:shm} of chapter~7 with $m\to L$, $k\to1/C$, $b\to R$.
+Damped RLC rings at $\omega_d=\sqrt{\omega_0^{2}-\gamma^{2}/4}$ with
+$\gamma=R/L$: every result of \S\ref{sec:osc-driven} carries over.
+
+\begin{figure}[htbp]\centering
+\input{figures/ch14_slosh}
+\caption{The LC tank: energy trades capacitor $\leftrightarrow$
+inductor, quarter period apart.}
+\label{fig:slosh}
+\end{figure}
+
+\begin{example}[RLC ringing vs prediction]\label{ex:rlc}
+$L=50$\,mH, $C=100$\,\textmu F, $R=2\,\Omega$: predict $\omega_0$,
+$\gamma$, $\omega_d$ and the decay per cycle.
+\par\smallskip
+\textbf{Strategy.} The oscillator formulas verbatim.
+\begin{solution}
+$\omega_0=1/\sqrt{LC}=447$\,rad/s, $\gamma=R/L=40$\,s$^{-1}$,
+$\omega_d=\sqrt{\omega_0^{2}-\gamma^{2}/4}=446.8$\,rad/s;
+decay per cycle $e^{-\gamma T/2}=0.755$ --- the code's measured trace
+matches both numbers exactly. \checkmark
+\end{solution}
+\end{example}
+
+\begin{lstlisting}[language=Python,caption={\texttt{code/ch14\_rlc.py} --- rod audit + RLC ringing vs theory.},label={lst:rlc}]
+d2q = -(R/L)*dq - q/(L*C)
+\end{lstlisting}
+
+Output of a real run:
+\begin{lstlisting}[numbers=none]
+rod: emf=BLv=1.200 V, I=0.300 A, retarding F=0.120 N
+  mech power F*v=0.360 W  |  elec power emf*I=0.360 W  |  I^2 R=0.360 W
+
+RLC: w0=447.2, gamma=40.0, wd_theory=446.8
+maxima: [('0.0141s', '7.55e-04'), ('0.0281s', '5.70e-04'), ('0.0422s', '4.30e-04')]
+wd_measured = 446.8 (theory 446.8)
+decay ratio/cycle = 0.755 (theory e^(-gT/2)=0.755)
+\end{lstlisting}
+
+The audit closes to the watt and the ring frequency/decay match theory
+to all printed digits --- chapter~7's oscillator, here in copper and
+charge.
+
+\section{In engineering practice: the power grid's physics}\label{sec:far-eng}
+
+Generators are figure~\ref{fig:flux4}'s rotation panel run backwards
+(work in, EMF out); transformers are mutual inductance with an iron
+guide; eddy braking stops trains and roller-coasters without contact;
+and induction cooktops are \S\ref{sec:far-e} making currents in your
+pot --- the induced-$\mathbf E$ field turned appliance.
+
+\section{Common mistakes}\label{sec:far-mistakes}
+
+\begin{tripwire}[EMF sign vs magnitude conflated]
+Faraday gives magnitude; Lenz gives direction. Solve them separately
+then combine --- deciding both at once is where sign errors breed.
+\end{tripwire}
+\begin{tripwire}[Induced $\mathbf E$ treated as conservative]
+It has no potential: $\oint\mathbf E\cdot d\boldsymbol\ell\ne0$. All
+the potential bookkeeping of chapter~11 fails here.
+\end{tripwire}
+\begin{tripwire}[$\Phi_B$ vs $B$ confusion]
+$\Phi$ integrates area; EMF needs its \emph{rate}. A constant huge
+field induces nothing.
+\end{tripwire}
+\begin{tripwire}[Motional + transformer EMF double-counted]
+They are two descriptions of the same physics --- count one.
+\end{tripwire}
+\begin{tripwire}[``Inductor resists current'' myth]
+It resists \emph{changes}: at steady state it's a wire; only the
+transient feels its inertia.
+\end{tripwire}
+
+\section{Summary}\label{sec:far-summary}
+
+\begin{table}[ht]\centering
+\begin{tabularx}{\linewidth}{@{}lY@{}}
+\toprule
+\tablehead\thead{Idea} & \thead{One-line version}\\
+\midrule
+Faraday & $\mathcal E=-d\Phi_B/dt$; four ways to change flux \\
+Lenz & induced current opposes the change --- conservation's sign \\
+induced E & circulates; no potential \\
+inductor & $L=\mu_0n^{2}A\ell$; $\tau=L/R$; $U=\tfrac12LI^{2}$ \\
+LC/RLC & $\omega_0=1/\sqrt{LC}$; ch7 oscillator in disguise \\
+\bottomrule
+\end{tabularx}
+\caption{Induction cheat sheet.}
+\label{tab:farsummary}
+\end{table}
+
+\begin{wins}[Definition of done]
+You can now: compute motional and transformer EMF, direct Lenz by
+conservation, derive $L$ of a solenoid, solve RL/LC transients, and run
+the rod power audit and RLC ringing checks.
+\end{wins}
+
+\chapternotes{%
+The motional-first order follows MIT 8.02SC modules 21--25
+\cite{ocw801} and AP Physics C E\&M unit 13 \cite{apced}; Griffiths
+ch.~7 is the deeper anchor (in print); PhET's Faraday app the visual
+one. The numbers are the listing's real output.}
+
+\begin{rulebox}[{Watch instead}]
+\begin{enumerate}
+\item \emph{Electromagnetic Induction, Faraday's Law, Lenz Law} ---
+Walter Lewin, MIT 8.02x Lecture 16, 51:24,
+\url{https://youtu.be/nGQbA2jwkWI} ---
+\S\ref{sec:far-rod}--\S\ref{sec:far-e} at full length (accessed
+2026-10-11).
+\item \emph{Faraday's Law Introduction} --- Khan Academy, 5:36,
+\url{https://youtu.be/vcStzn55MG0} --- \S\ref{sec:far-law} worked
+quickly (accessed 2026-10-11).
+\end{enumerate}
+\end{rulebox}
+
+\section*{Further reading}
+\addcontentsline{toc}{section}{Further reading}
+
+\begin{itemize}
+\item MIT OCW \emph{8.02SC}, induction modules 21--25. At
+\url{https://ocw.mit.edu}, course ``8.02SC'' (verified 2026-10-11).
+\item OpenStax \emph{College Physics 2e}, ch.~23 ``Electromagnetic
+Induction'' --- free text: \url{https://openstax.org} (verified
+2026-10-11).
+\item College Board, \emph{AP Physics C (E\&M) CED}, Unit 13 ---
+verified 2026-10-11 at \url{https://apstudents.collegeboard.org}.
+\item E.~M. Purcell and D.~J. Morin, \emph{Electricity and Magnetism},
+chs.~7--8 --- induction and energy with the field bookkeeping.
+\item PhET, \emph{Faraday's Law} interactive --- move the magnet, watch
+the flux; at \url{https://phet.colorado.edu} (verified 2026-10-11).
+\item Khan Academy, \emph{Faraday's law} ---
+verified 2026-10-11 at \url{https://www.khanacademy.org}
+(science $\to$ physics $\to$ E\&M).
+\end{itemize}
+
+\section*{Additional exercises}
+\addcontentsline{toc}{section}{Additional exercises}
+
+\begin{exercise}[easy]
+A loop's flux drops from $0.4$ to $0.1$\,Wb in $0.2$\,s: find
+$|\mathcal E|$. (AP-C)
+\end{exercise}
+\begin{exercise}[easy]
+State the induced current's direction for a loop as a magnet's north
+pole approaches; recede instead. (AP-C)
+\end{exercise}
+\begin{exercise}[easy]
+A $200$\,mH inductor carries $3$\,A: find its stored energy. (AP-C)
+\end{exercise}
+\begin{exercise}[easy]
+An RL circuit has $\tau=2$\,ms with $L=40$\,mH: find $R$. (F=ma)
+\end{exercise}
+\begin{exercise}[easy]
+A $50$-turn coil of area $0.01$\,m$^{2}$ flips $180^{\circ}$ in a
+$0.5$\,T field in $0.1$\,s: find the average EMF. (AP-C)
+\end{exercise}
+\begin{exercise}[medium]
+Complete the sliding-rod audit: find the terminal rod speed for a given
+pulling force. (AP-C FR-style)
+\end{exercise}
+\begin{exercise}[medium]
+A loop enters a field region twice its width: sketch $I(t)$ over the
+whole transit. (F=ma)
+\end{exercise}
+\begin{exercise}[medium]
+Two coaxial loops: estimate the mutual inductance when the small loop
+sits on the big one's axis. (AP-C)
+\end{exercise}
+\begin{exercise}[medium]
+An RLC rings at $99\%$ of $\omega_0$: find $R/L$. (AP-C)
+\end{exercise}
+\begin{exercise}[medium]
+Why does a transformer's secondary see alternating EMF but no net
+charge transfer? Reason via mutual inductance. (engineering)
+\end{exercise}
+\begin{exercise}[medium]
+An inductor and capacitor of given $L,C$: find the oscillation
+frequency and the peak current for initial charge $Q_0$. (AP-C)
+\end{exercise}
+\begin{exercise}[hard]
+A magnet falls through a conducting tube: argue the terminal velocity
+exists and estimate it via energy balance. (USAPhO-style)
+\end{exercise}
+\begin{exercise}[hard]
+A loop rotates at $\omega$ in a uniform field: derive
+$\mathcal E(t)=NBA\omega\sin\omega t$ and explain the generator's
+waveform. (APhO-style)
+\end{exercise}
+\begin{exercise}[medium]
+Show $u_B+u_E$ inside a charging capacitor accounts for the energy
+inflow. (concept)
+\end{exercise}
+\begin{exercise}[medium]
+A betatron accelerates electrons: explain why the induced $\mathbf E$
+direction stays fixed as $B$ ramps. (concept)
+\end{exercise}

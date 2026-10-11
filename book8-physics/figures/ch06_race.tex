@@ -1,0 +1,12 @@
+\begin{tikzpicture}[scale=0.8,font=\scriptsize]
+\foreach \x/\lab/\tr/\rt in {0/slide/4/0, 2.4/sphere/2.85/1.15, 4.8/disk/2.65/1.35, 7.2/hoop/2/2}{
+  \begin{scope}[xshift=\x cm]
+    \draw[thick] (0,0) rectangle (1.8,2.8);
+    \fill[accent!70] (0,0) rectangle (0.8,\tr*0.6);
+    \fill[amber!60] (1.0,0) rectangle (1.8,\rt*0.6);
+    \node at (0.9,-0.4) {\lab};
+    \node[rotate=90] at (0.4,\tr*0.3) {$K_t$};
+    \node[rotate=90] at (1.4,\rt*0.3) {$K_r$};
+  \end{scope}}
+\node at (3.6,3.5) {same $mgh$: rotation share slows the finish --- hoop pays half};
+\end{tikzpicture}

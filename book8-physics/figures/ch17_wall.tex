@@ -1,0 +1,6 @@
+\begin{tikzpicture}[scale=0.8,font=\scriptsize]
+\draw[very thick] (4.6,-1.6) -- (4.6,1.6);
+\foreach \x/\y/\a in {1.2/0.9/20, 2.4/-0.5/-30, 3.4/1.0/-15}{
+\draw[->,thick,accent] (\x,\y) -- (4.5,\y+0.4);}
+\node[align=left] at (2.6,-2.2) {each collision: impulse $2mv_x$;\\rate $\times$ impulse $=$ pressure};
+\end{tikzpicture}

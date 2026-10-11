@@ -40,3 +40,4 @@ book5-electronics,ch18-19+consistency,224,9 fig,7 lst,43 ex,pass incl. link-rot 
 book3-linalg-ml,depth-rereview-ch01-13,208,,,,12 PASS+1 RESOLVED,Beezer dead URL fixed,elec-0006
 book5-electronics,complete-224,,,,,,elec ch17-19+consistency merged; ch14-19 review queued ml-f668,coordinator
 book3-linalg-ml,v0.1-tag,208,,,,,,release,coordinator
+book6-quant,ch01-15-land,132,90 fig~,24 lst~,225 ex~,pending,figdata /tmp→figures/data + lifeos.sty fix,book2+coordinator

@@ -1,0 +1,18 @@
+% projectile with velocity components at launch, apex, descent
+\begin{tikzpicture}
+\begin{axis}[width=0.9\linewidth,height=6.0cm,
+  xlabel={$x$ (m)}, ylabel={$y$ (m)}, xmin=0, xmax=44, ymin=0, ymax=13,
+  grid=major, grid style={gray!20}, axis equal image]
+\addplot[domain=0:40.8,samples=60,very thick,accent]
+  ({x},{tan(45)*x-9.8*x^2/(2*400*cos(45)^2)});
+% velocity arrows: launch, apex, descent (components)
+\draw[->,very thick] (axis cs:0,0) -- (axis cs:7.07,7.07) node[midway,left,font=\footnotesize] {$\mathbf v_0$};
+\draw[->,thick,dashed] (axis cs:0,0) -- (axis cs:7.07,0) node[pos=0.85,below,font=\footnotesize] {$v_x$};
+\draw[->,thick,dashed] (axis cs:7.07,0) -- (axis cs:7.07,7.07) node[midway,right,font=\footnotesize] {$v_{y0}$};
+\draw[->,very thick] (axis cs:20.4,10.2) -- (axis cs:27.5,10.2) node[midway,above,font=\footnotesize] {$\mathbf v$: pure $v_x$};
+\draw[->,very thick] (axis cs:32,6.3) -- (axis cs:39,1.4) node[midway,right,font=\footnotesize] {$\mathbf v$};
+\draw[->,thick,dashed] (axis cs:32,6.3) -- (axis cs:39,6.3);
+\draw[->,thick,dashed] (axis cs:39,6.3) -- (axis cs:39,1.4) node[midway,right,font=\footnotesize] {$v_y<0$};
+\fill (axis cs:20.4,10.2) circle (2pt) node[above=2pt,font=\footnotesize] {apex};
+\end{axis}
+\end{tikzpicture}

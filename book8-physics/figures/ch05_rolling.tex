@@ -1,0 +1,12 @@
+\begin{tikzpicture}[scale=1.0,force/.style={->,thick,accent}]
+\draw[thick] (-0.5,0) -- (4.5,0);
+\draw[thick] (2,1) circle (1);
+\fill (2,1) circle (0.04) node[above left=-2pt,font=\scriptsize]{C};
+\draw[force] (2,1) -- (3.3,1) node[right,font=\scriptsize]{$v$};
+\draw[force] (2,2) -- (4.6,2) node[right,font=\scriptsize]{top: $2v$};
+\draw[force] (2,0) -- (1.3,0) node[below,font=\scriptsize]{contact: $0$};
+\draw[force] (3,1) -- (3.9,1.7) node[right,font=\scriptsize]{};
+\node[font=\scriptsize] at (4.0,0.4) {$v=\omega r$ no-slip};
+\draw[->,dashed] (2.6,1.4) arc (30:-60:0.55);
+\node[font=\scriptsize] at (3.2,1.55) {$\omega$};
+\end{tikzpicture}

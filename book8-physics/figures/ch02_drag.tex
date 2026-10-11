@@ -1,0 +1,13 @@
+\begin{tikzpicture}
+\begin{axis}[width=8.5cm,height=5.5cm,xlabel={$v$ (m/s)},
+ylabel={drag deceleration $a_{\rm drag}$ (m/s$^2$)},xmin=0,xmax=55,ymin=0,ymax=12,
+xtick={0,10,20,30,40,50},legend pos=north west,font=\small]
+\addplot[thick,accent,domain=0:55] {0.00375*x^2};
+\addlegendentry{quadratic $cv^2/m$}
+\addplot[thick,amber,domain=0:55] {0.2*x};
+\addlegendentry{linear $cv/m$}
+\addplot[dashed] coordinates {(51.12,0) (51.12,9.8)};
+\addplot[dashed] coordinates {(0,9.8) (51.12,9.8)};
+\addplot[mark=*] coordinates {(51.12,9.8)} node[below left,font=\scriptsize]{$v_t$: drag$=g$};
+\end{axis}
+\end{tikzpicture}

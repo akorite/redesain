@@ -1,0 +1,14 @@
+\begin{tikzpicture}[scale=1.0,font=\scriptsize]
+\begin{scope}
+\draw[->,thick] (0,0) -- (4.4,0) node[right]{$\mathbf S$: travel};
+\draw[very thick,accent,domain=0:4.2,samples=60] plot (\x,{0.8*sin(360*\x/2.5)}) ;
+\node[accent] at (4.3,1.0) {$\mathbf E$};
+\end{scope}
+\begin{scope}[yshift=-1.6cm]
+\draw[->,thick] (0,0) -- (4.4,0);
+\draw[very thick,amber,domain=0:4.2,samples=60] plot (\x,{0.8*sin(360*\x/2.5)}) ;
+\node[amber] at (4.3,-1.0) {$\mathbf B$ (out of page, drawn flat)};
+\node[align=left] at (4.3,-1.0) {};
+\end{scope}
+\node[align=left] at (2.2,-2.6) {$E=cB$ in phase, $\perp$ travel,\\$\mathbf S=\mathbf E\times\mathbf B/\mu_0$};
+\end{tikzpicture}

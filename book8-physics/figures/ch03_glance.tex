@@ -1,0 +1,9 @@
+\begin{tikzpicture}[scale=1.0,force/.style={->,thick,accent}]
+% momentum conservation in 2D: p_in = p1' + p2'
+\draw[force,very thick] (0,0) -- (3.2,0) node[midway,below,font=\scriptsize]{$\mathbf p_{\rm in}$};
+\draw[force,thick,amber] (0,0.08) -- (2.3,1.05) node[right,font=\scriptsize]{$\mathbf p_1'$};
+\draw[force,thick,amber] (2.3,1.05) -- (3.2,0) node[midway,right,font=\scriptsize]{$\mathbf p_2'$};
+\draw[dashed] (2.3,1.05) -- (2.3,0) node[below,font=\scriptsize]{};
+\node[font=\scriptsize] at (0.9,-0.55) {$x$: conserved};
+\node[font=\scriptsize] at (2.7,0.65) {$y$: sums to zero};
+\end{tikzpicture}

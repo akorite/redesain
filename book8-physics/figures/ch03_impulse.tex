@@ -1,0 +1,9 @@
+\begin{tikzpicture}
+\begin{axis}[width=8.5cm,height=5cm,xlabel={$t$ (ms)},ylabel={$F$ (kN)},
+xmin=0,xmax=14,ymin=0,ymax=9,xtick={0,2,4,6,8,10,12,14},font=\small]
+\addplot[very thick,accent,domain=0:10] {8*sin(deg(pi*x/10))};
+\addplot[fill=accent!15,draw=none,domain=0:10] {8*sin(deg(pi*x/10))} \closedcycle;
+\node[font=\scriptsize] at (axis cs:5,4) {$J=\displaystyle\int F\,dt$};
+\draw[->,thick,amber] (axis cs:11,6) -- (axis cs:13,6) node[right,font=\scriptsize]{$\Delta\mathbf p$};
+\end{axis}
+\end{tikzpicture}

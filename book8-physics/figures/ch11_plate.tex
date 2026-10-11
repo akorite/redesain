@@ -1,0 +1,8 @@
+\begin{tikzpicture}[scale=0.95,font=\scriptsize]
+\draw[very thick] (-1.6,1.0) -- (1.6,1.0) node[right]{$+$};
+\draw[very thick] (-1.6,-1.0) -- (1.6,-1.0) node[right]{$-$};
+\foreach \x in {-1.2,-0.6,0,0.6,1.2}{\draw[->,accent] (\x,0.9) -- (\x,-0.9);}
+\draw[accent,dashed] (-1.8,0.9) .. controls (-2.3,0) .. (-1.8,-0.9);
+\draw[accent,dashed] (1.8,0.9) .. controls (2.3,0) .. (1.8,-0.9);
+\node at (0,-1.6) {uniform inside, fringing at edges ($d\ll$ plate)};
+\end{tikzpicture}

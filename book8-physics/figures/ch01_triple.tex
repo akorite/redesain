@@ -1,0 +1,23 @@
+% x(t), v(t), a(t) aligned for x = 20t - 4.9 t^2 (thrown object)
+\begin{tikzpicture}
+\begin{axis}[name=px, width=0.86\linewidth, height=3.4cm,
+  xlabel={}, ylabel={$x$ (m)}, ymin=0, ymax=22, xmin=0, xmax=4.2,
+  grid=major, grid style={gray!20}, xtick=\empty]
+\addplot[domain=0:4.1,samples=60,thick,accent]{20*x-4.9*x^2};
+\end{axis}
+\begin{axis}[name=pv, at={(px.below south west)}, anchor=above north west,
+  yshift=-2mm, width=0.86\linewidth, height=3.4cm,
+  xlabel={}, ylabel={$v$ (m/s)}, ymin=-22, ymax=22, xmin=0, xmax=4.2,
+  grid=major, grid style={gray!20}, xtick=\empty]
+\addplot[domain=0:4.1,samples=60,thick,accent]{20-9.8*x};
+\draw[dashed,gray] (axis cs:2.04,-22) -- (axis cs:2.04,22);
+\end{axis}
+\begin{axis}[name=pa, at={(pv.below south west)}, anchor=above north west,
+  yshift=-2mm, width=0.86\linewidth, height=2.6cm,
+  xlabel={$t$ (s)}, ylabel={$a$ (m/s$^2$)}, ymin=-15, ymax=8, xmin=0, xmax=4.2,
+  grid=major, grid style={gray!20}]
+\addplot[domain=0:4.1,samples=2,thick,accent]{-9.8};
+\draw[dashed,gray] (axis cs:2.04,-15) -- (axis cs:2.04,8);
+\end{axis}
+\node[font=\footnotesize,rotate=90] at ($(px.west)+(-0.55,0)$) {peak};
+\end{tikzpicture}

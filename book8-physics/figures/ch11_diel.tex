@@ -1,0 +1,9 @@
+\begin{tikzpicture}[scale=0.9,font=\scriptsize]
+\draw[very thick] (-1.6,1.1) -- (1.6,1.1) node[right]{$+$};
+\draw[very thick] (-1.6,-1.1) -- (1.6,-1.1) node[right]{$-$};
+\draw[fill=amber!15,very thick] (-1.4,-0.7) rectangle (1.4,0.7);
+\foreach \x/\s in {-1.0/+,-0.4/+,0.2/+,0.8/+}{\node at (\x,0.15) {$\mp$};}
+\foreach \x/\s in {-1.0/-,-0.4/-,0.2/-,0.8/-}{\node at (\x,-0.15) {$\pm$};}
+\node[align=left] at (0,-1.7) {dielectric: bound surface charge\\weakens $E$ by $\kappa$};
+\node[align=left] at (0,-1.7) {};
+\end{tikzpicture}

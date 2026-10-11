@@ -1,0 +1,373 @@
+\chapter{Electric charge and field}\label{ch:efield}
+
+Part~II trades mechanics for fields, and the first one is the cleanest:
+Coulomb's $1/r^{2}$ law looks like gravitation with signs --- but the
+signs change everything (charges attract \emph{and} repel, so fields can
+cancel).
+
+\section{Charge: quantised, conserved, mobile in metal}\label{sec:ef-charge}
+
+Charge comes in units of $e=1.602\times10^{-19}$\,C, is conserved in
+every process, and lives in two kinds of material
+(figure~\ref{fig:cond}): \emph{conductors} let electrons move freely
+(charge spreads to the surface) while \emph{insulators} pin it where you
+put it. Induction and polarization follow from mobility alone.
+
+\begin{figure}[htbp]\centering
+\input{figures/ch09_cond}
+\caption{The material divide: conductors send charge to the surface and
+kill the interior field; insulators keep it where deposited.}
+\label{fig:cond}
+\end{figure}
+
+\section{Coulomb's law --- superposition is the real law}\label{sec:ef-coul}
+
+\begin{equation}
+  \mathbf F=k\frac{q_1q_2}{r^{2}}\hat r,\qquad
+  k=\frac{1}{4\pi\varepsilon_0}=8.99\times10^{9}\,\mathrm{Nm^{2}/C^{2}},
+  \label{eq:coul}
+\end{equation}
+and --- the loaded part --- \emph{forces add}. The force on a charge is
+the vector sum over every other charge, one pair at a time, with no
+three-body terms. That linearity is what makes field theory possible.
+
+\begin{example}[Superposition, vectors not scalars]\label{ex:superp}
+Charges $+2$\,\textmu C at the origin and $-1$\,\textmu C at
+$(3,0)$\,cm. Find the force on $+1$\,\textmu C at $(0,4)$\,cm.
+\par\smallskip
+\textbf{Strategy.} Compute each force as a vector and add.
+\begin{solution}
+$r_1=0.04$\,m along $\hat y$, so
+\[\mathbf F_1=\frac{k(2\mu)(1\mu)}{0.0016}\,\hat y=11.24\,\hat y\ \text{N}.\]
+$r_2=\sqrt{0.03^{2}+0.04^{2}}=0.05$\,m; the negative charge pulls along
+$(3,-4)/5$, giving
+\[\mathbf F_2=\frac{k(1\mu)(1\mu)}{0.0025}\cdot\frac{(3,-4)}{5}
+=(2.16,-2.88)\ \text{N}.\]
+Sum: $(2.16,\,8.36)$\,N, magnitude $8.6$\,N at $75^{\circ}$ ---
+not the $14.8$\,N of scalar addition. \checkmark
+\end{solution}
+\end{example}
+
+\section{The field: force per test charge}\label{sec:ef-field}
+
+$\mathbf E=\mathbf F/q$ --- defined so the source needn't care what test
+charge arrives. A point charge's is
+$\mathbf E=kq\hat r/r^{2}$ (figure~\ref{fig:pt}); a distribution's is the
+vector sum over all its $dq$.
+
+\begin{figure}[htbp]\centering
+\input{figures/ch09_pt}
+\caption{The point-charge field: radial, with line density standing in
+for the $1/r^{2}$ fall-off.}
+\label{fig:pt}
+\end{figure}
+
+\section{Field lines: reading, rules}\label{sec:ef-lines}
+
+Lines start on $+$, end on $-$, never cross (the field is single-valued),
+and their density reads magnitude (figure~\ref{fig:lines}). They are a
+map, not a mechanism --- the physics is \eqref{eq:coul}.
+
+\begin{figure}[htbp]\centering
+\input{figures/ch09_lines}
+\caption{Two like charges: lines repel into a saddle. Between two equal
+charges the field vanishes exactly at the midpoint.}
+\label{fig:lines}
+\end{figure}
+
+\begin{figure}[htbp]\centering
+\input{figures/ch09_dip}
+\caption{The dipole: far field falls as $p/r^{3}$ --- the first
+\emph{non}-inverse-square pattern in the book.}
+\label{fig:dip}
+\end{figure}
+
+\begin{example}[Dipole far field]\label{ex:dipole}
+Show that on the dipole axis, $|E|\to2kp/r^{3}$ for $r\gg a$,
+$p=qa$.
+\par\smallskip
+\textbf{Strategy.} Superpose two point-charge fields at distances
+$r-a/2$ and $r+a/2$, then expand.
+\begin{solution}
+$E=kq[(r-a/2)^{-2}-(r+a/2)^{-2}]
+=kq\frac{(r+a/2)^{2}-(r-a/2)^{2}}{(r^{2}-a^{2}/4)^{2}}
+=kq\frac{2ra}{(r^{2})^{2}}\to\frac{2kp}{r^{3}}$.
+The $1/r^{2}$ terms cancel; the \emph{difference} survives ---
+the code check below finds the same $r^{-3}$. \checkmark
+\end{solution}
+\end{example}
+
+\section{Continuous distributions: pay with integrals}\label{sec:ef-cont}
+
+For charge spread over a line, ring or disk, integrate
+$d\mathbf E=k\,dq\,\hat r/r^{2}$ element by element --- and let symmetry
+discard every component that cancels
+(figure~\ref{fig:ring}).
+
+\begin{figure}[htbp]\centering
+\input{figures/ch09_ring}
+\caption{The ring's axis field: each $dq$'s transverse piece cancels its
+opposite's --- only $dE_x$ survives.}
+\label{fig:ring}
+\end{figure}
+
+\begin{example}[Field on the axis of a charged ring]\label{ex:ring}
+A ring of radius $R$ carries $Q$ uniformly. Find $\mathbf E$ on the
+axis at distance $x$.
+\par\smallskip
+\textbf{Strategy.} Every element is the same distance
+$\sqrt{x^{2}+R^{2}}$; transverse components cancel.
+\begin{solution}
+Each $dq$ contributes axial
+$dE_x=k\,dq\,x/(x^{2}+R^{2})^{3/2}$; integrating over the ring just
+multiplies by $Q$:
+$E=\dfrac{kQx}{(x^{2}+R^{2})^{3/2}}$.
+Limits: $x\to0$ gives $0$ (symmetry wins at the centre), $x\gg R$ gives
+$kQ/x^{2}$ (the ring becomes a point). The code confirms it to $0.00\%$.
+\checkmark
+\end{solution}
+\end{example}
+
+\begin{exercise}[easy]
+Where on the axis is the ring's field maximum? (Differentiate.) (AP-C)
+\end{exercise}
+
+\begin{example}[Charged rod at its end]\label{ex:rod}
+A rod of length $L$ carries $Q$ uniformly. Find $\mathbf E$ a distance
+$d$ past its near end.
+\par\smallskip
+\textbf{Strategy.} Integrate element by element --- no symmetry to
+help this time.
+\begin{solution}
+With $dq=\lambda\,dx$, $\lambda=Q/L$, at distance $r=d+L-x$ from the
+element:
+\[E=\int_0^{L}\frac{k\lambda\,dx}{(d+L-x)^{2}}
+=k\lambda\left[\frac{1}{d}-\frac{1}{d+L}\right]
+=\frac{kQ}{d(d+L)}.\]
+Limits: $d\gg L$ recovers $kQ/d^{2}$; $d\to0$ diverges --- the rod
+becomes its own endpoint's infinity. \checkmark
+\end{solution}
+\end{example}
+
+\section{Motion in a uniform field: kinematics returns}\label{sec:ef-motion}
+
+Inside a parallel-plate capacitor $E$ is constant, so a charge's
+trajectory is chapter~1's projectile motion with $a=qE/m$
+(figure~\ref{fig:defl}) --- oscilloscopes and inkjets are this
+application sold as hardware.
+
+\begin{figure}[htbp]\centering
+\input{figures/ch09_defl}
+\caption{Electron deflection between plates: the projectile equation
+wearing an electric costume.}
+\label{fig:defl}
+\end{figure}
+
+\begin{example}[Oscilloscope deflection]\label{ex:deflect}
+An electron ($v_0=2\times10^{7}$\,m/s) crosses plates of length
+$L=4$\,cm with $E=2000$\,N/C. Find its deflection.
+\par\smallskip
+\textbf{Strategy.} Time in plates $t=L/v_0$; $y=\tfrac12at^{2}$.
+\begin{solution}
+$a=eE/m=1.6\times10^{-19}\times2000/9.11\times10^{-31}=3.5\times10^{14}$\,m/s$^{2}$;
+$t=2\times10^{-9}$\,s;
+$y=\tfrac12(3.5\times10^{14})(4\times10^{-18})=0.70$\,mm ---
+and $\theta=\arctan(v_y/v_0)\approx10^{\circ}$ after exit. \checkmark
+\end{solution}
+\end{example}
+
+\begin{lstlisting}[language=Python,caption={\texttt{code/ch09\_field\_lines.py} --- superposition check: dipole and ring vs theory.},label={lst:field}]
+def E(charges, x, y, z=0.0):
+    for q, xq, yq, zq in charges:
+        dx, dy, dz = x-xq, y-yq, z-zq
+        r3 = (dx*dx + dy*dy + dz*dz)**1.5
+        ex += q*dx/r3; ey += q*dy/r3; ez += q*dz/r3
+\end{lstlisting}
+
+Output of a real run:
+\begin{lstlisting}[numbers=none]
+Dipole far-field ON axis (expect |E| -> 2p/r^3, p=qa=0.1):
+  r=1.0: |E|=0.2010  theory=0.2000  ratio=1.005
+  r=2.0: |E|=0.0250  theory=0.0250  ratio=1.001
+  r=4.0: |E|=0.0031  theory=0.0031  ratio=1.000
+Dipole EQUATOR (expect |E| -> p/r^3):
+  r=1.0: |Ex|=0.0996  theory=0.1000
+  r=2.0: |Ex|=0.0125  theory=0.0125
+
+Ring N=200 on axis (expect Ex=x/(x^2+R^2)^1.5, Ey=Ez=0):
+  x=0.2: Ex=1.2807  theory=1.2807  err=0.00%  trans=4.3e-16
+  x=0.5: Ex=1.4142  theory=1.4142  err=0.00%  trans=1.0e-16
+  x=1.0: Ex=0.7155  theory=0.7155  err=0.00%  trans=4.9e-18
+  x=2.0: Ex=0.2283  theory=0.2283  err=0.00%  trans=5.2e-18
+\end{lstlisting}
+
+Naked superposition with $N=200$ ring elements nails every limit: the
+dipole ratio converges to $1.000$ as $r/a$ grows, the ring matches the
+analytic $x(x^{2}+R^{2})^{-3/2}$ to $0.00\%$, and the transverse
+components --- $10^{-16}$ --- are symmetry made numeric.
+
+\section{In engineering practice: electrostatics as a design spec}\label{sec:ef-eng}
+
+Electrostatic precipitators run \S\ref{sec:ef-motion} at industrial
+scale (corona-charge the soot, plate-field it out); inkjet heads steer
+charged droplets by the deflection you just computed; and every high-voltage
+lab's ``corona ring'' is a real conductor shaped to flatten the field
+of \S\ref{sec:ef-lines} --- rounded because sharp corners concentrate
+lines into breakdown.
+
+\section{Common mistakes}\label{sec:ef-mistakes}
+
+\begin{tripwire}[Field vs force conflated]
+$\mathbf E$ is a property of the source; $\mathbf F=q\mathbf E$ needs
+the test charge. ``Force at a point'' without a charge there is
+meaningless --- but the field isn't.
+\end{tripwire}
+\begin{tripwire}[Scalar superposition]
+$|E|=|E_1|+|E_2|$ only when parallel. Two perpendicular equal fields
+give $\sqrt2\,|E_1|$, not $2|E_1|$.
+\end{tripwire}
+\begin{tripwire}[$dq$ element errors]
+For a line, $dq=\lambda\,dx$ --- but on an arc, $dq=\lambda R\,d\theta$
+and the distance to the field point is \emph{not} constant unless you
+integrate.
+\end{tripwire}
+\begin{tripwire}[Sign of the test charge]
+Negative charges feel $\mathbf F$ \emph{opposite} $\mathbf E$; tracing
+an electron's path down field lines is backwards.
+\end{tripwire}
+\begin{tripwire}[Field ``used up'' by the probe]
+A test charge measures without disturbing --- in the limit $q\to0$.
+Real probes do disturb; that's a lab problem, not the definition's.
+\end{tripwire}
+
+\section{Summary}\label{sec:ef-summary}
+
+\begin{table}[ht]\centering
+\begin{tabularx}{\linewidth}{@{}lY@{}}
+\toprule
+\tablehead\thead{Idea} & \thead{One-line version}\\
+\midrule
+charge & quantised at $e$; mobile in conductor, pinned in insulator \\
+Coulomb & $F=kq_1q_2/r^{2}$; forces add as vectors \\
+field & $\mathbf E=\mathbf F/q$; point $kq\hat r/r^{2}$ \\
+lines & start $+$/end $-$; density $\propto |E|$ \\
+ring axis & $E=kQx/(x^{2}+R^{2})^{3/2}$ \\
+dipole & far field $2kp/r^{3}$ (axis), $kp/r^{3}$ (equator) \\
+uniform $E$ & projectile kinematics, $a=qE/m$ \\
+\bottomrule
+\end{tabularx}
+\caption{Electric-field cheat sheet.}
+\label{tab:efsummary}
+\end{table}
+
+\begin{wins}[Definition of done]
+You can now: superpose Coulomb fields as vectors, read field-line maps,
+integrate a continuous distribution by symmetry, derive ring/dipole
+limits, and run charge-in-uniform-$E$ kinematics.
+\end{wins}
+
+\chapternotes{%
+The field-first order follows MIT 8.02SC \cite{ocw801} modules 1--4 and
+AP Physics C E\&M unit 8 \cite{apced}; Purcell--Morin's ch.~1 is the
+authoritative charge/field treatment \cite{hrw}. The numeric checks are
+the listing's real output.}
+
+\begin{rulebox}[{Watch instead}]
+\begin{enumerate}
+\item \emph{Electric Charges and Forces --- Coulomb's Law --- Polarization}
+--- Walter Lewin, MIT 8.02x Lecture 1, 47:13,
+\url{https://youtu.be/x1-SibwIPM4} ---
+\S\ref{sec:ef-charge}--\S\ref{sec:ef-coul} at full length (accessed
+2026-10-11).
+\item \emph{Electric field definition} --- Khan Academy, 13:46,
+\url{https://youtu.be/_4VC3IHbuW8} --- \S\ref{sec:ef-field} worked
+quickly (accessed 2026-10-11).
+\end{enumerate}
+\end{rulebox}
+
+\section*{Further reading}
+\addcontentsline{toc}{section}{Further reading}
+
+\begin{itemize}
+\item MIT OpenCourseWare, \emph{8.02SC Electricity and Magnetism},
+modules 1--4 --- charge, field and continuous distributions. At
+\url{https://ocw.mit.edu}, course ``8.02SC'' (verified 2026-10-11).
+\item OpenStax, \emph{College Physics 2e}, ch.~18 ``Electric Charge and
+Electric Field'' --- free text at \url{https://openstax.org} (verified
+2026-10-11).
+\item College Board \emph{AP Physics C (E\&M) CED}, Unit 8 ---
+the exam blueprint for this chapter, at
+\url{https://apstudents.collegeboard.org} (verified 2026-10-11).
+\item E.~M. Purcell and D.~J. Morin, \emph{Electricity and Magnetism},
+ch.~1 --- the deeper electrostatics; ISBN 978-1107014022.
+\item R.~P. Feynman, \emph{Lectures on Physics}, vol.~II, ch.~1 ---
+electromagnetism's stakes set in one chapter; free at Caltech's site.
+\item Khan Academy, \emph{Electric charge, field, and potential} ---
+drills matching \S\ref{sec:ef-coul}--\S\ref{sec:ef-cont}, at
+\url{https://www.khanacademy.org} (verified 2026-10-11).
+\end{itemize}
+
+\section*{Additional exercises}
+\addcontentsline{toc}{section}{Additional exercises}
+
+\begin{exercise}[easy]
+Two charges $+3$\,\textmu C and $-1$\,\textmu C sit $10$\,cm apart.
+Find the force on a $+1$\,\textmu C test at the midpoint. (AP-C)
+\end{exercise}
+\begin{exercise}[easy]
+A field points $+\hat x$ at a point: what does a proton do there ---
+and an electron? (AP-C)
+\end{exercise}
+\begin{exercise}[easy]
+Express $\mathbf E$'s units in newtons and in volts/metre; show they
+agree. (AP-C)
+\end{exercise}
+\begin{exercise}[easy]
+From a field-line map of two charges, one region has 3$\times$ the line
+density of another: compare magnitudes. (F=ma)
+\end{exercise}
+\begin{exercise}[easy]
+$+Q$ and $-Q$ sit $d$ apart. Where on the axis is $E=0$ --- if anywhere?
+(AP-C)
+\end{exercise}
+\begin{exercise}[medium]
+Derive the on-axis field of a uniformly charged rod of length $L$ at
+distance $d$ from its end. (AP-C FR-style)
+\end{exercise}
+\begin{exercise}[medium]
+A semicircle of charge $Q$, radius $R$: find $\mathbf E$ at the centre.
+(AP-C)
+\end{exercise}
+\begin{exercise}[medium]
+Three charges in a line: $+Q$, $-2Q$, $+Q$ equally spaced --- is the
+middle one's equilibrium stable along the axis? (F=ma)
+\end{exercise}
+\begin{exercise}[medium]
+A dipole of moment $p$ sits in a uniform field at angle $\theta$: find
+the torque and the equilibrium direction. (AP-C)
+\end{exercise}
+\begin{exercise}[medium]
+Design: plates $5$\,cm long must deflect $30$\,keV electrons by
+$2$\,mm --- find $E$. (engineering)
+\end{exercise}
+\begin{exercise}[hard]
+An arc subtending angle $\alpha$ has $\lambda=\lambda_0\sin\theta$:
+set up the integral for $\mathbf E$ at the centre. (USAPhO-style)
+\end{exercise}
+\begin{exercise}[hard]
+A dipole sits in a non-uniform field: argue it feels a net force toward
+the stronger region and estimate it via $\mathbf p\cdot\nabla\mathbf E$.
+(APhO-style)
+\end{exercise}
+\begin{exercise}[medium]
+At what angle from the dipole axis does the far field's magnitude equal
+the equatorial value at the same $r$? (F=ma)
+\end{exercise}
+\begin{exercise}[medium]
+A point charge sits between two grounded conductors: explain, via field
+lines, why its field is distorted toward the plates. (concept)
+\end{exercise}
+\begin{exercise}[medium]
+Two equal charges $+Q$ at $\pm d/2$: find $\mathbf E$ on the axis
+$x>0$ and its zero. (AP-C)
+\end{exercise}

@@ -1,0 +1,19 @@
+% dv geometry for centripetal acceleration
+\begin{tikzpicture}[scale=1.1,>=stealth]
+  % left: circle with two velocity vectors
+  \begin{scope}
+    \draw[thick,gray] (0,0) circle (1.9);
+    \draw[->,very thick,accent] (1.9,0) -- ++(0,1.7) node[right,font=\small] {$\mathbf v(t)$};
+    \draw[->,very thick,accent] ({1.9*cos(40)},{1.9*sin(40)}) -- ++({-1.7*sin(40)},{1.7*cos(40)}) node[above left=-2pt,font=\small] {$\mathbf v(t+\Delta t)$};
+    \fill (0,0) circle (1.5pt) node[below left,font=\small] {$O$};
+    \draw[dashed] (1.9,0) -- ({1.9*cos(40)},{1.9*sin(40)});
+    \node[font=\footnotesize] at (0.7,-2.4) {speed $|\mathbf v|$ constant};
+  \end{scope}
+  % right: the velocity difference triangle
+  \begin{scope}[xshift=6.4cm,yshift=-0.6cm]
+    \draw[->,very thick,accent] (0,0) -- (0,1.9) node[midway,left,font=\small] {$\mathbf v(t)$};
+    \draw[->,very thick] (0,0) -- (-0.85,1.85) node[midway,left,font=\small] {$\mathbf v(t+\Delta t)$};
+    \draw[->,very thick] (0,1.9) -- (-0.85,1.85) node[midway,above,font=\small] {$\Delta\mathbf v$};
+    \node[font=\footnotesize,align=center] at (-0.2,-0.5) {$\Delta\mathbf v$ points inward:\\as $\Delta t\to0$, toward $O$};
+  \end{scope}
+\end{tikzpicture}

@@ -1,0 +1,9 @@
+\begin{tikzpicture}
+\begin{axis}[width=8cm,height=5cm,xlabel={$v$ (m/s)},ylabel={$P=Fv$ (kW)},
+xmin=0,xmax=30,ymin=0,ymax=40,font=\small]
+\addplot[very thick,accent,domain=0:30] {0.04*x + 0.01*x^2};
+\node[font=\scriptsize,align=center] at (axis cs:14,26) {rolling $+$ drag:\\$P=(F_{\rm roll}+cv)v$};
+\addplot[dashed,amber] coordinates {(20,0) (20,12)};
+\node[font=\scriptsize,amber,align=center] at (axis cs:21,6) {$72$ km/h:\\$\sim12$ kW};
+\end{axis}
+\end{tikzpicture}

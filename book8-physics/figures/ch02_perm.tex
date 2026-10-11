@@ -1,0 +1,15 @@
+% Figure 2.6: a permutation matrix is a shuffle, nothing more.
+% PA moves row i of A to the position the 1 in row i of P indicates.
+\begin{tikzpicture}[scale=1.0,>=stealth,
+  lbl/.style={font=\small}]
+  \node[lbl] at (0,1.7) {$P=\begin{bmatrix}0&0&1\\1&0&0\\0&1&0\end{bmatrix}$};
+  \node[lbl] at (3.4,1.7) {$A=\begin{bmatrix}a_{11}&a_{12}\\a_{21}&a_{22}\\a_{31}&a_{32}\end{bmatrix}$};
+  \node[lbl] at (7.6,1.7) {$PA=\begin{bmatrix}a_{31}&a_{32}\\a_{11}&a_{12}\\a_{21}&a_{22}\end{bmatrix}$};
+  % arrows: where each row of A lands
+  \draw[->,thick,accent] (4.3,1.95) .. controls (5.4,2.5) .. (7.1,2.0);
+  \draw[->,thick] (4.3,1.7) .. controls (5.2,1.5) .. (7.1,1.5);
+  \draw[->,thick] (4.3,1.45) .. controls (5.2,0.9) .. (7.1,1.0);
+  \node[lbl] at (5.5,2.7) {row 3 $\to$ top};
+  \node[lbl,font=\footnotesize] at (3.4,0.5) {each row of $P$ is one $\mathbf{e}_j$:};
+  \node[lbl,font=\footnotesize] at (3.4,0.05) {it \emph{picks} that row of $A$};
+\end{tikzpicture}

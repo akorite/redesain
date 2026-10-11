@@ -1,0 +1,12 @@
+\begin{tikzpicture}[scale=1.1]
+\draw[very thick] (0,0) circle (0.8);
+\draw[very thick] (0,0) circle (2.0);
+\fill[amber] (0,0) circle (0.07) node[right=2pt,font=\scriptsize]{};
+\draw[very thick,dashed,accent] (0.8,0) arc (0:180:1.4 and 1.0);
+\draw[->,thick,accent] (0.8,0) -- (1.15,0.35) node[right,font=\scriptsize]{$\Delta v_1$};
+\draw[->,thick,accent] (-2.0,0) -- (-1.55,-0.35) node[left,font=\scriptsize]{$\Delta v_2$};
+\node[font=\scriptsize] at (0,0.95) {$r_1$};
+\node[font=\scriptsize] at (0,-2.2) {$r_2$};
+\node[font=\scriptsize,align=left] at (-1.3,1.2) {transfer ellipse:\\$a_t=(r_1+r_2)/2$};
+
+\end{tikzpicture}

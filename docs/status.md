@@ -104,3 +104,8 @@ Pending a GitHub PAT: issue creation (pinned "Status" issue + `needs-user` label
 - systems ch01-03 merged: ELF/linking, data representation, RV32I asm (real clang cross-compile + sim). Two delivery defects fixed at merge (wrong test_ch01, fig misroute).
 - book3-linalg-ml-v0.1 TAGGED (208pp, all 16ch reviewed). Tags now: cp v0.1, disc v0.2, linalg v0.1.
 - elec-0006 authoring systems at speed; ch04+ in flight. Independent reviews owed: systems ch01+, elec ch14-19 (ml-f668 queued), quant/ml/physics (TBD).
+
+## 2026-10-11 — book6 quant ch01-15 landed (132pp); depth pass dispatched
+- book2 delivered the full quant book: all 15 chapters + figures + code + data (Kraken/HL/PM JSON+CSV). Coordinator fixed two portability defects at merge: /tmp/*.tex figure data regenerated into committed figures/data/, and lifeos.sty local patch (pgfplots/xurl) moved to main.tex — lifeos.sty identical to shared/ again.
+- Builds clean: 0 `!` errors, 0 undefined, 0 overfull >3pt, 132pp. PR#18 open; chapters await independent review before merge-complete.
+- book2 resumed → quant depth pass to ~220pp (same spec as disc pass).

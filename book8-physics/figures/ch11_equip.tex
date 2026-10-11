@@ -1,0 +1,6 @@
+\begin{tikzpicture}[scale=0.9,font=\scriptsize]
+\foreach \r in {0.6,1.1,1.7,2.4}{\draw[accent] (0,0) circle (\r);}
+\foreach \ang in {0,45,...,315}{\draw[->,thick,amber] (0,0) -- ({\ang}:2.7);}
+\fill[amber] (0,0) circle (0.07);
+\node at (0,-3.0) {equipotentials (circles) cross field lines (rays) at right angles};
+\end{tikzpicture}

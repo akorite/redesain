@@ -1,95 +1,100 @@
-# Notation — textbook-physics
+# Notation
 
-Conventions for the whole book. Symbol collisions are listed with their local resolution
-(project decision 2: never use a colliding symbol in two meanings within one chapter
-without redefining it at the point of use). `log` = natural log throughout (decision 1).
+Conventions for `textbook-cp`. Chapters must use these names for these concepts; anything else needs a local definition before use.
 
-## Conventions (chosen, stated once in the preface)
-
-- **Vectors:** bold italic $\mathbf{F}$, $\mathbf{v}$, $\mathbf{E}$. Magnitude $F=|\mathbf F|$.
-  Components $F_x,F_y,F_z$; column form $\begin{pmatrix}x\\y\end{pmatrix}$ when a matrix
-  acts on it. Unit vectors $\hat{\mathbf x},\hat{\mathbf y},\hat{\mathbf z}$;
-  $\hat{\mathbf r},\hat{\boldsymbol\theta}$ in polar; $\hat{\mathbf n}$ surface normal.
-- **Derivatives:** Newton's dot for time, $\dot x=dx/dt$, $\ddot x=d^2x/dt^2$, after the
-  first introduction of each quantity writes $dx/dt$ out in full. Angular rates
-  $\omega=\dot\theta$, $\alpha=\dot\omega$. Partials $\partial f/\partial x$ where needed.
-- **Units:** SI throughout, set with `siunitx` (`\qty{9.8}{\meter\per\second\squared}`)
-  loaded in `main.tex` after `lifeos` (allowed extra package); fallback manual
-  `\,\mathrm{m\,s^{-2}}`. Radians for all angles unless stated. $g=9.8\,\mathrm{m/s^2}$ in
-  text; F=ma-styled problems set $g=10\,\mathrm{N/kg}$ like the exam.
-- **Difficulty scheme:** `[easy]` ≈ AP-C multiple-choice / lower-half F=ma ·
-  `[medium]` ≈ AP-C free-response part / upper F=ma · `[hard]` ≈ USAPhO / APhO short
-  problem / Gnädig one-star+. Resemblance tags: `(AP-C)` `(F=ma)` `(USAPhO)`
-  `(APhO-style)` `(estimation)` `(engineering)`.
-- **Sign conventions:** work–energy in mechanics uses $W=\int\mathbf F\cdot d\mathbf r$
-  with $\Delta K=W_\mathrm{net}$; in ch17 only, the first law is written
-  $\Delta E_\mathrm{int}=Q-W_\mathrm{by}$ and "work done *by* the gas" is always tagged.
-  CCW torque/rotation positive; current is conventional ($+q$ carriers) everywhere —
-  electron flow noted only when the distinction matters (ch13 Hall effect).
-- **Misc:** $i=\sqrt{-1}$ (not $j$ — that's current density here); $\approx$ approximate,
-  $\propto$ proportional, $\sim$ order-of-magnitude; $\exp(i\omega t)$ phasors in ch14/18.
-
-## Symbol table
+## Complexity and order of growth
 
 | Symbol / macro | Meaning | First used |
 |---|---|---|
-| $\mathbf r$, $\Delta\mathbf r$ | position, displacement | ch1 |
-| $\mathbf v=\dot{\mathbf r}$, $\mathbf a=\ddot{\mathbf r}$ | velocity, acceleration | ch1 |
-| $g$, $\mathbf g$ | gravitational field strength / field | ch2, ch8 |
-| $\mathbf F$, $\mathbf N$, $\mathbf T$, $\mathbf f$ | force; normal, tension, friction | ch2 |
-| $k$ | spring constant (Hooke) | ch2 |
-| $\mu_s$, $\mu_k$ | friction coefficients (static/kinetic) | ch2 |
-| $D=\tfrac12\rho_f C_dAv^2$ | quadratic drag force; $C_d$ drag coefficient | ch2 |
-| $\mathbf p=m\mathbf v$, $\mathbf J=\int\mathbf F\,dt$ | momentum, impulse | ch3 |
-| $\mathbf R$, $M$ | centre-of-mass position, total mass | ch3 |
-| $W$, $K$, $U$, $E$, $P$ | work, kinetic energy, potential energy, mechanical energy, power | ch4 |
-| $\theta,\omega,\alpha$ | angular position/velocity/acceleration | ch5 |
-| $\boldsymbol\tau=\mathbf r\times\mathbf F$ | torque | ch5 |
-| $I$ | moment of inertia (see collision note: also current) | ch5 |
-| $\mathbf L=\mathbf r\times\mathbf p$ | angular momentum | ch6 |
-| $\omega_0$, $\omega_d$, $A$, $\phi$, $T$, $\beta$, $Q$ | natural/driving frequency, amplitude, phase, period, damping parameter, quality factor | ch7 |
-| $G$, $U(r)=-GMm/r$ | gravitational constant, potential energy | ch8 |
-| $q$, $Q$ | charge; $Q$ also heat in ch17 — resolved below | ch9 |
-| $\lambda$, $\sigma$, $\rho$ | line / surface / volume **charge** density | ch9 |
-| $\mathbf E$, $\Phi_E$ | electric field, electric flux | ch9–10 |
-| $\epsilon_0$, $\kappa$ | vacuum permittivity, dielectric constant | ch10–11 |
-| $\mathbf p_d$ | electric dipole moment (collision: $\mathbf p$ is momentum) | ch9 |
-| $V$, $\Delta V$, $\mathcal E$ | electric potential (volts), potential difference, EMF | ch11–12 |
-| $C$ | capacitance (see collision note: also heat capacity ch17) | ch11 |
-| $I$, $\mathbf j$ | current, current density | ch12 |
-| $R$, $\rho$ (resistivity) | resistance, resistivity — $\rho$ reused locally, redefined in §12.2 | ch12 |
-| $r$, $R_\mathrm{int}$ | internal resistance | ch12 |
-| $\tau=RC$ | RC time constant (collision: also torque — always spelled "time constant $\tau$" vs $\boldsymbol\tau$) | ch12 |
-| $\mathbf B$, $\Phi_B$, $\boldsymbol\mu=IA\hat{\mathbf n}$, $\mu_0$ | magnetic field, flux, dipole moment, vacuum permeability | ch13 |
-| $L$ | inductance (collision: also $\mathbf L$ angular momentum — bold vs italic) | ch14 |
-| $u_E=\tfrac{\epsilon_0}{2}E^2$, $u_B=\tfrac{1}{2\mu_0}B^2$ | field energy densities | ch14–15 |
-| $\mathbf S=\mathbf E\times\mathbf B/\mu_0$ | Poynting vector | ch15 |
-| $c$ | speed of light ($c$ never used for drag — see $D$ above) | ch15 |
-| $k=2\pi/\lambda$, $\lambda$, $f$ | wavenumber (collision: also spring constant — waves only in ch16, redefined at §16.1), wavelength, frequency | ch16 |
-| $n$ | index of refraction | ch16 |
-| $T$, $p$, $n_\mathrm{mol}$, $E_\mathrm{int}$, $Q$, $W_\mathrm{by}$, $C_V,C_P$, $\eta$, $S$ | temperature, pressure, moles, internal energy, heat, work by gas, heat capacities, efficiency, entropy | ch17 |
-| $N$, $K_v$, $K_t$, $D$ (duty cycle) | transformer turns, motor velocity/torque constants, converter duty | ch18 |
-| $\rho_m$, $\rho_f$ | mass density, fluid density (subscripted whenever charge density could appear nearby) | App A |
+| \(O(f)\), \(\Theta(f)\), \(\Omega(f)\) | asymptotic upper / tight / lower bounds, defined with limits and quantifiers in Ch 1 | Ch 1 |
+| \(o(f)\), \(\omega(f)\) | strictly smaller / larger growth, named only | Ch 1 |
+| \(\tilde{O}(f)\) | suppresses logarithmic factors (rare; flagged informal) | Ch 13 |
+| \(n, m, q, k, T, C, N\) | problem sizes: array length / edges / queries / parameter / test cases / capacity / upper bound respectively | Ch 1 |
+| \(10^9+7\), \(998244353\) | the two standard contest primes; written `MOD` in code | Ch 14 |
 
-## Declared collisions and resolutions
+## Sets, sequences, functions
 
-- $\mathbf p$: momentum everywhere; electric dipole moment is $\mathbf p_d$.
-- $\mathbf J$: impulse (mechanics); current density is $\mathbf j$.
-- $L$: inductance vs $\mathbf L$ angular momentum — bold/italic distinguishes; in ch14
-  $L$ is redefined as inductance at first use.
-- $Q$: heat (ch17) vs charge — charge stays lowercase $q$ except enclosed charge
-  $Q_\mathrm{encl}$; heat $Q$ only in ch17.
-- $U$: potential energy (parts I–II) vs internal energy — internal energy is
-  $E_\mathrm{int}$ (ch17), never $U$.
-- $T$: period (ch7) vs temperature (ch17) — ch17 redefines $T$ at first use.
-- $P$: power vs pressure — pressure is $p$ (lowercase, ch17).
-- $k$: spring constant vs wavenumber — wavenumber only in ch16, redefined at §16.1.
-- $\rho$: volume charge density vs resistivity vs mass density — resistivity $\rho$
-  is redefined locally in §12.2; mass/fluid density always subscripted
-  ($\rho_m,\rho_f$).
-- $\boldsymbol\mu$: magnetic dipole moment vs $\mu_s,\mu_k$ friction vs $\mu_0$
-  permeability — always bold/subscripted as shown.
-- $\tau$: RC/RL time constant vs $\boldsymbol\tau$ torque — plain vs bold.
-- $C$: capacitance vs heat capacities $C_V,C_P$ (subscripted in ch17).
-- $\omega$: angular velocity vs angular frequency vs driving frequency — subscript
-  $\omega_0,\omega_d$ whenever ambiguity could arise.
+| Symbol / macro | Meaning | First used |
+|---|---|---|
+| \([l,r]\), \([l,r)\) | closed and half-open integer ranges; half-open is the convention inside code (matching C++ iterators) | Ch 4 |
+| \(a_i\), \(a[l..r]\) | array element / subarray | Ch 5 |
+| \(P[i] = \sum_{j\le i} a_j\) | prefix sum array; \(P[0] = 0\) by convention | Ch 5 |
+| \(D[i] = a_i - a_{i-1}\) | difference array; \(a = \mathrm{prefix}(D)\) | Ch 5 |
+| \(\binom{n}{k}\), \(n!\), \(\mathrm{C}(n,k)\) | binomial coefficient; code uses `ncr(n,k)` | Ch 14 |
+| \(C_n\) | \(n\)-th Catalan number | Ch 14 |
+| \(\gcd, \mathrm{lcm}\) | greatest common divisor / least common multiple | Ch 14 |
+| \(a \bmod m\), \(a \equiv b \pmod m\) | remainder / congruence | Ch 14 |
+| \(\varphi(n)\) | Euler's totient (named; not taught) | Ch 14 |
+| \(\pi(s)\), \(z[i]\) | prefix-function values / Z-function values (bold-face convention: arrays named after the function) | Ch 15 |
+| \(\operatorname{mex}(S)\) | smallest nonnegative integer absent from \(S\) | Ch 2 (named; formal definition deferred) |
+| \(\Pr[A]\), \(\mathbb{E}[X]\) | probability of event \(A\) / expectation of \(X\); indicators \(1_A\) | Ch 17 (shared with Books 3/4/6) |
+| \(p\), \(q\) | generic primes / probabilities; context disambiguates | Ch 14, 17 |
+
+## Graphs
+
+| Symbol / macro | Meaning | First used |
+|---|---|---|
+| \(G = (V, E)\), \(n = |V|\), \(m = |E|\) | a graph, its vertex and edge counts | Ch 7 |
+| \(u, v, w\) | vertices; \(s, t\) source and target | Ch 7 |
+| `adj[v]`, `adj[u].push_back({v, w})` | adjacency list; weighted edges as pairs | Ch 7 |
+| `dist[v]`, `parent[v]`, `visited[v]` | BFS/DFS state arrays, 1-indexed to match problems | Ch 7 |
+| DAG | directed acyclic graph | Ch 7 |
+| `tin[v]`, `tout[v]`, `timer` | Euler-tour entry/exit times | Ch 10 |
+| `up[v][k]` | the \(2^k\)-th ancestor of \(v\) (binary lifting) | Ch 10 |
+| \(\operatorname{lca}(u,v)\) | lowest common ancestor | Ch 10 |
+| \(d(u,v)\) | graph distance; `dist()` in code | Ch 8 |
+
+## Data structures
+
+| Symbol / macro | Meaning | First used |
+|---|---|---|
+| `find(x)`, `unite(a,b)`, `same(a,b)` | DSU operations (never `union` in code — reserved word) | Ch 9 |
+| `par[]`, `sz[]` | DSU parent and component-size arrays | Ch 9 |
+| `lowbit(i) = i & -i` | Fenwick index step | Ch 13 |
+| `bit[]` | Fenwick internal array | Ch 13 |
+| `seg[]`, `lazy[]` | segment-tree value and deferred-tag arrays | Ch 13 |
+| monoid \((S, \oplus, e)\) | associative operation + identity framing segment-tree generality | Ch 13 |
+| `lg[x] = floor(log2 x)` | precomputed floor-log table (sparse table, LCA) | Ch 6, 10 |
+
+## Dynamic programming
+
+| Symbol / macro | Meaning | First used |
+|---|---|---|
+| `dp[...]` | the DP table; index order = evaluation order | Ch 11 |
+| state | the tuple of parameters identifying a subproblem; always named and defined before the recurrence | Ch 11 |
+| transition | the recurrence; written as min/max/sum over choices | Ch 11 |
+| `mask`, `popcount(mask)` | subset bitmasks; `__builtin_popcount` in code | Ch 12 |
+| `tight`, `leading` | digit-DP flags (still-bound-by-prefix / no-digit-yet) | Ch 12 |
+
+## Problem and technique naming
+
+| Convention | Meaning | First used |
+|---|---|---|
+| `CSES <name>` | problem from the CSES problem set, cited by exact list name (e.g. CSES *Array Division*) | Ch 1 |
+| `USACO-<B\|S\|G\|P>` | USACO problem by division (Bronze/Silver/Gold/Platinum); `O` prefix = old division era (e.g. USACO-G *Closing the Farm*) | Ch 1 |
+| `CF <name>` | Codeforces problem by common name; contest index added in bibliography where ambiguous | Ch 3 |
+| `AC`, `Kattis`, `IOI`, `POI`, `Baltic OI`, `CEOI`, `JOI`, `APIO`, `IZhO`, `COCI`, `DMOPC`, `YS`, `LC`, `SPOJ`, `NOI`, `CF EDU` | other archives, cited the same way | Ch 2+ |
+| `[easy]` `[medium]` `[hard]` | exercise difficulty tags; `[route]` marks problems above the book's 1600 target (they belong to the 1900 route) | Ch 1 |
+| WE c.n | worked example n of chapter c | global |
+| F c.n / L c.n | figure / code listing n of chapter c | global |
+
+## Code conventions
+
+| Convention | Meaning | First used |
+|---|---|---|
+| `C++17`, `-std=c++17 -O2 -Wall -Wextra` | language and compile flags; pinned in `code/README.md` | Ch 1 |
+| `using ll = long long;` | 64-bit signed integer alias; used whenever overflow is possible | Ch 1 |
+| `const int MOD = 1e9+7;` | modulus constant | Ch 14 |
+| `rep(i,a,b)`, `all(x)` | the only two macros the book allows; defined and justified in Ch 1 | Ch 1 |
+| `ios::sync_with_stdio(false); cin.tie(nullptr);` | fast-I/O preamble | Ch 1 |
+| 1-indexed arrays | to match problem statements; arrays sized \(n+1\) | Ch 1 |
+| `INF = 4e18` / `INT_MAX` guards | the overflow-safe infinity convention | Ch 8 |
+| `modint` | modular-arithmetic value type (add/sub/mul/div/pow) | Ch 14 |
+| `first_true(lo,hi,pred)` | the book's binary-search signature | Ch 4 |
+| `find`, `unite` | DSU names (see above) | Ch 9 |
+| recursive DFS only where depth is safe | recursion-depth tripwire at \(n \ge 10^5\): prefer explicit stack | Ch 7 |
+| `#include <bits/stdc++.h>` | allowed; flagged as contest-only practice | Ch 1 |
+
+## Shared with other books
+
+The probability/expectation and combinatorics conventions above are offered to `notation-shared.md` (see structured output `shared_notation_proposals`): \(\Pr[\cdot]\), \(\mathbb{E}[\cdot]\), indicator \(1_A\), \(\binom{n}{k}\), factorial notation, \(O/\Theta/\Omega\) definitions, and the `dp`-style state-name convention.

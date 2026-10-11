@@ -1,0 +1,7 @@
+\begin{tikzpicture}
+\begin{axis}[width=8.2cm,height=4.6cm,xlabel={$\theta$},ylabel={$I$},
+xmin=-3,xmax=3,ymin=0,ymax=1.15,font=\small,xtick=\empty,ytick=\empty]
+\addplot[very thick,accent,domain=-2.95:2.95,samples=150] {(sin(deg(x))/deg(x))^2};
+\end{axis}
+\node[align=left] at (3.4,-0.6) {$a\sin\theta=\lambda$:\\first zero sets the width};
+\end{tikzpicture}

@@ -1,0 +1,9 @@
+\begin{tikzpicture}[scale=0.85,font=\scriptsize]
+\foreach \sh/\lab in {0/{$t=0$},-1.9/{$t=T/4$},-3.8/{$t=T/2$}}{
+\begin{scope}[yshift=\sh cm]
+\draw[very thick,accent,domain=0:6,samples=60] plot (\x,{0.5*sin(360*\x/3)}) ;
+\draw[->] (0,-0.8) -- (6.2,-0.8);
+\node at (7.0,0) {\lab};
+\end{scope}}
+\node[align=left] at (3,-5.2) {$y(x,t)=A\cos(kx-\omega t)$:\\the whole shape slides right};
+\end{tikzpicture}

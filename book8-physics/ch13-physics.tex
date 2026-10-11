@@ -1,0 +1,351 @@
+\chapter{Magnetic field: forces and sources}\label{ch:mag}
+
+The electric field pushes along its lines; the magnetic one pushes
+\emph{across} them --- $\mathbf F=q\mathbf v\times\mathbf B$. That cross
+product is why magnetic fields curve paths without ever paying energy.
+
+\section{Lorentz force: no work, all steering}\label{sec:mag-lor}
+
+\begin{equation}
+  \mathbf F=q\mathbf v\times\mathbf B.\label{eq:lor}
+\end{equation}
+Since $\mathbf F\perp\mathbf v$ identically, $P=\mathbf F\cdot\mathbf v=0$
+--- \textbf{a static magnetic field does no work}, ever
+(figure~\ref{fig:rh}). It only steers: every magnetic machine's real
+work is paid elsewhere (electric field, mechanical source).
+
+\begin{figure}[htbp]\centering
+\input{figures/ch13_rh}
+\caption{Right-hand rule: $\mathbf v\times\mathbf B$ for positive $q$.
+For electrons, flip it.}
+\label{fig:rh}
+\end{figure}
+
+\section{Circular and helical motion}\label{sec:mag-circle}
+
+Uniform $\mathbf B$ plus perpendicular $\mathbf v$ gives a circle:
+\begin{equation}
+  r=\frac{mv}{qB},\qquad T=\frac{2\pi m}{qB},\label{eq:cyc}
+\end{equation}
+and the period is \emph{independent of speed} --- the cyclotron's whole
+business model. Add a parallel component and the circle becomes a helix
+(figure~\ref{fig:helix}).
+
+\begin{figure}[htbp]\centering
+\input{figures/ch13_helix}
+\caption{Helical motion: the perpendicular component circles, the
+parallel one coasts.}
+\label{fig:helix}
+\end{figure}
+
+\begin{example}[Cyclotron and mass spectrometer]\label{ex:cyc}
+A proton ($m=1.67\times10^{-27}$\,kg) orbits in $B=1$\,T at
+$10^{6}$\,m/s. Find $r$, $f$, and the speed a singly-charged ion of
+twice the mass needs for the same $r$.
+\par\smallskip
+\textbf{Strategy.} Equation~\eqref{eq:cyc} directly.
+\begin{solution}
+$r=mv/qB=1.67\times10^{-27}\times10^{6}/(1.6\times10^{-19})=1.04$\,cm;
+$f=qB/2\pi m=15.3$\,MHz --- RF range, why cyclotrons run RF.
+Same $r$ with $2m$: $v=5\times10^{5}$\,m/s --- the mass spectrometer's
+separation is just \eqref{eq:cyc} read as $m=rqB/v$. \checkmark
+\end{solution}
+\end{example}
+
+\section{Force and torque on currents}\label{sec:mag-torque}
+
+A wire segment feels $d\mathbf F=I\,d\boldsymbol\ell\times\mathbf B$;
+a closed loop feels no net force in uniform $\mathbf B$ but a
+\emph{torque} $\boldsymbol\tau=\boldsymbol\mu\times\mathbf B$ with
+$\boldsymbol\mu=IA\hat{\mathbf n}$ (figure~\ref{fig:loop}) ---
+the DC motor's entire principle in one vector product.
+
+\begin{figure}[htbp]\centering
+\input{figures/ch13_loop}
+\caption{Loop in a field: forces couple into torque
+$\boldsymbol\mu\times\mathbf B$, aligning $\boldsymbol\mu$ with
+$\mathbf B$.}
+\label{fig:loop}
+\end{figure}
+
+\begin{example}[Torque on a coil]\label{ex:torque}
+A $100$-turn coil, $4\times6$\,cm, carries $2$\,A in $B=0.5$\,T at
+$30^{\circ}$ to the field. Find the torque.
+\par\smallskip
+\textbf{Strategy.} $\tau=NIAB\sin\theta$.
+\begin{solution}
+$\tau=100\times2\times0.0024\times0.5\times\sin30^{\circ}=0.12$\,Nm ---
+enough to spin a meter needle against a spring, which is precisely how
+analog meters work. \checkmark
+\end{solution}
+\end{example}
+
+\section{Hall effect: the carrier's signature}\label{sec:mag-hall}
+
+Current through a field pushes carriers to one face
+(figure~\ref{fig:hall}): the Hall voltage $V_H=IB/nqt$ builds until its
+field cancels the magnetic push --- and its \emph{sign} reveals whether
+the carriers are electrons or holes, the only cheap experiment that
+answers that question.
+
+\begin{figure}[htbp]\centering
+\input{figures/ch13_hall}
+\caption{The Hall setup: transverse charge piles until $E_H=vB$; the
+voltage's sign names the carrier.}
+\label{fig:hall}
+\end{figure}
+
+\begin{example}[Hall voltage magnitude]\label{ex:hallv}
+A copper strip ($n=8.5\times10^{28}$\,m$^{-3}$) of thickness
+$t=1$\,mm carries $I=10$\,A across $B=1$\,T. Find $V_H$ and its sign
+for electrons.
+\par\smallskip
+\textbf{Strategy.} $V_H=IB/nqt$.
+\begin{solution}
+$V_H=10\times1/(8.5\times10^{28}\times1.6\times10^{-19}\times10^{-3})
+=7.4\times10^{-7}$\,V --- sub-microvolt: real Hall sensors use
+semiconductors ($n\sim10^{22}$) for millivolt outputs. \checkmark
+\end{solution}
+\end{example}
+
+\section{Biot--Savart: the source integral}\label{sec:mag-bs}
+
+The field of a current element:
+\begin{equation}
+  d\mathbf B=\frac{\mu_0}{4\pi}\frac{I\,d\boldsymbol\ell\times\hat r}{r^{2}},
+  \label{eq:bs}
+\end{equation}
+the magnetic counterpart of the Coulomb integral. For a long straight
+wire it sums to $B=\mu_0I/2\pi r$ (figure~\ref{fig:wire}) --- same
+$1/r$ as the line charge's field.
+
+\begin{figure}[htbp]\centering
+\input{figures/ch13_wire}
+\caption{Field of a straight wire: circles of strength
+$\mu_0I/2\pi r$.}
+\label{fig:wire}
+\end{figure}
+
+\begin{example}[Field on the axis of a current loop]\label{ex:loopaxis}
+A circular loop of radius $R$ carries $I$. Find $\mathbf B$ on the
+axis at distance $x$.
+\par\smallskip
+\textbf{Strategy.} Symmetry kills the transverse part; every element
+contributes the same axial piece.
+\begin{solution}
+Each $d\mathbf B$ has axial factor $R/\sqrt{x^{2}+R^{2}}$:
+\[B=\frac{\mu_0I}{4\pi}\frac{2\pi R^{2}}{(x^{2}+R^{2})^{3/2}}
+=\frac{\mu_0IR^{2}}{2(x^{2}+R^{2})^{3/2}}.\]
+Limits: centre gives $\mu_0I/2R$; far gives $\mu_0IA/2\pi x^{3}$
+--- the magnetic dipole's $1/r^{3}$, matching the electric dipole of
+chapter~9. \checkmark
+\end{solution}
+\end{example}
+
+\section{Amp\`ere's law: the magnetic Gauss}\label{sec:mag-amp}
+
+\begin{equation}
+  \oint\mathbf B\cdot d\boldsymbol\ell=\mu_0I_{\rm enc},\label{eq:amp}
+\end{equation}
+useful for the same three symmetries: wire ($2\pi r$), solenoid,
+toroid. Limits: it fails off-symmetry exactly as Gauss does ---
+chapter~10's warning reissued.
+
+\begin{example}[Long solenoid by Amp\`ere]\label{ex:sol}
+Find the field inside a solenoid of $n$ turns per length carrying $I$.
+\par\smallskip
+\textbf{Strategy.} Rectangular Amperian loop, one side inside
+(figure~\ref{fig:sol}).
+\begin{solution}
+Outer sides give zero (field $\approx0$ outside); only the inner side
+contributes $BL=\mu_0nLI$, so $B=\mu_0nI$ --- uniform, independent of
+position inside. \checkmark
+\end{solution}
+\end{example}
+
+\begin{figure}[htbp]\centering
+\input{figures/ch13_sol}
+\caption{The solenoid's field: uniform inside, near-zero outside ---
+Amp\`ere's gift.}
+\label{fig:sol}
+\end{figure}
+
+\begin{lstlisting}[language=Python,caption={\texttt{code/ch13\_lorentz\_orbit.py} --- naive Euler vs Boris rotation in $q\mathbf v\times\mathbf B$.},label={lst:lor}]
+vx, vy = c*vx + s*vy, -s*vx + c*vy   # exact rotation
+x += vx*dt; y += vy*dt
+\end{lstlisting}
+
+Output of a real run:
+\begin{lstlisting}[numbers=none]
+theory: r=1.0, |v|=1.0 forever (B does no work)
+naive Euler dt=0.1: |v|=19.788  r=19.788   <-- secular drift
+naive Euler dt=0.01: |v|=1.350  r=1.350   <-- secular drift
+Boris dt=0.1: |v|=1.0000  r in [0.9504,1.0504] (theory 1.0)
+Boris dt=0.01: |v|=1.0000  r in [0.9950,1.0050] (theory 1.0)
+
+helix pitch: vz=0.5 -> pitch=3.142 (period T=6.283 indep of v)
+\end{lstlisting}
+
+The honest result: plain Euler \emph{invents} energy ($|v|$ runs to
+$19.8$) while the Boris rotation holds it at $1.0000$ and the radius
+within a percent of theory --- the integrator must respect what the
+force can't do.
+
+\section{In engineering practice: the magnetic toolkit}\label{sec:mag-eng}
+
+Every DC motor is \S\ref{sec:mag-torque} with a commutator flipping
+$\boldsymbol\mu$ at the right instant; mass spectrometers run
+\eqref{eq:cyc} as a mass scale; Hall sensors price \S\ref{sec:mag-hall}
+into current probes, throttle positions and phone compasses; and
+MRI's solenoid is \S\ref{sec:mag-amp} stretched to 3\,T of uniform
+field --- the chapter turned into hospitals.
+
+\section{Common mistakes}\label{sec:mag-mistakes}
+
+\begin{tripwire}[Left hand for a negative charge]
+$\mathbf v\times\mathbf B$ is for positive $q$; electrons flip the
+answer. Most wrong directions are one sign off.
+\end{tripwire}
+\begin{tripwire}[``$\mathbf B$ does work'']
+It can't --- $\mathbf F\perp\mathbf v$ identically. Any energy change
+in a magnetic problem was paid by an electric field or a battery.
+\end{tripwire}
+\begin{tripwire}[Amp\`ere off-symmetry]
+$\oint\mathbf B\cdot d\boldsymbol\ell=\mu_0I$ always true, but
+$B\cdot\oint d\ell$ factorisation needs the field constant on the loop
+--- wire, solenoid, toroid only.
+\end{tripwire}
+\begin{tripwire}[$\mu_0$ vs permeability]
+$\mu_0$ is vacuum; inside material use $\mu=\mu_r\mu_0$ and the
+biot--savart/amp\`ere formulas pick it up.
+\end{tripwire}
+\begin{tripwire}[Helix pitch ignored]
+The parallel speed doesn't circle --- the trajectory is a helix, and
+``radius'' means the projected circle only.
+\end{tripwire}
+
+\section{Summary}\label{sec:mag-summary}
+
+\begin{table}[ht]\centering
+\begin{tabularx}{\linewidth}{@{}lY@{}}
+\toprule
+\tablehead\thead{Idea} & \thead{One-line version}\\
+\midrule
+Lorentz & $\mathbf F=q\mathbf v\times\mathbf B$; never works \\
+orbit & $r=mv/qB$, $T=2\pi m/qB$ \\
+torque & $\boldsymbol\tau=\boldsymbol\mu\times\mathbf B$, $\mu=IA\hat n$ \\
+Hall & $V_H=IB/nqt$; sign = carrier sign \\
+wire & $B=\mu_0I/2\pi r$ \\
+solenoid & $B=\mu_0nI$ inside, $\approx0$ out \\
+\bottomrule
+\end{tabularx}
+\caption{Magnetic field cheat sheet.}
+\label{tab:magsummary}
+\end{table}
+
+\begin{wins}[Definition of done]
+You can now: apply the right-hand rule both signs, compute cyclotron and
+helical parameters, price loop torque, read a Hall voltage, integrate
+Biot--Savart on an axis, and run Amp\`ere on wire/solenoid.
+\end{wins}
+
+\chapternotes{%
+The force-first order follows MIT 8.02SC modules 16--20 \cite{ocw801}
+and AP Physics C E\&M \cite{apced}; Purcell--Morin chs.~5--6 is the
+canonical relativistic framing of where $\mathbf B$ comes from
+\cite{hrw}. The integrator numbers are the listing's real output.}
+
+\begin{rulebox}[{Watch instead}]
+\begin{enumerate}
+\item \emph{Magnetic Fields, Lorentz Force, Torques, Electric Motors
+(DC)} --- Walter Lewin, MIT 8.02x Lecture 11, 49:50,
+\url{https://youtu.be/0y9x7CS5Vrk} ---
+\S\ref{sec:mag-lor}--\S\ref{sec:mag-torque} at full length (accessed
+2026-10-11).
+\item \emph{Force between two parallel current wires} --- Khan Academy,
+11:07, \url{https://youtu.be/uxEB8xLrbCA} --- \S\ref{sec:mag-bs}
+application worked quickly (accessed 2026-10-11).
+\end{enumerate}
+\end{rulebox}
+
+\section*{Further reading}
+\addcontentsline{toc}{section}{Further reading}
+
+\begin{itemize}
+\item MIT OCW \emph{8.02SC}, magnetic-field modules 16--20. At
+\url{https://ocw.mit.edu}, course ``8.02SC'' (verified 2026-10-11).
+\item OpenStax \emph{College Physics 2e}, ch.~22 ``Magnetism'' ---
+free text: \url{https://openstax.org} (verified 2026-10-11).
+\item College Board, \emph{AP Physics C (E\&M) CED}, Unit 12 ---
+verified 2026-10-11 at \url{https://apstudents.collegeboard.org}.
+\item E.~M. Purcell and D.~J. Morin, \emph{Electricity and Magnetism},
+chs.~5--6 --- magnetism as relativity's corollary; the deeper anchor.
+\item R.~P. Feynman, \emph{Lectures on Physics}, vol.~II, ch.~13 ---
+the field view of magnetostatics; free at Caltech's site.
+\item Khan Academy, \emph{Moving charges \& magnetism} --- drills
+matching \S\ref{sec:mag-lor}--\S\ref{sec:mag-amp}, at
+\url{https://www.khanacademy.org} (verified 2026-10-11).
+\end{itemize}
+
+\section*{Additional exercises}
+\addcontentsline{toc}{section}{Additional exercises}
+
+\begin{exercise}[easy]
+An electron moves east in a field pointing up: which way does it
+curve? (AP-C)
+\end{exercise}
+\begin{exercise}[easy]
+A proton circles at $r=5$\,cm in $B=0.2$\,T: find its speed and
+period. (AP-C)
+\end{exercise}
+\begin{exercise}[easy]
+A $20$\,cm wire carries $5$\,A perpendicular to $B=0.3$\,T: find the
+force. (AP-C)
+\end{exercise}
+\begin{exercise}[easy]
+Find $B$ at $5$\,cm from a wire carrying $20$\,A. (F=ma)
+\end{exercise}
+\begin{exercise}[easy]
+A loop's $\boldsymbol\mu$ is antiparallel to $\mathbf B$: describe the
+torque and whether it's stable. (AP-C)
+\end{exercise}
+\begin{exercise}[medium]
+Design a velocity selector: given $v=10^{6}$\,m/s and $B=0.01$\,T,
+find $E$ for undeflected passage. (AP-C FR-style)
+\end{exercise}
+\begin{exercise}[medium]
+A $50$-turn $10$\,cm square coil in $0.8$\,T carries $3$\,A: find
+maximum torque and where it occurs. (AP-C)
+\end{exercise}
+\begin{exercise}[medium]
+Two parallel wires $10$\,cm apart carry $20$\,A the same way: find
+force per metre and direction; flip one and redo. (F=ma)
+\end{exercise}
+\begin{exercise}[medium]
+Explain how a mass spectrometer separates isotopes given fixed $B$,
+$v$: what quantities differ? (F=ma)
+\end{exercise}
+\begin{exercise}[medium]
+A coaxial cable's Amp\`erian field: $B(r)$ inside inner conductor
+(uniform current), between, and outside. (engineering)
+\end{exercise}
+\begin{exercise}[medium]
+Estimate the Hall voltage for a $1$\,mm-thick copper strip at $5$\,A
+in $0.5$\,T. (F=ma)
+\end{exercise}
+\begin{exercise}[hard]
+In crossed $\mathbf E$ and $\mathbf B$ ($E=v_dB$ drift): describe the
+cycloid trajectory and its drift velocity. (USAPhO-style)
+\end{exercise}
+\begin{exercise}[hard]
+A finite wire of length $2L$: find $B$ at perpendicular distance $r$
+and recover the infinite-wire limit. (APhO-style)
+\end{exercise}
+\begin{exercise}[medium]
+A toroid of $N$ turns, radius $R$: find $B$ inside the ring by
+Amp\`ere and explain why it depends on $r$. (AP-C)
+\end{exercise}
+\begin{exercise}[medium]
+An electron enters a field at $45^{\circ}$ to $\mathbf B$: describe
+the helix's radius and pitch. (F=ma)
+\end{exercise}

@@ -1,0 +1,10 @@
+% Figure 4.6: orthogonal projection onto a line through u.
+\begin{tikzpicture}[scale=1.15,>=stealth]
+  \draw[thick,gray] (-0.6,0) -- (3.4,1.7) node[right,font=\small] {line through $\mathbf{u}$};
+  \draw[->,thick] (0,0) -- (0.95,0.5) node[midway,below,font=\small] {$\mathbf{u}$};
+  \draw[->,thick] (0,0) -- (1.4,2.3) node[above,font=\small] {$\mathbf{v}$};
+  \draw[->,thick,accent] (0,0) -- (1.71,0.86) node[below right=-2pt,font=\small] {$P\mathbf{v}=\frac{\mathbf u\cdot\mathbf v}{\mathbf u\cdot\mathbf u}\mathbf u$};
+  \draw[dashed,gray] (1.4,2.3) -- (1.71,0.86);
+  \draw (1.57,0.72) ++(0,0.12) -- ++(0.14,0.07) -- ++(-0.04,-0.14);
+  \node[font=\footnotesize,align=center] at (3.4,2.4) {$P=\mathbf{u}\mathbf{u}^{T}$ when $\|\mathbf u\|=1$:\\ outer product \emph{is} the projector};
+\end{tikzpicture}

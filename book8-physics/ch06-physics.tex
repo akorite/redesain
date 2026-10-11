@@ -1,0 +1,390 @@
+\chapter{Rotation II: angular momentum and rolling}\label{ch:rot2}
+
+Linear momentum had its chapter; angular momentum is its equal partner ---
+the second conserved quantity of mechanics and the reason gyroscopes,
+planets, and skaters behave the way they do. The bookkeeping mirrors
+chapter~3 exactly, with one new subtlety: the origin you measure from
+matters.
+
+\section{Angular momentum: definition}\label{sec:ang-l}
+
+For a particle,
+\begin{equation}
+  \mathbf L=\mathbf r\times\mathbf p\label{eq:ldef}
+\end{equation}
+--- momentum filtered through the position relative to a chosen origin
+(figure~\ref{fig:lvec}). A straight-line mover carries nonzero $\mathbf L$
+about any origin off its line --- the quantity is about the
+\emph{rotation of the line of sight}, not about actual circling.
+
+\begin{figure}[htbp]\centering
+\input{figures/ch06_lvec}
+\caption{$\mathbf L=\mathbf r\times\mathbf p$: magnitude $rp\sin\theta$,
+direction by the right-hand rule (out of the page here). Notice it needs an
+origin --- the same $\mathbf p$ has different $\mathbf L$ about different
+points.}
+\label{fig:lvec}
+\end{figure}
+
+\section{Rigid bodies: when $L=I\omega$ holds}\label{sec:ang-rigid}
+
+Summing \eqref{eq:ldef} over a rigid body rotating about a fixed
+symmetry axis gives
+\[
+  L=I\omega.
+\]
+The fine print: valid about the fixed axis \emph{or} about the CM --- the
+two origins where the cross terms vanish. A rolling wheel's $\mathbf L$ is
+$I\omega$ about its CM \emph{plus} the orbital $M(\mathbf R\times\mathbf V)$
+of the CM --- both exist, both count.
+
+\section{The rotational second law}\label{sec:ang-taul}
+
+\begin{equation}
+  \boldsymbol\tau_{\rm ext}=\frac{d\mathbf L}{dt}\label{eq:taul}
+\end{equation}
+about an inertial fixed point or about the CM --- the two origins where the
+derivation works. Choosing an accelerating origin is the classic trap: the
+equation picks up fictitious-torque terms that ruin it.
+
+\section{Conservation of angular momentum}\label{sec:ang-cons}
+
+\begin{principle}[Angular momentum conservation]
+$\mathbf L$ is conserved when the net \emph{external torque} is zero ---
+weaker than zero external force. A planet feels a huge central force that
+exerts no torque, so its $\mathbf L$ (and Kepler's second law) survives.
+\end{principle}
+
+\begin{example}[The skater]\label{ex:skater}
+A skater spins at $\omega_0=2$\,rad/s with $I_0=3$\,kg\,m$^{2}$, then pulls
+her arms to $I=1$\,kg\,m$^{2}$. Find the new spin rate and the energy
+change.
+\par\smallskip
+\textbf{Strategy.} No external torque about the spin axis: $L$ conserved.
+$K$ is not --- her arms do work.
+\begin{solution}
+$\omega=I_0\omega_0/I=6$\,rad/s. Energies:
+$K_0=\tfrac12(3)(4)=6$\,J, $K=\tfrac12(1)(36)=18$\,J --- $K$ tripled. The
+extra $12$\,J came from her muscles pulling mass inward against the
+centrifugal pull: the audit of ch4 applies here too. \checkmark
+\end{solution}
+\end{example}
+
+\begin{figure}[htbp]\centering
+\input{figures/ch06_skater}
+\caption{The skater trade: $L$ fixed, $K$ tripled --- arms supply the
+difference.}
+\label{fig:skater}
+\end{figure}
+
+\begin{example}[Bullet into a pivoted rod]\label{ex:bulletrod}
+A $10$\,g bullet at $400$\,m/s embeds in the tip of a $1$\,kg,
+$1$\,m rod pivoted at its top ($I=\tfrac13ML^{2}$). Find the angular
+velocity just after.
+\par\smallskip
+\textbf{Strategy.} Linear momentum is \emph{not} conserved (the pivot
+pushes); angular momentum about the pivot \emph{is} (the pivot force has
+no lever arm). Use the collision instant only.
+\begin{solution}
+$L_i=mvL=0.01\times400\times1=4$\,kg\,m$^{2}$/s.
+$I_{\rm tot}=\tfrac13(1)(1)+0.01(1)^{2}=0.343$\,kg\,m$^{2}$.
+$\omega=4/0.343=11.7$\,rad/s. $K$ audit: before $800$\,J, after
+$\tfrac12I\omega^{2}=23.4$\,J --- $97\%$ lost to the embedding, as
+inelastic as collisions get. \checkmark
+\end{solution}
+\end{example}
+
+\begin{figure}[htbp]\centering
+\input{figures/ch06_rxp}
+\caption{Bullet-and-rod: conserve $L$ about the pivot, not $p$ --- the
+pivot's impulse is external to translation but torque-free about itself.}
+\label{fig:rxp}
+\end{figure}
+
+\begin{exercise}[easy]
+In example~\ref{ex:bulletrod}, which quantities survive: total $\mathbf L$
+about the pivot, total $\mathbf p$, total $K$? One-line each. (AP-C)
+\end{exercise}
+
+\section{Rolling dynamics, three ways}\label{sec:ang-roll}
+
+A roller on an incline can be solved by forces and torque
+($ma=mg\sin\theta-f$, $I\alpha=fr$), by energy
+($v^{2}=2gh/(1+\beta)$ for $I=\beta mr^{2}$), or by the instantaneous-axis
+trick (torque about the contact point only). All three agree; the energy
+route is the fastest.
+
+\begin{example}[The incline race]\label{ex:race}
+Hoop ($\beta=1$), disk ($\tfrac12$) and sphere ($\tfrac25$) race down a
+$2$\,m drop. Order and margins?
+\par\smallskip
+\textbf{Strategy.} $v=\sqrt{2gh/(1+\beta)}$ --- smaller $\beta$ finishes
+first, independent of mass and radius.
+\begin{solution}
+$v_{\rm sph}=5.29$, $v_{\rm disk}=5.11$, $v_{\rm hoop}=4.43$\,m/s ---
+the code listing below prints the same numbers. The hoop loses because
+\emph{all} its mass sits at the rim: half its energy is rotation at every
+instant (figure~\ref{fig:race}). \checkmark
+\end{solution}
+\end{example}
+
+\begin{figure}[htbp]\centering
+\input{figures/ch06_race}
+\caption{Energy partition in the race: same $mgh$, different splits ---
+the hoop spends half on spinning.}
+\label{fig:race}
+\end{figure}
+
+\begin{lstlisting}[language=Python,caption={\texttt{code/ch06\_rolling\_race.py} --- the incline race for several shape factors.},label={lst:race}]
+v = math.sqrt(2*G*H/(1+beta))
+\end{lstlisting}
+
+Output of a real run:
+\begin{lstlisting}[numbers=none]
+incline drop h=2.0 m
+shape                   beta   v (m/s)    K_tr   K_rot
+point mass (slide)       0.0     6.261   19.60    0.00
+solid sphere             0.4     5.292   14.00    5.60
+solid disk               0.5     5.112   13.07    6.53
+hoop                     1.0     4.427    9.80    9.80
+
+finish order: point mass (slide) > solid sphere > solid disk > hoop
+sphere beats hoop by 19.5% of hoop's speed
+\end{lstlisting}
+
+Notice the partition column: the hoop's $K_{\rm rot}$ equals its
+$K_{\rm tr}$ --- $\beta=1$ means rotation and translation split the
+budget evenly, and mass/radius never appear.
+
+\begin{example}[Two-disk angular collision]\label{ex:twodisk}
+A disk ($I_1=2$\,kg\,m$^{2}$) spinning at $10$\,rad/s drops onto a
+stationary disk ($I_2=3$\,kg\,m$^{2}$) on the same axle; friction locks
+them. Find the common $\omega$ and the energy lost.
+\par\smallskip
+\textbf{Strategy.} Angular-momentum conservation about the axle --- the
+angular version of the perfectly inelastic collision.
+\begin{solution}
+$\omega=I_1\omega_0/(I_1+I_2)=20/5=4$\,rad/s.
+$K_i=\tfrac12(2)(100)=100$\,J;
+$K_f=\tfrac12(5)(16)=40$\,J --- $60\%$ lost, the angular mirror of
+chapter 3's inelastic hit. \checkmark
+\end{solution}
+\end{example}
+
+\begin{example}[Child on a turntable]\label{ex:turntable}
+A $40$\,kg child stands at the rim of a $200$\,kg, $3$\,m-radius
+turntable ($I=\tfrac12MR^{2}=900$\,kg\,m$^{2}$) spinning at
+$\omega_0=0.5$\,rad/s, then walks to the centre. Find the new $\omega$.
+\par\smallskip
+\textbf{Strategy.} No external torque about the axis: $I\omega$ conserved,
+with the child as a point mass whose $I$ shrinks.
+\begin{solution}
+$I_0=900+40(9)=1260$\,kg\,m$^{2}$; at centre $I_1=900+0$.
+$\omega_1=0.5\times1260/900=0.70$\,rad/s --- the same skater effect with
+the child playing the arms. $K$ rises from $158$ to $220$\,J, paid by the
+child's steps. \checkmark
+\end{solution}
+\end{example}
+
+\begin{exercise}[medium]
+A $40$\,kg child walks from rim to centre on a $200$\,kg, $3$\,m-radius
+turntable ($I=\tfrac12MR^{2}$) spinning at $0.5$\,rad/s. Find the new
+$\omega$. (AP-C FR-style)
+\end{exercise}
+
+\section{Gyroscopic precession: the order of magnitude}\label{sec:ang-gyro}
+
+A spinning top tilted at angle $\theta$ has $\mathbf L$ along its axis;
+gravity's torque $\tau=mgd\sin\theta$ is perpendicular, so $\mathbf L$
+\emph{rotates} rather than tips (figure~\ref{fig:gyro}). The precession
+rate follows from $\Delta L=\tau\Delta t$ geometry:
+\[
+  \Omega=\frac{\tau}{L}=\frac{mgd}{I\omega}
+\]
+--- slower spin, faster wobble. That's why tops precess more as they wind
+down.
+
+\begin{figure}[htbp]\centering
+\input{figures/ch06_gyro}
+\caption{Precession bookkeeping: $\boldsymbol\tau$ perpendicular to
+$\mathbf L$ turns the vector instead of shrinking it. $\Omega=\tau/L$ sets
+the rate.}
+\label{fig:gyro}
+\end{figure}
+
+\section{In engineering practice: reaction wheels and flywheels}\label{sec:ang-eng}
+
+Satellites steer with \emph{reaction wheels} --- small spun disks whose
+speed changes trade $\mathbf L$ with the bus, no fuel spent: this chapter's
+conservation law is the whole attitude-control budget. Flywheel energy
+storage is the same $K=\tfrac12I\omega^{2}$ as grid batteries: a
+$500$\,kg carbon-fiber wheel at $20{,}000$\,rpm banks megajoules in
+rotation, which is exactly the hoop's tax of
+figure~\ref{fig:race} run to its useful extreme --- mass at the rim is
+where you want it.
+
+\section{Common mistakes}\label{sec:ang-mistakes}
+
+\begin{tripwire}[$L=I\omega$ about the wrong axis]
+Valid about the fixed axis or the CM only. A rolling wheel about an
+arbitrary point needs $I\omega+\mathbf R\times M\mathbf V$.
+\end{tripwire}
+\begin{tripwire}[Conserving $L$ through external torque]
+The bullet-in-rod survives precisely because the pivot torque about the
+pivot is zero --- any other origin, or any other external torque, breaks it.
+\end{tripwire}
+\begin{tripwire}[Forgetting translational $K$ in rolling]
+A rolling object carries $\tfrac12mv^{2}+\tfrac12I\omega^{2}$ --- drop the
+first term and every race comes out tied.
+\end{tripwire}
+\begin{tripwire}[$\tau=dL/dt$ about a non-inertial origin]
+The law holds at inertial points and the CM. An accelerating origin
+invents torques that aren't there.
+\end{tripwire}
+\begin{tripwire}[Cross-product sign]
+$\mathbf r\times\mathbf p\neq\mathbf p\times\mathbf r$ --- the order flips
+the sign. Fix the convention once per problem.
+\end{tripwire}
+
+\section{Summary}\label{sec:ang-summary}
+
+\begin{table}[ht]\centering
+\begin{tabularx}{\linewidth}{@{}lY@{}}
+\toprule
+\tablehead\thead{Idea} & \thead{One-line version}\\
+\midrule
+definition & $\mathbf L=\mathbf r\times\mathbf p$ --- origin-dependent \\
+rigid body & $L=I\omega$ about fixed axis or CM \\
+dynamics & $\boldsymbol\tau=d\mathbf L/dt$ at inertial origin or CM \\
+conservation & survives iff external torque $=0$ --- central forces OK \\
+rolling & $v^{2}=2gh/(1+\beta)$; smaller $\beta$ wins \\
+skater & $L$ fixed, $K$ grows --- muscles pay \\
+gyroscope & $\Omega=\tau/L$; perpendicular torque turns, doesn't tip \\
+\bottomrule
+\end{tabularx}
+\caption{Angular momentum cheat sheet.}
+\label{tab:angsummary}
+\end{table}
+
+\begin{wins}[Definition of done]
+You can now: compute $\mathbf L$ for particles and rigid bodies; state
+when conservation applies; solve skater, bullet-rod, and two-disk
+collisions; run the incline race three ways; and size gyroscopic
+precession to order of magnitude.
+\end{wins}
+
+\chapternotes{%
+The treatment follows MIT 8.01SC weeks 11--12 plus its gyroscope module
+\cite{ocw801} and AP Physics C unit 6 \cite{apced}. Morin chs.~8--9
+\cite{morin} is the source of the spool and sliding-to-rolling exercises;
+OpenStax ch.~11 \cite{openstax1} covers the same material. The race
+numbers are the listing's real output.}
+
+\begin{rulebox}[{Watch instead}]
+\begin{enumerate}
+\item \emph{Angular Momentum, Torques, Conservation of Angular Momentum}
+--- Walter Lewin, MIT 8.01x Lecture 20, 51:15,
+\url{https://youtu.be/sNaaL19opxw} --- the whole chapter at full length
+(accessed 2026-10-11).
+\item \emph{Conservation of angular momentum} --- Khan Academy, 7:16,
+\url{https://youtu.be/vfmLI150g4w} --- \S\ref{sec:ang-cons} worked quickly
+(accessed 2026-10-11).
+\end{enumerate}
+\end{rulebox}
+
+\section*{Further reading}
+\addcontentsline{toc}{section}{Further reading}
+
+\begin{itemize}
+\item MIT OpenCourseWare, \emph{8.01SC Classical Mechanics}, weeks 11--12
+--- angular momentum and rolling with recitation solutions. At
+\url{https://ocw.mit.edu}, course ``8.01SC'' (verified 2026-10-11).
+\item OpenStax, \emph{College Physics 2e}, ch.~10--11 --- free text at
+\url{https://openstax.org} (verified 2026-10-11).
+\item College Board, \emph{AP Physics C: Mechanics CED}, Unit 6 --- the
+exam blueprint for angular momentum. At
+\url{https://apstudents.collegeboard.org} (verified 2026-10-11).
+\item D.~Morin, \emph{Introduction to Classical Mechanics}, chs.~8--9 ---
+angular momentum and rolling at the harder level; ISBN 978-0521876223.
+\item The Physics Classroom, \emph{Angular Momentum} tutorials --- readable
+remediation, at \url{https://www.physicsclassroom.com} (verified
+2026-10-11).
+\item Khan Academy, \emph{Moments, torque, and angular momentum} ---
+drills matching the whole chapter, at \url{https://www.khanacademy.org}
+under Science $\to$ Physics (verified 2026-10-11).
+\end{itemize}
+
+\section*{Additional exercises}
+\addcontentsline{toc}{section}{Additional exercises}
+
+\begin{exercise}[easy]
+Find the magnitude and direction of $\mathbf L$ for a $2$\,kg mass at
+$\mathbf r=(3,0,0)$\,m moving at $\mathbf v=(0,4,0)$\,m/s. (AP-C)
+\end{exercise}
+\begin{exercise}[easy]
+Decide whether $L$ is conserved in each: (a) planet orbiting the sun,
+(b) figure skater pulling in arms, (c) frisbee spinning while gliding to
+a stop, (d) the bullet-rod of example~\ref{ex:bulletrod} \emph{after}
+impact. (AP-C)
+\end{exercise}
+\begin{exercise}[easy]
+A rolling ball has $v=5$\,m/s and radius $0.1$\,m. Find $\omega$ and
+the contact point's instantaneous speed. (AP-C)
+\end{exercise}
+\begin{exercise}[easy]
+Explain in one sentence why the skater's $K$ increases while $L$ stays
+fixed. (F=ma)
+\end{exercise}
+\begin{exercise}[easy]
+A spinning disk has $I=0.5$\,kg\,m$^{2}$, $\omega=20$\,rad/s. Find $L$
+and $K_{\rm rot}$. (AP-C)
+\end{exercise}
+\begin{exercise}[medium]
+A $40$\,kg child stands at the rim of a $150$\,kg, $4$\,m-radius
+turntable ($I=\tfrac12MR^{2}$) at rest, then walks clockwise at
+$1$\,m/s relative to the ground. Which way and how fast does the table
+turn? (AP-C FR-style)
+\end{exercise}
+\begin{exercise}[medium]
+Rank these down a $3$\,m incline by finish order and compute each speed:
+solid sphere, hollow sphere ($\beta=2/3$), disk, hoop. (F=ma)
+\end{exercise}
+\begin{exercise}[medium]
+Example~\ref{ex:bulletrod} with a bullet hitting \emph{halfway} down the
+rod: recompute $\omega$ and the energy loss. (AP-C)
+\end{exercise}
+\begin{exercise}[medium]
+Two angular disks merge: $I_1=1$, $\omega_1=12$ and $I_2=4$ spinning
+\emph{oppositely} at $\omega_2=-3$. Find the common $\omega$ and energy
+lost. (F=ma)
+\end{exercise}
+\begin{exercise}[medium]
+A $0.5$\,m wrench applies $40$\,N tangentially to a $0.02$\,m-radius
+shaft. Find the torque and, for a $0.1$\,kg\,m$^{2}$ flywheel, the
+$\omega$ after $5$\,s from rest. (AP-C)
+\end{exercise}
+\begin{exercise}[medium]
+A gyroscope with $I=0.01$\,kg\,m$^{2}$, $\omega=200$\,rad/s, $d=0.1$\,m,
+$m=0.5$\,kg: compute the precession rate in rad/s and rpm. (F=ma)
+\end{exercise}
+\begin{exercise}[hard]
+A bowling ball is set sliding with no spin at $v_0$ on a lane with
+$\mu_k$. Show it transitions to pure rolling at $v=\frac{5}{7}v_0$ ---
+track both $v$ and $\omega$ as friction acts. (USAPhO-style)
+\end{exercise}
+\begin{exercise}[hard]
+A spool of thread lies on a table ($I=\beta mr^{2}$, thread wrapped at
+inner radius $r_i<R$). Pulling the thread horizontally: does it roll
+toward or away from you? Find the critical angle where the direction
+reverses. (APhO-style classic)
+\end{exercise}
+\begin{exercise}[medium]
+Energy split check: for the race of example~\ref{ex:race}, what fraction
+of each shape's kinetic energy is rotational? Show $\beta/(1+\beta)$.
+(AP-C)
+\end{exercise}
+\begin{exercise}[medium]
+A planet at perihelion ($r_1$, $v_1$) reaches aphelion at $2r_1$. Find
+its aphelion speed by $L$ conservation, and explain why this is Kepler's
+second law. (F=ma)
+\end{exercise}

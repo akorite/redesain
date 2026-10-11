@@ -1,0 +1,9 @@
+\begin{tikzpicture}[scale=0.9,font=\scriptsize]
+\draw[very thick] (0,-1.2) -- (0,1.2);
+\fill (0,-0.4) circle (0.08); \fill (0,0.4) circle (0.08);
+\foreach \r in {1.2,2.4,3.6}{\draw[accent!50,dashed] (0,0.4) arc (20:-20:\r);
+\draw[accent!50,dashed] (0,-0.4) arc (20:-20:\r);}
+\draw[->,thick] (0,0.4) -- (4.6,0.1);
+\draw[->,thick] (0,-0.4) -- (4.6,0.1);
+\node[align=left] at (2.4,-1.6) {$d\sin\theta=m\lambda$:\\path difference rules the fringe};
+\end{tikzpicture}

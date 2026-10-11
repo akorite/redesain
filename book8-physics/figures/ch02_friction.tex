@@ -1,0 +1,12 @@
+\begin{tikzpicture}
+\begin{axis}[width=8.5cm,height=5.5cm,xlabel={applied force $F$ (N)},
+ylabel={friction force $f$ (N)},xmin=0,xmax=60,ymin=0,ymax=35,
+xtick={0,20,40,60},ytick={0,10,20,30},legend pos=north west,font=\small]
+\addplot[thick,accent,domain=0:30] {x};
+\addplot[thick,accent,domain=30:60] {20};
+\addplot[dashed,amber] coordinates {(30,0) (30,30)};
+\addplot[mark=*,amber] coordinates {(30,30)} node[above right,font=\scriptsize]{$\mu_s N$};
+\node[font=\scriptsize] at (axis cs:42,23) {$\mu_k N$ (kinetic)};
+\node[font=\scriptsize,rotate=36] at (axis cs:12,15) {$f=F$ (static match)};
+\end{axis}
+\end{tikzpicture}

@@ -1,0 +1,14 @@
+% the calculus loop: x -> v -> a by d/dt, back by integrals
+\begin{tikzpicture}[scale=1.0,>=stealth,
+  box/.style={draw,thick,minimum width=2.2cm,minimum height=0.9cm,font=\small}]
+  \node[box] (x) at (0,0) {position $x(t)$};
+  \node[box] (v) at (4.0,0) {velocity $v(t)$};
+  \node[box] (a) at (8.0,0) {acceleration $a(t)$};
+  \draw[->,very thick] (x) -- (v) node[midway,above,font=\small] {$d/dt$};
+  \draw[->,very thick] (v) -- (a) node[midway,above,font=\small] {$d/dt$};
+  \draw[->,very thick,dashed,accent] (a.south) .. controls (5.5,-1.6) .. (v.south)
+    node[midway,below,font=\small] {$v(t)=v_0+\int a\,dt$};
+  \draw[->,very thick,dashed,accent] (v.south) .. controls (1.5,-1.6) .. (x.south)
+    node[midway,below,font=\small] {$x(t)=x_0+\int v\,dt$};
+  \node[font=\footnotesize,align=center] at (4.0,1.1) {differentiate going right;\\integrate coming back};
+\end{tikzpicture}

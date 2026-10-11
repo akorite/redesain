@@ -1,0 +1,11 @@
+\begin{tikzpicture}
+\begin{axis}[width=8cm,height=4.6cm,xlabel={$x$},ylabel={},
+xmin=-3,xmax=3,ymin=-2,ymax=2,font=\small,legend pos=north east]
+\addplot[very thick,accent,domain=-2.9:2.9,samples=80] {1/(abs(x)+0.3)};
+\addlegendentry{$V$}
+\addplot[very thick,amber,domain=-2.9:2.9,samples=80] {-x/(abs(x)+0.3)^2};
+\addlegendentry{$E=-dV/dx$}
+\addplot[dashed] coordinates {(-3,0) (3,0)};
+\node[font=\scriptsize] at (axis cs:1.5,-1.2) {steepest $V$ = biggest $E$};
+\end{axis}
+\end{tikzpicture}

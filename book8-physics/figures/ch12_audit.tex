@@ -1,0 +1,13 @@
+\begin{tikzpicture}[scale=0.9,font=\scriptsize]
+\draw[very thick,rounded corners] (0,0) rectangle (1.6,1.2);
+\node at (0.8,0.6) {battery};
+\draw[very thick,rounded corners] (3.2,0) rectangle (4.8,1.2);
+\node at (4.0,0.6) {split};
+\draw[very thick,rounded corners] (6.4,0.6) rectangle (8.0,1.8);
+\node at (7.2,1.2) {$U_C$};
+\draw[very thick,rounded corners] (6.4,-0.9) rectangle (8.0,0.3);
+\node at (7.2,-0.3) {$Q_R$ heat};
+\draw[->,very thick,accent] (1.6,0.6) -- (3.2,0.6) node[midway,above]{$\mathcal E\cdot CV$};
+\draw[->,very thick,amber] (4.8,0.8) -- (6.4,1.2) node[midway,above]{50\%};
+\draw[->,very thick,amber] (4.8,0.4) -- (6.4,-0.2) node[midway,below]{50\%};
+\end{tikzpicture}

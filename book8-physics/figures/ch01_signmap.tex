@@ -1,0 +1,15 @@
+% sign map: speed change from (v,a) signs
+\begin{tikzpicture}[scale=1.0]
+  \draw[thick] (-0.1,-0.1) rectangle (4.6,3.4);
+  \draw[thick] (2.25,-0.1) -- (2.25,3.4);
+  \draw[thick] (-0.1,1.65) -- (4.6,1.65);
+  \node[font=\footnotesize] at (4.0,2.9) {$a>0$};
+  \node[font=\footnotesize] at (4.0,0.4) {$a<0$};
+  \node[font=\footnotesize,rotate=90] at (0.2,2.65) {$v>0$};
+  \node[font=\footnotesize,rotate=90] at (0.2,0.65) {$v<0$};
+  \node[font=\small,align=center,fill=accentsoft] at (1.1,2.5) {speeding up};
+  \node[font=\small,align=center] at (3.4,2.5) {slowing down};
+  \node[font=\small,align=center] at (1.1,0.75) {slowing down};
+  \node[font=\small,align=center,fill=accentsoft] at (3.4,0.75) {speeding up};
+  \node[font=\footnotesize,align=center] at (2.25,-0.6) {$v$ and $a$ \emph{same} sign $\Rightarrow$ faster; opposite $\Rightarrow$ slower};
+\end{tikzpicture}

@@ -1,0 +1,10 @@
+\begin{tikzpicture}
+\begin{axis}[width=8cm,height=4.4cm,xlabel={$V$},ylabel={$U$},
+xmin=0,xmax=10,ymin=0,ymax=6,font=\small,legend pos=north west]
+\addplot[very thick,accent,domain=0:10] {0.06*x^2};
+\addlegendentry{$U=\frac12CV^2$}
+\addplot[dashed,amber] coordinates {(0,0) (10,6)};
+\node[font=\scriptsize,align=left] at (axis cs:4,4.5) {charging = lifting\\charges up the hill};
+
+\end{axis}
+\end{tikzpicture}

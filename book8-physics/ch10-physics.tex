@@ -1,0 +1,348 @@
+\chapter{Gauss's law}\label{ch:gauss}
+
+Gauss's law is Coulomb's law wearing symmetry: the flux through any
+closed surface counts only the charge inside. It turns three-page
+integrals into three-line algebra --- when the symmetry is real.
+
+\section{Flux: counting field lines}\label{sec:ga-flux}
+
+\begin{equation}
+  \Phi_E=\int\mathbf E\cdot d\mathbf A,\qquad
+  \oint\mathbf E\cdot d\mathbf A=\frac{Q_{\rm enc}}{\varepsilon_0},
+  \label{eq:gauss}
+\end{equation}
+open surface vs closed (figure~\ref{fig:flux}). Flux through a closed
+surface is charge inside divided by $\varepsilon_0$ --- the field's
+bookkeeping made literal, and the first Maxwell equation in the book.
+
+\begin{figure}[htbp]\centering
+\input{figures/ch10_flux}
+\caption{Flux through an open patch vs a closed surface. Only the closed
+integral counts charge.}
+\label{fig:flux}
+\end{figure}
+
+\section{From Coulomb to Gauss: the intuition}\label{sec:ga-deriv}
+
+A point charge's flux through a surrounding sphere is
+$kq/r^{2}\cdot4\pi r^{2}=q/\varepsilon_0$ --- radius cancels, so any
+shape works (deformations keep line count). Superposition extends it to
+any distribution, and charge \emph{outside} contributes zero net flux:
+its lines enter and leave. Our code check makes it concrete below.
+
+\section{Spherical symmetry}\label{sec:ga-sphere}
+
+Spherical symmetry means $\mathbf E=E(r)\hat r$ is constant on the
+Gaussian sphere: $\oint E\,dA=E(r)\cdot4\pi r^{2}$, so
+$E(r)=Q_{\rm enc}(r)/4\pi\varepsilon_0r^{2}$.
+
+\begin{example}[Uniform-volume-charge sphere, both regions]\label{ex:sphere}
+A sphere of radius $R$ carries $Q$ uniformly in volume. Find $E(r)$
+inside and out.
+\par\smallskip
+\textbf{Strategy.} Enclosed charge is the part below radius $r$.
+\begin{solution}
+Outside ($r>R$): $Q_{\rm enc}=Q$, so $E=kQ/r^{2}$ --- the shell theorem
+of chapter~8 again.
+Inside ($r<R$): $Q_{\rm enc}=Q(r/R)^{3}$, so
+$E=kQr/R^{3}$ --- linear, zero at centre (figure~\ref{fig:er}).
+The matching point at $r=R$ checks both formulas: $kQ/R^{2}$.
+\checkmark
+\end{solution}
+\end{example}
+
+\begin{figure}[htbp]\centering
+\input{figures/ch10_er}
+\caption{$E(r)$ for a uniform sphere (rises to the surface, then
+$1/r^{2}$) against the constant sheet field.}
+\label{fig:er}
+\end{figure}
+
+\section{Cylindrical symmetry}\label{sec:ga-cyl}
+
+For a line or cylinder, $\mathbf E=E(r)\hat r$ on the curved wall gives
+$E\cdot2\pi rL=Q_{\rm enc}/\varepsilon_0$, so
+$E=\lambda/2\pi\varepsilon_0r$: $1/r$, not $1/r^{2}$.
+
+\begin{example}[Coaxial cable]\label{ex:coax}
+Inner conductor carries $+\lambda$, the outer $-\lambda$. Find the
+field between them and outside the cable.
+\par\smallskip
+\textbf{Strategy.} Enclosed charge on a coaxial Gaussian cylinder.
+\begin{solution}
+Between ($a<r<b$, figure~\ref{fig:coax}): only the inner wire enclosed,
+$E=\lambda/2\pi\varepsilon_0r$ radially out.
+Outside: net enclosed zero --- $E=0$. The cable contains its own field,
+which is exactly why engineers buy coax. \checkmark
+\end{solution}
+\end{example}
+
+\begin{figure}[htbp]\centering
+\input{figures/ch10_coax}
+\caption{The coaxial geometry: between the conductors the field is
+$1/r$; outside it's zero by cancellation.}
+\label{fig:coax}
+\end{figure}
+
+\section{Planar symmetry}\label{sec:ga-plane}
+
+For an infinite sheet, flux escapes through both pillbox faces:
+$2EA=\sigma A/\varepsilon_0$, so $E=\sigma/2\varepsilon_0$ ---
+\emph{constant}, no distance at all (figure~\ref{fig:pill}). Two sheets
+of $\pm\sigma$ superpose to $\sigma/\varepsilon_0$ between and zero
+outside --- the parallel-plate capacitor's field, free of charge.
+
+\begin{example}[Sheet vs conductor plate]\label{ex:sheet}
+A large conducting plate carries total $\sigma$ on \emph{both} faces
+combined. Find $E$ just outside it, and compare with an insulating
+sheet of the same $\sigma$.
+\par\smallskip
+\textbf{Strategy.} Conductor: $E=0$ inside material, so all flux exits
+one way at each face. Sheet: both ways.
+\begin{solution}
+Conductor: pillbox with one face inside the metal gets $E=0$ there, so
+$EA=\sigma A/\varepsilon_0$ gives $E=\sigma/\varepsilon_0$ (here
+$\sigma$ is per-face). Insulating sheet: $E=\sigma/2\varepsilon_0$
+each side. For the same total charge per area the conductor's surface
+field is twice the sheet's --- the missing-face bookkeeping again.
+\checkmark
+\end{solution}
+\end{example}
+
+\begin{figure}[htbp]\centering
+\input{figures/ch10_pill}
+\caption{The pillbox argument: two faces share the sheet's flux.}
+\label{fig:pill}
+\end{figure}
+
+\section{Conductors: where $E$ goes to zero}\label{sec:ga-cond}
+
+In electrostatic equilibrium $E=0$ inside conductor material (any field
+would move the free charge until it vanished), so the conductor is one
+equipotential body, all excess charge lives on the surface, and
+$E=\sigma/\varepsilon_0$ just outside --- twice the sheet's field
+because the interior side contributes nothing
+(figure~\ref{fig:cavity}).
+
+\begin{figure}[htbp]\centering
+\input{figures/ch10_cavity}
+\caption{Conductor cavities: a charge inside induces $-q$ on the inner
+skin and $+q$ on the outer; an empty cavity stays field-free.}
+\label{fig:cavity}
+\end{figure}
+
+\begin{example}[Charge in a conductor cavity]\label{ex:cavity}
+A point charge $+q$ sits in a cavity inside a neutral conductor. Find
+the induced surface charges and the field outside.
+\par\smallskip
+\textbf{Strategy.} A Gaussian surface in the conductor material has
+$E=0$ everywhere on it.
+\begin{solution}
+$\Phi=0$ forces $Q_{\rm enc}=0$: the inner wall carries exactly $-q$.
+Conservation of the conductor's neutrality puts $+q$ on the outer
+surface, so the outside world sees a field as if a point charge $+q$
+sat at the conductor --- the cavity's contents announced, position
+hidden. \checkmark
+\end{solution}
+\end{example}
+
+\begin{example}[Enclosed charge by inspection]\label{ex:encl}
+A spherical insulating shell carries $+Q$; a point charge $-q$
+($q<Q$) sits at its centre. Find $E$ just inside and just outside the
+shell.
+\par\smallskip
+\textbf{Strategy.} $Q_{\rm enc}$ is everything inside your surface ---
+shell charge counts only beyond its radius.
+\begin{solution}
+Inside ($r<R$): only the point, $E=-kq/r^{2}$ (inward).
+Outside: $Q_{\rm enc}=Q-q$, so $E=k(Q-q)/r^{2}$ outward.
+At the shell radius the field jumps by $kQ/R^{2}=\sigma/\varepsilon_0$
+--- the surface-charge contribution, exactly as \S\ref{sec:ga-cond}
+predicts. \checkmark
+\end{solution}
+\end{example}
+
+\begin{lstlisting}[language=Python,caption={\texttt{code/ch10\_flux\_check.py} --- numeric flux through a cube; convergence and the outside-charge zero.},label={lst:flux}]
+En = sum(q*c/r**3 * nv for c, nv in zip(p, nvec))
+flux += En*dA
+\end{lstlisting}
+
+Output of a real run:
+\begin{lstlisting}[numbers=none]
+Flux of point charge q=1 through enclosing cube (theory 4*pi=12.566):
+  n= 10: Phi=12.5972  err=0.25%
+  n= 30: Phi=12.5698  err=0.03%
+  n= 90: Phi=12.5668  err=0.00%
+  n=270: Phi=12.5664  err=0.00%
+
+Charge OUTSIDE cube (expect ~0): Phi=-0.0000
+\end{lstlisting}
+
+A plain Riemann sum on a cube --- no symmetry exploited --- converges
+to $4\pi$ (i.e.\ $q/\varepsilon_0$ in these units) and returns $0.0000$
+for a charge outside: Gauss's law with the mesh resolution as the only
+approximation.
+
+\section{In engineering practice: shielding is Gauss's law}\label{sec:ga-eng}
+
+A Faraday cage is \S\ref{sec:ga-cond} deployed: charge redistributes
+until the interior field dies, which is why coax shields signals,
+aircraft survive lightning strikes, and your phone misbehaves in a lift.
+High-voltage labs take the corollary --- $E$ peaks at sharp curvature ---
+and shape everything round to keep $\sigma$ (and hence the surface
+field) down.
+
+\section{Common mistakes}\label{sec:ga-mistakes}
+
+\begin{tripwire}[Gauss applied without symmetry]
+The law is always true but only \emph{useful} when $E$ is constant on
+the surface: no symmetry, no shortcut --- go back to Coulomb
+integration.
+\end{tripwire}
+\begin{tripwire}[Wrong enclosed charge]
+$Q_{\rm enc}$ counts only charge \emph{inside} the Gaussian surface ---
+a charge on the surface itself splits ambiguity, and outside charges
+contribute nothing.
+\end{tripwire}
+\begin{tripwire}[Gaussian area vs charge area]
+The $4\pi r^{2}$ is the \emph{Gaussian} sphere's area at radius $r$,
+not the charged sphere's: use your surface's radius.
+\end{tripwire}
+\begin{tripwire}[$E=0$ inside conductor vs cavity]
+Inside the \emph{material}: always zero. Inside an empty \emph{cavity}:
+zero. Inside a cavity containing charge: emphatically not.
+\end{tripwire}
+\begin{tripwire}[Sheet vs conductor surface field]
+Sheet: $\sigma/2\varepsilon_0$; conductor surface:
+$\sigma/\varepsilon_0$. The factor of two is the missing second face ---
+they are different setups, not a typo.
+\end{tripwire}
+
+\section{Summary}\label{sec:ga-summary}
+
+\begin{table}[ht]\centering
+\begin{tabularx}{\linewidth}{@{}lY@{}}
+\toprule
+\tablehead\thead{Idea} & \thead{One-line version}\\
+\midrule
+flux & $\Phi=\int\mathbf E\cdot d\mathbf A$; closed counts $Q_{\rm enc}$ \\
+sphere & $E=kQ_{\rm enc}(r)/r^{2}$; inside uniform $\propto r$ \\
+line & $E=\lambda/2\pi\varepsilon_0r$ \\
+sheet & $E=\sigma/2\varepsilon_0$, constant \\
+conductor & $E=0$ inside; $E=\sigma/\varepsilon_0$ at surface; shields cavities \\
+\bottomrule
+\end{tabularx}
+\caption{Gauss's law cheat sheet.}
+\label{tab:gasummary}
+\end{table}
+
+\begin{wins}[Definition of done]
+You can now: pick the right Gaussian surface for sphere/line/sheet,
+compute $E(r)$ in both regions, reason about enclosed charge, and argue
+conductor/cavity induction from $E=0$.
+\end{wins}
+
+\chapternotes{%
+The symmetry-first treatment follows MIT 8.02SC modules 5 and 8
+\cite{ocw801} and AP Physics C E\&M \cite{apced}; Griffiths ch.~2 is the
+deeper anchor (in print). The flux numbers are the listing's real
+output.}
+
+\begin{rulebox}[{Watch instead}]
+\begin{enumerate}
+\item \emph{Electric Flux, Gauss' Law, Examples} --- Walter Lewin, MIT
+8.02x Lecture 3, 50:11, \url{https://youtu.be/Zu2gomaDqnM} ---
+\S\ref{sec:ga-flux}--\S\ref{sec:ga-plane} at full length (accessed
+2026-10-11).
+\item \emph{Gauss law of electricity} --- Khan Academy India, 15:51,
+\url{https://youtu.be/owMznEZPNt4} --- \S\ref{sec:ga-deriv} worked
+quickly (accessed 2026-10-11).
+\end{enumerate}
+\end{rulebox}
+
+\section*{Further reading}
+\addcontentsline{toc}{section}{Further reading}
+
+\begin{itemize}
+\item MIT OCW \emph{8.02SC}, module 5 (Gauss's law) ---
+recitations on all three symmetries. At \url{https://ocw.mit.edu},
+course ``8.02SC'' (verified 2026-10-11).
+\item OpenStax \emph{College Physics 2e}, ch.~18 ---
+free text: \url{https://openstax.org} (verified 2026-10-11).
+\item College Board, \emph{AP Physics C (E\&M) CED}, Unit 8 ---
+verified 2026-10-11 at
+\url{https://apstudents.collegeboard.org}.
+\item E.~M. Purcell and D.~J. Morin, \emph{Electricity and Magnetism},
+chs.~1--2 --- the deeper Gauss treatment.
+\item R.~P. Feynman, \emph{Lectures on Physics}, vol.~II, chs.~4--5 ---
+field intuition beyond the formulas; free at Caltech's site.
+\item Khan Academy, \emph{Electric flux and Gauss's law} --- drills, at
+\url{https://www.khanacademy.org} (verified 2026-10-11).
+\end{itemize}
+
+\section*{Additional exercises}
+\addcontentsline{toc}{section}{Additional exercises}
+
+\begin{exercise}[easy]
+Compute $\Phi_E$ through a square face in a uniform field of
+$300$\,N/C at $30^{\circ}$ to the normal. (AP-C)
+\end{exercise}
+\begin{exercise}[easy]
+A cube contains charge $-2$\,\textmu C: find total flux and the sign
+of the field's average direction. (AP-C)
+\end{exercise}
+\begin{exercise}[easy]
+Why is $E=0$ inside a conductor in equilibrium --- and which step fails
+if charge keeps moving? (AP-C)
+\end{exercise}
+\begin{exercise}[easy]
+An infinite sheet carries $\sigma$: find $E$ both sides, then two
+parallel sheets $\pm\sigma$. (F=ma)
+\end{exercise}
+\begin{exercise}[easy]
+A sphere's surface charge is $\sigma$: find $E$ just outside and just
+inside the surface. (AP-C)
+\end{exercise}
+\begin{exercise}[medium]
+Re-derive the uniform sphere's $E(r)$ both regions; check the two
+formulas agree at $r=R$. (AP-C FR-style)
+\end{exercise}
+\begin{exercise}[medium]
+A line of charge $\lambda$: find $E(r)$ by Gauss and where the result
+fails for a finite rod. (AP-C)
+\end{exercise}
+\begin{exercise}[medium]
+A point charge sits at the centre of a spherical conducting shell:
+find the charge on each surface and $E$ in all three regions. (F=ma)
+\end{exercise}
+\begin{exercise}[medium]
+A coaxial cable has inner radius $a$, outer $b$: find where $E$ is
+largest between conductors and why that limits the voltage.
+(engineering)
+\end{exercise}
+\begin{exercise}[medium]
+Two concentric shells carry $+Q$ and $-Q$: find $E(r)$ in all three
+regions. (AP-C)
+\end{exercise}
+\begin{exercise}[hard]
+A cavity inside a conductor holds charge $+q$ off-centre: argue the
+outer surface charge is uniform and find the inner-wall total.
+(USAPhO-style)
+\end{exercise}
+\begin{exercise}[hard]
+Given $\rho(r)=\rho_0(1-r/R)$ inside a sphere, find $E(r)$ inside and
+the charge distribution that would make $E$ constant inside.
+(APhO-style)
+\end{exercise}
+\begin{exercise}[medium]
+A flat disk carries $\sigma$: explain why the field on axis falls with
+distance even though an infinite sheet's does not. (concept)
+\end{exercise}
+\begin{exercise}[medium]
+A Gaussian cube replaces the sphere around a point charge: the law
+still holds --- why is it useless for computing $E$? (concept)
+\end{exercise}
+\begin{exercise}[medium]
+Find $E$ inside an empty cavity cut off-centre inside a uniformly
+charged sphere. (F=ma; hint: superpose)
+\end{exercise}

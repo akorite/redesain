@@ -1,0 +1,11 @@
+\begin{tikzpicture}
+\begin{axis}[width=8.8cm,height=5.5cm,xlabel={$\omega_d$ (rad/s)},ylabel={$A(\omega_d)$},
+xmin=0.5,xmax=3.5,ymin=0,ymax=1.6,font=\small,legend pos=north east]
+\addplot[very thick,accent,domain=0.5:3.5,samples=120] {1/sqrt((4-x^2)^2+(0.4*x)^2)};
+\addlegendentry{$\gamma=0.4$}
+\addplot[very thick,amber,domain=0.5:3.5,samples=120] {1/sqrt((4-x^2)^2+(1.2*x)^2)};
+\addlegendentry{$\gamma=1.2$}
+\addplot[dashed] coordinates {(1.98,0) (1.98,1.6)};
+\node[font=\scriptsize] at (axis cs:2.4,1.35) {peak near $\sqrt{\omega_0^2-\gamma^2/2}$};
+\end{axis}
+\end{tikzpicture}

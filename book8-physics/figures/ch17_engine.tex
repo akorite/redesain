@@ -1,0 +1,12 @@
+\begin{tikzpicture}[scale=0.85,font=\scriptsize]
+\draw[very thick,fill=amber!25] (0,1.6) ellipse (1.0 and 0.45);
+\node at (0,1.6) {$T_H$};
+\draw[very thick,fill=accent!15] (0,-1.6) ellipse (1.0 and 0.45);
+\node at (0,-1.6) {$T_C$};
+\draw[very thick,fill=white] (0,0) circle (0.55);
+\node at (0,0) {eng.};
+\draw[->,thick] (-0.3,1.15) -- (-0.3,0.6) node[midway,left]{$Q_H$};
+\draw[->,thick] (-0.3,-0.6) -- (-0.3,-1.15) node[midway,left]{$Q_C$};
+\draw[->,thick] (0.55,0) -- (1.3,0) node[right]{$W$};
+\node[align=left] at (2.6,-0.9) {$\eta=W/Q_H$\\$\le 1-T_C/T_H$};
+\end{tikzpicture}

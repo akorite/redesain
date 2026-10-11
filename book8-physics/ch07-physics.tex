@@ -1,0 +1,374 @@
+\chapter{Oscillations}\label{ch:osc}
+
+One equation runs this chapter: $\ddot x+\omega_0^{2}x=0$. Springs,
+pendulums, RLC circuits (ch15) and molecule vibrations are all its
+instances. Add damping and a drive and the same equation explains resonance
+--- from tuning forks to the Tacoma bridge.
+
+\section{SHM: the equation and its family}\label{sec:osc-shm}
+
+\begin{equation}
+  \ddot x+\omega_0^{2}x=0\;\Rightarrow\;
+  x(t)=A\cos(\omega_0t+\phi),\label{eq:shm}
+\end{equation}
+two constants $A,\phi$ paid by two initial conditions. The frequency
+$\omega_0$ is set by the physics; the amplitude is yours. Notice what's
+\emph{not} in the solution: $A$ never changes the period --- the signature
+of a linear restoring force.
+
+\section{Spring--mass: the canonical case}\label{sec:osc-spring}
+
+$-kx=m\ddot x$ gives $\omega_0=\sqrt{k/m}$ and
+$T=2\pi\sqrt{m/k}$: stiffer is faster, heavier is slower. Energy trades
+$\tfrac12kx^{2}$ and $\tfrac12mv^{2}$ with
+$E=\tfrac12kA^{2}$ --- quadratic in amplitude, so doubling $A$ quadruples
+the energy.
+
+\begin{example}[Energy split in a spring oscillator]\label{ex:springE}
+A $0.5$\,kg mass on a $200$\,N/m spring oscillates with $A=0.15$\,m.
+Find $E$, $v_{\max}$, and the speed at $x=A/2$.
+\par\smallskip
+\textbf{Strategy.} $E$ is set by amplitude; at any $x$ the remainder
+after $\tfrac12kx^{2}$ is kinetic.
+\begin{solution}
+$E=\tfrac12(200)(0.0225)=2.25$\,J;
+$v_{\max}=\sqrt{2E/m}=\sqrt{9}=3$\,m/s at centre.
+At $x=0.075$: $U=\tfrac12(200)(0.0056)=0.56$\,J, so
+$v=\sqrt{2(2.25-0.56)/0.5}=2.6$\,m/s --- three quarters of max at half
+amplitude: energy spends most of the cycle near the turning points.
+\checkmark
+\end{solution}
+\end{example}
+
+\section{Pendulums: small-angle as an approximation with a limit}\label{sec:osc-pend}
+
+For a pendulum the restoring torque is $-mgL\sin\theta$
+(figure~\ref{fig:pend}); linearising $\sin\theta\approx\theta$ gives
+$\omega_0=\sqrt{g/L}$ --- good to $1\%$ for
+$\theta_0\lesssim23^{\circ}$, and the first correction
+$T\approx T_0(1+\theta_0^{2}/16)$ is the hard exercise at the end.
+A physical pendulum generalises it:
+$\omega_0=\sqrt{mgd/I}$.
+
+\begin{figure}[htbp]\centering
+\input{figures/ch07_pend}
+\caption{The pendulum's restoring force $-mg\sin\theta$ is \emph{almost}
+linear --- small-angle is an approximation with a budget, not a property.}
+\label{fig:pend}
+\end{figure}
+
+\begin{example}[Meter-stick physical pendulum]\label{ex:physpend}
+A uniform meter stick pivots at one end. Find its period.
+\par\smallskip
+\textbf{Strategy.} Physical pendulum: $\omega_0^{2}=mgd/I$ with $d=L/2$,
+$I=\tfrac13mL^{2}$.
+\begin{solution}
+$\omega_0^{2}=\frac{g(L/2)}{L^{2}/3}=\frac{3g}{2L}$, so
+$T=2\pi\sqrt{\frac{2L}{3g}}=2\pi\sqrt{\frac{2}{29.4}}=1.64$\,s. A simple
+pendulum this long would take $2.0$\,s --- the stick's spread mass makes
+it faster. \checkmark
+\end{solution}
+\end{example}
+
+\section{Damped oscillations: three regimes}\label{sec:osc-damped}
+
+Add $-b\dot x$: $\ddot x+\gamma\dot x+\omega_0^{2}x=0$ with
+$\gamma=b/m$. The discriminant sorts the behaviour
+(figure~\ref{fig:damp}): \textbf{underdamped} ($\gamma<2\omega_0$)
+oscillates inside an $e^{-\gamma t/2}$ envelope at
+$\omega_d=\sqrt{\omega_0^{2}-\gamma^{2}/4}$; \textbf{critical}
+($\gamma=2\omega_0$) returns fastest without ringing;
+\textbf{overdamped} ($\gamma>2\omega_0$) creeps back slowly. Car
+suspension and door closers are engineered to sit just under critical.
+
+\begin{figure}[htbp]\centering
+\input{figures/ch07_damp}
+\caption{The three damping regimes. Notice only the underdamped case
+crosses zero --- the others surrender exponentially.}
+\label{fig:damp}
+\end{figure}
+
+\begin{example}[Extracting the constants from a trace]\label{ex:damped}
+A decaying trace shows maxima at $1.00$, $0.82$, $0.67$ at $t=0$, $2.1$,
+$4.2$\,s. Find $\gamma$, $\omega_d$, $\omega_0$.
+\par\smallskip
+\textbf{Strategy.} Envelope ratio per period gives $\gamma$; the period
+gives $\omega_d$; the relation $\omega_d^{2}=\omega_0^{2}-\gamma^{2}/4$
+closes it.
+\begin{solution}
+Period $T_d\approx2.1$\,s $\Rightarrow\omega_d=2.99$\,rad/s.
+Ratio per period $0.82$: $e^{-\gamma T_d/2}=0.82 \Rightarrow
+\gamma=0.19$\,s$^{-1}$.
+$\omega_0=\sqrt{\omega_d^{2}+\gamma^{2}/4}=\sqrt{8.94+0.009}=2.99$\,rad/s
+--- damping barely shifts the frequency here. \checkmark
+\end{solution}
+\end{example}
+
+\begin{exercise}[easy]
+Show the same trace's next two maxima and estimate them. (AP-C)
+\end{exercise}
+
+\section{Driven oscillations and resonance}\label{sec:osc-driven}
+
+A drive $F_0\cos\omega_dt$ produces steady amplitude
+\begin{equation}
+  A(\omega_d)=\frac{F_0/m}{\sqrt{(\omega_0^{2}-\omega_d^{2})^{2}
+  +(\gamma\omega_d)^{2}}},\label{eq:amp}
+\end{equation}
+peaking near $\omega_d=\sqrt{\omega_0^{2}-\gamma^{2}/2}$
+(figure~\ref{fig:resonance}). The peak height is set by the
+\emph{quality factor} $Q=\omega_0/\gamma$: high-$Q$ systems ring loudly
+and narrowly --- the tuning-fork pair of figure~\ref{fig:fork} and, minus
+the luck, the Tacoma Narrows bridge.
+
+\begin{example}[Off-resonance driving]\label{ex:offres}
+The oscillator of the code run ($\omega_0=2$, $\gamma=0.4$, $F_0/m=1$)
+is driven at $\omega_d=3$. Find its steady amplitude and compare with
+the peak.
+\par\smallskip
+\textbf{Strategy.} Plug into \eqref{eq:amp} twice; the ratio is the
+point.
+\begin{solution}
+$A(3)=1/\sqrt{26.4}=0.195$ (from
+$\sqrt{(4-9)^{2}+(0.4\cdot3)^{2}}$);
+$A(1.98)=1/(0.4\times1.98)=1.26$.
+The peak is $6.5\times$ louder --- a $1.5\times$ frequency miss costs
+$85\%$ of the response. \checkmark
+\end{solution}
+\end{example}
+
+\begin{figure}[htbp]\centering
+\input{figures/ch07_resonance}
+\caption{Amplitude vs drive frequency for two dampings. Lower $\gamma$
+raises and sharpens the peak --- the $Q$ trade-off.}
+\label{fig:resonance}
+\end{figure}
+
+\begin{example}[Bandwidth from a resonance curve]\label{ex:qfactor}
+A resonance curve peaks at $195$\,Hz with amplitude $A_0$ and falls to
+$A_0/\sqrt{2}$ at $190$ and $200$\,Hz. Find $Q$ and $\gamma$.
+\par\smallskip
+\textbf{Strategy.} Half-power bandwidth $\Delta\omega=\gamma$; then
+$Q=\omega_0/\gamma$.
+\begin{solution}
+$\Delta f=10$\,Hz $\Rightarrow \gamma=2\pi\times10=62.8$\,s$^{-1}$,
+$Q=195/10=19.5$. Narrow and loud. \checkmark
+\end{solution}
+\end{example}
+
+\begin{lstlisting}[language=Python,caption={\texttt{code/ch07\_resonance\_sweep.py} --- RK4 driven oscillator, amplitude vs theory.},label={lst:sweep}]
+def acc(x_, v_, t_):
+    return F0M*math.cos(wd*t_) - GAMMA*v_ - W0*W0*x_
+\end{lstlisting}
+
+Output of a real run:
+\begin{lstlisting}[numbers=none]
+gamma=0.4, w0=2.0: theory peak at sqrt(w0^2-g^2/2)=1.980 rad/s
+   wd   A_meas  A_theory    err
+  1.2    0.384     0.384   0.0%
+  1.6    0.635     0.635   0.0%
+  1.9    1.171     1.171   0.0%
+  2.0    1.250     1.250   0.0%
+  2.1    1.070     1.070   0.0%
+  2.4    0.499     0.499   0.0%
+  3.0    0.194     0.194   0.0%
+Q = w0/gamma = 5.0; A(w_res)/A(0) = 5.03 (theory)
+\end{lstlisting}
+
+RK4 tracks the analytic curve to $0.0\%$ at every sampled $\omega_d$ ---
+the integrator is now trustworthy enough to trust figure~\ref{fig:resonance}.
+
+\begin{figure}[htbp]\centering
+\input{figures/ch07_fork}
+\caption{Sympathetic resonance: only the fork sharing $\omega_0$ answers.
+Every band's instrument-tuning trick, and every bridge's nightmare.}
+\label{fig:fork}
+\end{figure}
+
+\section{Phase space: the state is a point}\label{sec:osc-phase}
+
+Plotting $\dot x$ vs $x$ (figure~\ref{fig:phase}) turns the oscillator's
+history into a curve: the undamped case draws a closed ellipse, damping
+spirals it to the origin. Nonlinear oscillators live here too ---
+chapter~17's pendulum without the small-angle crutch is a phase portrait
+before it's a formula.
+
+\begin{figure}[htbp]\centering
+\input{figures/ch07_phase}
+\caption{Phase portrait: the undamped ellipse versus the damped spiral.
+The state's whole future is visible in one picture.}
+\label{fig:phase}
+\end{figure}
+
+\section{In engineering practice: vibration budgets}\label{sec:osc-eng}
+
+Every engineering discipline owns a version of equation~\eqref{eq:amp}:
+buildings get tuned mass dampers (a secondary oscillator eating the
+primary's peak), hard drives sit on elastomer mounts that push
+$\omega_0$ below the drive frequencies, and shock absorbers are the
+critical-damping spec of \S\ref{sec:osc-damped} sold by the pair. The
+common move is always the same: place $\omega_0$ far from the
+disturbance's $\omega_d$, then buy the remaining safety factor with
+damping --- the two knobs this chapter names.
+
+\section{Common mistakes}\label{sec:osc-mistakes}
+
+\begin{tripwire}[Small-angle used where $\theta$ isn't]
+The linearisation costs $\sim1\%$ per $20^{\circ}$ beyond small; at
+$60^{\circ}$ the period is $7\%$ long and the whole section's formulas
+need the finite-amplitude correction.
+\end{tripwire}
+\begin{tripwire}[$\omega$ vs $f$]
+$\omega=2\pi f$: $T=2\pi\sqrt{m/k}$ is a period, $\sqrt{k/m}$ is a
+frequency \emph{in radians}. Mixing them is a factor-$2\pi$ error every
+time.
+\end{tripwire}
+\begin{tripwire}[Amplitude vs energy]
+$E=\tfrac12kA^{2}$ is quadratic: ``twice the amplitude'' is four times
+the energy, and damping's decay rate is set on the amplitude by the
+envelope, not the peak.
+\end{tripwire}
+\begin{tripwire}[Driving at $\omega_0$ vs $\omega_d$]
+Resonance peaks \emph{below} $\omega_0$ when damped ---
+$\sqrt{\omega_0^{2}-\gamma^{2}/2}$ --- and the response lags the drive by
+$\pi/2$ at the peak.
+\end{tripwire}
+\begin{tripwire}[``Damping slows the period'' assumed or denied]
+It does --- $\omega_d<\omega_0$ --- but weakly ($\gamma^{2}/4$ term), so
+check the size before reporting either way.
+\end{tripwire}
+
+\section{Summary}\label{sec:osc-summary}
+
+\begin{table}[ht]\centering
+\begin{tabularx}{\linewidth}{@{}lY@{}}
+\toprule
+\tablehead\thead{Idea} & \thead{One-line version}\\
+\midrule
+SHM & $\ddot x+\omega_0^{2}x=0 \Rightarrow x=A\cos(\omega_0t+\phi)$ \\
+spring & $\omega_0=\sqrt{k/m}$; $E=\tfrac12kA^{2}$ \\
+pendulum & $\omega_0=\sqrt{g/L}$ small-angle; physical $\sqrt{mgd/I}$ \\
+damping & under/critical/over by $\gamma$ vs $2\omega_0$ \\
+driven & peak at $\sqrt{\omega_0^{2}-\gamma^{2}/2}$; $Q=\omega_0/\gamma$ \\
+phase space & ellipse undamped, spiral damped \\
+\bottomrule
+\end{tabularx}
+\caption{Oscillations cheat sheet.}
+\label{tab:oscsummary}
+\end{table}
+
+\begin{wins}[Definition of done]
+You can now: write and solve the SHM equation; scale spring and pendulum
+periods; classify damping regimes and extract constants from a decay
+trace; compute resonance peaks and read $Q$ off a bandwidth; and draw the
+phase portrait.
+\end{wins}
+
+\chapternotes{%
+The oscillator-first treatment follows MIT 8.01SC's oscillation module
+\cite{ocw801} and AP Physics C unit 7 \cite{apced}; Feynman vol.~I
+\S21--24 \cite{feynman1} is the classic resonance narrative. Morin ch.~4
+\cite{morin} is the source of the physical-pendulum and finite-amplitude
+exercises. The sweep numbers are the listing's real output.}
+
+\begin{rulebox}[{Watch instead}]
+\begin{enumerate}
+\item \emph{Hooke's Law, Springs, Pendulums, Simple Harmonic Motion} ---
+Walter Lewin, MIT 8.01x Lecture 10, 47:41,
+\url{https://youtu.be/tNpuTx7UQbw} ---
+\S\ref{sec:osc-shm}--\S\ref{sec:osc-pend} at full length (accessed
+2026-10-11).
+\item \emph{SHM of spring-mass oscillators} --- Khan Academy, 15:13,
+\url{https://youtu.be/eRZSzGKDfwU} --- \S\ref{sec:osc-spring} worked
+quickly (accessed 2026-10-11).
+\end{enumerate}
+\end{rulebox}
+
+\section*{Further reading}
+\addcontentsline{toc}{section}{Further reading}
+
+\begin{itemize}
+\item MIT OpenCourseWare, \emph{8.01SC Classical Mechanics}, oscillations
+module --- SHM, damping and resonance with recitations. At
+\url{https://ocw.mit.edu}, course ``8.01SC'' (verified 2026-10-11).
+\item OpenStax, \emph{College Physics 2e}, ch.~15 ``Oscillatory Motion''
+--- free text at \url{https://openstax.org} (verified 2026-10-11).
+\item College Board, \emph{AP Physics C: Mechanics CED}, Unit 7 --- the
+exam blueprint for SHM. At \url{https://apstudents.collegeboard.org}
+(verified 2026-10-11).
+\item R.~P. Feynman, \emph{Lectures on Physics}, vol.~I, \S21--24 ---
+resonance as narrative; free at Caltech's site.
+\item D.~Morin, \emph{Introduction to Classical Mechanics}, ch.~4 ---
+oscillations at the harder level; ISBN 978-0521876223.
+\item Khan Academy, \emph{Simple harmonic motion} --- drills matching
+\S\ref{sec:osc-shm}--\S\ref{sec:osc-driven}, at
+\url{https://www.khanacademy.org} under Science $\to$ Physics (verified
+2026-10-11).
+\end{itemize}
+
+\section*{Additional exercises}
+\addcontentsline{toc}{section}{Additional exercises}
+
+\begin{exercise}[easy]
+A $0.5$\,kg mass on a $200$\,N/m spring: compute $\omega_0$, $f$, $T$.
+(AP-C)
+\end{exercise}
+\begin{exercise}[easy]
+Doubling a spring oscillator's amplitude multiplies its energy by what?
+Its maximum speed by what? (AP-C)
+\end{exercise}
+\begin{exercise}[easy]
+A pendulum's $T$ is $2.0$\,s on Earth. Find it on the Moon
+($g=1.6$\,m/s$^{2}$). (F=ma)
+\end{exercise}
+\begin{exercise}[easy]
+Convert: an oscillator at $440$\,Hz --- find $\omega$ and $T$. (AP-C)
+\end{exercise}
+\begin{exercise}[easy]
+A $1$\,kg mass on a spring oscillates with $A=0.2$\,m, $T=1$\,s. Find
+$k$ and $v_{\max}$. (AP-C)
+\end{exercise}
+\begin{exercise}[medium]
+Two springs in series vs parallel: show effective $k$ is
+$k_1k_2/(k_1+k_2)$ vs $k_1+k_2$, and find each for $k_1=100$,
+$k_2=300$\,N/m. (F=ma)
+\end{exercise}
+\begin{exercise}[medium]
+A rod of length $L$ pivots at a point $L/4$ from one end (physical
+pendulum). Find $T$ and compare with the end-pivoted case. (AP-C FR-style)
+\end{exercise}
+\begin{exercise}[medium]
+At what phase of its cycle does an oscillator carry equal $K$ and $U$?
+Give the $x$ value in terms of $A$. (AP-C)
+\end{exercise}
+\begin{exercise}[medium]
+Decide the regime: $m=1$, $k=100$, (a) $b=5$, (b) $b=20$, (c) $b=40$
+(all SI) --- and find $\omega_d$ where it exists. (AP-C)
+\end{exercise}
+\begin{exercise}[medium]
+An oscillator loses $20\%$ of its amplitude per period. Find the energy
+loss per period and $\gamma$. (F=ma)
+\end{exercise}
+\begin{exercise}[medium]
+A driven oscillator has $\omega_0=10$, $\gamma=2$ (SI). Find the
+resonant $\omega_d$, the peak amplitude for $F_0/m=5$, and $Q$. (AP-C)
+\end{exercise}
+\begin{exercise}[hard]
+Use $T\approx T_0(1+\theta_0^{2}/16)$: find the amplitude where a
+grandfather clock's period is off by $0.5\%$, and the amplitude for a
+$10\%$ slowdown. (USAPhO-style)
+\end{exercise}
+\begin{exercise}[hard]
+A particle sits in $U(x)=-V_0\cos(kx)$. Linearise about a minimum to
+get $\omega_0$, then about a maximum to confirm instability.
+(APhO-style)
+\end{exercise}
+\begin{exercise}[medium]
+Two oscillators: $x_1=A\cos\omega t$, $x_2=A\cos(\omega t+\pi/2)$ ---
+sketch both in phase space and say what the $\pi/2$ buys. (F=ma)
+\end{exercise}
+\begin{exercise}[medium]
+A car's suspension should return to level fastest without ringing:
+given $m=300$\,kg and $k=30{,}000$\,N/m, find the critical $b$.
+(engineering)
+\end{exercise}

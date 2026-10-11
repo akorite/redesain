@@ -1,0 +1,12 @@
+\begin{tikzpicture}
+\begin{axis}[width=8.5cm,height=5.5cm,xlabel={$x$},ylabel={$U(x)$},
+xmin=-0.5,xmax=3,ymin=0,ymax=4.5,xtick={0,1,2,3},font=\small]
+\addplot[very thick,accent,domain=0:2.6] {0.5*x^2};
+\addplot[dashed,amber] coordinates {(0,2) (2.6,2)};
+\addplot[mark=*] coordinates {(2,2)} node[above,font=\scriptsize]{turning};
+\draw[->,thick] (axis cs:2,1.55) -- (axis cs:1.55,0.9);
+\draw[->,thick] (axis cs:2,1.55) -- (axis cs:2.45,0.9);
+\node[font=\scriptsize,amber] at (axis cs:1.2,2.25) {$E$ fixed};
+\node[font=\scriptsize] at (axis cs:2.35,0.55) {$K>0$ region};
+\end{axis}
+\end{tikzpicture}

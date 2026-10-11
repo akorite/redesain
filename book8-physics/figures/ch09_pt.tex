@@ -1,0 +1,6 @@
+\begin{tikzpicture}[scale=0.95]
+\foreach \ang in {0,45,...,315}{\draw[->,thick,accent] (0,0) -- ({\ang}:1.9);}
+\foreach \ang in {0,45,...,315}{\draw[->,accent] (0,0) -- ({\ang}:2.6);}
+\fill[amber] (0,0) circle (0.07) node[below,font=\scriptsize]{$+q$};
+\node[font=\scriptsize] at (0,-3.0) {point charge: radial, density $\propto 1/r^{2}$};
+\end{tikzpicture}

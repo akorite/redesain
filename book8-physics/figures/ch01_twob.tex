@@ -1,0 +1,22 @@
+% Figure 1.6: factor once, solve per right-hand side.
+% The expensive stage (elimination, O(n^3)) runs once; each new b
+% rides two O(n^2) triangular solves.
+\begin{tikzpicture}[scale=1.0,>=stealth,
+  box/.style={draw,thick,rounded corners=2pt,inner sep=5pt,align=center,font=\small},
+  cost/.style={font=\footnotesize,gray}]
+  \node[box] (a) at (0,0) {$A$ and all $\mathbf{b}$'s up front};
+  \node[box,fill=accentsoft] (lu) at (4.6,0) {$PA=LU$ \\ factor once};
+  \node[cost] at (4.6,-0.95) {$\tfrac23 n^3$ flops};
+  \node[box] (fwd1) at (8.9,1.1) {$L\mathbf{c}_1=\mathbf{b}_1$};
+  \node[box] (bwd1) at (8.9,0.0) {$U\mathbf{x}_1=\mathbf{c}_1$};
+  \node[box] (fwd2) at (8.9,-1.6) {$L\mathbf{c}_2=\mathbf{b}_2$};
+  \node[box] (bwd2) at (8.9,-2.7) {$U\mathbf{x}_2=\mathbf{c}_2$};
+  \draw[->,thick] (a) -- (lu);
+  \draw[->,thick] (lu.east) -- (fwd1.west);
+  \draw[->,thick] (fwd1) -- (bwd1);
+  \draw[->,thick] (lu.east) -- (fwd2.west);
+  \draw[->,thick] (fwd2) -- (bwd2);
+  \node[cost] at (8.9,0.55) {$2n^2$ flops};
+  \node[cost] at (8.9,-2.15) {$2n^2$ flops};
+  \node[font=\small,align=center] at (4.6,-3.4) {a third $\mathbf{b}$? two more triangular solves ---\\ no new factorization};
+\end{tikzpicture}

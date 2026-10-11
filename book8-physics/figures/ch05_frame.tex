@@ -1,0 +1,14 @@
+% Figure 5.x: an orthonormal frame is a rotated standard frame.
+\begin{tikzpicture}[scale=1.15,>=stealth]
+  % standard frame (faint)
+  \draw[->,very thick,gray!50] (0,0) -- (2.2,0) node[below,font=\small] {$\mathbf e_1$};
+  \draw[->,very thick,gray!50] (0,0) -- (0,2.2) node[left,font=\small] {$\mathbf e_2$};
+  % orthonormal frame rotated ~30 deg
+  \draw[->,very thick,accent] (0,0) -- (1.90,1.10) node[right,font=\small] {$\mathbf q_1=(\cos30^\circ,\sin30^\circ)$};
+  \draw[->,very thick,accent] (0,0) -- (-1.10,1.90) node[above,font=\small] {$\mathbf q_2=(-\sin30^\circ,\cos30^\circ)$};
+  % right angle marker between q1 q2
+  \draw (0.45,0.26) -- (0.19,0.71) -- (-0.26,0.45);
+  % unit circle hint
+  \draw[dotted,gray] (0,0) circle (2.2);
+  \node[font=\footnotesize,align=center] at (3.6,-0.6) {$\mathbf q_1\cdot\mathbf q_2=0$,\ \ $\|\mathbf q_i\|=1$:\\ orthonormal = rotated,\\ never stretched};
+\end{tikzpicture}

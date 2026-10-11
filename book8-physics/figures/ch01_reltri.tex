@@ -1,0 +1,14 @@
+% relative velocity triangle: boat + river = ground velocity
+\begin{tikzpicture}[scale=0.9,>=stealth]
+  % river current
+  \draw[->,very thick] (0,0) -- (3,0) node[midway,below,font=\small] {$\mathbf v_{\mathrm{river}}=\qty{3}{m/s}$};
+  % boat across (its own thrust)
+  \draw[->,very thick,accent] (0,0) -- (0,2.4) node[midway,left,font=\small] {$\mathbf v_{\mathrm{boat/river}}=\qty{4}{m/s}$};
+  % resultant
+  \draw[->,very thick,dashed] (0,0) -- (3,2.4) node[midway,above left,font=\small] {$\mathbf v_{\mathrm{boat/ground}}=\qty{5}{m/s}$};
+  \draw[dotted,gray] (0,2.4) -- (3,2.4);
+  \draw[dotted,gray] (3,0) -- (3,2.4);
+  % right-angle mark
+  \draw (0.4,0) -- (0.4,0.4) -- (0,0.4);
+  \node[font=\footnotesize,align=center] at (4.4,1.2) {$v_{\mathrm{bg}}=v_{\mathrm{br}}+v_{\mathrm{rg}}$\\ Galilean addition};
+\end{tikzpicture}

@@ -1,0 +1,335 @@
+\chapter{Waves and optics essentials}\label{ch:waves}
+
+Waves are what oscillations look like spread across space: chapter~7's
+single bob multiplied into a string, a surface, a field. Standing waves,
+interference and diffraction are all one fact --- phase adds --- read at
+three scales.
+
+\section{Wave quantities: $v=\lambda f$}\label{sec:wav-quant}
+
+A travelling wave $y(x,t)=A\cos(kx-\omega t)$ shifts its whole shape
+at speed $v=\omega/k=\lambda f$ (figure~\ref{fig:trav}). Which of
+$\lambda,f,v$ changes on entering a new medium is the first question to
+ask: $f$ is invariant (the source sets it), $v$ is the medium's, so
+$\lambda$ adjusts.
+
+\begin{figure}[htbp]\centering
+\input{figures/ch16_trav}
+\caption{Three snapshots of a travelling wave: the shape slides, no
+particle accompanies it.}
+\label{fig:trav}
+\end{figure}
+
+\section{Waves on strings and reflections}\label{sec:wav-string}
+
+On a string $v=\sqrt{T/\mu}$: tension makes speed, mass density fights
+it. At a fixed end the reflected pulse inverts; at a free end it
+returns upright (figure~\ref{fig:reflect}) --- boundary conditions
+already deciding which harmonics can exist.
+
+\begin{figure}[htbp]\centering
+\input{figures/ch16_reflect}
+\caption{Reflection rules: fixed end inverts, free end returns
+upright.}
+\label{fig:reflect}
+\end{figure}
+
+\section{Standing waves and harmonics}\label{sec:wav-stand}
+
+Two counter-propagating copies make a standing wave:
+$y=2A\sin kx\cos\omega t$ --- positions frozen (nodes), the rest
+swinging in place (figure~\ref{fig:stand}). A pinned--pinned string of
+length $L$ hosts only $\lambda_n=2L/n$, i.e.\
+$f_n=nv/2L$: the spectrum of every instrument.
+
+\begin{figure}[htbp]\centering
+\input{figures/ch16_stand}
+\caption{The standing-wave envelope: nodes still, antinodes at full
+swing.}
+\label{fig:stand}
+\end{figure}
+
+\begin{example}[Which modes a string supports]\label{ex:modes}
+A $0.80$\,m string under tension gives $v=240$\,m/s. List its first
+three resonant frequencies and the mode shapes.
+\par\smallskip
+\textbf{Strategy.} $f_n=nv/2L$.
+\begin{solution}
+$f_1=240/1.6=150$\,Hz, $f_2=300$\,Hz, $f_3=450$\,Hz. The $n$-th
+mode fits $n$ half-wavelengths between the pins. \checkmark
+\end{solution}
+\end{example}
+
+\section{Sound and the Doppler shift}\label{sec:wav-dopp}
+
+Sound is the same mathematics in air ($v\approx343$\,m/s): source
+moving compresses fronts ahead, stretches behind
+(figure~\ref{fig:dopp});
+$f'=f\,v/(v\mp v_s)$ for a moving source, $f'=f(v\pm v_o)/v$ for a
+moving observer.
+
+\begin{figure}[htbp]\centering
+\input{figures/ch16_dopp}
+\caption{Doppler geometry: fronts bunch ahead, spread behind.}
+\label{fig:dopp}
+\end{figure}
+
+\begin{example}[Doppler both directions]\label{ex:dopp}
+An ambulance's siren is $600$\,Hz; it passes at $30$\,m/s. What does a
+stationary listener hear approaching and receding ($v=343$\,m/s)?
+\par\smallskip
+\textbf{Strategy.} Moving source, stationary observer:
+$f'=fv/(v\mp v_s)$.
+\begin{solution}
+Approaching: $600\times343/313=658$\,Hz; receding:
+$600\times343/373=552$\,Hz. The $\sim100$\,Hz drop on pass is the
+signature you hear. \checkmark
+\end{solution}
+\end{example}
+
+\section{Interference: the two-slit geometry}\label{sec:wav-2slit}
+
+Light arriving through two slits reaches a screen point with a path
+difference $d\sin\theta$ (figure~\ref{fig:2slit}); bright where it is
+an integer $\lambda$, dark where half-integer. Fringe spacing
+$\Delta y=\lambda L/d$ --- geometry turning nanometres into
+millimetres.
+
+\begin{figure}[htbp]\centering
+\input{figures/ch16_2slit}
+\caption{Two-slit geometry: the phase difference is geometric.}
+\label{fig:2slit}
+\end{figure}
+
+\begin{example}[Two-slit fringe spacing]\label{ex:2slit}
+$\lambda=633$\,nm light through $d=0.20$\,mm slits hits a screen
+$2.0$\,m away: find the fringe spacing.
+\par\smallskip
+\textbf{Strategy.} $\Delta y=\lambda L/d$.
+\begin{solution}
+$\Delta y=633\times10^{-9}\times2.0/2.0\times10^{-4}=6.3$\,mm ---
+comfortable to see, and measuring it back-computes $\lambda$.
+\checkmark
+\end{solution}
+\end{example}
+
+\section{Diffraction: one slit is enough}\label{sec:wav-diffr}
+
+Even a single slit spreads the beam: the first zero sits at
+$a\sin\theta=\lambda$ (figure~\ref{fig:1slit}), so narrower $a$ spreads
+\emph{more}. Rayleigh's criterion: two point sources resolve when the
+first's minimum sits on the second's maximum --- aperture size as the
+optics budget.
+
+\begin{figure}[htbp]\centering
+\input{figures/ch16_1slit}
+\caption{Single-slit intensity: the first zero at
+$a\sin\theta=\lambda$ sets the beam's natural width.}
+\label{fig:1slit}
+\end{figure}
+
+\begin{example}[Diffraction limit estimate]\label{ex:rayleigh}
+A $2.4$\,m telescope mirror at $\lambda=550$\,nm: the angular
+resolution floor?
+\par\smallskip
+\textbf{Strategy.} Circular aperture: $\theta_{\rm min}\approx1.22\lambda/D$.
+\begin{solution}
+$\theta_{\rm min}=1.22(5.5\times10^{-7})/2.4=2.8\times10^{-7}$\,rad
+$\approx0.06$ arc-seconds --- Hubble's diffraction floor. \checkmark
+\end{solution}
+\end{example}
+
+\section{Thin films and the phase flip}\label{sec:wav-film}
+
+A soap bubble's colour: reflection off the front face flips phase by
+$\pi$ (higher index), the back face doesn't --- so bright when
+$2nt=(m+\tfrac12)\lambda$: the film's thickness painted as colour.
+
+\begin{example}[Soap-film colour]\label{ex:film}
+A film $n=1.33$ shows green ($\lambda=550$\,nm) brightest in
+reflection at normal incidence. Thinnest thickness?
+\par\smallskip
+\textbf{Strategy.} Front flip + back none: $2nt=(m+\tfrac12)\lambda$.
+\begin{solution}
+$2nt=\lambda/2\Rightarrow t=\lambda/4n=103$\,nm. \checkmark
+\end{solution}
+\end{example}
+
+\begin{lstlisting}[language=Python,caption={\texttt{code/ch16\_superposition.py} --- standing-wave snapshots + beat envelope.},label={lst:sup}]
+return math.sin(k*x-w*t) + math.sin(k*x+w*t)
+\end{lstlisting}
+
+Output of a real run:
+\begin{lstlisting}[numbers=none]
+standing wave snapshots y(x,t), x in [0,1]:
+ t=0.000: +0.00 +1.41 +2.00 +1.41 +0.00 -1.41 -2.00 -1.41 -0.00
+ t=0.125: +0.00 +1.00 +1.41 +1.00 +0.00 -1.00 -1.41 -1.00 -0.00
+ t=0.250: +0.00 +0.00 +0.00 +0.00 +0.00 -0.00 -0.00 -0.00 +0.00
+node check x=0.5: True
+antinode x=0.25 swing: [2.0, 1.41, 0.0]
+beat: f1 = 440  f2 = 444
+env at t=0,.06,.125,.19,.25,.31,.375: [1.82, 1.46, 0.43, 1.45, 1.95, 1.46, 0.43]
+envelope nodes at t = [0.125, 0.375, 0.625]
+measured beat period = node spacing = 0.25  theory 1/|f1-f2| = 0.25
+\end{lstlisting}
+
+The snapshots freeze mid-swing exactly on the half-cycle; nodes sit
+exactly still; the beat envelope's nodes land every
+$1/(2\Delta f)=0.125$\,s --- the 4\,Hz warble you hear when two tuners
+disagree.
+
+\section{In engineering practice: optics on the bench}\label{sec:wav-eng}
+
+Antenna arrays are two-slit geometry at radio wavelength; loudspeaker
+beaming is figure~\ref{fig:1slit}'s diffraction floor; interferometers
+(LIGO's arms) are \ref{ex:2slit}'s path-difference bookkeeping pushed
+to $\lambda/1000$ precision; and every lens's resolving power hits
+Rayleigh's aperture budget.
+
+\section{Common mistakes}\label{sec:wav-mistakes}
+
+\begin{tripwire}[$v=\lambda f$ misused across media]
+$f$ is invariant (source), $v$ is medium's, $\lambda$ adjusts --- swap
+the wrong two and every answer follows the error.
+\end{tripwire}
+\begin{tripwire}[Node vs antinode at a fixed end]
+Fixed = node = inversion; free = antinode = upright. Mixing them
+breaks the harmonic count.
+\end{tripwire}
+\begin{tripwire}[Interference vs diffraction blurred]
+Interference = few sources adding; diffraction = one aperture's
+continuum. A single slit does the second.
+\end{tripwire}
+\begin{tripwire}[Forgetting the thin-film phase flip]
+The front-face flip makes the conditions ``backwards'': bright
+reflection needs the \emph{half}-integer path.
+\end{tripwire}
+\begin{tripwire}[Doppler numerator/denominator swap]
+Source moves $\to$ denominator; observer moves $\to$ numerator.
+Deriving from figure~\ref{fig:dopp} is safer than the formula.
+\end{tripwire}
+
+\section{Summary}\label{sec:wav-summary}
+
+\begin{table}[ht]\centering
+\begin{tabularx}{\linewidth}{@{}lY@{}}
+\toprule
+\tablehead\thead{Idea} & \thead{One-line version}\\
+\midrule
+travelling & $v=\lambda f$; $f$ invariant, $\lambda$ adjusts \\
+string & $v=\sqrt{T/\mu}$; fixed inverts, free upright \\
+standing & $\lambda_n=2L/n$; nodes/antinodes \\
+Doppler & source in denominator, observer in numerator \\
+two-slit & $d\sin\theta=m\lambda$; $\Delta y=\lambda L/d$ \\
+diffraction & $a\sin\theta=\lambda$ first zero; Rayleigh floor \\
+\bottomrule
+\end{tabularx}
+\caption{Waves/optics cheat sheet.}
+\label{tab:wavsummary}
+\end{table}
+
+\begin{wins}[Definition of done]
+You can now: pick which quantity stays fixed across media, count
+harmonics for both end conditions, compute fringe spacings and first
+zeros, derive thin-film conditions with the flip, and run the
+superposition/beats checks.
+\end{wins}
+
+\chapternotes{%
+The order follows OpenStax vols.~1 and 3 \cite{openstax1} with
+Feynman~I \S30, \S47--51 the inspiration \cite{feynman1}; MIT 8.03SC
+for the full wave treatment \cite{ocw801}. The numbers are the
+listing's real output.}
+
+\begin{rulebox}[{Watch instead}]
+\begin{enumerate}
+\item \emph{Standing waves on strings} --- Khan Academy Physics,
+13:25, \url{https://youtu.be/gT0IqL1dyyk} ---
+\S\ref{sec:wav-string}--\S\ref{sec:wav-stand} (accessed 2026-10-11).
+\item \emph{Young's double slit introduction} --- Khan Academy, 9:33,
+\url{https://youtu.be/Pk6s2OlKzKQ} --- \S\ref{sec:wav-2slit} quickly
+(accessed 2026-10-11).
+\end{enumerate}
+\end{rulebox}
+
+\section*{Further reading}
+\addcontentsline{toc}{section}{Further reading}
+
+\begin{itemize}
+\item MIT OCW \emph{8.03SC Vibrations and Waves}. At
+\url{https://ocw.mit.edu}, course ``8.03SC'' (verified 2026-10-11).
+\item OpenStax \emph{College Physics 2e}, chs.~16--17 (waves, sound)
+and \emph{University Physics} vol.~3 (optics) ---
+\url{https://openstax.org} (verified 2026-10-11).
+\item R.~P. Feynman, \emph{The Feynman Lectures on Physics} I,
+\S30, \S47--51 --- interference and diffraction at their most lyrical
+(in print).
+\item Khan Academy, \emph{Waves and optics} --- drills matching
+\S\ref{sec:wav-quant}--\S\ref{sec:wav-2slit}: verified 2026-10-11 at
+\url{https://www.khanacademy.org} (science $\to$ physics $\to$ waves).
+\item PhET, \emph{Wave Interference} interactive --- slits, films and
+fringes you can drag: at \url{https://phet.colorado.edu} (verified
+2026-10-11).
+\end{itemize}
+
+\section*{Additional exercises}
+\addcontentsline{toc}{section}{Additional exercises}
+
+\begin{exercise}[easy]
+A wave has $v=340$\,m/s, $f=680$\,Hz: find $\lambda$. (AP-C)
+\end{exercise}
+\begin{exercise}[easy]
+Mark nodes and antinodes for the third harmonic on a pinned--pinned
+string. (AP-C)
+\end{exercise}
+\begin{exercise}[easy]
+What is the mode number of a string vibrating at $4f_1$? (AP-C)
+\end{exercise}
+\begin{exercise}[easy]
+A source approaches you: does $f'$ go up or down? Which factor?
+(F=ma)
+\end{exercise}
+\begin{exercise}[easy]
+Two slits are $0.1$\,mm apart, screen $1$\,m: find fringe spacing for
+$\lambda=500$\,nm. (AP-C)
+\end{exercise}
+\begin{exercise}[medium]
+Find the tension that raises a $0.6$\,kg/m string's fundamental to
+$200$\,Hz. (AP-C FR-style)
+\end{exercise}
+\begin{exercise}[medium]
+Derive the condition for dark fringes in two-slit and explain why
+they're perfectly dark. (AP-C)
+\end{exercise}
+\begin{exercise}[medium]
+A soap film goes red $\to$ green $\to$ blue: what is changing and in
+which direction? (APhO-lite)
+\end{exercise}
+\begin{exercise}[medium]
+Two tuning forks beat at $3$\,Hz: find both possible $f_2$ if
+$f_1=440$\,Hz. (F=ma)
+\end{exercise}
+\begin{exercise}[medium]
+Why does narrowing a slit widen the diffraction pattern? Argue from
+Huygens. (AP-C)
+\end{exercise}
+\begin{exercise}[hard]
+Estimate the angular resolution of your eye's pupil ($D\approx5$\,mm)
+and compare with the textbook resolution test. (estimation)
+\end{exercise}
+\begin{exercise}[hard]
+Three equally spaced slits: locate the first \emph{secondary} maximum
+and explain why it is weaker. (USAPhO-style)
+\end{exercise}
+\begin{exercise}[medium]
+An open--open pipe vs a closed--open pipe: derive both harmonic
+series. (AP-C)
+\end{exercise}
+\begin{exercise}[medium]
+A light wave enters glass ($n=1.5$): find what stays fixed and what
+changes among $f,\lambda,v$. (AP-C)
+\end{exercise}
+\begin{exercise}[medium]
+Why can a lens's resolution never beat its diffraction floor? Argue
+via aperture $D$. (concept)
+\end{exercise}

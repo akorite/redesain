@@ -1,0 +1,490 @@
+\chapter{Newton's laws and applications}\label{ch:newton}
+
+Kinematics (chapter~1) described motion; \emph{dynamics} explains it.
+Newton's three laws are exactly three statements --- a definition of
+inertial frames, a relation $\mathbf F=m\mathbf a$, and a pairing rule ---
+but the engineering content is in the method that wraps them: the free-body
+diagram, the constraint bookkeeping of strings and surfaces, and the
+differential equations that friction and drag leave behind.
+
+\section{The three laws, and the frame assumption}\label{sec:new-laws}
+
+\textbf{First law.} A body with no net force moves at constant velocity ---
+\emph{in an inertial frame}. The law looks circular (how do you know the
+frame is inertial? check whether first-law behaviour holds) and it is:
+Newton's first law is the \emph{definition} of the arena his other two laws
+live in. Accelerating cars and rotating merry-go-rounds are non-inertial;
+inside them you feel ``forces'' (centrifugal, elevator heaviness) that have
+no third-law partner.
+
+\textbf{Second law.}
+\begin{equation}
+  \sum\mathbf F=m\mathbf a.\label{eq:fma}
+\end{equation}
+This is a \emph{vector} equation --- three scalar equations when you pick
+axes --- and the most compressed sentence in physics: acceleration is what
+the \emph{sum} of forces buys. Units: force in newtons,
+$1\,\mathrm{N}=1\,\mathrm{kg\cdot m/s^{2}}$.
+
+\textbf{Third law.} Forces come in pairs on \emph{different} bodies: the
+Earth pulls you down; you pull the Earth up. The pair never cancels on one
+body's diagram --- a point section~\ref{sec:new-fbd} returns to.
+
+\section{The force inventory}\label{sec:new-inventory}
+
+Only a handful of forces appear in this book:
+
+\begin{center}
+\begin{tabularx}{\linewidth}{@{}llY@{}}
+\toprule
+\tablehead\thead{Force} & \thead{Rule} & \thead{Notes}\\
+\midrule
+gravity & $m\mathbf g$ down & uniform near Earth's surface \\
+normal & whatever it must be & contact; perpendicular to surface \\
+tension & along the rope & pulls both ends; massless rope $\Rightarrow$ same $T$ \\
+spring & $-kx$ & Hooke's law, linear \\
+friction & $\le\mu_sN$ static, $=\mu_kN$ kinetic & opposes \emph{impending/actual} sliding \\
+drag & $cv$ or $cv^{2}$ & opposes velocity; \S\ref{sec:new-drag} \\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+The discipline: every entry except gravity is a \emph{contact} force ---
+if nothing touches the body, only $m\mathbf g$ acts. ``The force of the
+throw'' left the ball when your hand did.
+
+\section{Free-body diagrams: the discipline}\label{sec:new-fbd}
+
+A free-body diagram (FBD)\index{free-body diagram} draws \emph{one} body and
+every force \emph{on} it --- nothing else. Not the force it exerts, not its
+velocity, not its acceleration (draw $m\mathbf a$ beside the diagram, never
+in it). Figure~\ref{fig:fbdgal} is the canonical gallery.
+
+\begin{figure}[htbp]\centering
+\input{figures/ch02_fbdgal}
+\caption{Five canonical FBDs. Notice only the body's own forces appear ---
+the Earth's pull counts, the body's pull on the Earth does not. The pushed
+box's friction arrow points \emph{back} because friction opposes sliding.}
+\label{fig:fbdgal}
+\end{figure}
+
+The method: (1) isolate one body; (2) enumerate contacts + gravity; (3) pick
+axes that simplify components; (4) write equation~\eqref{eq:fma} per axis;
+(5) add constraint equations (rope length, contact, $f\le\mu_sN$); (6) solve.
+Skipping step 2's enumeration is where forces get invented or dropped.
+
+\begin{example}[Atwood machine]\label{ex:atwood}
+Masses $m_1=3\,\mathrm{kg}$ and $m_2=5\,\mathrm{kg}$ hang from a light
+frictionless pulley (figure~\ref{fig:atwood}). Find the acceleration and
+tension.
+\par\smallskip
+\textbf{Strategy.} Two FBDs, one constraint: the rope's fixed length means
+the accelerations are equal and opposite. Take each mass's ``down is
+positive'' axis along its own motion.
+\begin{solution}
+For $m_1$ (accelerating up): $T-m_1g=m_1a$.
+For $m_2$ (accelerating down): $m_2g-T=m_2a$.
+Add to eliminate $T$:
+\[
+  a=\frac{m_2-m_1}{m_1+m_2}g=\frac{2}{8}\times9.8=2.45\,\mathrm{m/s^{2}},
+  \qquad
+  T=m_1(g+a)=3\times12.25=36.75\,\mathrm{N}.
+\]
+Check limits: $m_1=m_2\Rightarrow a=0,T=mg$ (hanging balance);
+$m_2\gg m_1\Rightarrow a\to g$ (small mass is a brake). $T=36.75$\,N lies
+between $m_1g=29.4$ and $m_2g=49$ --- the moving rope always splits the
+difference. \checkmark
+\end{solution}
+\end{example}
+
+\begin{figure}[htbp]\centering
+\input{figures/ch02_atwood}
+\caption{Atwood machine: two FBDs, one rope constraint. Notice the tension
+is the \emph{same} $T$ on both sides --- the massless-frictionless ideal
+pulley transmits, it does not eat.}
+\label{fig:atwood}
+\end{figure}
+
+\begin{exercise}[easy]
+In example~\ref{ex:atwood}, what is the force the pulley's axle must exert
+on the ceiling? Why isn't it $m_1g+m_2g$? (AP-C)
+\end{exercise}
+
+\section{Constraints: inclines, pulleys, contact}\label{sec:new-incline}
+
+On an incline the useful axes are \emph{down-slope} and \emph{outward}
+(figure~\ref{fig:incline}): gravity decomposes as $mg\sin\theta$ down-slope,
+$mg\cos\theta$ into the surface, and when the surface doesn't accelerate,
+$\mathbf N=mg\cos\theta$ \emph{only then}. That ``only then'' is the
+section's lesson --- $N$ is determined, not given.
+
+\begin{figure}[htbp]\centering
+\input{figures/ch02_incline}
+\caption{Incline decomposition. Notice the axes are rotated, not the force:
+$mg$ splits into a down-slope driver $mg\sin\theta$ and a pressed-in part
+$mg\cos\theta$ that the normal force answers.}
+\label{fig:incline}
+\end{figure}
+
+\begin{example}[Apparent weight on an accelerating surface]\label{ex:apparent}
+A $60\,\mathrm{kg}$ student stands on a scale in an elevator accelerating
+up at $2\,\mathrm{m/s^{2}}$. What does the scale read? What if the cable
+snaps?
+\par\smallskip
+\textbf{Strategy.} The scale reads the \emph{normal} force, not gravity.
+One FBD, one axis (up $+$).
+\begin{solution}
+$N-mg=ma \Rightarrow N=m(g+a)=60\times11.8=708\,\mathrm{N}$ --- the scale
+reads 708\,N ``of weight'', i.e.\ a $72.3\,\mathrm{kg}$ equivalent.
+Free fall $a=-g$: $N=0$, weightlessness --- not ``no gravity'', just
+nothing to push against. The ISS floats exactly this way, inside $0.9g$ of
+gravity. \checkmark
+\end{solution}
+\end{example}
+
+\begin{exercise}[medium]
+A block slides down a frictionless incline at $\theta=30^{\circ}$ while the
+\emph{incline itself} is free to slide on a frictionless floor. Qualitatively:
+does the block's acceleration exceed or fall short of $g\sin30^{\circ}$?
+Why? (F=ma)
+\end{exercise}
+
+\section{Circular dynamics: the net force bends}\label{sec:new-circ}
+
+Section 1.5 showed circular motion \emph{needs} $a_c=v^{2}/r$ inward;
+Newton's second law says the \emph{net} force must supply it. The mantra:
+$\sum F_{\mathrm{inward}}=mv^{2}/r$ --- centripetal is what the net force
+\emph{does}, never an entry on the FBD.
+
+\begin{example}[Banked curve, two boundary cases]\label{ex:banked}
+A curve of radius $r=80\,\mathrm{m}$ is banked at
+$\theta=15^{\circ}$. (a) What speed rounds it with \emph{no} friction?
+(b) With $\mu_s=0.4$, what are the max and min speeds?
+\par\smallskip
+\textbf{Strategy.} (a) FBD has only $mg$ and $N$; resolve into vertical
+(no accel) and horizontal (centripetal). (b) Friction acts along the
+surface --- down-slope at high speed (fighting the tendency to slide
+\emph{up} the bank), up-slope at low speed.
+\begin{solution}
+(a) Vertical: $N\cos\theta=mg$. Horizontal: $N\sin\theta=mv^{2}/r$.
+Divide:
+\[
+  v=\sqrt{rg\tan\theta}=\sqrt{80\times9.8\times0.268}
+   =14.5\,\mathrm{m/s}\approx52\,\mathrm{km/h}.
+\]
+(b) At high speed, friction points down-slope and adds an inward
+component; the max-speed condition becomes (Morin's derivation)
+$v_{\max}^{2}=rg\,\frac{\sin\theta+\mu_s\cos\theta}{\cos\theta-\mu_s\sin\theta}
+=80\times9.8\times\frac{0.259+0.4\times0.966}{0.966-0.4\times0.259}$,
+giving $v_{\max}=\sqrt{784\times0.747}=24.2\,\mathrm{m/s}\approx87$\,km/h.
+The design window $14.5$--$24.2$\,m/s is what the bank buys. \checkmark
+\end{solution}
+\end{example}
+
+\begin{figure}[htbp]\centering
+\input{figures/ch02_banked}
+\caption{Banked curve. Notice the normal force leans inward --- the bank's
+job is to lend a horizontal component to $N$ so friction has less to do.}
+\label{fig:banked}
+\end{figure}
+
+\section{Friction: the force that adapts}\label{sec:new-friction}
+
+Static friction \emph{matches} applied force up to a ceiling:
+$f_s\le\mu_sN$; kinetic friction is a fixed drag $f_k=\mu_kN$ opposing
+sliding, with $\mu_k<\mu_s$. Figure~\ref{fig:friction} shows the
+characteristic: a 45-degree ramp that saturates, then drops to the kinetic
+plateau. The \emph{angle of repose}\index{angle of repose} --- the steepest
+angle before slipping --- sets $\tan\theta_{\max}=\mu_s$, a fast way to
+measure $\mu_s$ with a protractor and patience.
+
+\begin{figure}[htbp]\centering
+\input{figures/ch02_friction}
+\caption{Static friction matches, saturates at $\mu_sN$, then drops to the
+kinetic level $\mu_kN$. Notice the discontinuity: ``friction is weaker once
+you're moving'' is why antilock brakes exist.}
+\label{fig:friction}
+\end{figure}
+
+\begin{checkpoint}[Friction direction is derived, not guessed]
+Two stacked blocks, the bottom one pushed: which way does friction act on
+the \emph{top} block? If you said ``opposes motion'', you've guessed ---
+friction on the top block points \emph{forward}: it's the only horizontal
+force on it, and it's what accelerates it.
+\end{checkpoint}
+
+\begin{example}[Conical pendulum]\label{ex:conical}
+A $0.5\,\mathrm{kg}$ mass on a $1.2\,\mathrm{m}$ string swings in a
+horizontal circle at $30^{\circ}$ from vertical. Find its speed and period.
+\par\smallskip
+\textbf{Strategy.} FBD has $mg$ and $T$ only; $T$'s horizontal component is
+the centripetal supply. Radius is $L\sin\theta$, not $L$.
+\begin{solution}
+Vertical: $T\cos\theta=mg\Rightarrow T=5.66\,\mathrm{N}$.
+Horizontal: $T\sin\theta=mv^{2}/r$ with $r=1.2\sin30^{\circ}=0.6$\,m:
+$v=\sqrt{Tr\sin\theta/m}=\sqrt{5.66\times0.6\times0.5/0.5}=1.84\,\mathrm{m/s}$.
+Period $\tau=2\pi r/v=2.05\,\mathrm{s}$ --- independent of the mass, a
+Galileo-clock property. \checkmark
+\end{solution}
+\end{example}
+
+\section{Drag: terminal velocity as a fixed point}\label{sec:new-drag}
+
+Drag opposes velocity with a strength that grows with speed: $cv$ (linear,
+small spheres at low Reynolds number) or $cv^{2}$ (quadratic, everything
+macroscopic in air or water). With quadratic drag,
+\[
+  m\dot v=mg-c_dv^{2}
+\]
+is an ODE with a \emph{fixed point}: at $v_t=\sqrt{mg/c_d}$ the right side
+vanishes and the fall settles. The closed form
+\[
+  v(t)=v_t\tanh\!\left(\frac{gt}{v_t}\right)
+\]
+reaches $76\%$ of $v_t$ at $t=v_t/g$ --- for an 80-kg skydiver with
+$c_d=0.30$, $v_t=51.1\,\mathrm{m/s}$, the answer a real dive converges to.
+
+\begin{example}[Deriving $v(t)$ for quadratic drag]\label{ex:dragderiv}
+Separate variables in $m\dot v=mg-c_dv^{2}$ and integrate.
+\par\smallskip
+\textbf{Strategy.} Write it as
+$\frac{dv}{g-cv^{2}/m}=dt$ and substitute $v_t^{2}=mg/c_d$ so the
+denominator is $g(1-v^{2}/v_t^{2})$ --- a standard form giving
+$\operatorname{artanh}$.
+\begin{solution}
+\[
+  \int\frac{dv}{1-v^{2}/v_t^{2}}=g\int dt
+  \;\Rightarrow\;
+  v_t\operatorname{artanh}\frac{v}{v_t}=gt
+  \;\Rightarrow\;
+  v(t)=v_t\tanh\frac{gt}{v_t}. \quad\checkmark
+\]
+The listing below confirms the derivation numerically --- Euler-Cromer
+converges to the analytic curve.
+\end{solution}
+\end{example}
+
+\begin{lstlisting}[language=Python,caption={\texttt{code/ch02\_drag\_fall.py} --- Euler-Cromer on quadratic drag vs the tanh solution.},label={lst:drag}]
+def eulercromer(cd_over_m, dt, t_end):
+    v, x, t = 0.0, 0.0, 0.0
+    while t < t_end:
+        v += (G - cd_over_m * v * v) * dt   # update velocity first
+        x += v * dt                          # then position with NEW v
+        t += dt
+    return v, x
+\end{lstlisting}
+
+Output of a real run ($m=80$\,kg, $c_d=0.30$\,kg/m):
+\begin{lstlisting}[numbers=none]
+terminal velocity analytic: 51.1208 m/s
+euler-cromer dt=0.5   v(20s)=51.0967 m/s  err=+0.0237  fall=858.0 m
+euler-cromer dt=0.1   v(20s)=51.0785 m/s  err=+0.0055  fall=841.8 m
+euler-cromer dt=0.01  v(20s)=51.0736 m/s  err=+0.0006  fall=838.1 m
+at t=vt/g=5.22s: v=38.9333 m/s = 76.2% of vt
+v=  5 m/s: linear drag a=1.000 m/s^2, quadratic a= 0.094 m/s^2
+v= 20 m/s: linear drag a=4.000 m/s^2, quadratic a= 1.500 m/s^2
+v= 50 m/s: linear drag a=10.000 m/s^2, quadratic a= 9.375 m/s^2
+\end{lstlisting}
+
+Notice the linear/quadratic crossover in the last lines: linear drag
+dominates slow objects, quadratic dominates fast ones --- a skydiver's
+$v_t$ sits in the quadratic regime (figure~\ref{fig:drag}).
+
+\begin{figure}[htbp]\centering
+\input{figures/ch02_drag}
+\caption{Drag deceleration vs speed for the two models. Terminal velocity
+is the fixed point where drag equals $g$ (marked, $v_t=51.1$\,m/s).}
+\label{fig:drag}
+\end{figure}
+
+\section{In engineering practice: load paths}\label{sec:new-eng}
+
+Every load-bearing design --- bridge truss, building frame, airframe ---
+is a walk through this chapter's FBD chain: gravity enters at the top,
+travels through members as tension and compression, and exits into the
+ground.
+Structural engineers literally draw the discipline of
+section~\ref{sec:new-fbd} as \emph{free-body cuts}: isolate a joint, draw
+the member forces, solve $\sum F=0$, repeat. The banked-curve analysis is
+the same trick highway designers run for every off-ramp, and the
+friction ceiling of figure~\ref{fig:friction} is why ABS brakes pump:
+holding the tire near $\mu_s$, not sliding on the weaker $\mu_k$ plateau.
+
+\section{Common mistakes}\label{sec:new-mistakes}
+
+\begin{tripwire}[$mv^{2}/r$ drawn as a force]
+It is the \emph{required net inward force}. If your FBD shows $mg$, $N$,
+\emph{and} a centripetal arrow, double-count.
+\end{tripwire}
+\begin{tripwire}[$N=mg$ on accelerating surfaces]
+$N$ is determined by the constraint, not by gravity. Elevator
+(example~\ref{ex:apparent}) and inclines (figure~\ref{fig:incline}) both
+violate $N=mg$.
+\end{tripwire}
+\begin{tripwire}[Guessing the friction direction]
+Friction opposes \emph{impending sliding at the contact} --- which can be
+forward, as the checkpoint's stacked blocks show. Derive it from the
+constraint, never from intuition about ``motion''.
+\end{tripwire}
+\begin{tripwire}[Third-law pairs on one body]
+The pair acts on \emph{different} bodies. ``Normal cancels gravity'' is not
+third-law bookkeeping --- those two are both on the block.
+\end{tripwire}
+\begin{tripwire}[Components before the FBD]
+Picking axes and decomposing first is backwards: enumerate the real forces
+on the real body, \emph{then} choose axes that simplify the algebra.
+\end{tripwire}
+
+\section{Summary}\label{sec:new-summary}
+
+\begin{table}[ht]\centering
+\begin{tabularx}{\linewidth}{@{}lY@{}}
+\toprule
+\tablehead\thead{Idea} & \thead{One-line version}\\
+\midrule
+three laws & inertial frames; $\sum\mathbf F=m\mathbf a$; pairs on different bodies \\
+FBD method & isolate, enumerate contacts, pick axes, write $\sum F$ per axis \\
+inclines & $mg\sin\theta$ drives, $N=mg\cos\theta$ only when surface is still \\
+constraints & rope length $\Rightarrow$ equal-$a$; contact $\Rightarrow$ $N\ge0$ \\
+circular dynamics & $\sum F_{\rm inward}=mv^{2}/r$; centripetal is a role, not a force \\
+friction & $f_s$ matches up to $\mu_sN$; $f_k=\mu_kN$; $\tan\theta_{\rm repose}=\mu_s$ \\
+drag & $cv$ or $cv^{2}$; fixed point $v_t=\sqrt{mg/c_d}$, $v=v_t\tanh(gt/v_t)$ \\
+\bottomrule
+\end{tabularx}
+\caption{Newton's laws cheat sheet.}
+\label{tab:newsummary}
+\end{table}
+
+\begin{wins}[Definition of done]
+You can now: draw a correct FBD for any of the five canonical cases; solve
+Atwood-style constraint problems; get the apparent weight in accelerating
+frames; apply $\sum F_{\rm inward}=mv^{2}/r$ to curves and pendulums;
+predict friction direction from the constraint; and derive + numerically
+verify terminal velocity under quadratic drag.
+\end{wins}
+
+\chapternotes{%
+The three-laws presentation and the FBD discipline follow MIT 8.01SC weeks
+2--4 \cite{ocw801} and AP Physics C unit 2 \cite{apced}. OpenStax College
+Physics chapters 4--6 \cite{openstax1} cover the same material with a large
+worked set. The banked-curve and conical-pendulum examples follow Morin
+chapters 1--3 \cite{morin}; the friction characteristic and repose angle are
+standard \cite{hrw}. Drag models and the tanh solution follow 8.01SC's
+resistive-media module; the skydiver numbers are representative, not
+measured.}
+
+\begin{rulebox}[{Watch instead}]
+\begin{enumerate}
+\item \emph{Newton's Laws} --- Walter Lewin, MIT 8.01x Lecture 6, 49:15,
+\url{https://youtu.be/oduZsA0Tk58} --- \S\ref{sec:new-laws}--\S\ref{sec:new-circ}
+at full length, same notation (accessed 2026-10-11).
+\item \emph{Types of forces and free body diagrams} --- Khan Academy, 8:03,
+\url{https://youtu.be/MaabUHLIIXA} --- the §\ref{sec:new-fbd} discipline in
+eight minutes (accessed 2026-10-11).
+\end{enumerate}
+\end{rulebox}
+
+\section*{Further reading}
+\addcontentsline{toc}{section}{Further reading}
+
+\begin{itemize}
+\item MIT OpenCourseWare, \emph{8.01SC Classical Mechanics}, weeks 2--4 ---
+Newton's laws, FBDs, friction and drag with recitation solutions. Free at
+\url{https://ocw.mit.edu}, course ``8.01SC'' (verified 2026-10-11).
+\item OpenStax, \emph{College Physics 2e}, ch.~4 ``Dynamics'' --- free text,
+a second pass at the same laws with more worked FBDs. At
+\url{https://openstax.org}, search ``College Physics 2e'' (verified 2026-10-11).
+\item College Board, \emph{AP Physics C: Mechanics CED}, Unit 2 --- the exam
+blueprint for this chapter's FR style. At
+\url{https://apstudents.collegeboard.org} (verified 2026-10-11).
+\item D.~Morin, \emph{Introduction to Classical Mechanics}, chs.~1--3 ---
+FBDs, statics and accelerated frames at the level this book is aiming for;
+ISBN 978-0521876223.
+\item The Physics Classroom, \emph{Newton's Laws} tutorial --- readable
+remediation for \S\ref{sec:new-laws}--\S\ref{sec:new-friction}, at
+\url{https://www.physicsclassroom.com/class/newtlaws} (verified 2026-10-11).
+\item Khan Academy, \emph{Forces and Newton's laws of motion} --- drills
+matching every section here, at
+\url{https://www.khanacademy.org/science/physics} (verified 2026-10-11).
+\end{itemize}
+
+\section*{Additional exercises}
+\addcontentsline{toc}{section}{Additional exercises}
+
+\begin{exercise}[easy]
+Which of these belongs on a block-on-table FBD: (a) gravity on the block,
+(b) the block's pull on the table, (c) friction on the block, (d) the
+block's weight on the table. Justify each keep/drop. (AP-C)
+\end{exercise}
+\begin{exercise}[easy]
+When does $N=mg\cos\theta$ hold on an incline? Give a case where it fails.
+(AP-C)
+\end{exercise}
+\begin{exercise}[easy]
+A $70\,\mathrm{kg}$ engineer weighs ``70\,kg'' on Earth. Convert to SI force;
+then compute what a scale reads on the Moon ($g=1.6\,\mathrm{m/s^{2}}$)
+and inside an elevator accelerating down at $3\,\mathrm{m/s^{2}}$. (AP-C)
+\end{exercise}
+\begin{exercise}[easy]
+A rope holds a $10\,\mathrm{kg}$ mass static. Find the tension; find it
+again while the mass accelerates up at $2\,\mathrm{m/s^{2}}$. (F=ma)
+\end{exercise}
+\begin{exercise}[easy]
+A car's brakes can produce deceleration $0.8g$ on dry pavement
+($\mu_k=0.8$). Estimate $\mu_k$ on ice if the same car needs $5\times$ the
+dry distance to stop. (AP-C)
+\end{exercise}
+\begin{exercise}[medium]
+Two stacked blocks: $m=2\,\mathrm{kg}$ on $M=5\,\mathrm{kg}$, frictionless
+floor, $\mu_s=0.4$ between them. What is the largest horizontal force on
+$M$ for which $m$ does not slip? (F=ma)
+\end{exercise}
+\begin{exercise}[medium]
+Conical pendulum redux: keep $L$ and $\theta$ of
+example~\ref{ex:conical} but double the mass. Which of $v$, $T$, $\tau$
+change, and how? (AP-C)
+\end{exercise}
+\begin{exercise}[medium]
+Atwood on a table: $m_1=2\,\mathrm{kg}$ on a frictionless table linked over
+a pulley to hanging $m_2=3\,\mathrm{kg}$. Find $a$ and $T$; repeat with
+$\mu_k=0.2$ on the table. (AP-C)
+\end{exercise}
+\begin{exercise}[medium]
+The elevator of example~\ref{ex:apparent} accelerates at
+$+2\,\mathrm{m/s^{2}}$ for $3$\,s, cruises, then brakes at
+$-3\,\mathrm{m/s^{2}}$ to rest. Sketch the scale reading vs.\ time, and
+compute the peak reading. (F=ma)
+\end{exercise}
+\begin{exercise}[medium]
+Show that on the banked curve of example~\ref{ex:banked}, the minimum speed
+with friction is
+$v_{\min}^{2}=rg\,\frac{\sin\theta-\mu_s\cos\theta}{\cos\theta+\mu_s\sin\theta}$,
+and evaluate it. What happens when $\mu_s\ge\tan\theta$? (F=ma)
+\end{exercise}
+\begin{exercise}[medium]
+A skydiver with $c_d/m=0.004\,\mathrm{m^{-1}}$ reaches $v_t$; estimate
+$v_t$, the time to $90\%\,v_t$, and the distance fallen by then. (APhO-style)
+\end{exercise}
+\begin{exercise}[hard]
+A rope of mass $m$ and length $L$ lies on a frictionless table with a
+length $x$ hanging over the edge. Show its acceleration is $a=gx/L$ and
+find $x(t)$ --- the classic variable-length element problem. (USAPhO-style)
+\end{exercise}
+\begin{exercise}[hard]
+A wedge of mass $M$ and angle $\theta$ is free to slide on a frictionless
+floor; a block $m$ slides on its frictionless face. Set up the four
+equations (two bodies, two axes + constraint) and solve for both
+accelerations. (APhO-style)
+\end{exercise}
+\begin{exercise}[hard]
+Estimate the maximum range of a projectile under quadratic drag:
+linearise for small $c_d v_0^{2}/(mg)$ and show the leading correction to
+the no-drag range is $-\tfrac{4}{3}c_d v_0^{3}/(m^{2}g^{2})\cdot(\text{shape
+factor})$. Compare with the 36.6\% loss the ch01 code printed at
+$k=0.02$. (USAPhO-style)
+\end{exercise}
+\begin{exercise}[medium]
+Rederive the angle-of-repose rule: show that a block on an incline starts
+sliding exactly when $\tan\theta=\mu_s$, and use it to compute $\mu_s$ if
+sliding starts at $22^{\circ}$. (AP-C)
+\end{exercise}

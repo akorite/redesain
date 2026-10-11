@@ -1,0 +1,8 @@
+\begin{tikzpicture}
+\begin{axis}[width=8.5cm,height=5cm,xlabel={$x$ (m)},ylabel={$F$ (N)},
+xmin=0,xmax=10,ymin=0,ymax=6,xtick={0,2,4,6,8,10},font=\small]
+\addplot[fill=accent!15,draw=none,domain=0:8] {4 - 0.3*x} \closedcycle;
+\addplot[very thick,accent,domain=0:8] {4 - 0.3*x};
+\node[font=\scriptsize] at (axis cs:3.5,1.2) {$W=\displaystyle\int F\,dx$};
+\end{axis}
+\end{tikzpicture}

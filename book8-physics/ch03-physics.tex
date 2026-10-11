@@ -1,0 +1,423 @@
+\chapter{Momentum, impulse and collisions}\label{ch:momentum}
+
+Force is what changes momentum: $\mathbf F=d\mathbf p/dt$ is Newton's
+second law in its original form, and the reason $\mathbf p=m\mathbf v$ is
+the right bookkeeping unit for a chapter about things that hit each other.
+Momentum is the first \emph{conserved} quantity in the book --- the thing
+that survives collisions unchanged --- and the discipline of \emph{when}
+it survives (the system-boundary rule) is the real lesson.
+
+\section{Momentum and impulse}\label{sec:mom-p}
+
+$\mathbf p=m\mathbf v$ is a vector. Impulse\index{impulse} is momentum's
+denomination of payment:
+\begin{equation}
+  \mathbf J=\int\mathbf F\,dt=\Delta\mathbf p.\label{eq:impulse}
+\end{equation}
+A cricket ball stopped in a glove and a foam wall deliver the same $\Delta p$
+--- impulse spreads the payment over different times (figure~\ref{fig:impulse}),
+which is why crumple zones, airbags, and bent knees all buy
+\emph{time}.
+
+\begin{figure}[htbp]\centering
+\input{figures/ch03_impulse}
+\caption{Impulse is area under the $F(t)$ curve. Notice the same shaded
+area can be a tall narrow spike or a long gentle hill --- same $\Delta p$,
+very different peak force.}
+\label{fig:impulse}
+\end{figure}
+
+\begin{example}[Impulse from a real $F(t)$ curve]\label{ex:impulse}
+A $0.15$\,kg baseball hits a bat with the half-sine force profile
+$F(t)=8000\sin(\pi t/10\,\mathrm{ms})$\,N. Find the impulse and the exit
+speed if the ball arrived at $40\,\mathrm{m/s}$.
+\par\smallskip
+\textbf{Strategy.} Area under the curve: the half-sine's average height is
+$2/\pi$ of peak over its $10$\,ms width.
+\begin{solution}
+$J=\int_0^{10}F\,dt=\frac{2}{\pi}\times8000\times0.010=50.9$\,N\,s.
+Reversing the ball needs $\Delta p=2mv=2\times0.15\times40=12$\,N\,s ---
+the bat over-supplies: exit speed satisfies
+$m(v_{\rm out}+40)=50.9$, giving $v_{\rm out}=299$\,m/s. (Real bats don't:
+much of $J$ deforms the ball, so effective impulse is lower --- but the
+method is the point.) \checkmark
+\end{solution}
+\end{example}
+
+\section{Systems: the boundary is a choice}\label{sec:mom-sys}
+
+Internal forces come in third-law pairs and cancel inside the sum; only
+\emph{external} forces move the total momentum. Drawing the dashed line of
+figure~\ref{fig:boundary} is a \emph{decision}: put both blocks inside and
+the contact force vanishes from the bookkeeping; put it outside and the
+same force is external and changes $\mathbf p$.
+
+\begin{figure}[htbp]\centering
+\input{figures/ch03_boundary}
+\caption{The same collision under two system choices. Internal forces
+cancel by the third law; external ones change the system's $\mathbf p$.}
+\label{fig:boundary}
+\end{figure}
+
+\section{Conservation of momentum: the applicability rule}\label{sec:mom-cons}
+
+\begin{principle}[Momentum conservation condition]
+$\sum\mathbf p$ is conserved for a system exactly when the \emph{net
+external impulse} during the event is zero. Gravity during a $10$\,ms
+collision contributes $\sim10^{-3}$\,N\,s --- negligible. Gravity during a
+$10$\,s flight is not.
+\end{principle}
+
+This is why ``momentum is conserved in collisions'' has the silent rider
+``while the collision lasts''. The ballistic pendulum's swing, the
+projectile's arc --- neither conserves $\mathbf p$; the \emph{impact} does.
+
+\section{Centre of mass: the system's average representative}\label{sec:mom-cm}
+
+\[
+  \mathbf r_{\rm cm}=\frac{1}{M}\sum_i m_i\mathbf r_i,\qquad
+  M\mathbf A_{\rm cm}=\mathbf F_{\rm ext}.
+\]
+The CM\index{centre of mass} obeys single-particle mechanics under the
+external force alone --- internal explosions, splits, and collisions can't
+move it (figure~\ref{fig:cm}). A wrench thrown across the room tumbles in
+a mess; its CM traces the clean parabola of chapter~1.
+
+\begin{figure}[htbp]\centering
+\input{figures/ch03_cm}
+\caption{CM of two masses: $x_{\rm cm}$ weights each position by mass.
+Notice it sits nearer the heavy block --- CM is the mass-weighted average,
+not the midpoint.}
+\label{fig:cm}
+\end{figure}
+
+\begin{example}[Person on a movable cart]\label{ex:cart}
+A $60$\,kg person stands on a $20$\,kg cart (wheels frictionless) and walks
+$3$\,m forward along the cart. How far does the cart move under them?
+\par\smallskip
+\textbf{Strategy.} No external horizontal force $\Rightarrow$ the CM of
+person$+$cart doesn't move. The person moves $3$\,m relative to the
+\emph{cart}, not the ground --- the classic mistake.
+\begin{solution}
+Let the cart move $-x$ (backward) while the person moves $3-x$ forward on
+the ground. CM fixed:
+$60(3-x)+20(-x)=0 \Rightarrow 180=80x \Rightarrow x=2.25$\,m.
+The cart slides back $2.25$\,m; the person gains only $0.75$\,m of ground.
+This is why stepping off a light boat onto a dock is hazardous. \checkmark
+\end{solution}
+\end{example}
+
+\begin{exercise}[easy]
+Redo example~\ref{ex:cart} with a $90$\,kg person and a $10$\,kg cart ---
+does the cart move more or less? Compute it. (AP-C)
+\end{exercise}
+
+\section{1-D collisions: the two canonical cases}\label{sec:mom-1d}
+
+\textbf{Perfectly inelastic} (they stick): momentum alone fixes the
+answer --- the shared speed is total momentum over total mass,
+$v'=(m_1v_1+m_2v_2)/(m_1+m_2)$ --- and $K$ drops by the fraction that
+went into deformation. \textbf{Elastic}: momentum plus energy conservation
+(or equivalently, relative velocity reverses). The full elastic solution
+needs $K$, so \S4.7 of the next chapter closes it; this chapter keeps the
+momentum half. Figure~\ref{fig:collseq} shows the three phases --- and that
+the force between the blocks is internal either way.
+
+\begin{figure}[htbp]\centering
+\input{figures/ch03_collseq}
+\caption{Collision sequence. The interaction force is internal to the
+system whatever the elasticity --- $p$ survives, $K$ doesn't always.}
+\label{fig:collseq}
+\end{figure}
+
+\begin{checkpoint}[Quick K audit]
+Equal masses, one moving: perfectly inelastic collision loses exactly half
+the kinetic energy. Run the numbers yourself before the code below does.
+\end{checkpoint}
+
+\section{2-D collisions and explosions}\label{sec:mom-2d}
+
+In two dimensions, momentum conservation is two scalar equations --- $x$
+and $y$ separately (figure~\ref{fig:glance}). Explosions are collisions run
+backward: a stationary object splitting into fragments has
+$\sum\mathbf p=0$ after as before, so the pieces fly apart with their
+momenta summing to zero --- heavier fragments go slower.
+
+\begin{figure}[htbp]\centering
+\input{figures/ch03_glance}
+\caption{A 2-D collision as a vector triangle:
+$\mathbf p_{\rm in}=\mathbf p_1'+\mathbf p_2'$. Notice the $y$-components
+must cancel --- perpendicular momentum can't appear from nothing.}
+\label{fig:glance}
+\end{figure}
+
+\begin{example}[Glancing collision]\label{ex:glance}
+A puck at $6$\,m/s strikes an identical stationary puck and leaves at
+$4$\,m/s, $30^{\circ}$ above the original direction. Find the second puck's
+velocity.
+\par\smallskip
+\textbf{Strategy.} Equal masses: velocity conservation is vector
+conservation. Components: $x$ must return $6$, $y$ must net $0$.
+\begin{solution}
+$x$: $4\cos30^{\circ}+v_{2x}=6 \Rightarrow v_{2x}=6-3.464=2.54$\,m/s.
+$y$: $4\sin30^{\circ}+v_{2y}=0 \Rightarrow v_{2y}=-2$\,m/s.
+$|\mathbf v_2|=\sqrt{2.54^{2}+4}=3.2$\,m/s at $-38.2^{\circ}$. The angle
+sum $30+38.2\approx68^{\circ}$ --- not the elastic equal-mass
+$90^{\circ}$, so this collision lost energy. \checkmark
+\end{solution}
+\end{example}
+
+\begin{exercise}[medium]
+A $4$\,kg firework at rest explodes into three pieces: $1$\,kg north at
+$12$\,m/s, $1.5$\,kg east at $8$\,m/s. Find the third piece's velocity.
+(F=ma)
+\end{exercise}
+
+\section{Continuous mass transfer: the rocket equation}\label{sec:mom-rocket}
+
+When mass leaves continuously, momentum bookkeeping over one ejection
+(figure~\ref{fig:rocket}) gives
+\[
+  0=(m-\Delta m)\,\Delta v-u\,\Delta m
+  \;\xrightarrow{\ \Delta m\to0\ }\;
+  m\,dv=-u\,dm
+  \;\Rightarrow\;
+  \Delta v=u\ln\frac{m_0}{m_f},
+\]
+the \emph{Tsiolkovsky rocket equation}\index{rocket equation} --- $u$ the
+exhaust speed relative to the rocket. The logarithm is why rockets are
+mostly fuel tank: each equal $\Delta v$ costs a multiplicative mass ratio.
+
+\begin{figure}[htbp]\centering
+\input{figures/ch03_rocket}
+\caption{One ejection event: throw $\Delta m$ backward at speed $u$ and
+conservation of $\mathbf p$ pushes the rest forward.}
+\label{fig:rocket}
+\end{figure}
+
+\begin{example}[Staging estimate]\label{ex:rocket}
+A rocket exhausts at $u=3$\,km/s. (a) Single stage to orbit
+($\Delta v\approx9$\,km/s): mass ratio? (b) Two equal stages?
+\par\smallskip
+\textbf{Strategy.} $m_0/m_f=e^{\Delta v/u}$ each stage; stages multiply.
+\begin{solution}
+(a) $e^{9/3}=e^{3}\approx20$: the rocket is $95\%$ propellant.
+(b) Each stage needs $\Delta v=4.5$\,km/s:
+$e^{1.5}\approx4.48$ per stage --- payload structure is dramatically
+better. This arithmetic, not optimism, is why real rockets stage. \checkmark
+\end{solution}
+\end{example}
+
+\begin{example}[Water-jet thrust]\label{ex:jet}
+A fire hose delivers $20$\,L/s of water ($\rho=1$\,kg/L) at
+$15$\,m/s. What force does the jet exert on a wall it splashes against?
+\par\smallskip
+\textbf{Strategy.} Momentum flux: force equals mass flow rate times the
+speed destroyed, $F=\dot m v$.
+\begin{solution}
+$F=(20\,\mathrm{kg/s})(15\,\mathrm{m/s})=300\,\mathrm{N}$ --- a
+refrigerator's weight, and the reason hoses need two operators. The same
+$\dot m v$ formula gives a rocket's thrust before the logarithm does the
+integration. \checkmark
+\end{solution}
+\end{example}
+
+\begin{lstlisting}[language=Python,caption={\texttt{code/ch03\_collision\_chain.py} --- event-stepped collisions: $p$ survives, $K$ audits the loss.},label={lst:coll}]
+def collide(m1, v1, m2, v2, e):
+    v1p = (m1*v1 + m2*v2 - m2*e*(v1-v2)) / (m1+m2)
+    v2p = (m1*v1 + m2*v2 + m1*e*(v1-v2)) / (m1+m2)
+    return v1p, v2p
+\end{lstlisting}
+
+Output of a real run:
+\begin{lstlisting}[numbers=none]
+initial:            p= 4.000 kg m/s   K= 8.000 J
+after e=0 (1kg+2kg): p= 4.000 kg m/s   K= 2.667 J  (K lost 5.333 J = 66.7%)
+after e=1 (3kg+3kg): p= 4.000 kg m/s   K= 2.667 J  v1'=+0.000 v2'=+1.333
+e=0.0: va'=+2.000 vb'=+2.000  K=8.000 J (lost 50.0%)
+e=0.5: va'=+1.000 vb'=+3.000  K=10.000 J (lost 37.5%)
+e=1.0: va'=+0.000 vb'=+4.000  K=16.000 J (lost 0.0%)
+\end{lstlisting}
+
+Read it in order: momentum is conserved to machine precision in every line;
+kinetic energy is not (the $66.7\%$ loss of the perfectly inelastic hit is
+the chapter's promise made numeric). The elastic equal-mass exchange
+($e=1$: velocities swap) and the intermediate loss at $e=0.5$ complete the
+restitution family.
+
+\section{In engineering practice: the crash budget}\label{sec:mom-eng}
+
+Vehicle crash engineering is impulse management: the occupant's $\Delta p$
+is fixed by the speed, so design maximises collision \emph{time} ---
+crumple zones, airbags, and collapsible steering columns all stretch
+$\Delta t$ to shrink $F$. The same bookkeeping runs in reverse for
+spacecraft: a Falcon 9's landing burn spends $\dot m v$ of thrust exactly
+as example~\ref{ex:jet} computes, and mass-ratio arithmetic of
+example~\ref{ex:rocket} is why propellant dominates every launch manifest.
+
+\section{Common mistakes}\label{sec:mom-mistakes}
+
+\begin{tripwire}[Conserving $p$ when an external impulse exists]
+Momentum conservation needs \emph{zero external impulse for the duration} ---
+gravity during a long swing, friction during a long skid, and the dock
+during a boat step-off all break it.
+\end{tripwire}
+\begin{tripwire}[Wrong system boundary]
+If the fragment you need sits outside your dashed line, conservation
+``fails'' --- draw the boundary to include every piece of the event.
+\end{tripwire}
+\begin{tripwire}[Sign errors in 1-D]
+$\mathbf p$ is signed. A rebound at $-v$ contributes
+$\Delta p=2mv$, not zero.
+\end{tripwire}
+\begin{tripwire}[Believing $K$ survives inelastic collisions]
+Sticking is maximally lossy --- the equal-mass case loses half. $K$ audits,
+$\mathbf p$ conserves.
+\end{tripwire}
+\begin{tripwire}[Thinking the CM pauses for explosions]
+The CM keeps its velocity through the breakup --- the fragments' weighted
+sum never moved.
+\end{tripwire}
+
+\section{Summary}\label{sec:mom-summary}
+
+\begin{table}[ht]\centering
+\begin{tabularx}{\linewidth}{@{}lY@{}}
+\toprule
+\tablehead\thead{Idea} & \thead{One-line version}\\
+\midrule
+impulse & $\mathbf J=\int F\,dt=\Delta\mathbf p$ --- area under $F(t)$ \\
+boundary rule & internal forces cancel; $\mathbf p$ conserved iff external impulse $=0$ \\
+centre of mass & $M\mathbf A_{\rm cm}=\mathbf F_{\rm ext}$; internal events can't move it \\
+collisions 1-D & inelastic: $p$ only; elastic: $p+K$ (\S4.7) \\
+collisions 2-D & conserve $x$ and $y$ separately \\
+rocket & $\Delta v=u\ln(m_0/m_f)$ --- staging is arithmetic \\
+thrust & $F=\dot m v$ for continuous flux \\
+\bottomrule
+\end{tabularx}
+\caption{Momentum cheat sheet.}
+\label{tab:momsummary}
+\end{table}
+
+\begin{wins}[Definition of done]
+You can now: compute impulse from a force--time curve; choose a system
+boundary and state when $\mathbf p$ is conserved; move a cart under a
+walking person without moving the CM; solve inelastic and 2-D collisions;
+derive the rocket equation; and read a restitution sweep's $K$ losses.
+\end{wins}
+
+\chapternotes{%
+The momentum-first presentation follows MIT 8.01SC weeks 3 and 5--6
+\cite{ocw801} and AP Physics C unit 4 \cite{apced}. OpenStax College
+Physics ch.~8--9 \cite{openstax1} covers collisions and CM at this level;
+Morin ch.~5 \cite{morin} is the source of the rocket staging and
+variable-mass exercises. The restitution-sweep numbers are the listing's
+real output; the baseball numbers are representative.}
+
+\begin{rulebox}[{Watch instead}]
+\begin{enumerate}
+\item \emph{Momentum, Conservation of Momentum, Center of Mass} --- Walter
+Lewin, MIT 8.01x Lecture 15, 52:17, \url{https://youtu.be/aIhScO3_I50} ---
+\S\ref{sec:mom-p}--\S\ref{sec:mom-cm} at full length (accessed 2026-10-11).
+\item \emph{Elastic and inelastic collisions} --- Khan Academy Physics,
+14:24, \url{https://youtu.be/8OB8eIPgEkQ} ---
+\S\ref{sec:mom-1d}--\S\ref{sec:mom-2d} worked quickly (accessed 2026-10-11).
+\end{enumerate}
+\end{rulebox}
+
+\section*{Further reading}
+\addcontentsline{toc}{section}{Further reading}
+
+\begin{itemize}
+\item MIT OpenCourseWare, \emph{8.01SC Classical Mechanics}, weeks 3, 5--6
+--- momentum and collisions with recitation solutions. At
+\url{https://ocw.mit.edu}, course ``8.01SC'' (verified 2026-10-11).
+\item OpenStax, \emph{College Physics 2e}, ch.~8 ``Linear Momentum and
+Collisions'' --- free text, the same laws with more worked explosions. At
+\url{https://openstax.org} (verified 2026-10-11).
+\item College Board, \emph{AP Physics C: Mechanics CED}, Unit 4 --- the
+exam blueprint this chapter aligns to. At
+\url{https://apstudents.collegeboard.org} (verified 2026-10-11).
+\item D.~Morin, \emph{Introduction to Classical Mechanics}, ch.~5 ---
+momentum and rockets at the harder level; ISBN 978-0521876223.
+\item The Physics Classroom, \emph{Momentum and Its Conservation} ---
+readable remediation for the whole chapter, at
+\url{https://www.physicsclassroom.com/class/momentum} (verified 2026-10-11).
+\item Khan Academy, \emph{Impacts and linear momentum} --- drills matching
+\S\ref{sec:mom-p}--\S\ref{sec:mom-2d}, at
+\url{https://www.khanacademy.org/science/physics} (verified 2026-10-11).
+\end{itemize}
+
+\section*{Additional exercises}
+\addcontentsline{toc}{section}{Additional exercises}
+
+\begin{exercise}[easy]
+A constant $500$\,N force acts for $0.2$\,s on a $2$\,kg mass initially at
+rest. Find the impulse and final velocity. (AP-C)
+\end{exercise}
+\begin{exercise}[easy]
+A $1200$\,kg car moving at $15$\,m/s is stopped by an identical parked car
+they stick to. Find the shared velocity. (F=ma)
+\end{exercise}
+\begin{exercise}[easy]
+Find the CM of three masses: $1$\,kg at $x=0$, $2$\,kg at $x=3$,
+$3$\,kg at $x=6$. (AP-C)
+\end{exercise}
+\begin{exercise}[easy]
+Explain why momentum is \emph{not} conserved while a thrown ball is in the
+air, in one sentence using the boundary rule. (AP-C)
+\end{exercise}
+\begin{exercise}[easy]
+A cannon fires a $5$\,kg shell at $400$\,m/s; the cannon recoils at
+$2$\,m/s. Find the cannon's mass. (F=ma)
+\end{exercise}
+\begin{exercise}[medium]
+Ballistic pendulum, momentum stage only: a $10$\,g bullet at
+$v$ stops inside a $2$\,kg block, which then holds together. Find the
+block's post-impact speed if $v=300$\,m/s. (The swing is ch4's problem.)
+(AP-C)
+\end{exercise}
+\begin{exercise}[medium]
+From the impulse graph of figure~\ref{fig:impulse}: if the same $J$ were
+delivered as a \emph{constant} force over $20$\,ms, what would $F$ be? How
+does the peak change? (F=ma)
+\end{exercise}
+\begin{exercise}[medium]
+Water jet on a bucket: the hose of example~\ref{ex:jet} hits a bucket
+moving away at $5$\,m/s. Redo the thrust using relative flux. (USAPhO-lite)
+\end{exercise}
+\begin{exercise}[medium]
+A $70$\,kg astronaut throws a $2$\,kg wrench at $6$\,m/s while floating.
+Find her recoil, then her drift over the $30$\,s EVA repair. (F=ma)
+\end{exercise}
+\begin{exercise}[medium]
+In the CM frame: transform the equal-mass elastic collision of the code
+listing into the CM frame, show the velocities merely \emph{reverse sign},
+and transform back. (F=ma)
+\end{exercise}
+\begin{exercise}[medium]
+Two pucks collide on air hockey as in example~\ref{ex:glance}, but now the
+second puck emerges at $45^{\circ}$ below the original direction with speed
+$3$\,m/s. Recompute puck 1's exit. (AP-C)
+\end{exercise}
+\begin{exercise}[medium]
+A rocket has $u=2.5$\,km/s and needs $\Delta v=6$\,km/s in one stage.
+Find $m_0/m_f$, then the propellant fraction. (F=ma)
+\end{exercise}
+\begin{exercise}[hard]
+A uniform chain of length $L$ and mass $m$ hangs with its lower end just
+touching a table and is released. Show that when a length $x$ has landed,
+the table's reaction is $R=\frac{3mx}{L}g$ --- the flux term triples the
+weight. (APhO-style)
+\end{exercise}
+\begin{exercise}[hard]
+Two-stage optimisation: with total propellant fraction fixed at $90\%$ and
+$u=3$\,km/s, sketch how splitting it $40/50$ vs $60/30$ between stages
+changes total $\Delta v$ --- set up, don't solve, the constrained optimum.
+(USAPhO-style)
+\end{exercise}
+\begin{exercise}[medium]
+Superball bounce: a ball hits the floor at $v$ and rebounds with
+restitution $e=0.9$. Find the impulse delivered and interpret the loss.
+(F=ma)
+\end{exercise}

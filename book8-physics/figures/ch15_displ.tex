@@ -1,0 +1,12 @@
+\begin{tikzpicture}[scale=0.95,font=\scriptsize]
+\draw[very thick] (-2,-0.8) -- (-0.4,-0.8);
+\draw[very thick] (-2,0.8) -- (-0.4,0.8);
+\draw[very thick] (-0.4,-0.8) -- (-0.4,0.8);
+\draw[very thick] (0.4,-0.8) -- (0.4,0.8);
+\draw[very thick] (0.4,-0.8) -- (2,-0.8);
+\draw[very thick] (0.4,0.8) -- (2,0.8);
+\draw[->,thick,accent] (-2.6,0) -- (-2.1,0) node[left]{$I$};
+\foreach \y in {-0.4,0,0.4}{\draw[->,amber] (-0.4,\y) -- (0.4,\y);}
+\draw[dashed] (0.7,0) circle (0.9);
+\node[align=left] at (0,-1.5) {no charge crosses the gap ---\\but $\varepsilon_0d\Phi_E/dt=I$ does the counting};
+\end{tikzpicture}

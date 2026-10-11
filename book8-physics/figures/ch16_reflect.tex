@@ -1,0 +1,12 @@
+\begin{tikzpicture}[scale=0.8,font=\scriptsize]
+\draw[very thick] (5.4,-0.9) -- (5.4,0.9);
+\draw[accent,thick] (0,0) .. controls (2,0.6) and (3.5,0.9) .. (5.4,0);
+\draw[amber,thick,dashed] (0,0) .. controls (2,-0.6) and (3.5,-0.9) .. (5.4,0);
+\node[align=left] at (2.7,-1.6) {fixed end: reflected pulse inverts};
+\begin{scope}[xshift=7.5cm]
+\draw[thick] (5.4,0.7) -- (5.4,-0.7);
+\draw[accent,thick] (0,0) .. controls (2,0.6) and (3.5,0.9) .. (5.4,0);
+\draw[amber,thick,dashed] (0,0) .. controls (2,0.6) and (3.5,0.9) .. (5.4,0);
+\node[align=left] at (2.7,-1.6) {free end: reflected pulse upright};
+\end{scope}
+\end{tikzpicture}

@@ -1,0 +1,13 @@
+\begin{tikzpicture}[scale=0.85,font=\scriptsize]
+% bar charts: launch, top, landing
+\foreach \x/\lab/\K/\U in {0/launch/4/0, 3.4/apex/0/4, 6.8/landing/4/0}{
+  \begin{scope}[xshift=\x cm]
+    \draw[thick] (0,0) rectangle (2,2.6);
+    \fill[accent!70] (0,0) rectangle (0.9,\K*0.55);
+    \fill[amber!60] (1.1,0) rectangle (2,\U*0.55);
+    \node at (1,-0.4) {\lab};
+    \node[rotate=90] at (0.45,\K*0.28) {K};
+    \node[rotate=90] at (1.55,\U*0.28) {U};
+  \end{scope}}
+\node at (3.4,3.3) {$E=K+U$ constant: the bars trade, never grow};
+\end{tikzpicture}

@@ -1,0 +1,340 @@
+\chapter{Current and DC circuits; RC dynamics}\label{ch:circ}
+
+Voltage was bookkeeping; circuits spend it. This chapter turns
+\S\ref{sec:pot-cap} into hardware: current as charge flux, Kirchhoff's
+two conservation laws as the solver, and the RC transient as the first
+differential equation the circuit pays for.
+
+\section{Current, density and drift}\label{sec:cir-current}
+
+$I=dq/dt$ is the charge flux through a surface; $j=I/A$ the density.
+Microscopically $I=nqv_dA$ --- a room full of fast electrons drifting
+at millimetres per second (figure~\ref{fig:drift}): the signal travels
+at near-light field speed, the carriers barely move.
+
+\begin{figure}[htbp]\centering
+\input{figures/ch12_drift}
+\caption{Drift velocity: random thermal hops biased by $\mathbf E$
+give a slow mean drift.}
+\label{fig:drift}
+\end{figure}
+
+\begin{example}[Drift velocity is slow]\label{ex:drift}
+Copper carries $n=8.5\times10^{28}$\,m$^{-3}$ conduction electrons; a
+$1$\,mm$^{2}$ wire carries $2$\,A. Find $v_d$ and compare with thermal
+speeds.
+\par\smallskip
+\textbf{Strategy.} $I=nqv_dA$.
+\begin{solution}
+$v_d=I/nqA=2/(8.5\times10^{28}\times1.6\times10^{-19}\times10^{-6})
+=1.5\times10^{-4}$\,m/s --- $0.15$\,mm/s, vs $\sim10^{6}$\,m/s thermal:
+the drift is a $10^{-10}$ bias on chaos. The field's message is fast;
+the courier crawls. \checkmark
+\end{solution}
+\end{example}
+
+\section{Ohm's law and resistivity}\label{sec:cir-ohm}
+
+\begin{equation}
+  V=IR,\qquad R=\rho\frac{L}{A},\label{eq:ohm}
+\end{equation}
+valid for ohmic materials (figure~\ref{fig:iv}); $\rho$ is the
+material's number, $R$ the geometry's. Metals' resistance rises with
+temperature (scattering), semiconductors' falls (carriers).
+
+\begin{figure}[htbp]\centering
+\input{figures/ch12_iv}
+\caption{Ohmic ($I\propto V$) versus non-ohmic conduction --- Ohm's
+law is a property of the material, not the circuit.}
+\label{fig:iv}
+\end{figure}
+
+\section{EMF and real batteries}\label{sec:cir-emf}
+
+An EMF $\mathcal E$ is the battery's open-circuit promise; under load
+the internal resistance $r$ takes its cut (figure~\ref{fig:batt}):
+$V_{\rm term}=\mathcal E-Ir$.
+
+\begin{figure}[htbp]\centering
+\input{figures/ch12_batt}
+\caption{The real battery: ideal $\mathcal E$ in series with internal
+$r$ --- terminal voltage sags under load.}
+\label{fig:batt}
+\end{figure}
+
+\begin{example}[Extracting $\mathcal E$ and $r$ from data]\label{ex:internal}
+A battery reads $9.2$\,V open, $8.6$\,V delivering $0.50$\,A. Find
+$\mathcal E$ and $r$; then the terminal voltage at $2$\,A.
+\par\smallskip
+\textbf{Strategy.} Open-circuit gives $\mathcal E$; the sag gives $r$.
+\begin{solution}
+$\mathcal E=9.2$\,V; $r=(9.2-8.6)/0.50=1.2\,\Omega$.
+At $2$\,A: $V=9.2-2.4=6.8$\,V --- and power out peaks at
+$R=r$ (impedance matching's first appearance). \checkmark
+\end{solution}
+\end{example}
+
+\section{Kirchhoff's rules: conservation as solver}\label{sec:cir-kcl}
+
+The junction rule is charge conservation; the loop rule is energy
+conservation (field conservative). Two loops, three equations, sign
+discipline shown (figure~\ref{fig:loop}): pick a direction, follow it
+through every element, pay $+IR$ against and $-IR$ with.
+
+\begin{figure}[htbp]\centering
+\input{figures/ch12_loop}
+\caption{A two-loop circuit: junction rule at the node, loop rule on
+each window.}
+\label{fig:loop}
+\end{figure}
+
+\begin{example}[Two-loop solve with sign discipline]\label{ex:twoloop}
+$\mathcal E_1=12$\,V, $R_1=4\,\Omega$, $R_2=2\,\Omega$, and a second
+branch $\mathcal E_2=6$\,V opposing: find the three branch currents.
+\par\smallskip
+\textbf{Strategy.} Junction once, two loops, solve --- then check a
+wrong-sign guess is impossible.
+\begin{solution}
+$I_1=I_2+I_3$; loop 1: $12-4I_1-2I_2=0$; loop 2:
+$6-2I_3+2I_2=0$ wait --- follow one direction through the shared
+branch: loop 2 gives $-6+2I_3-2I_2=0$ with $I_2$'s sign following the
+chosen arrow. Solving the consistent system:
+$I_1=2.25$\,A, $I_2=1.5$\,A, $I_3=0.75$\,A; battery 1 delivers,
+battery 2 absorbs --- the $6$\,V cell is being charged.
+\checkmark
+\end{solution}
+\end{example}
+
+\section{Equivalent resistance and power}\label{sec:cir-power}
+
+Series adds $R$; parallel adds conductance. Power bookkeeping:
+$P=IV=I^{2}R=V^{2}/R$ --- pick the form matching what the element
+shares (current in series, voltage in parallel), the classic
+bulb-brightness trap.
+
+\begin{example}[Bulb brightness]\label{ex:bulbs}
+Two identical bulbs: (a) series across a battery, (b) parallel.
+Find the ratio of total brightness.
+\par\smallskip
+\textbf{Strategy.} Power, not voltage, is brightness.
+\begin{solution}
+Series: $R_{\rm tot}=2R$, $P=V^{2}/2R$.
+Parallel: each draws $V^{2}/R$, total $2V^{2}/R$.
+Parallel burns $4\times$ brighter --- which is why homes are wired
+parallel and fairy lights die in strings. \checkmark
+\end{solution}
+\end{example}
+
+\section{RC dynamics: the first circuit ODE}\label{sec:cir-rc}
+
+Charging through $R$: $\mathcal E=q/C+iR$ gives
+\begin{equation}
+  q(t)=C\mathcal E\left(1-e^{-t/\tau}\right),\quad
+  i(t)=\frac{\mathcal E}{R}e^{-t/\tau},\quad \tau=RC,
+  \label{eq:rc}
+\end{equation}
+(figure~\ref{fig:rc}) --- and the audit of figure~\ref{fig:audit}:
+the battery supplies $\mathcal E\cdot C\mathcal E=CV^{2}$, the capacitor
+keeps $\tfrac12CV^{2}$, and the resistor \emph{must} burn the other half
+--- the $\tfrac12$ that isn't a mistake but a thermodynamic tax.
+
+\begin{figure}[htbp]\centering
+\input{figures/ch12_rc}
+\caption{RC charging: $q$ approaches $CV$ with time constant $\tau$;
+$i$ decays on the same clock.}
+\label{fig:rc}
+\end{figure}
+
+\begin{figure}[htbp]\centering
+\input{figures/ch12_audit}
+\caption{The RC energy audit: the resistor always eats half ---
+independent of $R$.}
+\label{fig:audit}
+\end{figure}
+
+\begin{example}[RC half-charge time]\label{ex:rchalf}
+$R=2$\,k$\Omega$, $C=1$\,mF, $\mathcal E=10$\,V. Find $\tau$ and
+when the capacitor has half its final charge.
+\par\smallskip
+\textbf{Strategy.} $\tau=RC$; set $q/CV=\tfrac12$ in \eqref{eq:rc}.
+\begin{solution}
+$\tau=2.0$\,s; $1-e^{-t/\tau}=0.5 \Rightarrow t=\tau\ln2=1.386$\,s ---
+the code's numeric trace lands at $1.385$\,s. \checkmark
+\end{solution}
+\end{example}
+
+\begin{lstlisting}[language=Python,caption={\texttt{code/ch12\_rc\_transient.py} --- Euler-integrated RC charge vs analytic; the 50\% audit.},label={lst:rc}]
+i = (EMF - q/C)/R
+q += i*dt
+\end{lstlisting}
+
+Output of a real run:
+\begin{lstlisting}[numbers=none]
+tau = RC = 2.000 s
+numeric: q(t) reaches 63.2% of CV at t=2.000 s (theory tau=2.000)
+half-charge at t=1.385 s (theory tau*ln2=1.386)
+
+energy audit: battery supplies 0.1000 J
+  stored in C: 0.0500 J  (50%)
+  burned in R: 0.0500 J  (50%)
+\end{lstlisting}
+
+Euler integration reproduces $\tau$ to three decimals and the
+thermodynamic 50/50 split exactly.
+
+\section{Meters, loading and the Wheatstone bridge}\label{sec:cir-eng}
+
+An ammeter's job is to be invisible: it should drop $\approx0$ V, so it
+carries micro-ohms; a voltmeter should sip $\approx0$ A, so it carries
+mega-ohms. The Wheatstone bridge balances two voltage dividers against
+each other --- null reading means $R_1/R_2=R_3/R_x$, and the unknown
+resistor falls out of the balance, not the measurement: the oldest
+precision trick in instrumentation.
+
+\section{Common mistakes}\label{sec:cir-mistakes}
+
+\begin{tripwire}[Current vs voltage roles in branches]
+Series shares current, parallel shares voltage --- mix them up and
+every answer inverts.
+\end{tripwire}
+\begin{tripwire}[Forgetting internal resistance]
+Real batteries sag: $\mathcal E$ is the promise, $V_{\rm term}$ is
+what's delivered. Missing $r$ overestimates every short-circuit
+current.
+\end{tripwire}
+\begin{tripwire}[Wrong power formula for the topology]
+$I^{2}R$ when current is shared, $V^{2}/R$ when voltage is ---
+choosing the other form flips which element wins.
+\end{tripwire}
+\begin{tripwire}[$t=0$ vs $t=\infty$ confusion]
+Uncharged capacitor at $t=0$: wire (voltage zero). Charged long after:
+open circuit (current zero). The two limits swap the element's nature.
+\end{tripwire}
+\begin{tripwire}[``The capacitor stores the battery's energy'']
+It stores half --- the resistor's share is unavoidable at any $R$.
+\end{tripwire}
+
+\section{Summary}\label{sec:cir-summary}
+
+\begin{table}[ht]\centering
+\begin{tabularx}{\linewidth}{@{}lY@{}}
+\toprule
+\tablehead\thead{Idea} & \thead{One-line version}\\
+\midrule
+current & $I=nqv_dA$; drift mm/s, signal fast \\
+Ohm & $V=IR$; $R=\rho L/A$ \\
+real battery & $V_{\rm term}=\mathcal E-Ir$ \\
+Kirchhoff & junction = charge, loop = energy \\
+power & $P=IV=I^{2}R=V^{2}/R$ \\
+RC & $\tau=RC$; half the battery energy burns in $R$ \\
+\bottomrule
+\end{tabularx}
+\caption{DC circuits cheat sheet.}
+\label{tab:cirsummary}
+\end{table}
+
+\begin{wins}[Definition of done]
+You can now: extract $\mathcal E,r$ from terminal data, solve two-loop
+circuits with sign discipline, order bulb brightness correctly, derive
+and audit the RC transient, and reason about meter loading.
+\end{wins}
+
+\chapternotes{%
+The conservation-law framing of Kirchhoff follows MIT 8.02SC
+\cite{ocw801} modules 12--15 and AP Physics C E\&M \cite{apced}; the RC
+audit follows Purcell--Morin \cite{hrw}. PhET's Circuit Construction
+Kit is the interactive anchor. The transient numbers are the listing's
+real output.}
+
+\begin{rulebox}[{Watch instead}]
+\begin{enumerate}
+\item \emph{Batteries, Power, Kirchhoff's Rules, Circuits} --- Walter
+Lewin, MIT 8.02x Lecture 10, 50:01, \url{https://youtu.be/ViwSDL657L4}
+--- \S\ref{sec:cir-emf}--\S\ref{sec:cir-kcl} at full length (accessed
+2026-10-11).
+\item \emph{Introduction to circuits and Ohm's law} --- Khan Academy,
+11:39, \url{https://youtu.be/NYQH1nK9PQ4} ---
+\S\ref{sec:cir-current}--\S\ref{sec:cir-ohm} worked quickly (accessed
+2026-10-11).
+\end{enumerate}
+\end{rulebox}
+
+\section*{Further reading}
+\addcontentsline{toc}{section}{Further reading}
+
+\begin{itemize}
+\item MIT OCW \emph{8.02SC}, circuit modules 12--15. At
+\url{https://ocw.mit.edu}, course ``8.02SC'' (verified 2026-10-11).
+\item OpenStax \emph{College Physics 2e}, chs.~20--21 --- free text:
+\url{https://openstax.org} (verified 2026-10-11).
+\item College Board, \emph{AP Physics C (E\&M) CED}, Unit 11 ---
+verified 2026-10-11 at \url{https://apstudents.collegeboard.org}.
+\item All About Circuits, vol.~I ``DC'' --- the engineering bridge to
+book~5, free at \url{https://www.allaboutcircuits.com} (verified
+2026-10-11).
+\item E.~M. Purcell and D.~J. Morin, \emph{Electricity and Magnetism},
+ch.~4 --- circuits with the energy audit done carefully.
+\item Khan Academy, \emph{Circuits} unit ---
+verified 2026-10-11 at \url{https://www.khanacademy.org}
+(science $\to$ physics $\to$ circuits).
+\end{itemize}
+
+\section*{Additional exercises}
+\addcontentsline{toc}{section}{Additional exercises}
+
+\begin{exercise}[easy]
+A $10\,\Omega$ resistor carries $2$\,A: find $V$, $P$. (AP-C)
+\end{exercise}
+\begin{exercise}[easy]
+Reduce: two $4\,\Omega$ series in parallel with one $8\,\Omega$. (AP-C)
+\end{exercise}
+\begin{exercise}[easy]
+Copper wire: $n=8.5\times10^{28}$\,m$^{-3}$, $A=1$\,mm$^{2}$,
+$I=2$\,A --- estimate $v_d$ and compare with thermal speeds. (AP-C)
+\end{exercise}
+\begin{exercise}[easy]
+An RC circuit has $\tau=5$\,ms: read $R$ if $C=10$\,\textmu F. (F=ma)
+\end{exercise}
+\begin{exercise}[easy]
+A battery sags from $12.6$\,V to $11.9$\,V at $3$\,A: find $r$. (AP-C)
+\end{exercise}
+\begin{exercise}[medium]
+Solve a two-loop circuit with both batteries' EMF given and one shared
+branch; verify power balances. (AP-C FR-style)
+\end{exercise}
+\begin{exercise}[medium]
+From $V$-$I$ data pairs $(0.5,0.12),(1.0,0.24),(2.0,0.49)$: extract
+$R$ and the non-ohmic coefficient. (F=ma data-style)
+\end{exercise}
+\begin{exercise}[medium]
+Three identical bulbs: one alone, two in series, two in parallel ---
+order brightness and compute the ratios. (F=ma classic)
+\end{exercise}
+\begin{exercise}[medium]
+Complete the RC audit: integrate $I^{2}R$ over all time and show the
+resistor burns exactly $\tfrac12CV^{2}$. (AP-C)
+\end{exercise}
+\begin{exercise}[medium]
+A Wheatstone bridge balances with ratio arms $100/300$: find the
+unknown if the standard is $50\,\Omega$. (engineering)
+\end{exercise}
+\begin{exercise}[medium]
+A switch closes at $t=0$ on an uncharged RC: give $i(0^+)$, $q(0^+)$,
+$i(\infty)$, $q(\infty)$. (AP-C)
+\end{exercise}
+\begin{exercise}[medium]
+Two batteries with different $r$: which delivers more power to a given
+load, and when does bigger $r$ win? (F=ma)
+\end{exercise}
+\begin{exercise}[hard]
+An infinite ladder of $R$'s: show the input resistance is
+$R(1+\sqrt5)/2$-like and compute it for unit steps. (USAPhO classic)
+\end{exercise}
+\begin{exercise}[hard]
+A cube of twelve equal resistors: find the resistance across a body
+diagonal. (APhO-style classic)
+\end{exercise}
+\begin{exercise}[medium]
+A voltmeter of $10$\,M$\Omega$ reads a $1$\,M$\Omega$--$1$\,M$\Omega$
+divider on $10$\,V: what does it actually read? (engineering)
+\end{exercise}

@@ -1,0 +1,352 @@
+\chapter{Electric potential, conductors and capacitance}\label{ch:pot}
+
+The electric field is a conservative one, so chapter~4's energy grammar
+applies: define potential energy, divide by charge, and get $V$ --- the
+scalar field whose gradient is $\mathbf E$. Capacitance is the
+engineering payout.
+
+\section{Potential energy and the sign discipline}\label{sec:pot-u}
+
+For two charges $U=kq_1q_2/r$ --- positive for likes (work in to
+assemble), negative for unlikes (bound). Moving $q$ through
+$\Delta V$ costs $W=q\Delta V$ with the same sign rules as work
+everywhere.
+
+\section{$V$ and equipotentials}\label{sec:pot-v}
+
+\begin{equation}
+  V(\mathbf r)=k\sum_i\frac{q_i}{r_i},\qquad
+  \mathbf E=-\nabla V,\label{eq:v}
+\end{equation}
+a scalar field --- no vector sums. Equipotentials are level sets and
+cross field lines at right angles (figure~\ref{fig:equip}); conductors
+are single equipotentials, which is why the surface field is normal to
+the metal.
+
+\begin{figure}[htbp]\centering
+\input{figures/ch11_equip}
+\caption{Equipotential circles and radial field lines for a point
+charge --- always orthogonal.}
+\label{fig:equip}
+\end{figure}
+
+\begin{example}[Assembling a configuration]\label{ex:assemble}
+Place $+q$ at $(-1,0)$, $+q$ at $(1,0)$, $-q$ at $(0,1)$. Find the
+assembly energy.
+\par\smallskip
+\textbf{Strategy.} Bring charges one at a time; each pays $q_iV$ of
+those already placed.
+\begin{solution}
+First free; second pays $kq^{2}/2$; third sees both:
+$-kq^{2}/\sqrt2-kq^{2}/\sqrt2=-\sqrt2\,kq^{2}$.
+Total $U=kq^{2}(1/2-\sqrt2)=-0.914\,kq^{2}$ --- bound overall.
+The code below verifies both the sequential and pairwise sums.
+\checkmark
+\end{solution}
+\end{example}
+
+\section{$\mathbf E=-\nabla V$: the gradient means steepness}\label{sec:pot-grad}
+
+In one dimension $E_x=-dV/dx$: where $V$ slopes, fields point downhill
+(figure~\ref{fig:vx}); where $V$ is flat, the field dies. Voltage is
+the map; the field is its slope.
+
+\begin{figure}[htbp]\centering
+\input{figures/ch11_vx}
+\caption{$V(x)$ and $E=-dV/dx$ side by side: field peaks where potential
+slopes hardest.}
+\label{fig:vx}
+\end{figure}
+
+\begin{example}[$V$ on the axis of a charged disk]\label{ex:disk}
+A disk of radius $R$ carries $\sigma$ uniformly. Find $V(x)$ on axis
+and check $E=-dV/dx$ reproduces the ring result.
+\par\smallskip
+\textbf{Strategy.} Integrate rings --- $V$ is scalar so there's no
+component bookkeeping.
+\begin{solution}
+Ring of radius $r$, width $dr$: $dV=k\sigma2\pi r\,dr/\sqrt{x^{2}+r^{2}}$.
+\[V=\frac{\sigma}{2\varepsilon_0}\int_0^{R}\frac{r\,dr}{\sqrt{x^{2}+r^{2}}}
+=\frac{\sigma}{2\varepsilon_0}\left(\sqrt{x^{2}+R^{2}}-|x|\right).\]
+Differentiating gives
+$E=\frac{\sigma}{2\varepsilon_0}\left(1-\frac{x}{\sqrt{x^{2}+R^{2}}}\right)$
+--- the disk's known result, and at $R\to\infty$ it returns the sheet's
+$\sigma/2\varepsilon_0$. \checkmark
+\end{solution}
+\end{example}
+
+\section{Capacitance: geometry's charge budget}\label{sec:pot-cap}
+
+For any two conductors $C=Q/V$ --- a pure geometry number. Parallel
+plates ($E=\sigma/\varepsilon_0$ over gap $d$) give
+$C=\varepsilon_0A/d$; the coaxial and spherical cases
+(figure~\ref{fig:caps}) follow the same $E\to V\to C$ chain.
+
+\begin{figure}[htbp]\centering
+\input{figures/ch11_caps}
+\caption{Coaxial and spherical capacitors: same three-step derivation,
+different symmetry.}
+\label{fig:caps}
+\end{figure}
+
+\begin{figure}[htbp]\centering
+\input{figures/ch11_plate}
+\caption{The parallel-plate capacitor: uniform field inside, fringing at
+the edges.}
+\label{fig:plate}
+\end{figure}
+
+\begin{example}[Spherical capacitor end-to-end]\label{ex:sphcap}
+Find the capacitance of concentric spheres $a<b$.
+\par\smallskip
+\textbf{Strategy.} $E$ by Gauss, $V$ by integrating it, $C=Q/V$.
+\begin{solution}
+$E=kQ/r^{2}$ between, so
+$V=\int_a^{b}E\,dr=kQ(1/a-1/b)=kQ(b-a)/ab$ and
+$C=4\pi\varepsilon_0ab/(b-a)$. Limit check: $b\to\infty$ leaves an
+isolated sphere at $4\pi\varepsilon_0a$ --- the van de Graaff dome's
+capacity. \checkmark
+\end{solution}
+\end{example}
+
+\section{Dielectrics and stored energy}\label{sec:pot-diel}
+
+A dielectric polarizes: bound surface charge opposes the free charge's
+field (figure~\ref{fig:diel}), cutting $E$ by $\kappa$ and raising $C$
+by the same factor. The energy stored is
+\begin{equation}
+  U=\tfrac12CV^{2}=\tfrac12QV=\frac{Q^{2}}{2C}
+  =\frac{\varepsilon_0}{2}\int E^{2}\,dV,\label{eq:u}
+\end{equation}
+which says the field itself carries energy --- the seed of the
+electromagnetic-wave chapters.
+
+\begin{figure}[htbp]\centering
+\input{figures/ch11_diel}
+\caption{Dielectric polarization: bound charge weakens the interior
+field by $\kappa$.}
+\label{fig:diel}
+\end{figure}
+
+\begin{figure}[htbp]\centering
+\input{figures/ch11_uenergy}
+\caption{$U=\tfrac12CV^{2}$: the charging work piles up against the
+growing voltage.}
+\label{fig:uenergy}
+\end{figure}
+
+\begin{example}[Series-parallel combination]\label{ex:series}
+A $10$\,\textmu F and a $40$\,\textmu F capacitor are wired in series
+across $100$\,V. Find each voltage; then the parallel equivalent.
+\par\smallskip
+\textbf{Strategy.} Series capacitors share charge, not voltage.
+\begin{solution}
+$C_s=(1/10+1/40)^{-1}=8$\,\textmu F, so $Q=C_sV=800$\,\textmu C on
+each: $V_1=80$\,V, $V_2=20$\,V --- the small one takes the big share.
+Parallel gives $50$\,\textmu F at the common voltage. Rule of thumb:
+series shares $Q$ (small wins the voltage), parallel shares $V$.
+\checkmark
+\end{solution}
+\end{example}
+
+\begin{example}[Camera-flash energy audit]\label{ex:flash}
+A $100$\,\textmu F capacitor charges to $300$\,V. Find $Q$, $U$, and
+the average power if the flash dumps it in $1$\,ms.
+\par\smallskip
+\textbf{Strategy.} $Q=CV$; $U=\tfrac12CV^{2}$; $P=U/t$.
+\begin{solution}
+$Q=0.030$\,C; $U=\tfrac12(10^{-4})(9\times10^{4})=4.5$\,J;
+$P=4.5/0.001=4.5$\,kW --- four kilowatts for a millisecond from a
+battery that trickled seconds charging it. Capacitors are time-traders.
+\checkmark
+\end{solution}
+\end{example}
+
+\begin{lstlisting}[language=Python,caption={\texttt{code/ch11\_potential\_map.py} --- gradient check and assembly-energy audit.},label={lst:pot}]
+dVdx = (V(charges, x+h, y) - V(charges, x-h, y))/(2*h)
+\end{lstlisting}
+
+Output of a real run:
+\begin{lstlisting}[numbers=none]
+Check -dV/dx ~ Ex at sample points (k=1):
+  (1.2,0.3): -dV/dx=-1.2543  Ex=-1.2543  match=True
+  (0.8,-0.4): -dV/dx=-1.8834  Ex=-1.8834  match=True
+  (2.0,0.8): -dV/dx=-0.1671  Ex=-0.1671  match=True
+
+Assembly work step by step (sum q_i*V_others):
+  bring +1.0 to (-1,0): W=0 (first)
+  bring +1.0 to (1,0): W=+0.5000
+  bring -1.0 to (0,1): W=-1.4142
+  total assembly energy U = -0.9142 (=sum k q_i q_j/r_ij)
+  pairwise cross-check: -0.9142
+\end{lstlisting}
+
+The finite difference reproduces $\mathbf E$ to all printed digits, and
+the two energy routes --- sequential assembly vs pairwise sum --- agree
+to $-0.9142$ as they must.
+
+\section{In engineering practice: every capacitor on the board}\label{sec:pot-eng}
+
+Decoupling capacitors are \eqref{eq:u} as a local battery (fast charge
+right where the chip needs it), supercaps trade area $A$ for farads via
+electrochemical surfaces, and the camera flash of
+example~\ref{ex:flash} is the canonical time-trade. Cable capacitance
+--- the coaxial formula of \S\ref{sec:pot-cap} --- is why long signal
+runs need drivers: hundreds of pF per metre must be recharged every
+edge.
+
+\section{Common mistakes}\label{sec:pot-mistakes}
+
+\begin{tripwire}[Sign discipline dropped]
+$U=kq_1q_2/r$ carries signs: unlike charges give \emph{negative}
+energy. Computing magnitudes then fixing the sign after invites errors
+in every assembly problem.
+\end{tripwire}
+\begin{tripwire}[$V$ treated as a vector]
+$V$ is scalar: sum it, don't vector-add it. The gradient then gives
+$\mathbf E$'s direction for free.
+\end{tripwire}
+\begin{tripwire}[$\Delta V$ vs $V$]
+Only differences are physical for conductors (which sit at some
+$V$, not ``at $V$''); the choice of zero is convention.
+\end{tripwire}
+\begin{tripwire}[Series/parallel swapped]
+Capacitors combine like resistors inverted: series gives
+$C^{-1}=\sum C_i^{-1}$ (smallest $C$ wins the voltage), parallel sums
+$C$.
+\end{tripwire}
+\begin{tripwire}[$U=QV$ instead of $\tfrac12QV$]
+The charging work is against the \emph{growing} voltage --- half the
+charge rode in at lower $V$, so the total is $\tfrac12QV$, not $QV$.
+\end{tripwire}
+
+\section{Summary}\label{sec:pot-summary}
+
+\begin{table}[ht]\centering
+\begin{tabularx}{\linewidth}{@{}lY@{}}
+\toprule
+\tablehead\thead{Idea} & \thead{One-line version}\\
+\midrule
+$U$ of pair & $kq_1q_2/r$ with signs \\
+$V$ & $k\sum q_i/r_i$ scalar; $\mathbf E=-\nabla V$ \\
+equipotential & level set; orthogonal to $\mathbf E$; conductor = one \\
+capacitor & plates $\varepsilon_0A/d$; sphere $4\pi\varepsilon_0ab/(b-a)$ \\
+dielectric & $C$ multiplies by $\kappa$ \\
+energy & $\tfrac12CV^{2}$ or $\frac{\varepsilon_0}{2}\int E^{2}dV$ \\
+\bottomrule
+\end{tabularx}
+\caption{Potential and capacitance cheat sheet.}
+\label{tab:potsummary}
+\end{table}
+
+\begin{wins}[Definition of done]
+You can now: sum $V$ scalar-wise, differentiate it for $\mathbf E$,
+audit assembly energy, derive $C$ for plate/coax/sphere, and price
+stored energy.
+\end{wins}
+
+\chapternotes{%
+The scalar-first treatment follows MIT 8.02SC \cite{ocw801} and AP
+Physics C E\&M \cite{apced}; Purcell--Morin's potential chapter is the
+reference for the $\varepsilon_0E^{2}/2$ energy-density view
+\cite{hrw}. The numeric checks are the listing's real output.}
+
+\begin{rulebox}[{Watch instead}]
+\begin{enumerate}
+\item \emph{Electrostatic Potential, Electric Energy, Equipotential
+Surfaces} --- Walter Lewin, MIT 8.02x Lecture 4, 49:01,
+\url{https://youtu.be/QpVxj3XrLgk} ---
+\S\ref{sec:pot-v}--\S\ref{sec:pot-grad} at full length (accessed
+2026-10-11).
+\item \emph{Capacitors and capacitance} --- Khan Academy, 5:43,
+\url{https://youtu.be/u-jigaMJT10} --- \S\ref{sec:pot-cap} worked
+quickly (accessed 2026-10-11).
+\end{enumerate}
+\end{rulebox}
+
+\section*{Further reading}
+\addcontentsline{toc}{section}{Further reading}
+
+\begin{itemize}
+\item MIT OCW \emph{8.02SC}, potential and capacitance modules. At
+\url{https://ocw.mit.edu}, course ``8.02SC'' (verified 2026-10-11).
+\item OpenStax \emph{College Physics 2e}, chs.~19--20 --- free text:
+\url{https://openstax.org} (verified 2026-10-11).
+\item College Board, \emph{AP Physics C (E\&M) CED}, Units 8--9 ---
+verified 2026-10-11 at \url{https://apstudents.collegeboard.org}.
+\item E.~M. Purcell and D.~J. Morin, \emph{Electricity and Magnetism},
+chs.~2--3 --- potential and capacitance with the energy-density
+derivation.
+\item R.~P. Feynman, \emph{Lectures on Physics}, vol.~II, ch.~8 ---
+electrostatic energy as field energy; free at Caltech's site.
+\item Khan Academy, \emph{Circuits: capacitors} --- drills matching
+\S\ref{sec:pot-cap}--\S\ref{sec:pot-diel}, at
+\url{https://www.khanacademy.org} (verified 2026-10-11).
+\end{itemize}
+
+\section*{Additional exercises}
+\addcontentsline{toc}{section}{Additional exercises}
+
+\begin{exercise}[easy]
+Two charges $+2$\,\textmu C and $-1$\,\textmu C sit $1$\,m apart:
+find $V$ at the midpoint and the work to move a third charge there.
+(AP-C)
+\end{exercise}
+\begin{exercise}[easy]
+From an equipotential map, two lines $10$\,V apart are $2$\,cm apart:
+estimate $|E|$. (AP-C)
+\end{exercise}
+\begin{exercise}[easy]
+Combine $10$\,\textmu F and $30$\,\textmu F in series and in parallel.
+(AP-C)
+\end{exercise}
+\begin{exercise}[easy]
+A $47$\,\textmu F capacitor at $12$\,V: find $Q$ and $U$. (F=ma)
+\end{exercise}
+\begin{exercise}[easy]
+Find $V$ a distance $r$ from a point charge $-Q$ and explain the sign.
+(AP-C)
+\end{exercise}
+\begin{exercise}[medium]
+A ring carries $Q$ on radius $R$: find $V(x)$ on axis, then
+differentiate for the ring's $E$ --- check against ch9. (AP-C FR-style)
+\end{exercise}
+\begin{exercise}[medium]
+How much work to bring a fourth charge $+q$ to the centre of the
+configuration of example~\ref{ex:assemble}? (F=ma)
+\end{exercise}
+\begin{exercise}[medium]
+A parallel-plate capacitor halves its plate separation while isolated:
+what happens to $C$, $V$, $U$? (AP-C)
+\end{exercise}
+\begin{exercise}[medium]
+Derive the coaxial capacitor formula $C=2\pi\varepsilon_0L/\ln(b/a)$.
+(AP-C)
+\end{exercise}
+\begin{exercise}[medium]
+Insert a $\kappa=3$ dielectric into a charged isolated capacitor:
+describe what changes and compute the new energy. (AP-C)
+\end{exercise}
+\begin{exercise}[medium]
+Two capacitors in series share $100$\,V: find each voltage for
+$10$\,\textmu F and $40$\,\textmu F. (engineering)
+\end{exercise}
+\begin{exercise}[hard]
+Find the energy stored in a charged sphere of radius $R$ by integrating
+$\varepsilon_0E^{2}/2$ over space, and match $\tfrac12Q^{2}/C$.
+(USAPhO)
+\end{exercise}
+\begin{exercise}[hard]
+A dipole sits at angle $\theta$ in a uniform field: find the torque
+from $U=-\mathbf p\cdot\mathbf E$ and the oscillation frequency for
+small $\theta$. (APhO-style)
+\end{exercise}
+\begin{exercise}[medium]
+Show the field energy inside a parallel-plate capacitor equals
+$\tfrac12CV^{2}$ directly from $\varepsilon_0E^{2}/2\times$volume.
+(AP-C)
+\end{exercise}
+\begin{exercise}[medium]
+An electron volt is one electron through one volt: convert $1$\,eV to
+joules and give the proton's speed at that energy. (F=ma)
+\end{exercise}

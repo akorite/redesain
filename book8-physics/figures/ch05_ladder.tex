@@ -1,0 +1,11 @@
+\begin{tikzpicture}[scale=1.0,force/.style={->,thick,accent}]
+\draw[thick] (0,0) -- (0,4); \draw[thick] (0,0) -- (3.5,0);
+\draw[very thick] (0,0.2) -- (2.6,3.8);
+\fill (1.3,2.0) circle (0.06);
+\draw[force] (1.3,2.0) -- (1.3,0.9) node[right,font=\scriptsize]{$mg$};
+\draw[force] (0,0.2) -- (0.7,0.2) node[right,font=\scriptsize]{$f$};
+\draw[force] (0,0.2) -- (0,0.95) node[above,font=\scriptsize]{$N_1$};
+\draw[force] (2.6,3.8) -- (1.9,3.8) node[left,font=\scriptsize]{$N_2$};
+\draw (0.55,0) arc (0:55:0.55); \node[font=\scriptsize] at (0.8,0.35) {$\theta$};
+\node[font=\scriptsize,align=left] at (4.3,3.0) {smart pivot: base ---\\kills $f$ and $N_1$};
+\end{tikzpicture}

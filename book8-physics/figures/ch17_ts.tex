@@ -1,0 +1,9 @@
+\begin{tikzpicture}
+\begin{axis}[width=8cm,height=4.6cm,xlabel={$S$},ylabel={$T$},
+xmin=0.5,xmax=3.5,ymin=0.5,ymax=3,font=\small,xtick=\empty,ytick=\empty]
+\draw[very thick,accent] (axis cs:1,1) rectangle (axis cs:3,2.4);
+\draw[->,thick] (axis cs:1.6,2.4) -- (axis cs:2.6,2.4);
+\draw[->,thick] (axis cs:1.6,1.0) -- (axis cs:1.0,1.0);
+\node[align=center,font=\scriptsize] at (axis cs:2,1.7) {Carnot:\\rectangle on $T$--$S$};
+\end{axis}
+\end{tikzpicture}

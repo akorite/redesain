@@ -1,0 +1,9 @@
+\begin{tikzpicture}
+\begin{axis}[width=7.5cm,height=4.6cm,xlabel={$V$},ylabel={$I$},
+xmin=0,xmax=10,ymin=0,ymax=6,font=\small,legend pos=north west]
+\addplot[very thick,accent,domain=0:10] {0.5*x};
+\addlegendentry{ohmic}
+\addplot[very thick,amber,domain=0:10,samples=60] {0.5*x+0.02*x^2};
+\addlegendentry{non-ohmic}
+\end{axis}
+\end{tikzpicture}

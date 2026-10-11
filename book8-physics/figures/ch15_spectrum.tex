@@ -1,0 +1,7 @@
+\begin{tikzpicture}[scale=0.9,font=\scriptsize]
+\draw[very thick] (0,0) -- (9.4,0);
+\foreach \x/\l in {0.4/radio, 2.4/micro, 4.0/IR, 5.2/{visible}, 6.4/UV, 7.6/X, 8.8/$\gamma$}{
+\draw[thick] (\x,-0.15) -- (\x,0.15) node[above]{\l};}
+\draw[fill=accent!30] (4.7,0.0) rectangle (5.7,0.25);
+\node[align=left] at (4.7,-0.6) {$\lambda$: km $\to$ pm, one physics};
+\end{tikzpicture}

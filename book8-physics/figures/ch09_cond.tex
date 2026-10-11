@@ -1,0 +1,10 @@
+\begin{tikzpicture}[scale=0.9,font=\scriptsize]
+\draw[very thick,rounded corners] (-2.5,-1) rectangle (-0.5,1);
+\node at (-1.5,0.6) {conductor};
+\foreach \x in {-2.2,-1.8,-1.4,-1.0,-0.6}{\node[amber] at (\x,-0.8) {$+$};}
+\node at (-1.5,-1.5) {$E$ inside $=0$; charge lives on skin};
+\draw[very thick,rounded corners] (0.8,-1) rectangle (2.8,1);
+\node at (1.8,0.6) {insulator};
+\foreach \x/\y in {1.1/-0.5, 1.5/0.2, 1.9/-0.3, 2.3/0.4, 2.5/-0.6}{\node[amber] at (\x,\y) {$+$};}
+\node at (1.8,-1.5) {charge stays where rubbed};
+\end{tikzpicture}

@@ -1,0 +1,8 @@
+\begin{tikzpicture}[scale=0.9,font=\scriptsize]
+\draw[->,thick] (-2.5,0) -- (2.7,0) node[right]{$\mathbf B$};
+\draw[very thick,accent,domain=-1.2:1.2,samples=80] plot (\x,{0.8*cos(360*\x)});
+\draw[dashed] (-2.5,-0.8) -- (2.5,-0.8);
+\draw[dashed] (-2.5,0.8) -- (2.5,0.8);
+\node at (0,-1.5) {helix: circle $\perp\mathbf B$ + drift $\parallel\mathbf B$};
+\node[align=left] at (0,-1.5) {};
+\end{tikzpicture}

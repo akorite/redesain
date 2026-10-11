@@ -1,0 +1,446 @@
+\chapter{Work, energy and power}\label{ch:energy}
+
+Force is local; energy is the accounting trick that lets you skip the
+details. $W=\int\mathbf F\cdot d\mathbf r$ accumulates what forces deposit,
+$K=\tfrac12mv^{2}$ is the currency it arrives in, and potential energy is
+the bank where conservative forces store it. The chapter's payoff is the
+right to answer ``how fast'' without ever solving for the trajectory.
+
+\section{Work: force collected along a path}\label{sec:en-work}
+
+\begin{equation}
+  W=\int\mathbf F\cdot d\mathbf r.\label{eq:work}
+\end{equation}
+Work is a \emph{path integral}: only the force component along the motion
+counts. The centripetal force of \S1.5 does \emph{no} work --- always
+perpendicular, always at right angles to $d\mathbf r$, which is why
+uniform circular motion keeps its speed. Figure~\ref{fig:work} is the
+one-dimensional version: area under $F(x)$.
+
+\begin{figure}[htbp]\centering
+\input{figures/ch04_work}
+\caption{Work as area under the $F(x)$ curve. Notice variable forces need
+the integral; the constant-force $W=Fd\cos\theta$ is only its rectangle.}
+\label{fig:work}
+\end{figure}
+
+\section{The work--kinetic-energy theorem}\label{sec:en-wke}
+
+Start from $\mathbf F=m\,d\mathbf v/dt$ and dot with $d\mathbf r$:
+\[
+  \mathbf F\cdot d\mathbf r
+   =m\frac{d\mathbf v}{dt}\cdot d\mathbf r
+   =m\,\mathbf v\cdot d\mathbf v
+   =d\!\left(\tfrac12mv^{2}\right),
+\]
+so
+\begin{equation}
+  W_{\rm net}=\Delta K.\label{eq:wke}
+\end{equation}
+Every joule of net work reappears exactly as kinetic energy --- the
+theorem is a tautology dressed as a tool, and it works for any path,
+including ones too ugly to integrate force over directly.
+
+\section{Potential energy: where conservative forces bank work}\label{sec:en-pe}
+
+A force is \emph{conservative} when the work it does depends only on the
+endpoints. Then you can declare a stored quantity:
+$\Delta U=-W_{\rm by\ force}$. The two workhorses:
+\[
+  U_g=mgy,\qquad U_s=\tfrac12kx^{2}.
+\]
+Friction fails the test --- the longer the path, the more it takes --- so
+there is no ``potential energy of friction''; its work leaves the
+mechanical books entirely (section~\ref{sec:en-noncons}).
+
+\begin{figure}[htbp]\centering
+\input{figures/ch04_ux}
+\caption{Reading a $U(x)$ diagram. With $E$ fixed, motion lives where
+$K=E-U>0$; the turning point is where the parabola meets the line. The
+restoring force is $-dU/dx$, the slope reversed.}
+\label{fig:ux}
+\end{figure}
+
+\section{Conservation of mechanical energy --- and its failure modes}\label{sec:en-cons}
+
+When only conservative forces work,
+\begin{equation}
+  K_i+U_i=K_f+U_f.\label{eq:emech}
+\end{equation}
+Figure~\ref{fig:bars} is the account statement: the bars trade height,
+never total. The failure modes are equally instructive: friction converts,
+deformation absorbs, and anything with a motor adds from outside --- all
+of them break equation~\eqref{eq:emech}, all handled by
+section~\ref{sec:en-noncons}'s audit.
+
+\begin{figure}[htbp]\centering
+\input{figures/ch04_bars}
+\caption{Energy bars along a trajectory: $K$ and $U$ trade, the sum
+doesn't move.}
+\label{fig:bars}
+\end{figure}
+
+\begin{example}[Minimum release height for the loop-the-loop]\label{ex:loop}
+A cart starts from rest at height $h$ on a frictionless track containing a
+loop of radius $r$ (figure~\ref{fig:loop}). Minimum $h$ to make it
+around?
+\par\smallskip
+\textbf{Strategy.} Two chapters meet: energy sets speeds
+(equation~\eqref{eq:emech}), circular dynamics (ch2) sets the requirement
+--- at the top, $N\ge0$ means $v^{2}\ge gr$.
+\begin{solution}
+Top of loop is at height $2r$; borderline case has $v_{\rm top}^{2}=gr$.
+Energy: $mgh=mg(2r)+\tfrac12m\,gr$, so
+\[
+  h=\frac{5}{2}r.
+\]
+Real tracks need more --- friction and the cart's own rotation (ch5) both
+take a share. \checkmark
+\end{solution}
+\end{example}
+
+\begin{figure}[htbp]\centering
+\input{figures/ch04_loop}
+\caption{The loop-the-loop energy budget. The $5r/2$ answer is the
+classic meeting point of ch1's $a_c=v^{2}/r$ and this chapter's
+bookkeeping.}
+\label{fig:loop}
+\end{figure}
+
+\begin{example}[Spring-launched block up a rough incline]\label{ex:springincl}
+A spring ($k=200$\,N/m) compressed $0.3$\,m launches a $0.5$\,kg block up
+a $\theta=30^{\circ}$ incline with $\mu_k=0.2$. How far along the slope
+does it go?
+\par\smallskip
+\textbf{Strategy.} Energy audit with friction present: spring's deposit
+minus friction's withdrawal equals the height gained.
+\begin{solution}
+$U_s=\tfrac12(200)(0.09)=9$\,J available. Along distance $d$: gravity
+takes $mgd\sin30^{\circ}=2.45d$\,J, friction takes
+$\mu_k mg\cos30^{\circ}\cdot d=0.849d$\,J. So
+$d=9/(2.45+0.849)=2.73$\,m --- vs $3.67$\,m frictionless; friction's
+share is a quarter of the budget. \checkmark
+\end{solution}
+\end{example}
+
+\begin{example}[Pendulum speed at the bottom]\label{ex:pendulum}
+A $0.5$\,kg mass on a $1$\,m string is released from horizontal. Speed at
+the bottom?
+\par\smallskip
+\textbf{Strategy.} Pure energy --- the tension does no work (always
+perpendicular to the arc), so mechanical energy conserves.
+\begin{solution}
+$mgL=\tfrac12mv^{2} \Rightarrow v=\sqrt{2gL}=\sqrt{19.6}=4.43$\,m/s ---
+independent of mass and of the path taken to get there. The same
+$\sqrt{2gh}$ a frictionless slide gives: energy doesn't care about
+trajectories. \checkmark
+\end{solution}
+\end{example}
+
+\begin{exercise}[easy]
+Find the pendulum's speed when the string passes $45^{\circ}$ from
+vertical. (AP-C)
+\end{exercise}
+
+\section{Energy diagrams: motion read off a picture}\label{sec:en-diagrams}
+
+Given $U(x)$ (figure~\ref{fig:ux}): total energy $E$ draws a horizontal
+line; kinetic energy is the gap below it; turning points are where the
+line crosses the curve; equilibria sit at the curve's extrema (stable at
+minima, unstable at maxima). A particle in a quartic double well can
+\emph{never} leave one side if its line dips below the saddle --- that is
+the whole qualitative solution, no ODE required.
+
+\section{Power: the rate of doing work}\label{sec:en-power}
+
+\begin{equation}
+  P=\frac{dW}{dt}=\mathbf F\cdot\mathbf v.\label{eq:power}
+\end{equation}
+A $1000$\,kg car climbing a $6\%$ grade at $20$\,m/s burns
+$P=mg\sin\theta\cdot v\approx11.8$\,kW on gravity alone --- before drag's
+share, which figure~\ref{fig:power} adds.
+
+\begin{figure}[htbp]\centering
+\input{figures/ch04_power}
+\caption{$P=\mathbf F\cdot\mathbf v$: climbing power is linear in $v$,
+drag power quadratic-ish. Notice how quickly the sum leaves the
+city-driving budget.}
+\label{fig:power}
+\end{figure}
+
+\begin{example}[Stair-climb power measurement]\label{ex:stairs}
+You ($65$\,kg) run up a $4$\,m stair flight in $5$\,s. Estimate your
+mechanical power output.
+\par\smallskip
+\textbf{Strategy.} $P=\Delta U/t$ --- the simplest honest measurement in
+the book.
+\begin{solution}
+$\Delta U=mgh=65\times9.8\times4=2548$\,J, so
+$P\approx510$\,W $\approx0.7$\,hp. A cyclist sustains $\sim250$\,W; elite
+sprinters peak near $2$\,kW for seconds. \checkmark
+\end{solution}
+\end{example}
+
+\begin{exercise}[medium]
+A pump lifts $200$\,L/min of water $10$\,m. Minimum motor power? (F=ma)
+\end{exercise}
+
+\section{Elastic collisions: the deferred full treatment}\label{sec:en-elastic}
+
+Chapter 3 owned momentum; energy completes the elastic case. The
+$v_{\rm rel}$-flip shortcut: in an elastic collision the relative velocity
+\emph{reverses} --- $v_{2f}-v_{1f}=-(v_{2i}-v_{1i})$ --- which with
+momentum alone solves everything.
+
+\begin{example}[Elastic collision, three ways]\label{ex:elastic}
+$m_1=2$\,kg at $6$\,m/s hits stationary $m_2=2$\,kg. Solve by (a)
+lab-frame algebra, (b) the CM frame, (c) the flip rule.
+\par\smallskip
+\textbf{Strategy.} Three routes to the same answer --- each teaches a
+different skill.
+\begin{solution}
+(a) $v_1'+v_2'=6$ (momentum) and $v_1'^{2}+v_2'^{2}=36$ (energy):
+substituting gives $v_1'v_2'=0$, so one stops, one carries $6$\,m/s ---
+velocities swap.
+(b) CM moves at $3$\,m/s; in its frame the blocks approach at $\pm3$ and
+must leave at $\mp3$ (reversal is the only $K$-preserving option).
+Transforming back: $0$ and $6$.
+(c) Flip: $v_2'-v_1'=6$ plus $v_1'+v_2'=6$ gives $v_1'=0$, $v_2'=6$.
+All three agree; the equal-mass swap is figure~\ref{fig:pk}. \checkmark
+\end{solution}
+\end{example}
+
+\begin{figure}[htbp]\centering
+\input{figures/ch04_pk}
+\caption{Bookkeeping for the equal-mass elastic hit: both $p$ and $K$
+survive --- a rare event, reserved for $e=1$.}
+\label{fig:pk}
+\end{figure}
+
+\begin{example}[General elastic formula]\label{ex:elasticgen}
+Apply the flip rule to unequal masses: $m_1=5$\,kg at $8$\,m/s hits
+$m_2=1$\,kg at rest.
+\par\smallskip
+\textbf{Strategy.} Two equations: momentum and the reversed relative
+velocity.
+\begin{solution}
+$5v_1'+v_2'=40$ and $v_2'-v_1'=8$:
+subtracting, $6v_1'=32 \Rightarrow v_1'=5.33$\,m/s,
+$v_2'=13.33$\,m/s. Check $K$: $\tfrac12(5)(28.4)+\tfrac12(1)(177.7)=
+71+88.9=160$\,J $=\tfrac12(5)(64)$. \checkmark
+\end{solution}
+\end{example}
+
+\section{Non-conservative work: the energy audit}\label{sec:en-noncons}
+
+With friction present, equation~\eqref{eq:emech} becomes the audit
+\[
+  K_i+U_i+W_{\rm nc}=K_f+U_f,
+  \qquad W_{\rm nc}=-f_kd<0 \ \text{(usually)}.
+\]
+The missing energy isn't gone --- it's heat, sound, and deformation. The
+conveyor belt is the classic trap: dragging a block up to belt speed
+heats the belt-block interface by exactly the kinetic energy the block
+gains ($Q=K$) --- half the motor's work becomes motion, half becomes
+warmth.
+
+\begin{lstlisting}[language=Python,caption={\texttt{code/ch04\_energy\_check.py} --- plain Euler vs symplectic Euler on a block-spring.},label={lst:edrift}]
+if scheme == "euler":
+    x_new = x + v * dt
+    v = v - (k/m) * x * dt        # BOTH updates use OLD values
+    x = x_new
+else:                            # symplectic
+    v += -(k/m) * x * dt          # update v first
+    x += v * dt                   # then x with the NEW v
+\end{lstlisting}
+
+Output of a real run ($k=4$, $m=1$, released from $x=1$):
+\begin{lstlisting}[numbers=none]
+E0 = 2.0000 J
+scheme           dt  periods       E_end        drift
+euler           0.1       10     446168.12 22308306.0%
+euler          0.05       10       1034.79    51639.6%
+symplectic      0.1       10          1.97       -1.5%
+symplectic     0.05       10          2.00        0.1%
+euler 100 periods, dt=0.1: E=446168.120 J (x 223084.1 of original -- secular growth)
+sympl 100 periods, dt=0.1: E=1.971 J (bounded oscillation, no secular drift)
+\end{lstlisting}
+
+The checkpoint's prediction is now a number: plain Euler's error compounds
+multiplicatively (the orbit spirals \emph{out}), while symplectic Euler ---
+update $v$ before $x$ --- conserves a nearby shadow Hamiltonian and merely
+oscillates around the true energy. Every orbit simulation after this
+chapter uses the symplectic variant.
+
+\section{In engineering practice: the energy audit}\label{sec:en-eng}
+
+Regenerative braking is this chapter's audit run as accounting: an
+electric car descending a hill deposits into the battery at $70$--$85\%$
+efficiency --- not $100\%$, because the audit of
+section~\ref{sec:en-noncons} still applies (aerodynamic drag, inverter
+losses, battery chemistry each take a line). Roller-coaster designers run
+example~\ref{ex:loop} backward: given a required top speed, the lift hill
+is $h=5r/2$ plus an empirically tuned friction allowance --- which is why
+first hills tower over every loop.
+
+\section{Common mistakes}\label{sec:en-mistakes}
+
+\begin{tripwire}[Sign of work vs $\Delta U$]
+$W_{\rm by}=+\Delta K$; $\Delta U=-W_{\rm by\ conservative}$. Mixing
+``work done on'' with ``work done by'' flips every sign in the audit.
+\end{tripwire}
+\begin{tripwire}[Mixing PE zero points]
+$U=mgh$ measures against \emph{your} chosen floor; two different floors in
+one problem corrupt the difference.
+\end{tripwire}
+\begin{tripwire}[Conserving mechanical energy through friction]
+Friction withdraws before gravity deposits --- example~\ref{ex:springincl}
+lost a quarter of its budget to it.
+\end{tripwire}
+\begin{tripwire}[$P=Fv$ with the wrong $v$]
+The velocity in $P=\mathbf F\cdot\mathbf v$ is the \emph{point of
+application's} --- for a moving belt problem it's the belt, not the block.
+\end{tripwire}
+\begin{tripwire}[``Contact forces do no work'' on deformables]
+True for rigid bodies; false for cars, balls, and people --- deformation
+absorbs real joules.
+\end{tripwire}
+
+\section{Summary}\label{sec:en-summary}
+
+\begin{table}[ht]\centering
+\begin{tabularx}{\linewidth}{@{}lY@{}}
+\toprule
+\tablehead\thead{Idea} & \thead{One-line version}\\
+\midrule
+work & $W=\int\mathbf F\cdot d\mathbf r$; only the along-motion part counts \\
+WKE theorem & $W_{\rm net}=\Delta K$ --- derived, not assumed \\
+potential energy & $\Delta U=-W_{\rm cons}$; $mgy$ and $\tfrac12kx^{2}$ \\
+conservation & $K+U$ constant iff only conservative forces work \\
+energy diagram & turning points where $E$ meets $U$; equilibria at $U'$ extrema \\
+power & $P=\mathbf F\cdot\mathbf v$ \\
+elastic collisions & relative velocity flips; with $p$ it solves everything \\
+energy audit & $W_{\rm nc}$ bridges the books; friction $\Rightarrow$ $-f_kd$ \\
+\bottomrule
+\end{tabularx}
+\caption{Energy cheat sheet.}
+\label{tab:ensummary}
+\end{table}
+
+\begin{wins}[Definition of done]
+You can now: integrate variable forces; derive the work--energy theorem;
+read motion off $U(x)$; size a loop-the-loop hill; audit friction's share;
+solve elastic collisions three ways; and explain why symplectic
+integrators run the book's orbits.
+\end{wins}
+
+\chapternotes{%
+The work--energy ordering follows MIT 8.01SC weeks 7--9 \cite{ocw801} and
+AP Physics C unit 3 \cite{apced}. OpenStax College Physics ch.~6--7
+\cite{openstax1} has parallel treatment; Morin ch.~5 \cite{morin} is the
+source of the energy-diagram exercises. The integrator comparison is the
+standard motivation for symplectic schemes; loop-the-loop numbers are the
+classic result.}
+
+\begin{rulebox}[{Watch instead}]
+\begin{enumerate}
+\item \emph{Work, Kinetic \& Potential Energy, Gravitation, Conservative
+Forces} --- Walter Lewin, MIT 8.01x Lecture 11, 49:06,
+\url{https://youtu.be/9gUdDM6LZGo} --- \S\ref{sec:en-work}--\S\ref{sec:en-cons}
+at full length (accessed 2026-10-11).
+\item \emph{Work-energy theorem} --- Khan Academy India, 12:34,
+\url{https://youtu.be/nnMirzeTepQ} --- the §\ref{sec:en-wke} derivation
+worked quickly (accessed 2026-10-11).
+\end{enumerate}
+\end{rulebox}
+
+\section*{Further reading}
+\addcontentsline{toc}{section}{Further reading}
+
+\begin{itemize}
+\item MIT OpenCourseWare, \emph{8.01SC Classical Mechanics}, weeks 7--9 ---
+work, energy and collisions with recitation solutions. At
+\url{https://ocw.mit.edu}, course ``8.01SC'' (verified 2026-10-11).
+\item OpenStax, \emph{College Physics 2e}, ch.~6--7 ``Work, Energy, and
+Energy Resources'' --- free text at \url{https://openstax.org} (verified
+2026-10-11).
+\item College Board, \emph{AP Physics C: Mechanics CED}, Unit 3 --- the
+exam blueprint for this chapter. At
+\url{https://apstudents.collegeboard.org} (verified 2026-10-11).
+\item D.~Morin, \emph{Introduction to Classical Mechanics}, ch.~5 ---
+energy methods at the harder level; ISBN 978-0521876223.
+\item The Physics Classroom, \emph{Work, Energy, and Power} --- readable
+remediation with roller-coaster walkthroughs, at
+\url{https://www.physicsclassroom.com} (verified 2026-10-11).
+\item Khan Academy, \emph{Work and energy} --- drills for this whole
+chapter, at \url{https://www.khanacademy.org} under Science $\to$ Physics
+(verified 2026-10-11).
+\end{itemize}
+
+\section*{Additional exercises}
+\addcontentsline{toc}{section}{Additional exercises}
+
+\begin{exercise}[easy]
+Sign reasoning: classify the work of gravity, normal, and friction as
+$+$, $-$, or $0$ for (a) a block sliding down an incline, (b) carried up
+the same incline at constant speed, (c) a satellite in circular orbit.
+(AP-C)
+\end{exercise}
+\begin{exercise}[easy]
+A crane lifts a $500$\,kg load at $0.5$\,m/s steadily. Find the motor's
+power. (AP-C)
+\end{exercise}
+\begin{exercise}[easy]
+A spring ($k=400$\,N/m) stores how much energy at $0.1$\,m compression?
+What mass could it lift $1$\,m with that energy? (AP-C)
+\end{exercise}
+\begin{exercise}[easy]
+Read figure~\ref{fig:bars}: if the launch bar holds $8$\,J and the mass
+is $0.5$\,kg, find the launch speed and apex height. (F=ma)
+\end{exercise}
+\begin{exercise}[easy]
+A child slides down a $3$\,m frictionless slide. Find the exit speed,
+then explain why the slide's shape doesn't matter. (AP-C)
+\end{exercise}
+\begin{exercise}[medium]
+Loop minimum speed: recompute example~\ref{ex:loop} requiring
+$v_{\rm top}^{2}=2gr$ (a safety margin) --- what $h$ now? (F=ma classic)
+\end{exercise}
+\begin{exercise}[medium]
+Spring + rough incline: example~\ref{ex:springincl} again with
+$k=300$\,N/m, $\mu_k=0.3$, $\theta=20^{\circ}$ --- find $d$, then the
+block's speed back at the launch point after sliding down. (AP-C FR-style)
+\end{exercise}
+\begin{exercise}[medium]
+Stair power: have a partner time you on a real flight; compute your watts
+and compare against the $510$\,W estimate. (F=ma, data)
+\end{exercise}
+\begin{exercise}[medium]
+A pendulum released from $60^{\circ}$ clears the bottom at what fraction
+of the $90^{\circ}$-release speed? Work it in symbols first. (AP-C)
+\end{exercise}
+\begin{exercise}[medium]
+Elastic collision: $m_1=3$\,kg at $10$\,m/s hits $m_2=1$\,kg at rest ---
+find both exit speeds by the flip rule and verify $K$ survives. (AP-C)
+\end{exercise}
+\begin{exercise}[medium]
+Conveyor heating: a $2$\,kg package accelerates to a $3$\,m/s belt over a
+$1$\,m friction patch. Show the belt interface dissipates exactly the
+package's gained $K$, then compute both. (F=ma)
+\end{exercise}
+\begin{exercise}[medium]
+A $1500$\,kg car needs $25$\,kW to hold $30$\,m/s on a flat road.
+Estimate the combined drag + rolling resistance at that speed, then the
+power to hold $30$\,m/s up a $5\%$ grade. (engineering)
+\end{exercise}
+\begin{exercise}[hard]
+A particle moves in $U(x)=ax^{4}-bx^{2}$ ($a,b>0$). Sketch $U$, find the
+equilibria and their stability, and the energy ranges where motion is
+trapped in one well vs.\ free between wells. (USAPhO-style)
+\end{exercise}
+\begin{exercise}[hard]
+Elastic collision, unequal masses: derive the general solution
+$v_1'=\frac{m_1-m_2}{m_1+m_2}v_1$,
+$v_2'=\frac{2m_1}{m_1+m_2}v_1$, and verify the limits
+$m_2\to\infty$ (wall) and $m_1=m_2$ (swap). (USAPhO-style)
+\end{exercise}

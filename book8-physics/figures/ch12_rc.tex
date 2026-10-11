@@ -1,0 +1,11 @@
+\begin{tikzpicture}
+\begin{axis}[width=8.5cm,height=4.6cm,xlabel={$t/\tau$},ylabel={},
+xmin=0,xmax=6,ymin=0,ymax=1.2,font=\small,legend pos=south east]
+\addplot[very thick,accent,domain=0:6,samples=60] {1-exp(-x)};
+\addlegendentry{$q/CV$}
+\addplot[very thick,amber,domain=0:6,samples=60] {exp(-x)};
+\addlegendentry{$i\,R/V$}
+\addplot[dashed] coordinates {(1,0) (1,0.632) (0,0.632)};
+\node[font=\scriptsize] at (axis cs:1.3,0.55) {$t=\tau$: 63\%};
+\end{axis}
+\end{tikzpicture}

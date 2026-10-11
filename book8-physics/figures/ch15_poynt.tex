@@ -1,0 +1,8 @@
+\begin{tikzpicture}[scale=0.95,font=\scriptsize]
+\draw[very thick] (-2.2,-0.5) rectangle (2.2,0.5);
+\foreach \x in {-1.6,-0.8,0,0.8,1.6}{\draw[->,accent] (\x,0.4) -- (\x,-0.4);}
+\foreach \x in {-1.4,-0.6,0.2,1.0}{\draw[->,amber] (\x,1.0) -- (\x,0.55);
+\draw[->,amber] (\x,-1.0) -- (\x,-0.55);}
+\node at (0,1.4) {$\mathbf S$ points \emph{into} the resistor};
+\node[align=left] at (0,-1.6) {the field, not the wire,\\delivers the energy};
+\end{tikzpicture}

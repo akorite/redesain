@@ -1,0 +1,9 @@
+\begin{tikzpicture}[scale=0.95,font=\scriptsize]
+\draw[very thick] (-1.3,-0.9) rectangle (1.3,0.9);
+\draw[->,thick,amber] (-1.3,0) -- (-2.1,0) node[left]{$\mathbf F$};
+\draw[->,thick,amber] (1.3,0) -- (2.1,0) node[right]{$\mathbf F$};
+\foreach \x in {-0.6,0,0.6}{\node at (\x,0) {$\times$};}
+\node at (0.9,-0.5) {$B$ in};
+\draw[->,thick,accent] (0,1.3) -- (0.9,1.3) node[right]{$\boldsymbol\mu$};
+\node[align=left] at (0,-1.6) {forces form a couple:\\$\tau=\mu B\sin\theta$};
+\end{tikzpicture}
