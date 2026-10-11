@@ -5,7 +5,7 @@ expect() { echo "$3" | grep -qF "$2" || { echo "FAIL $1: wanted '$2' in: $3" >&2
 expect div "5" "$(printf "3\n16\n17\n18\n" | ./.build/counting_divisors | head -1)"
 expect exp2 "2187" "$(printf "1\n3 7 1\n" | ./.build/exponentiation2)"
 expect ncr "846527861" "$(printf "1\n40 20\n" | ./.build/binomial_coefficients)"
-expect apples "15" "$(printf "4 3\n" | ./.build/distributing_apples)"
+expect apples "20" "$(printf "4 3\n" | ./.build/distributing_apples)"
 expect christmas "9" "$(printf "4\n" | ./.build/christmas_party)"
 expect fib "55" "$(printf "10\n" | ./.build/fibonacci)"
 python3 - <<'PY'
@@ -44,7 +44,7 @@ print("ncr stress: 120/120 PASS")
 for _ in range(100):
     n=random.randint(1,50);m=random.randint(1,20)
     inp=f"{n} {m}\n"
-    want=math.comb(n+m-1,m-1)%M
+    want=math.comb(n+m-1,n-1)%M
     got=subprocess.run(['./.build/distributing_apples'],input=inp,capture_output=True,text=True).stdout.strip()
     assert int(got)==want,(inp,got,want)
 print("apples stress: 100/100 PASS")
