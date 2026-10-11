@@ -169,6 +169,13 @@ types of every accumulator and every product \emph{before} anything else.
 Worked Example 1.4 is this exact failure.
 \end{tripwire}
 
+
+\begin{figure}[htbp]\centering
+\input{figures/fig97-template}
+\caption{The solution file, dissected: headers, \texttt{solve()}, fast I/O --- every listing in this book follows it.}
+\label{fig:template}
+\end{figure}
+
 \subsection{Fast input and output}\label{sec:fastio}
 \index{fast input/output}
 \index{ios::sync\_with\_stdio@\texttt{ios::sync\_with\_stdio}}
@@ -560,6 +567,29 @@ checklist connects them.
 \end{solution}
 \end{example}
 
+\begin{example}[WE 1.5 --- CSES \emph{Repetitions}: the scan is the algorithm]
+\label{ex:rep}
+Given a DNA string ($n \le 10^6$), find the longest run of equal
+characters. \emph{Input:} \texttt{ATTCGGGA}. \emph{Output:} \texttt{3}.
+\par\smallskip
+\textbf{Strategy.} The beginner's instinct reaches for a map of counts,
+but the question is about \emph{runs}, not totals --- $T$ and $G$ counts
+are irrelevant; only \emph{consecutive} stretches matter. One left-to-right
+pass keeps two numbers: the current run length and the best seen. Compare
+each character to its predecessor; on a mismatch reset to 1, on a match
+increment. $O(n)$ time, $O(1)$ memory, no data structure at all. The
+lesson generalizes: when a problem says ``longest/shortest
+\emph{contiguous} something'', a single scan with a running counter almost
+always beats a histogram.
+\par\smallskip
+\begin{solution}
+\texttt{code/repetitions.cpp} does exactly that and prints \texttt{3} on
+the sample --- the run is \texttt{GGG}. The whole algorithm is the
+loop you see; there is no cleverness to get wrong, which is why this is
+the right first archive submission after \emph{Weird Algorithm}.
+\end{solution}
+\end{example}
+
 \begin{exercise}[medium]\label{exr:fixwa}
 This program prints a million lines and gets TLE although it does almost no
 work per line. Find the one-token fix and say why it matters:
@@ -614,10 +644,6 @@ submissions; afterwards it is muscle memory.}
 \index{exercises}
 Named archive problems are cited by name only; look them up on
 \texttt{cses.fi} and \texttt{usaco.org}.
-
-\begin{exercise}[easy] CSES \emph{Repetitions}: longest run of equal
-characters. Trains a single linear pass. [implement]
-\end{exercise}
 \begin{exercise}[easy] CSES \emph{Increasing Array}: minimum increments to
 make the array non-decreasing. Trains a one-pass greedy.
 \end{exercise}
@@ -649,6 +675,10 @@ milking at once from interval schedules. Trains sweep-line counting
 \begin{exercise}[medium] USACO-B \emph{The Bovine Shuffle}: undo a
 position permutation. Trains array-as-function thinking.
 \end{exercise}
+\begin{exercise}[easy] CSES \emph{Permutations} --- construction, not search. \end{exercise}
+\begin{exercise}[easy] CSES \emph{Two Knights} --- closed-form counting on the board. \end{exercise}
+\begin{exercise}[medium] CSES \emph{Two Sets} --- split $\{1..n\}$ into equal-sum halves by residue classes. \end{exercise}
+\begin{exercise}[medium] USACO-B \emph{Square Pasture} --- rectangle union via boundaries. \end{exercise}
 \begin{exercise}[hard] CSES \emph{Two Sets}: partition $1..n$ into two
 equal-sum sets or report impossible. [construct the split --- constructive
 proof required]
@@ -675,37 +705,30 @@ is documented in \texttt{docs/sources.md}.
 \section*{Further reading}
 \begin{itemize}
 \item Laaksonen, \emph{Competitive Programmer's Handbook}, ch.~1--2 (online
-edition, beginner). \url{https://cses.fi/book/book.pdf} --- the complexity
-convention and the contest-machine framing used in this chapter.
-\item USACO Guide, ``Introduction to Competitive Programming'' (beginner).
-\url{https://usaco.guide/general/intro-cp} --- the Bronze-on ramp this
-chapter assumes.
-\item USACO Guide, ``Input and Output'' (beginner).
-\url{https://usaco.guide/general/input-output} --- alternative I/O recipes
-when \texttt{fastscan} is overkill.
-\item USACO Guide, ``C++ With the Command Line'' (beginner).
-\url{https://usaco.guide/general/cpp-command} --- the compile/run loop
-every code listing in this book was produced with.
-\item CSES problem set (practice).
-\url{https://cses.fi/problemset/} --- the archive whose samples anchor the
-worked examples here and in most later chapters.
-\item cp-algorithms (reference).
-\url{https://cp-algorithms.com} --- encyclopedia to consult as later
-chapters name their techniques.
-\item cppreference, ``Input/output library'' (reference).
-\url{https://en.cppreference.com/w/cpp/io} --- the language-level ground
-truth behind the I/O tricks of \S\ref{sec:starter}.
-\end{itemize}
+edition, beginner) --- the complexity
+convention and the contest-machine framing used in this chapter. \newline\url{https://cses.fi/book/book.pdf}
+\item USACO Guide, ``Introduction to Competitive Programming'' (beginner) --- the Bronze-on ramp this
+chapter assumes. \newline\url{https://usaco.guide/general/intro-cp}
+\item USACO Guide, ``Input and Output'' (beginner) --- alternative I/O recipes
+when \texttt{fastscan} is overkill. \newline\url{https://usaco.guide/general/input-output}
+\item USACO Guide, ``C++ With the Command Line'' (beginner) --- the compile/run loop
+every code listing in this book was produced with. \newline\url{https://usaco.guide/general/cpp-command}
+\item CSES problem set (practice) --- the archive whose samples anchor the
+worked examples here and in most later chapters. \newline\url{https://cses.fi/problemset/}
+\item cp-algorithms (reference) --- encyclopedia to consult as later
+chapters name their techniques. \newline\url{https://cp-algorithms.com}
+\item cppreference, ``Input/output library'' (reference) --- the language-level ground
+truth behind the I/O tricks of \S\ref{sec:fastio}. \newline\url{https://en.cppreference.com/w/cpp/io}\end{itemize}
 
 \begin{rulebox}[Watch instead]
 \smallskip\noindent\textbf{Best first.}
 ``Lecture 1: Algorithmic Thinking, Peak Finding'' --- MIT OpenCourseWare,
-53 min --- \url{https://www.youtube.com/watch?v=HtSuA80QTyo}. Covers this
+53 min --- \url{https://youtu.be/HtSuA80QTyo}. Covers this
 chapter's complexity framing (\S\ref{sec:complexity}); OCW writes
 $\Theta/\Omega$ formally where this book keeps to $O$ --- same meaning.
 \smallskip\noindent
 ``How to start Competitive Programming? For beginners!'' --- Errichto,
-10 min --- \url{https://www.youtube.com/watch?v=xAeiXy8-9Y8}. Covers the
+10 min --- \url{https://youtu.be/xAeiXy8-9Y8}. Covers the
 submit-loop discipline of \S\ref{sec:submit} and the contest minute;
 uses python in places, all advice transfers. Access date 2026-10-10.
 \end{rulebox}

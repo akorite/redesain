@@ -90,6 +90,13 @@ the values: the true/false boundary never leaves the live interval.}
 \label{fig:bswalk}
 \end{figure}
 
+
+\begin{figure}[htbp]\centering
+\input{figures/fig100-predicate}
+\caption{The predicate picture: $F$ everywhere left, $T$ right --- binary search finds the boundary.}
+\label{fig:predicate}
+\end{figure}
+
 \section{Monotone predicates: searching the answer}\label{sec:bs-answer}
 \index{binary search!on the answer}\index{monotone predicate}
 
@@ -223,6 +230,37 @@ question is candidate answer-space search.
 \end{solution}
 \end{example}
 
+\begin{example}[CSES \emph{Concert Tickets}: the STL's own first\_true]
+\label{ex:concert}
+Tickets cost $h_1,\dots,h_n$; each of $m$ customers in turn names a
+maximum price $t_i$ and takes the most expensive ticket costing at
+most $t_i$, or none ($n, m \le 2\cdot10^5$).
+\par\smallskip
+\textbf{Strategy.} Sort the tickets and binary-search each $t_i$ ---
+that is the template verbatim, but the STL already carries it:
+a \texttt{multiset} keeps prices sorted, and
+\texttt{upper\_bound($t$)} returns \emph{the first element exceeding}
+$t$ --- the same first\_true boundary as
+\S\ref{sec:bs-template}, with ``too expensive'' as the predicate.
+Step back one iterator for the answer. The custom walk still matters:
+here the library does it for you, and knowing that is the difference
+between a three-line solution and a forty-line one.
+\par\smallskip
+\begin{solution}
+\texttt{code/concert\_tickets.cpp}:
+\begin{lstlisting}[numbers=none]
+$ ./concert_tickets < tickets_sample.txt
+3
+8
+-1
+\end{lstlisting}
+Customer three wants $\le 3$ but only $\{5,7,5\}$ remain ---
+\texttt{upper\_bound} lands on \texttt{begin()} and we print $-1$.
+Each query is $O(\log n)$; sorted input plus an ordered container is
+the whole trick.
+\end{solution}
+\end{example}
+
 \begin{exercise}[easy]\label{exr:boundary}
 The template keeps ``left of \texttt{lo} known false, at-or-right-of
 \texttt{hi} known true''. For each of these predicate answers at
@@ -265,6 +303,13 @@ Note which side moved: the predicate is $x^2 < 2$, true below the root
 --- so \texttt{lo} chases the boundary from below and \texttt{hi} from
 above. Reading off which endpoint is safe to report is the whole
 correctness story.
+
+
+\begin{figure}[htbp]\centering
+\input{figures/fig101-multiset}
+\caption{\texttt{lower\_bound} on a sorted multiset: the first element $\ge$ the key.}
+\label{fig:multiset}
+\end{figure}
 
 \section{Where the pattern ends}\label{sec:bs-limits}
 \index{binary search!limitations}
@@ -358,6 +403,8 @@ USACO-S \emph{Angry Cows} --- the classic blast-radius search.
 \begin{exercise}[medium]
 CF \emph{Guess the K-th Zero} --- an \emph{interactive} first-true.
 \end{exercise}
+\begin{exercise}[easy] Hand-walk the first\_true template on predicate \texttt{F F F T T} and list every probe. \end{exercise}
+\begin{exercise}[medium] USACO-S \emph{Angry Cows} --- search the blast radius directly. \end{exercise}
 \begin{exercise}[hard]
 CSES \emph{Maximum Subarray Sum II} --- combine with a sliding window.
 \end{exercise}
@@ -376,6 +423,7 @@ pitfalls~\cite{laaksonen2024}. The four archive problems are official
 CSES/USACO tasks~\cite{cses,usacoguide}; standard references on the
 idiom are the C++ reference's \texttt{lower\_bound}
 page~\cite{cppreference} and the cp-algorithms binary-search note.
+\begin{exercise}[hard] CSES \emph{Sliding Median} --- order statistics inside the window. \end{exercise}
 
 \section*{Further reading}
 \begin{itemize}
@@ -387,30 +435,43 @@ template, more answer-search problems at the Silver level.
 the array half of the technique plus STL lower\_bound idiom.
 \item cp-algorithms, ``Binary search'' (reference).
 \url{https://cp-algorithms.com/num_methods/binary_search.html} ---
+||||||| 898d195
+\item USACO Guide, ``Binary Search'' (intermediate).
+\url{https://usaco.guide/silver/binary-search} --- same first\_true
+template, more answer-search problems at the Silver level.
+\item Laaksonen, \emph{Competitive Programmer's Handbook}, ch.~4
+``Binary search'' (beginner). \url{https://cses.fi/book/book.pdf} ---
+the array half of the technique plus STL lower\_bound idiom.
+\item cp-algorithms, ``Binary search'' (reference).
+\url{https://cp-algorithms.com/num_methods/binary_search.html} ---
+\item USACO Guide, ``Binary Search'' (intermediate) --- same first\_true
+template, more answer-search problems at the Silver level. \newline\url{https://usaco.guide/silver/binary-search}
+\item Laaksonen, \emph{Competitive Programmer's Handbook}, ch.~4
+``Binary search'' (beginner) ---
+the array half of the technique plus STL lower\_bound idiom. \newline\url{https://cses.fi/book/book.pdf}
+\item cp-algorithms, ``Binary search'' (reference) ---
 implementation variants incl.\ the real-valued search of
-\S\ref{sec:bs-real}.
-\item CSES 1085 \emph{Array Division} (practice).
-\url{https://cses.fi/problemset/task/1085} --- \ref{ex:arrdiv} yourself;
-CSES 1620 \emph{Factory Machines} likewise.
-\item cppreference, ``std::lower\_bound'' (reference).
-\url{https://en.cppreference.com/w/cpp/algorithm/lower_bound} --- the
-library realization of \S\ref{sec:bs-template}.
+\S\ref{sec:bs-real}. \newline\url{https://cp-algorithms.com/num_methods/binary_search.html}
+\item CSES 1085 \emph{Array Division} (practice) --- \ref{ex:arrdiv} yourself;
+CSES 1620 \emph{Factory Machines} likewise. \newline\url{https://cses.fi/problemset/task/1085}
+\item cppreference, ``std::lower\_bound'' (reference) --- the
+library realization of \S\ref{sec:bs-template}. \newline\url{https://en.cppreference.com/w/cpp/algorithm/lower_bound}
 \item Bloch, ``Nearly All Binary Searches and Mergesorts are Broken''
-(blog, intermediate).
-\url{https://research.google/blog/extra-extra-read-all-about-it-nearly-all-binary-searches-and-mergesorts-are-broken/}
---- the midpoint-overflow bug this book's template avoids.
+(blog, intermediate) ---
+the midpoint-overflow bug this book's template avoids.
+\newline\url{https://research.google/blog/} (post by Joshua Bloch, 2006)
 \end{itemize}
 
 \begin{rulebox}[Watch instead]
 \smallskip\noindent\textbf{Best first.}
 ``Binary Search Algorithm'' --- Computerphile, 19 min ---
-\url{https://www.youtube.com/watch?v=hDn8iOc30Tk}. The halving
+\url{https://youtu.be/hDn8iOc30Tk}. The halving
 invariant of \S\ref{sec:bs-template} explained visually; Dr.\ Pound
 indexes from 1 where the book uses 0 --- the boundary logic is
 identical.
 \smallskip\noindent
 ``Bug in Binary Search'' --- Computerphile, 12 min ---
-\url{https://www.youtube.com/watch?v=_eS-nNnkKfI}. The
+\url{https://youtu.be/_eS-nNnkKfI}. The
 \texttt{(lo+hi)/2} overflow of the Common mistakes section --- the real
 Java library bug, worth watching before you write \texttt{mid} once.
 Access date 2026-10-10.

@@ -1,0 +1,23 @@
+\begin{tikzpicture}[font=\scriptsize,level distance=10mm,
+level 1/.style={sibling distance=34mm},
+level 2/.style={sibling distance=11mm}]
+\node {start}
+  child {node {1}
+    child {node {12}
+      child {node[fill=amber!20] {123}}
+      child {node[fill=amber!20] {132}}}
+    child {node {13}
+      child {node[fill=amber!20] {132}}
+      child {node[fill=amber!20] {123}}}}
+  child {node {2}
+    child {node {21}
+      child {node[fill=amber!20] {213}}}
+    child {node {23}
+      child {node[fill=amber!20] {231}}}}
+  child {node {3}
+    child {node {31}
+      child {node[fill=amber!20] {312}}}
+    child {node {32}
+      child {node[fill=amber!20] {321}}}};
+\node[align=left] at (0,-3.6) {permutations branch by next choice:\\$n!$ leaves};
+\end{tikzpicture}

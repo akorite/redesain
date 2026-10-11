@@ -1,0 +1,7 @@
+\begin{tikzpicture}[font=\scriptsize]
+\foreach \x/\h in {1/1,2/2,3/1,4/4,5/1,6/2,7/1,8/8}{
+  \draw[very thick] (\x*0.8,0) rectangle (\x*0.8+0.7,\h*0.45);}
+\node[align=left] at (4.0,-0.5) {Fenwick tree: node $i$ covers the last\\lowbit($i$) cells};
+\foreach \x in {3.6,4.4,6.8}{\draw[fill=accent!25,opacity=0.6] (\x,0) rectangle (\x+0.7,1.8);}
+\node[align=left] at (6.0,-1.5) {prefix(7) = nodes 7, 6, 4:\\strip lowbit each step};
+\end{tikzpicture}
