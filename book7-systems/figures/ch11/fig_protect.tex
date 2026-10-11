@@ -1,0 +1,16 @@
+\begin{figure}[htbp]
+\centering
+\begin{tabular}{lll}
+\toprule
+PTE bits & gate \\
+\midrule
+V (valid)   & present? else fault \\
+R/W/X       & read / write / execute allowed? \\
+U           & user-mode access allowed? \\
+\bottomrule
+\end{tabular}
+\caption{The protection bits are the OS's fence, enforced by
+hardware on every access. W$\wedge$X (never both) stops whole
+classes of code-injection --- the bridge into Part IV's OS story.}
+\label{fig:protect11}
+\end{figure}

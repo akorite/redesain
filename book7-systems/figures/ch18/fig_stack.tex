@@ -1,0 +1,19 @@
+\begin{figure}[htbp]
+\centering
+\begin{tabular}{ll}
+\toprule
+op & stack after \\
+\midrule
+PUSH 6 & [6] \\
+PUSH 7 & [6,7] \\
+MUL & [42] \\
+PUSH 8 & [42,8] \\
+ADD & [50] \\
+OUT & [] (prints 50) \\
+\bottomrule
+\end{tabular}
+\caption{The stack machine's trace on \texttt{(6*7)+8}: operands
+push, operators consume-and-push. No registers, no allocation ---
+the simplest machine that computes.}
+\label{fig:stack18}
+\end{figure}

@@ -1,0 +1,16 @@
+\begin{figure}[htbp]
+\centering
+\begin{tabular}{lll}
+\toprule
+tier & when it kicks in & cost model \\
+\midrule
+interpreter & always & decode-per-step \\
+baseline JIT & warm code & compile once, simple code \\
+optimising JIT & hot code & speculates + deopts \\
+\bottomrule
+\end{tabular}
+\caption{The JIT answer to the divide: start interpreting, compile
+the hot paths at runtime. Python's CPython lives at row one;
+JVMs and JS engines climb all three.}
+\label{fig:jit18}
+\end{figure}

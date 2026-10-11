@@ -1,0 +1,16 @@
+\begin{figure}[htbp]
+\centering
+\begin{tabular}{lcc}
+\toprule
+data pattern & branchy min & branchless min \\
+\midrule
+predictable (our run) & 23.3\,ms & 25.1\,ms \\
+random (would need) & slow & faster \\
+\bottomrule
+\end{tabular}
+\caption{Branchless only wins when the predictor loses: our data was
+predictable, so the branch was free and the extra ALU work cost
+7\%. The claim fails by inversion --- measure the data's
+randomness first.}
+\label{fig:branch17}
+\end{figure}

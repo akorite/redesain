@@ -1,0 +1,15 @@
+\begin{figure}[htbp]
+\centering
+\begin{tabular}{lrr}
+\toprule
+layout & x+=m over 16M particles & memory touched \\
+\midrule
+AoS (struct\,\{x,y,z,m\}) & 4.7\,ms & 4 arrays' worth \\
+SoA (x[], y[], z[], m[]) & 2.0\,ms & 2 arrays only \\
+\bottomrule
+\end{tabular}
+\caption{Real \texttt{ch16\_soa}: the same update is 2.35$\times$
+faster as SoA because a cache line fetches only the two fields used.
+AoS drags y and z through the hierarchy for nothing.}
+\label{fig:soa16}
+\end{figure}

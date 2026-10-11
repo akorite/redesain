@@ -1,0 +1,17 @@
+\begin{figure}[htbp]
+\centering
+\begin{tabular}{lrrr}
+\toprule
+policy & avg turnaround & avg response & order \\
+\midrule
+FIFO & 127.5 & 77.5 & ABCD \\
+SJF  & 122.5 & 72.5 & ACBD \\
+STCF & 82.5  & 5.0  & ABCD \\
+\bottomrule
+\end{tabular}
+\caption{Real \texttt{sched\_sim.py} output on the chapter's job set
+(A:100, B:30, C:10, D:60 time units): STCF's preemption buys a
+35\% turnaround win and a 15$\times$ response win --- the
+interactivity argument, measured not asserted.}
+\label{fig:schedcmp12}
+\end{figure}

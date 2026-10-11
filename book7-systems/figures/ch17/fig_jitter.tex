@@ -1,0 +1,17 @@
+\begin{figure}[htbp]
+\centering
+\begin{tabular}{ll}
+\toprule
+design choice & latency effect \\
+\midrule
+no malloc in the hot path & removes allocator tail \\
+SPSC ring & zero locks, one cache line shared \\
+branchless where data is random & removes mispredicts \\
+batch/pool free & amortises flush + alloc \\
+\bottomrule
+\end{tabular}
+\caption{Low-latency is jitter engineering: the mean is easy; the
+p99 is the design problem. Each pattern removes a source of
+occasional slowness, not steady-state cost.}
+\label{fig:jitter17}
+\end{figure}

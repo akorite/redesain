@@ -1,0 +1,18 @@
+\begin{figure}[htbp]
+\centering
+\begin{tabular}{ll}
+\toprule
+stage & answers \\
+\midrule
+TLB lookup    & VPN$\to$PPN cached? (1 cycle-ish) \\
+page-table walk & the real translation (2+ memory reads, sv32) \\
+cache lookup  & PA $\to$ data (L1/L2/LLC) \\
+DRAM          & last resort (our 120\,ns) \\
+\bottomrule
+\end{tabular}
+\caption{The full chain every load traverses. A TLB hit collapses
+the first two rows to almost nothing; a TLB miss costs the walk
+\emph{plus} the data fetch --- translation and caching are two
+separate caches strung in series.}
+\label{fig:tlbchain11}
+\end{figure}

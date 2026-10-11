@@ -1,0 +1,17 @@
+\begin{figure}[htbp]
+\centering
+\begin{tabular}{ll}
+\toprule
+what low latency costs & where you pay it \\
+\midrule
+jitter budget & pre-allocated pools, no syscalls \\
+capacity headroom & fixed-size rings drop or block \\
+code complexity & branchless/lock-free is harder \\
+measurement rigor & p99 not mean --- ch15's lesson \\
+\bottomrule
+\end{tabular}
+\caption{The real cost sheet: low-latency work is paid in headroom
+and complexity, not in clever instructions --- and audited with
+the tail-latency tools of ch15.}
+\label{fig:cost17}
+\end{figure}

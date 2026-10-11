@@ -1,0 +1,334 @@
+% ch12-systems.tex -- Processes and scheduling
+\chapter{Processes and scheduling}
+\label{ch:systems12}
+\index{process}\index{context switch}\index{scheduler}\index{MLFQ}
+
+Part IV starts here. Everything so far --- the pipeline, the caches,
+the address space --- served one program running alone. Real
+machines run hundreds of programs at once on the same cores, and the
+operating system is the piece that makes that illusion cheap enough
+to give away. This chapter builds the two mechanisms behind it:
+the process abstraction (fork/exec/wait, done correctly for once)
+and the scheduler that decides who runs when --- with the cost of a
+context switch measured on the machine, not quoted.
+
+\section{What a process is}
+\label{sec:proc12}
+
+A process is a running program's whole state bundled: an address
+space (ch11's private map), a register set saved somewhere, open
+files, and a kernel bookkeeping entry. The CPU sees none of it ---
+it just executes instructions and takes traps. The OS's job is to
+suspend that state, park it, and restore a different one.
+
+\input{figures/ch12/fig_states.tex}
+
+\section{fork, exec, wait --- the correct version}
+\label{sec:few12}
+
+UNIX's recipe is two calls, not one: \texttt{fork} duplicates the
+process (child gets a copy of everything --- COW, ch11, makes it
+nearly free), \texttt{exec} replaces the copy's program image with a
+new one. A shell pipeline \texttt{ps | grep x | wc} costs three
+forks and three execs.
+
+\begin{lstlisting}[language=C,caption={The three mistakes almost
+everyone makes, avoided: check \texttt{fork}'s error path, handle
+\texttt{exec} failure with \texttt{\_exit}, and wait on
+\emph{status}, not just completion.}]
+pid_t p = fork();
+if (p < 0) { perror("fork"); return 1; }   // fork CAN fail
+if (p == 0) {
+    execl("/bin/echo", "echo", "hi", NULL);
+    _exit(127);                            // exec failed: exit, not return
+}
+int st; pid_t w = waitpid(p, &st, 0);      // harvest the status
+\end{lstlisting}
+
+The real output of the chapter's fork demo:
+the exec'd echo printed \texttt{hello from exec'd child}, then
+the parent printed its clean \texttt{waitpid} line
+(\texttt{status=0}) --- never reads a stale pid, and the child's
+exit status arrives intact.
+
+\section{The context switch, step by step}
+\label{sec:ctx12}
+
+\input{figures/ch12/fig_ctxsw.tex}
+
+Nothing new is invented here: a context switch reuses ch8's trap
+path exactly --- registers get saved, the kernel swaps which saved
+set to restore, and the machine returns into a different address
+space. The only fresh piece is \texttt{swtch}, the stack-pointer
+swap.
+
+\begin{example}[The 3\,\textmu s truth, measured]
+\texttt{ch12\_ctx\_switch.c} ping-pongs a byte through pipes; each
+round trip costs two switches. This machine: \textbf{2.93\,\textmu s
+per switch} at one pair, 3.7 at two, 3.1 at four. The flat scaling
+is the honest confound --- extra pairs spread across cores rather
+than queueing --- and the number is the real price of the illusion:
+$\approx$300 switches before one millisecond is spent.
+\end{example}
+
+\input{figures/ch12/fig_ctxcost.tex}
+
+\begin{checkpoint}
+Why is the context-switch number not simply ``instructions
+executed''? Because the pipeline cost dominates: every switch
+invalidates the cache-warm state, the TLB entries, the branch
+predictor --- the machine runs cold for thousands of cycles after.
+\end{checkpoint}
+
+\section{Scheduling: four policies, measured on one job set}
+\label{sec:sched12}
+
+The job set: A(100), B(30), C(10), D(60) time units, arrivals at
+0,10,20,30. The chapter's simulator runs FIFO, SJF, and STCF
+(preemptive shortest-remaining-time) on it:
+
+\input{figures/ch12/fig_schedcmp.tex}
+
+\begin{example}[What the numbers argue]
+FIFO's 127.5 turnaround is the convoy problem: B, C, D all wait
+behind 100-unit A. STCF's preemption drops response time to 5.0 ---
+interactive jobs feel instant. SJF without preemption buys almost
+nothing here. The policy debate is numerical, not aesthetic.
+\end{example}
+
+\input{figures/ch12/fig_mlfq.tex}
+
+MLFQ's trick is observable behavior instead of declared length:
+jobs that use their full slice sink to longer-slice queues;
+interactive jobs stay high because they block on I/O anyway. A
+periodic boost prevents starvation. Real schedulers (Linux's
+CFS uses different math for the same ends) all answer the same
+tension: turnaround vs.\ response.
+
+\section{The twenty lines that actually do it}
+\label{sec:xv6_12}
+
+\input{figures/ch12/fig_xv6.tex}
+
+\section{Common mistakes}
+\label{sec:mistakes12}
+\begin{itemize}
+\item \textbf{Skipping \texttt{fork}'s error path.} Fork bombs
+      apart, resource limits make fork fail; an unchecked
+      \texttt{fork()} becomes a crash or a zombie.
+\item \textbf{\texttt{return} after a failed \texttt{exec}.} The
+      child falls back into the parent's code --- use
+      \texttt{\_exit} or \texttt{perror}+\texttt{\_exit}.
+\item \textbf{\texttt{wait} only at program end.} Unreaped children
+      zombie: harvest statuses as they exit.
+\item \textbf{Treating ctx-switch cost as free.} 3\,\textmu s
+      $\times$ thousands/sec is real time; thread pools exist
+      because the number isn't zero.
+\item \textbf{Optimising turnaround when you meant response.} STCF
+      wins both on our set, but SJF's non-preemptive gain is nearly
+      zero --- measure the metric you actually care about.
+\end{itemize}
+
+\section{Summary}
+\label{sec:summary12}
+\begin{tabularx}{\linewidth}{@{}l X@{}}
+\toprule
+\textbf{Piece} & \textbf{Verified version} \\
+\midrule
+process   & address space + saved state + kernel entry \\
+fork/exec & duplicate then replace; COW makes fork O(1)-ish \\
+ctx switch & trap + stack swap; $\approx$3\,\textmu s measured \\
+FIFO/SJF/STCF & 127.5 / 122.5 / 82.5 turnaround on real sim \\
+MLFQ      & no-length STCF approximation via observation \\
+xv6       & the real mechanism fits in $\sim$20 lines \\
+\bottomrule
+\end{tabularx}
+
+\section*{Further reading}
+\label{sec:further12}
+\begin{itemize}
+\item Arpaci-Dusseau \& Arpaci-Dusseau, OSTEP ch4--11 (the sim
+      homework this chapter follows):
+      \url{https://pages.cs.wisc.edu/~remzi/OSTEP/}
+\item xv6 source, \texttt{proc.c}, \texttt{swtch.S}:
+      \url{https://github.com/mit-pdos/xv6-riscv}
+\item CS:APP ch8 (exceptional control flow):
+      \url{https://csapp.cs.cmu.edu/}
+\item Linux CFS design doc (the production counterpoint):
+      \url{https://docs.kernel.org/scheduler/sched-design-CFS.html}
+\end{itemize}
+
+\begin{rulebox}[Watch instead]
+\begin{itemize}
+\item \textbf{Processes \& Scheduling --- MIT 6.1810 (xv6) lecture}
+      --- the actual mechanism this chapter describes, on the real
+      codebase (verified 2026-10-11).
+      \url{https://youtu.be/vsKrTHZADW4}
+\end{itemize}
+\end{rulebox}
+
+\section*{Notes}
+\label{sec:notes12}
+\begin{itemize}
+\item Context-switch, fork demo, and scheduler sim are all real
+      outputs on this machine; the multi-pair scaling confound is
+      stated honestly rather than smoothed.
+\item xv6 excerpts are paraphrase-by-design --- the chapter teaches
+      the mechanism's shape; the source repo is linked for the
+      twenty real lines.
+\end{itemize}
+
+\section*{Exercises}
+\addcontentsline{toc}{section}{Exercises}
+\stepcounter{section}
+
+\begin{exercise}[easy]
+How many \texttt{fork()} calls does the pipeline
+\texttt{cat f | grep x | sort | uniq} need, and why doesn't it need
+four \texttt{exec}s to be correct?
+\end{exercise}
+\begin{solution}[hint]
+3 forks; each child execs its own image --- one per process, not
+per pipe stage.
+\end{solution}
+
+\begin{exercise}[easy]
+Name the three pieces of state a context switch must preserve, and
+which one is swapped rather than copied.
+\end{exercise}
+\begin{solution}[hint]
+Registers (copied to kernel stack), stack pointer (swapped),
+address space (satp/page-table root changed).
+\end{solution}
+
+\begin{exercise}[easy]
+Which state transition does an \texttt{exit()} perform, and what
+makes a zombie different from a dead process?
+\end{exercise}
+\begin{solution}[hint]
+running$\to$terminated; the zombie still holds a slot until a
+parent waits.
+\end{solution}
+
+\begin{exercise}[medium]
+Recompute the turnaround for our job set if arrivals were all at
+$t{=}0$. Which policy's number changes most, and why?
+\end{exercise}
+\begin{solution}[hint]
+SJF --- with all jobs present at once it picks C(10) first; the
+staggered arrivals hid its non-preemptive weakness.
+\end{solution}
+
+\begin{exercise}[medium]
+Our ctx-switch measurement uses pipes, which add syscall overhead.
+Design the variant that isolates the switch cost more cleanly ---
+and name the remaining confound you cannot remove.
+\end{exercise}
+\begin{solution}[hint]
+Yield-loop threads or futex ping; cache/TLB warmth after the switch
+is unmeasurable from inside.
+\end{solution}
+
+\begin{exercise}[medium]
+A user claims ``STCF is always optimal.'' Construct the two-job
+arrival pattern where STCF's response time is \emph{worse} than
+FIFO's, and explain the mechanism.
+\end{exercise}
+\begin{solution}[hint]
+Very-long job arrives at $t{=}0$, short job at $t{=}1$: STCF starts
+the long job first (only job), then must context-switch to short;
+FIFO with all-at-once arrivals never does that.
+\end{solution}
+
+\begin{exercise}[medium]
+MLFQ's periodic boost exists to prevent starvation. What goes
+wrong if instead every job that finishes a slice gets \emph{half} a
+priority demotion forever?
+\end{exercise}
+\begin{solution}[hint]
+Long jobs asymptote to floor priority and never get CPU under load;
+the boost resets the drift.
+\end{solution}
+
+\begin{exercise}[medium]
+xv6's \texttt{scheduler()} picks the \emph{first} RUNNABLE process.
+What scheduling policy is that, and what's its pathology on our job
+set?
+\end{exercise}
+\begin{solution}[hint]
+Round-robin-adjacent FIFO; convoy effect on the long job.
+\end{solution}
+
+\begin{exercise}[hard]
+Implement MLFQ in \texttt{sched\_sim.py} (3 queues, slices 1/2/4,
+boost every 50). Reproduce the ``game the scheduler'' workload:
+a job that does $99\%$ of its slice then sleeps one tick to stay
+high-priority. Report its share of CPU vs.\ fair share.
+\end{exercise}
+\begin{solution}[hint]
+Slice-boundary tricks work until the boost or the accounting
+changes; measure by counting scheduled ticks.
+\end{solution}
+
+\begin{exercise}[hard]
+At our measured 3\,\textmu s per switch, a server doing 20
+switches per request at 10\,000 req/s spends what fraction of CPU
+switching? Do pools or event loops erase that cost --- and which
+hidden cost do they add?
+\end{exercise}
+\begin{solution}[hint]
+$10^4\times20\times3\mu s = 0.6$s of CPU per second ---
+60\%. Event loops remove switches but add
+cache-cold callback chains; measure both.
+\end{solution}
+
+\begin{exercise}[hard]
+Extend the sim with a realistic I/O model (each job alternates
+CPU-burst/I/O-wait). Show that MLFQ's observable-behavior trick
+classifies jobs correctly without knowing their lengths, and state
+the workload where it still fails.
+\end{exercise}
+\begin{solution}[hint]
+CPU-bound batch jobs sink correctly; the failure is a job that
+alternates just fast enough to look interactive while hogging.
+\end{solution}
+
+\begin{exercise}[easy]
+A zombie process holds which kernel resources, and which syscall
+frees them?
+\end{exercise}
+\begin{solution}[hint]
+Exit status + process-table slot; \texttt{wait}/\texttt{waitpid}.
+\end{solution}
+
+\begin{exercise}[medium]
+Why does \texttt{fork} return twice? Explain what differs between
+the two return paths and why \texttt{fork}$+$\texttt{exec} beats a
+hypothetical \texttt{spawn(path,args)} on flexibility.
+\end{exercise}
+\begin{solution}[hint]
+Both parents resume after the trap; the gap between fork and exec
+is where shells set up redirection/limits.
+\end{solution}
+
+\begin{exercise}[medium]
+Instrument \texttt{sched\_sim} to count total context switches per
+policy on our job set. Compare the count against the turnaround
+win: how many switches does STCF's 45-unit gain cost?
+\end{exercise}
+\begin{solution}[hint]
+STCF switches per arrival/departure boundary; at 3\,\textmu s each,
+the switch cost is noise vs the 45-unit win.
+\end{solution}
+
+\begin{exercise}[hard]
+A real scheduler runs our job set with 1-tick quantum STCF and a
+3\,\textmu s-per-switch penalty amortised across the run. At what
+job-length granularity does the switch overhead exceed the
+turnaround saving? Derive the crossover.
+\end{exercise}
+\begin{solution}[hint]
+Overhead $=k\cdot3\mu s$ where $k$ = preemptions; crossover when
+$k\cdot3\mu s$ matches the response-time gain --- with real units
+it is far below any human-noticeable slice.
+\end{solution}

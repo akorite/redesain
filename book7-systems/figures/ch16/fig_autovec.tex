@@ -1,0 +1,17 @@
+\begin{figure}[htbp]
+\centering
+\begin{tabular}{lrr}
+\toprule
+variant & ms at $n=2^{25}$ & verdict \\
+\midrule
+scalar \texttt{-fno-vectorize} & 8.520 & real scalar \\
+scalar \texttt{-O3} (auto-vec) & 2.891 & compiler SIMD'd it \\
+NEON intrinsics & 2.885 & same \\
+\bottomrule
+\end{tabular}
+\caption{The chapter's folklore entry dies here: ``intrinsics beat
+the compiler'' measured $1.00\times$ at $n=2^{25}$ --- clang's
+auto-vectoriser emits equivalent NEON. Write intrinsics for
+control, not for speed the compiler already finds.}
+\label{fig:autovec16}
+\end{figure}

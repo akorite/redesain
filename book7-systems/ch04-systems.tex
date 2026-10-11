@@ -407,3 +407,61 @@ then measure.
 \end{solution}
 
 % chapter end
+
+\begin{exercise}[easy]\label{ex:e04g}
+On our ABI, which registers must \texttt{fib} save before touching
+them: \texttt{a0} or \texttt{s1}?
+\end{exercise}
+\begin{solution}[hint]
+s1 --- callee-saved; a0 is caller-saved and gets clobbered by the
+recursive call anyway.
+\end{solution}
+
+\begin{exercise}[easy]\label{ex:e04h}
+Why does \texttt{main} need a frame at all if it makes calls but
+has no locals?
+\end{exercise}
+\begin{solution}[hint]
+It must save ra --- the call to fib overwrites the return
+address main itself needs.
+\end{solution}
+
+\begin{exercise}[medium]\label{ex:m04e}
+Our leaf-call measurement showed exactly 2 instructions per call.
+Reproduce it on a 3-argument function and explain why the count
+stays 2 until arg 8.
+\end{exercise}
+\begin{solution}[hint]
+call+ret is the constant cost; a0--a7 are registers --- the 9th
+argument spills to the stack.
+\end{solution}
+
+\begin{exercise}[medium]\label{ex:m04f}
+clang at -O2 turned our switch into arithmetic with no jump
+table. Name the transformation and one input shape that makes the
+table win anyway.
+\end{exercise}
+\begin{solution}[hint]
+Linearisation/if-conversion; many cases (dense, $>$8) make the
+indirect jump cheaper than a compare chain.
+\end{solution}
+
+\begin{exercise}[medium]\label{ex:m04g}
+The stack grows \emph{down} on RV32I. Show why that makes
+\texttt{sp-16} the frame allocation, and what goes wrong if a
+function subtracts less than it stores.
+\end{exercise}
+\begin{solution}[hint]
+Lower addresses are free space; under-allocating overwrites the
+caller's frame below sp --- silent corruption.
+\end{solution}
+
+\begin{exercise}[hard]\label{ex:h04d}
+Design the frame for a function with 3 callee-saved regs, one
+8-byte local, and calls. Give the exact sp adjustment, each save
+slot, and justify the 16-byte alignment.
+\end{exercise}
+\begin{solution}[hint]
+ra + 3 saves + 8B local = 40B; round to 48 for 16B alignment ---
+the ABI's sp must stay 16-aligned at call sites.
+\end{solution}

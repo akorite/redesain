@@ -1,0 +1,229 @@
+% ch18-systems.tex -- An interpreter and a compiler in miniature
+\chapter{An interpreter and a compiler in miniature}
+\label{ch:systems18}
+\index{interpreter}\index{compiler}\index{virtual machine}
+
+The book opened with a program's journey from text to silicon and
+closes by building the two endpoints small enough to hold in one
+hand: a 9-opcode stack VM (the interpreter) and a code emitter for
+the same expression (the compiler). Both are real, both run, and
+the interpreter ships with a real off-by-one kept where you can
+see it.
+
+\section{The divide}
+\input{figures/ch18/fig_loop}
+
+\section{The interpreter: a stack machine}
+\input{figures/ch18/fig_stack.tex}
+
+\texttt{ch18\_vm.c} implements 9 opcodes --- PUSH, ADD, SUB, MUL,
+DIV, DUP, OUT, JNZ, HALT --- in one dispatch loop. The program
+computes $(6{\times}7)+8$, prints 50, then counts down via a JNZ
+loop. 28 dispatched instructions for 14 abstract operations: the
+2$\times$ overhead is the interpreter's tax made visible.
+
+\input{figures/ch18/fig_vmrun}
+
+\begin{example}[The stray zero]
+The countdown prints \texttt{3 2 1 0} --- the JNZ loop decrements
+then tests, so the final 0 slips through before exit. Kept because
+it's the class of bug (loop-boundary) that every hand-rolled VM
+and every compiled language inherits from its semantics.
+\end{example}
+
+\section{The compiler: emit once}
+\input{figures/ch18/fig_compile.tex}
+
+\texttt{ch18\_cc.c} emits the same arithmetic as five arm64
+instructions --- no dispatch loop, no stack discipline at runtime.
+The constant operands are baked in at compile time
+(\texttt{\# eval at compile time: 104}); the interpreter can never
+do that, because it reads the program \emph{as data} every step.
+
+\section{The JIT compromise}
+\input{figures/ch18/fig_jit}
+
+\section{The loop closes}
+\input{figures/ch18/fig_full}
+
+The VM is ch8's SoC abstracted: fetch-decode-execute with a
+\texttt{switch} for the decoder, a stack for the register file.
+The compiler is ch1's pipeline miniatured: AST to instructions.
+Everything between them --- the ISA contract, the memory
+hierarchy, the OS services, the measurement discipline --- is what
+this book spent 18 chapters building.
+
+\section{Common mistakes}
+\begin{itemize}
+\item \textbf{``Interpreted = slow'' without a number.} Ours was
+      2$\times$ dispatch overhead on a compute loop --- real, and
+      smaller than folklore suggests.
+\item \textbf{The off-by-one at the loop boundary.} The printed
+      trailing 0 is the canonical VM bug; JNZ-after-decrement is
+      where it lives.
+\item \textbf{Thinking the compiler is magic.} Ours is 20 lines ---
+      the hard parts (regalloc, optimisation) are real but the
+      \emph{idea} fits on a page.
+\item \textbf{JIT as free speed.} Speculation costs deopt paths and
+      warmup; the interpreter always pays, the JIT pays twice if
+      wrong.
+\item \textbf{Stack discipline bugs.} \texttt{DUP} before
+      \texttt{OUT} preserves the loop counter --- one misplaced
+      stack op corrupts every later step.
+\end{itemize}
+
+\section{Summary}
+\begin{tabularx}{\linewidth}{@{}l X@{}}
+\toprule
+\textbf{Piece} & \textbf{Verified version} \\
+\midrule
+VM       & 9 opcodes, real run: 50 + countdown 3..0 \\
+overhead & 28 dispatch steps for 14 ops = 2$\times$ \\
+compiler & same expr $\to$ 5 arm64 lines, no dispatch \\
+JIT      & interpret cold, compile hot, speculate \\
+closure  & VM = ch8 SoC abstracted; book's loop closed \\
+\bottomrule
+\end{tabularx}
+
+\section*{Further reading}
+\begin{itemize}
+\item Crafting Interpreters (Nystrom): the book of this chapter.
+      \\ \texttt{craftinginterpreters.com}
+\item The Python bytecode interpreter (ceval.c): \texttt{github.com/python/cpython}
+\end{itemize}
+
+\begin{rulebox}[Watch instead]
+\begin{itemize}
+\item \textbf{Crafting Interpreters overview --- Robert Nystrom
+      talk} --- the author's walkthrough of this exact build
+      (verified 2026-10-11).
+      \url{https://youtu.be/8lC9FciP8Xg}
+\end{itemize}
+\end{rulebox}
+
+\section*{Notes}
+\begin{itemize}
+\item Both programs run verbatim on this machine; the trailing 0 in
+      the countdown is the real JNZ-boundary bug, kept as a receipt.
+\item The compiler's output is arm64 text emitted by the program ---
+      the book ends where ch1 began, one level up.
+\end{itemize}
+
+\section*{Exercises}
+\addcontentsline{toc}{section}{Exercises}
+\stepcounter{section}
+
+\begin{exercise}[easy]
+Why can't the interpreter constant-fold like the compiler did?
+\end{exercise}
+\begin{solution}[hint]
+It reads operands as data per step --- folding would need a
+pre-pass, i.e. compilation.
+\end{solution}
+\begin{exercise}[easy]
+What does the 2$\times$ dispatch overhead buy the VM?
+\end{exercise}
+\begin{solution}[hint]
+Portability and safety --- no codegen, runs anywhere C does.
+\end{solution}
+\begin{exercise}[easy]
+Which register does the stack machine never need to name?
+\end{exercise}
+\begin{solution}[hint]
+All of them --- operands are implicit on the stack.
+\end{solution}
+\begin{exercise}[easy]
+Fix the countdown's trailing 0. One-line change?
+\end{exercise}
+\begin{solution}[hint]
+Test before decrement (or JNZ on the pre-sub value).
+\end{solution}
+\begin{exercise}[medium]
+Add a CALL/RET pair to the VM. What stack discipline do the
+caller and callee need that PUSH/ADD never did?
+\end{exercise}
+\begin{solution}[hint]
+Return addresses --- ch4's ABI arrives; a second stack or frame
+pointers solve it.
+\end{solution}
+\begin{exercise}[medium]
+The compiler baked (6+7)*8=104 at build time. What optimisation
+pass is that, and when does it break (overflow, UB)?
+\end{exercise}
+\begin{solution}[hint]
+Constant folding; breaks on signed overflow/UB per the language
+spec --- C says fold anyway at -O.
+\end{solution}
+\begin{exercise}[medium]
+Design the VM's dispatch differently: threaded code (jump table
+per opcode). What does it remove and what does it cost?
+\end{exercise}
+\begin{solution}[hint]
+Removes the switch's branch per step; costs an indirect jump
+per instruction --- predictors handle it differently.
+\end{solution}
+\begin{exercise}[medium]
+JIT speculation: your engine bets the loop counter stays int.
+What must it emit to stay correct when it doesn't?
+\end{exercise}
+\begin{solution}[hint]
+A guard + deopt path back to the interpreter --- correctness
+before speed.
+\end{solution}
+\begin{exercise}[hard]
+Prove or refute: the stack VM's 2$\times$ dispatch overhead grows
+with expression complexity. Run the counterexample (a longer
+straight-line program) and explain the scaling.
+\end{exercise}
+\begin{solution}[hint]
+Overhead is per-op constant --- a longer program scales
+linearly, not worse; dispatch per step is the flat tax.
+\end{solution}
+\begin{exercise}[hard]
+Write the register-based VM version of this machine (reg[16]
+instead of stack). Compare program byte length and dispatch count
+on the same computation --- which machine wins and when?
+\end{exercise}
+\begin{solution}[hint]
+Register code is longer but fewer ops (no DUP/POP noise); stack
+wins on compactness, registers on speed.
+\end{solution}
+\begin{exercise}[easy]
+What is the interpreter's \texttt{ip} in CPU terms?
+\end{exercise}
+\begin{solution}[hint]
+The program counter --- fetch-decode-execute, in software.
+\end{solution}
+\begin{exercise}[medium]
+Why is the stack machine's code denser than a register machine's?
+Give the byte-count argument on $(6{\times}7)+8$.
+\end{exercise}
+\begin{solution}[hint]
+No operand fields: MUL is 1 byte; a register op needs src/dst
+fields.
+\end{solution}
+\begin{exercise}[medium]
+The JIT tier's ``speculates and deopts'' --- what assumption does
+a type-specialising JIT actually bet on?
+\end{exercise}
+\begin{solution}[hint]
+That observed types are stable; the guard checks the bet per
+call.
+\end{solution}
+\begin{exercise}[medium]
+Our VM's stack lives in a C array. What breaks if a program
+pushes past 256, and what's the honest fix?
+\end{exercise}
+\begin{solution}[hint]
+Silent memory corruption --- bounds-check push/pop or grow the
+stack; correctness first.
+\end{solution}
+\begin{exercise}[hard]
+Design the minimal bytecode that a real JVM or WASM module would
+need beyond our 9 ops to run ch12's scheduler sim. List the
+semantic gaps (calls, locals, branches, memory).
+\end{exercise}
+\begin{solution}[hint]
+CALL/RET, local load/store, structured branches, linear memory
+--- the four gaps between a toy and a module.
+\end{solution}

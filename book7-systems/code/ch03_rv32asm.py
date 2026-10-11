@@ -32,6 +32,8 @@ INS = {
   "lui":  ("U", 0, 0, 0x37),    "jal":  ("J", 0, 0, 0x6F),
   "jalr": ("JALR", 0, 0, 0x67), "j":    ("PJ", 0, 0, 0),
   "call": ("CALL", 0, 0, 0),    "ret":  ("RET", 0, 0, 0),
+  "ecall":("FIX", 0x00000073, 0, 0), "mret": ("FIX", 0x30200073, 0, 0),
+  "ebreak":("FIX", 0x00100073, 0, 0),
   "li":   ("LI", 0, 0, 0),    # pseudoinstruction: addi rd,x0,imm
 }
 
@@ -47,6 +49,8 @@ def enc(mn, ops, pc, labels):
         return U(int(ops[1], 0) << 12, reg(ops[0]), op)
     if kind == "LI":                            # li rd, imm -> addi
         return I(int(ops[1], 0), 0, 0, reg(ops[0]), 0x13)
+    if kind == "FIX":
+        return f7                # fixed encoding in the f7 slot
     if kind == "J":                             # jal rd, label/imm
         imm = (labels[ops[1]] - pc) if ops[1] in labels else int(ops[1], 0)
         return (((imm >> 20) & 1) << 31 | ((imm >> 1) & 0x3FF) << 21 |

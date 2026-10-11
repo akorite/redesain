@@ -1,15 +1,25 @@
 #!/bin/bash
-set -e; cd "$(dirname "$0")"; mkdir -p .build
-CC=${CC:-clang}
-# 1) compile the freestanding C to asm at -O0 and -O2; .text must exist in both
-$CC -target x86_64-linux-gnu -O0 -S ch01_sum.c -o .build/sum_O0.s
-$CC -target x86_64-linux-gnu -O2 -S ch01_sum.c -o .build/sum_O2.s
-grep -q 'sum:' .build/sum_O0.s && grep -q 'sum:' .build/sum_O2.s
-# 2) assemble+link a real ELF, then verify section headers via llvm-objdump
-$CC -target x86_64-linux-gnu -O0 -c ch01_sum.c -o .build/sum.o
-command -v llvm-objdump >/dev/null && llvm-objdump -h .build/sum.o | grep -q '.text' || objdump -h .build/sum.o | grep -q '.text'
-# 3) ch01_broken.c must FAIL to link (chapter's deliberate error)
-if $CC -target x86_64-linux-gnu -fuse-ld=lld -nostdlib ch01_broken.c -o .build/broken 2>/dev/null; then
-  echo "FAIL: broken.c linked unexpectedly"; exit 1
+# test_ch01.sh -- rebuild every ch01 artifact and verify real outputs.
+set -e
+cd "$(dirname "$0")"
+CLANG="clang -target x86_64-linux-gnu"
+LD=/opt/homebrew/bin/ld.lld
+$CLANG -O0 -c ch01_sum.c -o ch01_sum.o
+$CLANG -O2 -c ch01_sum.c -o ch01_sum_O2.o
+$CLANG -O0 -c ch01_broken.c -o ch01_broken.o
+$CLANG -c ch01_asm.S -o ch01_asm.o
+$CLANG -c ch01_start.S -o ch01_start.o
+$CLANG -S -O0 ch01_sum.c -o ch01_sum.s
+$LD -o ch01_sum.elf ch01_start.o ch01_sum.o
+objdump -h ch01_sum.o | grep -E "text|data" > ch01_sizes.out
+objdump -h ch01_sum_O2.o | grep -E "text|data" >> ch01_sizes.out
+objdump -d ch01_sum.o | sed -n '/<main>:/,/retq/p' | head -18 > ch01_main_disasm.out
+objdump -r ch01_broken.o | head -14 > ch01_reloc.out
+if $LD -o ch01_broken.elf ch01_broken.o 2> ch01_link_err.out; then
+  echo "FAIL: link should have failed" >&2; exit 1
 fi
-echo "ch01 PASS: asm emit + ELF object + expected link failure all real"
+grep -q "undefined symbol: missing" ch01_link_err.out || { echo "FAIL: no missing-symbol error"; exit 1; }
+file ch01_sum.elf | grep -q "ELF 64-bit" || { echo "FAIL: not ELF"; exit 1; }
+grep -q "callq" ch01_main_disasm.out || { echo "FAIL: disasm truncated"; exit 1; }
+grep -q "R_X86_64_PLT32.*missing" ch01_reloc.out || { echo "FAIL: reloc table wrong"; exit 1; }
+echo "ch01 PASS: ELF objects, linked executable, missing-symbol error all real"

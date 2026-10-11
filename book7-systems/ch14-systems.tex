@@ -1,0 +1,290 @@
+% ch14-systems.tex -- File systems and persistence
+\chapter{File systems and persistence}
+\label{ch:systems14}
+\index{inode}\index{journal}\index{fsync}\index{file system}
+
+A file system makes three promises: \emph{names} --- a path you
+can remember; \emph{durability} --- bytes that survive a power
+cut; \emph{crash behaviour} --- no file left half-written.
+This chapter pays for all three on real hardware. The opening
+surprise is honest: at 17\,GB/s our sequential read never touched
+the disk at all --- it was reading the buffer cache, which is the
+layer this whole chapter exists to explain.
+
+\section{Names, inodes, and the API}
+\label{sec:inode14}
+
+A directory is a table of \texttt{name $\to$ inode~number}; the
+inode is the file's real identity --- mode, size, and the block
+numbers holding its bytes. \texttt{open()} walks the path, resolves
+the inode, and returns a descriptor; \texttt{read}/\texttt{write}/
+\texttt{fsync}/\texttt{close} do the rest. The real inode walker
+\texttt{ch14\_inodes.py} on this book's own code tree:
+\texttt{ino=2484919 mode=0o100644 blocks=8 ch02\_bytes.out} ---
+128 files, 758\,KB payload, one line each.
+
+\input{figures/ch14/fig_inode.tex}
+
+\begin{example}[Max file size, computed]
+12 direct blocks + 1024 single-indirect + 1024$^2$ double +
+1024$^3$ triple at 4\,KB blocks $\approx$ 4\,TB from a
+$\sim$100-byte inode --- the indexed-allocation payoff, and why
+the classic scheme survives into ext4 (as extents).
+\end{example}
+
+\section{The layers a read() descends}
+\label{sec:layers14}
+
+\input{figures/ch14/fig_layers.tex}
+
+\section{The buffer cache, measured}
+\label{sec:cache14}
+
+\input{figures/ch14/fig_seqrand.tex}
+
+\begin{example}[17\,GB/s is RAM, not disk]
+\texttt{ch14\_fs\_io.c} on this machine: sequential 17\,269\,MB/s
+--- faster than any SSD by $30\times$, because every read hits the
+page cache after the build pass. Random 4\,KB reads: 5\,950\,MB/s
+--- still cached, but the miss-driven re-ordering costs $3\times$.
+The folklore ``disk is slow, RAM is fast'' is true; the surprise is
+that \emph{the OS has already hidden the disk from you}, and only
+\texttt{fsync} gets you past it.
+\end{example}
+
+\section{fsync: the syscall that pierces the cache}
+\label{sec:fsync14}
+
+\input{figures/ch14/fig_fsync.tex}
+
+Buffered writes run at 6.7\,GB/s because the kernel only copies
+into RAM. Add \texttt{fsync} per megabyte and throughput drops
+$3.5\times$; per 4\,KB it drops $\sim$$60\times$ --- the flush
+itself becomes the workload. Databases batch commits for exactly
+this reason; the cost isn't the write, it's the durability
+boundary.
+
+\section{Journaling: never half-written}
+\label{sec:journal14}
+
+\input{figures/ch14/fig_journal.tex}
+
+The commit record is the whole trick: a crash before it discards
+the transaction; a crash after it replays the write. Ordering the
+four steps costs one extra disk write --- the journal --- and buys
+atomicity across arbitrarily many blocks. xv6's \texttt{log.c}
+implements exactly this; the guided-read panel shows it distilled.
+
+\input{figures/ch14/fig_xv6fs.tex}
+
+\section{SSDs: why random writes hurt}
+\label{sec:ssd14}
+
+Flash erases in large blocks but writes in small pages --- a
+4\,KB random write can trigger a read-modify-write of a whole
+erase block. Sequential patterns let the FTL coalesce; random ones
+force garbage collection. The shape of the penalty is the same as
+ch10's line-fill argument at a different layer: granularity costs
+when the device's minimum operation exceeds yours.
+
+\section{Common mistakes}
+\label{sec:mistakes14}
+\begin{itemize}
+\item \textbf{``The write is durable'' without fsync.} A
+      \texttt{write()} returns after a RAM copy --- power loss
+      loses it silently. fsync is the durability boundary.
+\item \textbf{Measuring ``disk speed'' through the page cache.}
+      Our own first run read 17\,GB/s --- of RAM. A valid storage
+      benchmark must outsize RAM or bypass the cache.
+\item \textbf{fsync-per-write by default.} 0.07\,ms each is fine
+      for 100 writes; at 4\,KB writes it's $60\times$ of the
+      throughput --- batch commits.
+\item \textbf{Treating directories as files' contents.} The
+      directory holds \emph{names}; the inode holds the file ---
+      hard links are just two names for one inode.
+\item \textbf{``SSD has no seek time so order doesn't matter.''}
+      Random \emph{writes} still pay erase-block amplification;
+      only reads are truly seek-free.
+\end{itemize}
+
+\section{Summary}
+\label{sec:summary14}
+\begin{tabularx}{\linewidth}{@{}l X@{}}
+\toprule
+\textbf{Piece} & \textbf{Verified version} \\
+\midrule
+inode    & name$\to$inode$\to$blocks; 4\,TB from 100\,B \\
+buffer cache & sequential reads at 17\,GB/s = RAM, measured \\
+fsync    & the durability syscall; $60\times$ tax at 4\,KB \\
+journal  & TxBegin..TxEnd..checkpoint = atomic crash safety \\
+SSD      & erase-block granularity punishes random writes \\
+\bottomrule
+\end{tabularx}
+
+\section*{Further reading}
+\label{sec:further14}
+\begin{itemize}
+\item OSTEP ch36--46 (the FS book-within-the-book):
+      \url{https://pages.cs.wisc.edu/~remzi/OSTEP/}
+\item xv6 ch8 + \texttt{file.c}/\texttt{log.c} source:
+      \url{https://github.com/mit-pdos/xv6-riscv}
+\item CS:APP ch10 (system-level I/O):
+      \url{https://csapp.cs.cmu.edu/}
+\end{itemize}
+
+\begin{rulebox}[Watch instead]
+\begin{itemize}
+\item \textbf{File Systems --- MIT 6.1810 lecture} --- the xv6 FS
+      walk-through that pairs with this chapter's guided read
+      (verified 2026-10-11).
+      \url{https://youtu.be/3b4vEyb1I4o}
+\end{itemize}
+\end{rulebox}
+
+\section*{Notes}
+\label{sec:notes14}
+\begin{itemize}
+\item All throughput numbers are verbatim \texttt{ch14\_fs\_io.c}
+      output on this machine's APFS volume + page cache; your
+      numbers will differ --- the exercise is to compare shapes,
+      not digits.
+\item The inode walker output is real \texttt{lstat} data on this
+      repo's own code directory.
+\end{itemize}
+
+\section*{Exercises}
+\addcontentsline{toc}{section}{Exercises}
+\stepcounter{section}
+
+\begin{exercise}[easy]
+Walk a \texttt{read("/a/b/f")} down the layers: which two lookups
+turn the path into an inode, and the inode into bytes?
+\end{exercise}
+\begin{solution}[hint]
+Directory lookup per component (name$\to$ino); inode's block
+map (file offset$\to$disk block).
+\end{solution}
+
+\begin{exercise}[easy]
+Why does \texttt{unlink} of an open file keep working? Name the
+refcounting idea.
+\end{exercise}
+\begin{solution}[hint]
+Open descriptors pin the inode; storage frees at link \emph{and}
+descriptor count zero.
+\end{solution}
+
+\begin{exercise}[easy]
+Sequential write is buffered at 6.7\,GB/s here --- where do the
+bytes physically go between \texttt{write} and \texttt{fsync}?
+\end{exercise}
+\begin{solution}[hint]
+Kernel page cache, marked dirty; the device sees them only at
+flush or write-back.
+\end{solution}
+
+\begin{exercise}[medium]
+Run the sequential/random read test on your own machine. Report
+both numbers and name the layer you measured; how would you
+\emph{force} a real disk read?
+\end{exercise}
+\begin{solution}[hint]
+Files bigger than RAM, or \texttt{O\_DIRECT}/madvise to bypass
+the cache.
+\end{solution}
+
+\begin{exercise}[medium]
+A crash lands after TxEnd but before checkpoint. Reconstruct the
+journal replay --- which writes happen, and why is the state
+correct?
+\end{exercise}
+\begin{solution}[hint]
+Committed transactions replay idempotently; uncommitted ones
+never ran.
+\end{solution}
+
+\begin{exercise}[medium]
+Design the journal for a key-value store: what goes in each
+record, and what makes the commit record atomic?
+\end{exercise}
+\begin{solution}[hint]
+Op+key+value+txid per record; the commit is a single sector
+write --- atomic by hardware.
+\end{solution}
+
+\begin{exercise}[medium]
+Our fsync-per-4KB run implies a flush latency of 0.07\,ms. At
+what write size does fsync stop dominating? Derive from the data.
+\end{exercise}
+\begin{solution}[hint]
+Flush $\approx$ fixed cost; amortise until write time $>$ flush
+time --- roughly 1\,MB here.
+\end{solution}
+
+\begin{exercise}[medium]
+Ext4's extents replace the block map with runs. For a 1\,GB
+sequential file, compare extent vs inode+indirect metadata sizes.
+\end{exercise}
+\begin{solution}[hint]
+One extent record (start,len) vs 256K block numbers --- orders
+of magnitude.
+\end{solution}
+
+\begin{exercise}[hard]
+Design the smallest inode that addresses a 1\,GB file with 4\,KB
+blocks: pick your block-pointer scheme, count the metadata bytes,
+and justify the minimum.
+\end{exercise}
+\begin{solution}[hint]
+1\,GB/4\,KB = 256K blocks; one extent or a 2-level indirect tree
+--- argue either, price both.
+\end{solution}
+
+\begin{exercise}[hard]
+SSD FTLs do copy-on-write internally. Argue why a journaling FS
+\emph{plus} a COW device can double-write the same data, and
+name the classic remedy.
+\end{exercise}
+\begin{solution}[hint]
+Journal + FTL both relocate; log-structured FS or letting the
+FTL handle it (ext4 without full data journaling).
+\end{solution}
+
+\begin{exercise}[easy]
+What two numbers in \texttt{lstat} output tell a hard link from
+a copy?
+\end{exercise}
+\begin{solution}[hint]
+Same inode number + link count $>$1 = one file, two names.
+\end{solution}
+
+\begin{exercise}[medium]
+Compare the journal's ``write everything twice'' cost against the
+alternative of checksum-only metadata ordering. When is the second
+option safe?
+\end{exercise}
+\begin{solution}[hint]
+When data ordering is already guaranteed (or data loss tolerable)
+--- metadata journaling exists for this.
+\end{solution}
+
+\begin{exercise}[medium]
+The walker shows \texttt{blocks=8} for a 1-byte file: 4\,KB used.
+What is this called, and what does it cost a million-small-files
+workload?
+\end{exercise}
+\begin{solution}[hint]
+Internal fragmentation --- block granularity tax, as severe as
+the SSD's erase-block version.
+\end{solution}
+
+\begin{exercise}[hard]
+Argue whether \texttt{fsync} should return before or after the
+device's internal flush, and what can still go wrong if the drive
+lies about having flushed (hint: power-fail protected caches).
+\end{exercise}
+\begin{solution}[hint]
+After flush to non-volatile media; a lying drive trades
+durability for benchmark speed --- enterprise drives add
+capacitors to keep the promise honest.
+\end{solution}

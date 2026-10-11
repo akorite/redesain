@@ -1,0 +1,18 @@
+\begin{figure}[htbp]
+\centering
+\begin{tabular}{lll}
+\toprule
+$T_1$ (counter++) & $T_2$ (counter++) & counter \\
+\midrule
+load c (=5)  &              & 5 \\
+             & load c (=5)  & 5 \\
+$t{+}1$, store (6) &      & 6 \\
+             & $t{+}1$, store (6) & \textbf{6} \\
+\bottomrule
+\end{tabular}
+\caption{Two threads, one increment each, one lost. Both loaded 5,
+both wrote 6 --- the interleaving throws away an entire update.
+Run for real: 6 threads lost 2\,480\,483 of 3\,000\,000 updates
+(83\%) on this machine.}
+\label{fig:racetime13}
+\end{figure}

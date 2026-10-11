@@ -1,0 +1,17 @@
+\begin{figure}[htbp]
+\centering
+\begin{tabular}{ll}
+\toprule
+mechanism & the atomic unit it gives you \\
+\midrule
+\texttt{lr.d}/\texttt{sc.d} (RISC-V A) & load-reserved + store-conditional retry loop \\
+\texttt{amoadd} (RISC-V A) & atomic memory op, no retry \\
+C11 \texttt{atomic\_fetch\_add} & portable; compiles to the above \\
+\texttt{pthread\_mutex} & sleep-lock over the same primitives \\
+\bottomrule
+\end{tabular}
+\caption{The atomic ladder. Everything in this chapter stands on
+the hardware's indivisible read-modify-write; locks are policy built
+on top of it.}
+\label{fig:atomic13}
+\end{figure}

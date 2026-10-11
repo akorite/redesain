@@ -1,0 +1,17 @@
+\begin{figure}[htbp]
+\centering
+\begin{tabular}{ll}
+\toprule
+layer & what it turns into what \\
+\midrule
+VFS & open/read/write $\to$ per-fs ops \\
+file system & paths $\to$ inode $\to$ block numbers \\
+buffer cache & block numbers $\to$ RAM pages \\
+device driver & block numbers $\to$ NVMe commands \\
+\bottomrule
+\end{tabular}
+\caption{The descent of a \texttt{read()}: each layer renames the
+same bytes --- filename to inode to blocks to commands. Cache
+lines travel up; commands travel down.}
+\label{fig:layers14}
+\end{figure}

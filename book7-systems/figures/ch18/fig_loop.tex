@@ -1,0 +1,17 @@
+\begin{figure}[htbp]
+\centering
+\begin{tabular}{lll}
+\toprule
+stage & interpreter & compiler \\
+\midrule
+read source & every run & once \\
+decode & per instruction & per AST node \\
+execute & dispatch loop & native code \\
+cost & 10--100$\times$ & $\sim$1$\times$ \\
+\bottomrule
+\end{tabular}
+\caption{The interpreter/compiler divide: the interpreter pays
+decode-per-step forever; the compiler pays it once at build time.
+Our VM ran 28 dispatched steps for 14 abstract operations.}
+\label{fig:loop18}
+\end{figure}

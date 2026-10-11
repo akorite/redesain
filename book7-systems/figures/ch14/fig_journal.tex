@@ -1,0 +1,18 @@
+\begin{figure}[htbp]
+\centering
+\begin{tabular}{ll}
+\toprule
+step & journal state \\
+\midrule
+1 & write TxBegin + data + metadata records to log \\
+2 & write TxEnd --- the commit point \\
+3 & checkpoint: copy blocks to their real locations \\
+4 & free the log region \\
+\bottomrule
+\end{tabular}
+\caption{A journal transaction. The \emph{commit} line is the
+whole trick: crash before it, the transaction is ignored; crash
+after it, the replay redoes the write. The file is never
+half-updated --- that is crash consistency.}
+\label{fig:journal14}
+\end{figure}

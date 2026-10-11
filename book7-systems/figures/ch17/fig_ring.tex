@@ -1,0 +1,17 @@
+\begin{figure}[htbp]
+\centering
+\begin{tabular}{l|ccc}
+\toprule
+slot & 0 & \dots & 255 \\
+\midrule
+producer writes & head & & \\
+consumer reads & & tail & \\
+no lock needed & \multicolumn{3}{c}{one writer, one reader} \\
+\bottomrule
+\end{tabular}
+\caption{The SPSC ring: power-of-two slots, head written only by the
+producer, tail only by the consumer. No mutex, no allocation ---
+the workhorse of real-time audio, networking, and our measured
+1M-pair run.}
+\label{fig:ring17}
+\end{figure}

@@ -1,0 +1,232 @@
+% ch16-systems.tex -- Vectorisation and data parallelism
+\chapter{Vectorisation and data parallelism}
+\label{ch:systems16}
+\index{SIMD}\index{NEON}\index{vectorisation}
+
+Threading splits work across cores; vectorisation splits it across
+lanes in one instruction. This is the third parallelism the book
+has built, and the cheapest: change nothing about the algorithm,
+get 4 items per issue. The catch is in the chapter's second
+measurement --- the compiler may already have taken the win.
+
+\section{Data-level parallelism}
+\input{figures/ch16/fig_dlp}
+
+\section{One instruction, four lanes}
+\input{figures/ch16/fig_lanes}
+
+\section{SAXPY, measured}
+\input{figures/ch16/fig_saxpy}
+
+\begin{example}[3--4$\times$ real]
+\texttt{-fno-vectorize} scalar vs NEON intrinsics across
+$n=2^{10}\dots2^{25}$: speedup tracks the 4-lane ideal (3.5$\times$
+at $2^{16}$, 4.2$\times$ at $2^{22}$), sagging to 3.0$\times$ at
+$2^{25}$ where memory bandwidth, not issue width, is the limit ---
+ch9's roofline arriving on schedule.
+\end{example}
+
+\section{The folklore item that fails}
+\input{figures/ch16/fig_autovec}
+
+\begin{example}[Intrinsics $=$ compiler, measured]
+At \texttt{-O3} clang auto-vectorises the scalar SAXPY: 2.891\,ms
+vs the hand-written intrinsics' 2.885\,ms --- $1.00\times$. The
+``intrinsics beat the compiler'' claim dies on this machine.
+Write intrinsics for guaranteed vectorisation on compilers that
+won't, or for ops the compiler can't express --- not for raw speed
+it already finds.
+\end{example}
+
+\section{SoA vs AoS: the layout is the vector}
+\input{figures/ch16/fig_soa.tex}
+
+A struct-of-arrays update reads only the fields used; array-of-
+structs drags the whole record through every cache line. Measured:
+2.0\,ms vs 4.7\,ms on 16M particles --- $2.35\times$ for a pure
+layout change, no SIMD written. The vector unit loves SoA because
+the memory system already does.
+
+\section{The three vector ISAs}
+\input{figures/ch16/fig_rvv}
+
+\section{Common mistakes}
+\begin{itemize}
+\item \textbf{Assuming the scalar baseline is scalar.} At
+      \texttt{-O3} the compiler vectorises anyway --- our honest
+      baseline needed \texttt{-fno-vectorize} to be honest.
+\item \textbf{``Intrinsics always win.''} $1.00\times$ vs
+      auto-vec here; the hand-written version earns its keep in
+      control and portability, not raw speed.
+\item \textbf{Vectorising the wrong loop.} Amdahl again --- a
+      4$\times$ kernel at 10\% of runtime buys 3\%.
+\item \textbf{AoS by default.} The struct grouping that's natural
+      to write is the layout that costs $2.35\times$ ---
+      SoA-when-vectorising is a discipline.
+\item \textbf{Memory-bound blindness.} At $n>2^{22}$ the kernel is
+      bandwidth-limited; more lanes don't buy more bytes/sec.
+\end{itemize}
+
+\section{Summary}
+\begin{tabularx}{\linewidth}{@{}l X@{}}
+\toprule
+\textbf{Piece} & \textbf{Verified version} \\
+\midrule
+lanes    & 4 floats per issue --- the cheap parallelism \\
+saxpy    & scalar$\to$NEON = 3--4$\times$ real, BW-capped \\
+auto-vec & compiler = intrinsics ($1.00\times$) at -O3 \\
+SoA      & 2.35$\times$ for a pure layout change \\
+RVV      & vector-length-agnostic --- the portable SIMD \\
+\bottomrule
+\end{tabularx}
+
+\section*{Further reading}
+\begin{itemize}
+\item ARM NEON programmer's guide: \texttt{developer.arm.com} (SIMD ISAs)
+\item RISC-V V spec (vector-length-agnostic): \texttt{riscv.org/specifications}
+\item CS:APP ch5 (vectorisation within optimisation):
+      \url{https://csapp.cs.cmu.edu/}
+\end{itemize}
+
+\begin{rulebox}[Watch instead]
+\begin{itemize}
+\item \textbf{SIMD intrinsics --- Computerphile} --- same
+      experiment as this chapter on x86 (verified 2026-10-11).
+      \url{https://youtu.be/x9Scb5Mku1g}
+\end{itemize}
+\end{rulebox}
+
+\section*{Notes}
+\begin{itemize}
+\item All numbers verbatim from the chapter's two C programs on
+      Apple Silicon; the $1.00\times$ auto-vec result is the
+      chapter's second honest surprise after ch15's audit.
+\item \texttt{rvv\_sum.S} from the outline is a read-along
+      (RISC-V V encoding shown, not run --- no RVV hardware here).
+\end{itemize}
+
+\section*{Exercises}
+\addcontentsline{toc}{section}{Exercises}
+\stepcounter{section}
+
+\begin{exercise}[easy]
+Why is data-level parallelism ``free'' instruction-level
+parallelism? One line.
+\end{exercise}
+\begin{solution}[hint]
+One issue retires 4 lanes --- the pipeline never sees the other
+three instructions.
+\end{solution}
+\begin{exercise}[easy]
+Our scalar-vs-NEON gap is 3$\times$ at 4 lanes, not 4. What bounds
+it at large n?
+\end{exercise}
+\begin{solution}[hint]
+Memory bandwidth --- the roofline, ch9.
+\end{solution}
+\begin{exercise}[easy]
+What does \texttt{-fno-vectorize} prove about our baseline?
+\end{exercise}
+\begin{solution}[hint]
+That the ``scalar'' number is scalar, not the compiler's hidden
+SIMD.
+\end{solution}
+\begin{exercise}[easy]
+Which layout lets the vector unit fetch 4 useful floats per line:
+AoS or SoA?
+\end{exercise}
+\begin{solution}[hint]
+SoA --- AoS interleaves the fields you're not using.
+\end{solution}
+\begin{exercise}[medium]
+Design the experiment that separates lane-parallel gain from
+cache-friendly gain in the SoA result. What would you time?
+\end{exercise}
+\begin{solution}[hint]
+Time AoS-with-2-fields (a stripped struct) vs SoA --- isolates
+the vectorisation from the memory footprint.
+\end{solution}
+\begin{exercise}[medium]
+Auto-vectorisation fails on which loop shapes? Name two and the
+fix for each.
+\end{exercise}
+\begin{solution}[hint]
+Data-dependent exits, and pointer aliasing (\texttt{restrict});
+unrollable-count loops help.
+\end{solution}
+\begin{exercise}[medium]
+Why does RVV's vector-length-agnostic loop beat NEON for portable
+code? Trade-off?
+\end{exercise}
+\begin{solution}[hint]
+Same source runs on 128/512/1024-bit hardware; NEON needs a
+rewrite per width.
+\end{solution}
+\begin{exercise}[medium]
+A kernel is 90\% memory-bound. Argue why intrinsics are the wrong
+tool, and name the right one.
+\end{exercise}
+\begin{solution}[hint]
+The bottleneck is bytes not lanes; fix the access pattern
+(blocking, SoA, prefetch) instead.
+\end{solution}
+\begin{exercise}[hard]
+Design the SoA+NEON+blocking version of a particle integrator and
+predict the total speedup over the naive AoS scalar. What are the
+two multiplicative terms?
+\end{exercise}
+\begin{solution}[hint]
+Lane parallelism ($\approx$4$\times$) $\times$ footprint
+($\approx$2$\times$) --- but they share the bandwidth ceiling;
+predict sub-multiplicative.
+\end{solution}
+\begin{exercise}[hard]
+The folklore entry said ``intrinsics beat compiler'' fails at
+$1.00\times$. Write the counterexample where intrinsics DO win
+(hint: ops the compiler can't express) and verify on your machine.
+\end{exercise}
+\begin{solution}[hint]
+Shuffle/permute, saturating arithmetic, crypto primitives ---
+the compiler won't find them from scalar code.
+\end{solution}
+\begin{exercise}[easy]
+Rank the three parallelisms by cost-per-speedup for a
+compute-bound kernel.
+\end{exercise}
+\begin{solution}[hint]
+DLP (free, 4$\times$) $>$ ILP (already there) $>$ TLP (real
+cost --- ch13's locks).
+\end{solution}
+\begin{exercise}[medium]
+At what n does our saxpy become memory-bound? Estimate from the
+table and the machine's bandwidth.
+\end{exercise}
+\begin{solution}[hint]
+Gap narrows at $2^{25}$ --- about when the working set leaves
+cache (ch9's mountain).
+\end{solution}
+\begin{exercise}[medium]
+Explain why SoA is a vectorisation \emph{enabler}, not just a
+layout.
+\end{exercise}
+\begin{solution}[hint]
+Contiguous same-type arrays = clean lane loads; AoS forces
+gathers or shuffles.
+\end{solution}
+\begin{exercise}[medium]
+A teammate proposes AVX-512 ``for 4$\times$ more lanes''. Give
+the two honest cautions beyond availability.
+\end{exercise}
+\begin{solution}[hint]
+Frequency throttling on some parts, and bandwidth caps at large
+n regardless of width.
+\end{solution}
+\begin{exercise}[hard]
+Predict the RVV loop's behaviour at vlen=128 vs 1024 given our
+bandwidth numbers --- at what vlen does the extra width stop
+helping?
+\end{exercise}
+\begin{solution}[hint]
+When the vector unit saturates memory BW --- on this class of
+machine, above $\sim$256 bits.
+\end{solution}

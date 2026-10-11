@@ -1,0 +1,19 @@
+\begin{figure}[htbp]
+\centering
+\begin{tabular}{ll}
+\toprule
+step & what the kernel does \\
+\midrule
+1 & trap arrives (timer tick, syscall, fault) \\
+2 & save $P_1$'s registers on $P_1$'s kernel stack \\
+3 & \texttt{swtch}: swap stack pointer to $P_2$'s context \\
+4 & restore $P_2$'s registers from its stack \\
+5 & return-from-trap into $P_2$'s userspace \\
+\bottomrule
+\end{tabular}
+\caption{A context switch is just a stack-pointer swap between two
+pre-staged register saves --- the same trap machinery from ch8,
+aimed at a different address space. Cost on this machine:
+$\approx$3\,\textmu s measured.}
+\label{fig:ctxsw12}
+\end{figure}

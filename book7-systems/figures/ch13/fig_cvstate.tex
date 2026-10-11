@@ -1,0 +1,17 @@
+\begin{figure}[htbp]
+\centering
+\begin{tabular}{lll}
+\toprule
+thread A (consumer) & shared queue & thread B (producer) \\
+\midrule
+lock; \texttt{while}(empty) wait(cv) & empty & \\
+  $\downarrow$ sleeps, releases lock & & lock; push; signal; unlock\\
+wakes, re-locks, pops; unlock & item & \\
+\bottomrule
+\end{tabular}
+\caption{Mesa semantics: \texttt{wait} releases the mutex while
+sleeping and re-acquires it on wake --- and the predicate
+\emph{must} be re-checked in a \texttt{while} loop, because another
+consumer may have won the wakeup race.}
+\label{fig:cvstate13}
+\end{figure}

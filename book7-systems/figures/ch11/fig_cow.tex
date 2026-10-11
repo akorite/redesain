@@ -1,0 +1,16 @@
+\begin{figure}[htbp]
+\centering
+\begin{tabular}{lll}
+\toprule
+step & parent's page & child's page \\
+\midrule
+fork()        & shared, marked read-only & same frame \\
+child writes  & fault $\to$ copy made    & private copy \\
+parent writes & fault $\to$ copy made    & keeps sharing \\
+\bottomrule
+\end{tabular}
+\caption{Copy-on-write: \texttt{fork} copies zero pages; the first
+\emph{write} to a shared page triggers the fault that materialises
+the copy. Spawn cost becomes O(1) instead of O(memory).}
+\label{fig:cow11}
+\end{figure}

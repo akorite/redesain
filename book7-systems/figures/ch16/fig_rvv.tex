@@ -1,0 +1,16 @@
+\begin{figure}[htbp]
+\centering
+\begin{tabular}{ll}
+\toprule
+ISA & model \\
+\midrule
+NEON (arm64) & 128-bit fixed lanes \\
+AVX-512 & 512-bit + masks \\
+RVV (RISC-V) & vector-length-agnostic, scalable \\
+\bottomrule
+\end{tabular}
+\caption{Three SIMD philosophies. RVV's trick is portability across
+hardware widths: the same loop runs on 128-bit and 1024-bit
+implementations --- NEON's fixed 128 is the price of its simplicity.}
+\label{fig:rvv16}
+\end{figure}

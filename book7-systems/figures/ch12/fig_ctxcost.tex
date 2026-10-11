@@ -1,0 +1,17 @@
+\begin{figure}[htbp]
+\centering
+\begin{tabular}{lr}
+\toprule
+configuration & measured \textmu s/switch \\
+\midrule
+1 pipe pair   & 2.93 \\
+2 pairs       & 3.71 \\
+4 pairs       & 3.14 \\
+\bottomrule
+\end{tabular}
+\caption{Real \texttt{ch12\_ctx\_switch.c} output: $\approx$3\,\textmu s
+per switch here. The flat scaling is an honest confound --- extra
+pairs spread over cores rather than serialising on one, so the
+number reads as cost, not contention.}
+\label{fig:ctxcost12}
+\end{figure}

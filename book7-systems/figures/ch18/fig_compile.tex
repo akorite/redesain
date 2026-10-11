@@ -1,0 +1,15 @@
+\begin{figure}[htbp]
+\centering
+\begin{verbatim}
+mov  w0, #6
+mov  w1, #7
+add  w0, w0, w1
+mov  w1, #8
+mul  w0, w0, w1
+\end{verbatim}
+\caption{\texttt{ch18\_cc} output: the same expression as 5 lines of
+arm64 --- the compiler's advantage is that (a$+$b)$\times$c
+becomes instructions \emph{once}; there is no dispatch in the
+result.}
+\label{fig:compile18}
+\end{figure}

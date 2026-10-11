@@ -1,0 +1,19 @@
+\begin{figure}[htbp]
+\centering
+\begin{tabular}{ll}
+\toprule
+inode field & role \\
+\midrule
+mode/uid/size & metadata, $\sim$100 bytes \\
+direct[12] & first 12 block numbers \\
+single indirect & $\to$ 1024 more block numbers \\
+double indirect & $\to$ 1024$^2$ block numbers \\
+triple indirect & $\to$ 1024$^3$ block numbers \\
+\bottomrule
+\end{tabular}
+\caption{Classic indexed allocation: a small fixed inode plus
+escalating indirect blocks. Maximum file $=$
+(12+1024+1024$^2$+1024$^3$) blocks $\approx$ 4\,TB at 4\,KB blocks
+--- the [hard] exercise asks for the smallest working variant.}
+\label{fig:inode14}
+\end{figure}

@@ -1,0 +1,234 @@
+% ch17-systems.tex -- Low-latency design patterns
+\chapter{Low-latency design patterns}
+\label{ch:systems17}
+\index{low latency}\index{ring buffer}\index{jitter}
+
+Low latency isn't a mean problem --- it's a jitter problem. The
+patterns in this chapter each remove a source of \emph{occasional}
+slowness: a lock that sometimes convoys, an allocator that
+sometimes walks its free list, a branch that sometimes misses.
+The chapter runs the standard claims on real hardware first,
+because two of the four come out backwards.
+
+\section{The folklore audit}
+\input{figures/ch17/fig_audit.tex}
+
+\begin{example}[Branchless loses on predictable data]
+\texttt{ch17\_folklore.c}: a branchy \texttt{min} over predictable
+inputs runs 23.3\,ms; the bit-trick branchless version runs
+25.1\,ms --- 7\% \emph{slower}, because the predictor made the
+branch free and the ALU work isn't. Branchless only pays where
+the data defeats the predictor; the claim fails by inversion.
+\end{example}
+
+\input{figures/ch17/fig_branch.tex}
+
+\section{Search at both scales}
+\input{figures/ch17/fig_search.tex}
+
+Binary search wins at n=64 too --- but $4\times$, not the
+20\,000$\times$ it wins at 16M. ``Linear is fine for small n'' is
+true in ratio and false in direction; the honest version is
+``linear's disadvantage is small at small n.''
+
+\section{The allocation myth, priced}
+Malloc on a thread-cached allocator costs 11\,ns/pair --- the
+``malloc is slow'' scare is mostly myth at this granularity. But
+pool reuse still wins (0.011 vs 0.000\,\textmu s) and, more
+importantly, removes the allocator's tail: the reason low-latency
+code pre-allocates isn't steady-state cost, it's the rare
+free-list walk the p99 sees.
+
+\section{The SPSC ring}
+\input{figures/ch17/fig_ring.tex}
+
+Power-of-two slots, head written only by the producer, tail only
+by the consumer --- no mutex because each index has one owner.
+The real \texttt{ch17\_ringbuf.c}: 1M push/pop pairs, 0
+mismatches. It's the workhorse of audio pipelines and network
+drivers precisely because it trades capacity headroom (a fixed
+256 slots) for zero synchronisation.
+
+\section{The cost sheet}
+\input{figures/ch17/fig_cost.tex}
+
+\section{Common mistakes}
+\begin{itemize}
+\item \textbf{Branchless everywhere.} Our branchless \texttt{min}
+      lost 7\% on predictable data --- the trick pays only where
+      the predictor fails.
+\item \textbf{``Never malloc in the hot path'' as dogma.} The
+      thread cache is 11\,ns; the real reason is the allocator's
+      \emph{tail}, not its mean.
+\item \textbf{Lock-free = fast, assumed.} ch13 already priced it:
+      contended lines cost more than locks at scale.
+\item \textbf{Optimising the mean.} The user on the p99 feels the
+      rare syscall/alloc/miss --- mean optimisation is often
+      invisible.
+\item \textbf{Unbounded queues for backpressure.} A ring that
+      blocks at 256 beats a queue that swells to 2\,GB and then
+      falls over --- capacity is a design decision.
+\end{itemize}
+
+\section{Summary}
+\begin{tabularx}{\linewidth}{@{}l X@{}}
+\toprule
+\textbf{Piece} & \textbf{Verified version} \\
+\midrule
+jitter   & the real target --- p99 not mean \\
+branchless & loses 7\% on predictable data (real) \\
+search   & binary wins even at n=64 ($4\times$) \\
+malloc   & 11\,ns/pair --- myth-busted, pool still wins \\
+ring     & 1M pairs, 0 mismatches, no lock \\
+\bottomrule
+\end{tabularx}
+
+\section*{Further reading}
+\begin{itemize}
+\item Mechanical Sympathy blog (jitter systems): \\ \texttt{mechanical-sympathy.blogspot.com}
+\item OSTEP concurrency chapters (SPSC groundwork): \texttt{pages.cs.wisc.edu/\~{}remzi}
+\end{itemize}
+
+\begin{rulebox}[Watch instead]
+\begin{itemize}
+\item \textbf{Low Latency Engineering --- CppCon talk} --- the
+      ring-buffer and jitter material at C++ depth
+      (verified 2026-10-11).
+      \url{https://youtu.be/NH1Tta7purM}
+\end{itemize}
+\end{rulebox}
+
+\section*{Notes}
+\begin{itemize}
+\item All numbers verbatim \texttt{ch17\_folklore.c} on Apple
+      Silicon; the branchless loss and malloc-myth rows are the
+      chapter's honest surprises.
+\item Ring buffer verified single-threaded; SPSC correctness under
+      real concurrency needs the memory-ordering argument of the
+      [hard] exercise.
+\end{itemize}
+
+\section*{Exercises}
+\addcontentsline{toc}{section}{Exercises}
+\stepcounter{section}
+
+\begin{exercise}[easy]
+Why is jitter, not the mean, the low-latency target?
+\end{exercise}
+\begin{solution}[hint]
+The p99 is what the user sees; mean cost is usually fine already.
+\end{solution}
+\begin{exercise}[easy]
+Our branchless min lost on predictable data --- which side of
+the hardware made the branchy version free?
+\end{exercise}
+\begin{solution}[hint]
+The branch predictor; it only loses on unpredictable data.
+\end{solution}
+\begin{exercise}[easy]
+What makes the SPSC ring lock-free with only two fields?
+\end{exercise}
+\begin{solution}[hint]
+Single owner per index --- no shared write to order.
+\end{solution}
+\begin{exercise}[easy]
+Name the real cost the ring buffer pays for zero locks.
+\end{exercise}
+\begin{solution}[hint]
+Fixed capacity --- it drops or blocks at 256 entries.
+\end{solution}
+\begin{exercise}[medium]
+Binary beat linear at n=64 by only $4\times$. Explain why the
+ratio is small there and huge at 16M, in memory terms.
+\end{exercise}
+\begin{solution}[hint]
+n=64 fits cache/branch-predictor; at 16M each linear probe is a
+cache miss vs binary's 24.
+\end{solution}
+\begin{exercise}[medium]
+A teammate removes all mallocs from a hot loop and sees no
+improvement. Using our 11\,ns figure, argue why --- and where the
+win actually lives.
+\end{exercise}
+\begin{solution}[hint]
+At 11\,ns each the mean cost is noise; the win is the tail ---
+free-list walks and lock contention at the p99.
+\end{solution}
+\begin{exercise}[medium]
+Extend the ring to MPMC (multi-producer/consumer). Which fields
+stop being single-owner, and what primitive replaces them?
+\end{exercise}
+\begin{solution}[hint]
+Head and tail become contended --- CAS loops or sequence numbers
+(LMAX-style) restore order.
+\end{solution}
+\begin{exercise}[medium]
+Design the experiment that shows WHERE branchless actually wins
+on your machine. What data property flips the result?
+\end{exercise}
+\begin{solution}[hint]
+Random vs sorted inputs --- mispredicts at $\sim$50\% each cost
+10--20 cycles; predictable costs 0.
+\end{solution}
+\begin{exercise}[hard]
+Argue the memory-ordering contract that makes our SPSC ring
+correct on a weakly-ordered ISA: what must the producer's
+head-store publish, and what can go wrong if the buffer write
+isn't ordered before it? Give the Dekker-style reasoning.
+\end{exercise}
+\begin{solution}[hint]
+The data write must be release-ordered before head; otherwise
+the consumer reads tail-but-stale buffer (a torn read).
+\end{solution}
+\begin{exercise}[hard]
+The folklore audit killed 2 of 4 claims. Write the claim about
+low-latency design that IS true in your experience, run it, and
+report the number --- and explain what makes it survive where
+the others didn't.
+\end{exercise}
+\begin{solution}[hint]
+True claims specify \emph{conditions} (``branchless wins on
+random data'') --- they survive because the measurement matches
+the assumption.
+\end{solution}
+\begin{exercise}[easy]
+What does ``allocation-free'' actually mean in the ring code?
+\end{exercise}
+\begin{solution}[hint]
+Fixed compile-time storage --- the 256-slot array lives in the
+struct, not the heap.
+\end{solution}
+\begin{exercise}[medium]
+Backpressure: our push returns -1 when full. Compare that policy
+with blocking and with unbounded growth --- which is correct for
+real-time audio and why?
+\end{exercise}
+\begin{solution}[hint]
+Drop/overwrite --- a late audio sample is a click; a growing
+queue is unbounded latency.
+\end{solution}
+\begin{exercise}[medium]
+The ring uses \texttt{volatile} head/tail. Why isn't that enough
+on a real concurrent ISA --- what's missing?
+\end{exercise}
+\begin{solution}[hint]
+Ordering --- volatile stops compiler reordering, not CPU
+reordering; you need release/acquire.
+\end{solution}
+\begin{exercise}[medium]
+Estimate the cache-line cost of head and tail sharing one line
+(false sharing) on our ring, and name the fix.
+\end{exercise}
+\begin{solution}[hint]
+Each push and pop bounce the line between cores --- pad head and
+tail to separate lines.
+\end{solution}
+\begin{exercise}[hard]
+Design a low-latency request path with a 1\,ms p99 budget, from
+accept to reply. Budget each hop, choose the data structures,
+and defend the two hardest trade-offs.
+\end{exercise}
+\begin{solution}[hint]
+Pools + SPSC rings + pre-allocated reply buffers; the hard
+trades are capacity vs latency and batching vs immediacy.
+\end{solution}

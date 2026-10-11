@@ -1,0 +1,18 @@
+\begin{figure}[htbp]
+\centering
+\begin{tabular}{lr}
+\toprule
+access & measured cost (this machine, 16KB pages) \\
+\midrule
+resident page touch      & 107.6\,ns \\
+first touch (page fault) & 744\,ns \\
+\midrule
+fault overhead           & 7$\times$ resident \\
+\bottomrule
+\end{tabular}
+\caption{Real \texttt{ch11\_fault\_cost.c} numbers: mmap 512\,MB,
+touch each 16\,KB page once vs.\ twice. The fault is 7$\times$ ---
+page faults are cheap enough to be the load mechanism and expensive
+enough that thrashing kills you.}
+\label{fig:faultcurve11}
+\end{figure}

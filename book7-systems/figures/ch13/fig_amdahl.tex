@@ -1,0 +1,16 @@
+\begin{figure}[htbp]
+\centering
+\begin{tabular}{lrrr}
+\toprule
+parallel fraction & speedup @4T & @8T & @$\infty$ \\
+\midrule
+0.90 & 3.08 & 4.71 & 10.0 \\
+0.95 & 3.48 & 5.93 & 20.0 \\
+0.99 & 3.88 & 7.48 & 100.0 \\
+\bottomrule
+\end{tabular}
+\caption{Amdahl's arithmetic: at 90\% parallel, 8 cores buy 4.7$\times$,
+not 8. The serial 10\% is the ceiling --- which is why the
+partitioned counter's flat curve matters more than any lock trick.}
+\label{fig:amdahl13}
+\end{figure}

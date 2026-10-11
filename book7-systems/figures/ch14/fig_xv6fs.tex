@@ -1,0 +1,16 @@
+\begin{figure}[htbp]
+\centering\small
+\fbox{\begin{minipage}{0.86\linewidth}
+\textbf{Guided read --- xv6 \texttt{file.c} \& \texttt{log.c}}
+(20--30 lines):\\[2pt]
+\texttt{filewrite}: loop \texttt{begin\_op(); ilock(); writei();
+iunlock(); end\_op();} --- a transaction per write batch.\\
+\texttt{log.c}: \texttt{log\_write} appends; \texttt{commit} does
+\texttt{write\_log} + \texttt{install\_trans} --- exactly the
+4-step transaction of Figure~\ref{fig:journal14}, in a real kernel.\\
+repo: \texttt{github.com/mit-pdos/xv6-riscv}
+\end{minipage}}
+\caption{The same transaction in a real kernel, distilled: xv6's
+\texttt{log.c} is the journal figure with lock calls added.}
+\label{fig:xv6fs14}
+\end{figure}

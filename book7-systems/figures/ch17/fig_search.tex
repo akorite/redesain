@@ -1,0 +1,15 @@
+\begin{figure}[htbp]
+\centering
+\begin{tabular}{lrr}
+\toprule
+search & n=64 & n=16M \\
+\midrule
+linear & 0.020\,\textmu s & 2.0\,ms \\
+binary & 0.005\,\textmu s & 0.10\,\textmu s \\
+\bottomrule
+\end{tabular}
+\caption{Binary wins even at n=64 --- but by $4\times$, not the
+20\,000$\times$ it wins at 16M. The ``linear is fine for small n''
+folklore is true in ratio, false in direction: binary never lost.}
+\label{fig:search17}
+\end{figure}

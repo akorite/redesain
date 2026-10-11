@@ -1,0 +1,17 @@
+\begin{figure}[htbp]
+\centering
+\begin{tabular}{ll}
+\toprule
+metric & formula \& reading \\
+\midrule
+CPI & cycles/instructions --- our core was 1, real chips 0.25--4 \\
+IPC & 1/CPI --- a modern core's width indicator \\
+time & instrs $\times$ CPI $\times$ cycle\_time --- the iron law \\
+speedup & $1/(s{+}p/n)$ --- Amdahl, measured in ch13 \\
+\bottomrule
+\end{tabular}
+\caption{The performance equation. Every chapter's measurement is
+one row of this table made concrete: instructions, cycles, or
+time --- and which lever each optimisation actually moves.}
+\label{fig:cpi15}
+\end{figure}

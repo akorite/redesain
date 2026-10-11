@@ -1,0 +1,216 @@
+% ch15-systems.tex -- Measuring performance correctly
+\chapter{Measuring performance correctly}
+\label{ch:systems15}
+\index{benchmark}\index{tail latency}\index{Amdahl}
+
+The book so far has measured everything --- and the measurements
+kept surprising us. This chapter is about \emph{why}: performance
+is a distribution, not a number, and a benchmark is an experiment,
+not a prayer. The running audit table on this page's opposite side
+is the thesis: three of the four folk claims we tested failed on
+real hardware.
+
+\section{The folklore audit}
+\input{figures/ch15/fig_audit.tex}
+
+\section{The performance equation}
+\input{figures/ch15/fig_cpi.tex}
+
+\section{Latency is a distribution}
+\input{figures/ch15/fig_tail.tex}
+
+\begin{example}[The cold-cache median lies]
+\texttt{ch15\_bench.c} sums 4M ints honestly --- warmup, 21
+samples, sorted, p50/p99 reported: 0.15/0.18\,ms. The same kernel
+with no warmup and 3 samples reports 0.17\,ms --- off by 13\%
+\emph{against its own best case}, and that error is noise, not
+signal. Small samples don't measure the program; they measure
+the scheduler's mood.
+\end{example}
+
+\section{The four lies}
+\input{figures/ch15/fig_warmup.tex}
+
+\section{The measurement loop}
+\input{figures/ch15/fig_loop.tex}
+
+\section{The measured latency ladder}
+\input{figures/ch15/fig_scale.tex}
+
+\section{Common mistakes}
+\begin{itemize}
+\item \textbf{Mean for p99 work.} The user on the tail feels the
+      p99; the mean hides it --- report the distribution.
+\item \textbf{One run, no warmup.} The first run pays cache/TLB
+      cold costs --- a different experiment than the steady state.
+\item \textbf{Dead-code elimination.} ch10's 0.0\,ms transpose is
+      the canonical incident --- the compiler deleted the kernel;
+      a volatile sink is mandatory.
+\item \textbf{Folklore as fact.} ``Misaligned is slow'' failed on
+      this CPU; ``atomics beat locks'' failed at 8 threads; measure
+      on \emph{your} machine.
+\item \textbf{Optimising the wrong term.} Amdahl's arithmetic from
+      ch13 --- 10\% serial caps you at 10$\times$ regardless of
+      how clever the parallel part gets.
+\end{itemize}
+
+\section{Summary}
+\begin{tabularx}{\linewidth}{@{}l X@{}}
+\toprule
+\textbf{Piece} & \textbf{Verified version} \\
+\midrule
+latency & a distribution --- p50/p99 not mean \\
+benchmark & warmup + enough samples + sink for the result \\
+audit & 3 of 4 folk claims failed on this machine \\
+levers & instrs / CPI / cycle-time --- know which you're moving \\
+\bottomrule
+\end{tabularx}
+
+\section*{Further reading}
+\begin{itemize}
+\item Brendan Gregg, \emph{Systems Performance} (methodology):
+      \url{https://www.brendangregg.com/systems-performance-2nd-edition-book.html}
+\item OSTEP, the measurement appendix: \texttt{pages.cs.wisc.edu/\~{}remzi/OSTEP}
+\item CS:APP ch5 (program optimisation):
+      \url{https://csapp.cs.cmu.edu/}
+\end{itemize}
+
+\begin{rulebox}[Watch instead]
+\begin{itemize}
+\item \textbf{How NOT to Measure Latency --- Gil Tene, Strange Loop}
+      --- the tail-latency talk this chapter condenses
+      (verified 2026-10-11).
+      \url{https://youtu.be/lJ8ydIuPFeU}
+\end{itemize}
+\end{rulebox}
+
+\section*{Notes}
+\begin{itemize}
+\item The 13\% cold-sample error is this machine's real figure,
+      measured the same minute as the honest run.
+\item The folklore-audit row for vectorisation is intentionally
+      left open --- ch16 closes it.
+\end{itemize}
+
+\section*{Exercises}
+\addcontentsline{toc}{section}{Exercises}
+\stepcounter{section}
+
+\begin{exercise}[easy]
+Why does the \emph{min} of a benchmark run tell you almost nothing
+about steady-state behaviour?
+\end{exercise}
+\begin{solution}[hint]
+The min is a survivorship bound --- it bounds noise away, not the
+program.
+\end{solution}
+\begin{exercise}[easy]
+Which row of the performance equation does a better algorithm
+move, and which does a faster CPU move?
+\end{exercise}
+\begin{solution}[hint]
+Instructions vs cycle-time; CPI is the machine/code interplay.
+\end{solution}
+\begin{exercise}[easy]
+What does the volatile sink in our harness prevent?
+\end{exercise}
+\begin{solution}[hint]
+Dead-code elimination of the kernel under test.
+\end{solution}
+\begin{exercise}[easy]
+Amdahl: at 95\% parallel, what's the ceiling at any core count?
+\end{exercise}
+\begin{solution}[hint]
+$1/0.05=20\times$ --- serial fraction sets the ceiling.
+\end{solution}
+\begin{exercise}[medium]
+Design the warmup for a syscall-latency benchmark. What state must
+it establish, and what does it cost to skip?
+\end{exercise}
+\begin{solution}[hint]
+Warm TLB/cache/branch-predictor state; skipping measures the cold
+kernel, not the syscall.
+\end{solution}
+\begin{exercise}[medium]
+Your p50 is 5\,ms but the p99 is 200\,ms. List two mechanisms that
+produce that tail and one fix for each.
+\end{exercise}
+\begin{solution}[hint]
+GC pauses / lock convoys / page faults; each has a targeted fix
+(pool, partition, prefault).
+\end{solution}
+\begin{exercise}[medium]
+A colleague reports ``3$\times$ speedup'' from 2 runs of a noisy
+benchmark. What do you ask for, and what does a real delta look
+like?
+\end{exercise}
+\begin{solution}[hint]
+n$\geq$20, p50+p99, and a delta bigger than the noise floor ---
+typically $>$10\% on laptops.
+\end{solution}
+\begin{exercise}[medium]
+Write the hypothesis test: kernel A vs B differ by 4\% with
+spread 15\%. How many samples make the difference believable?
+\end{exercise}
+\begin{solution}[hint]
+You need $\sigma/\sqrt{n}$ below the delta --- $\sim$15 samples
+before the 4\% clears the noise.
+\end{solution}
+\begin{exercise}[hard]
+The folklore audit shows 3 of 4 claims failing. Write the general
+rule that predicts when ``common wisdom'' will mislead on a given
+machine, and test it on a fifth claim of your choice.
+\end{exercise}
+\begin{solution}[hint]
+Wisdom assumes conditions (miss rate, contention, alignment
+penalty) --- it fails exactly where those assumptions are absent;
+verify one on your box.
+\end{solution}
+\begin{exercise}[hard]
+Extend the harness to output the full CDF, not just p50/p99. What
+does the shape between p90 and p99 tell you that the two
+percentiles alone don't?
+\end{exercise}
+\begin{solution}[hint]
+Multi-modality --- the p95 can be fine while p99 is catastrophic,
+invisible at two points.
+\end{solution}
+\begin{exercise}[easy]
+What is speedup$_{max}$ if 20\% of your program is serial?
+\end{exercise}
+\begin{solution}[hint]
+$1/0.2=5\times$ --- the serial floor, regardless of cores.
+\end{solution}
+\begin{exercise}[medium]
+Explain why ``cold'' numbers and ``warmed'' numbers are both
+honest answers --- to \emph{different} questions.
+\end{exercise}
+\begin{solution}[hint]
+Cold measures first-touch behaviour; warm measures steady state
+--- report which question you asked.
+\end{solution}
+\begin{exercise}[medium]
+Our p99=0.18\,ms vs p50=0.15: a 1.2$\times$ tail. On a server with
+10\,000 req/s, how many requests per second hit the tail?
+\end{exercise}
+\begin{solution}[hint]
+1\% of 10k = 100 req/s --- the tail is a real workload, not an
+edge case.
+\end{solution}
+\begin{exercise}[hard]
+A benchmark's result depends on CPU frequency scaling (turbo).
+Design the control that separates ``the code got faster'' from
+``the chip sped up''.
+\end{exercise}
+\begin{solution}[hint]
+Report cycles, not seconds (perf counters), or pin frequency ---
+the turbo is a confound, not a signal.
+\end{solution}
+\begin{exercise}[medium]
+Which is the stronger claim about our 17\,GB/s read: ``the disk is
+fast'' or ``the cache works''? What measurement distinguishes them?
+\end{exercise}
+\begin{solution}[hint]
+``The cache works'' --- a file bigger than RAM or O\_DIRECT
+separates the two.
+\end{solution}

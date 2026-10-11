@@ -1,0 +1,19 @@
+\begin{figure}[htbp]
+\centering
+\begin{tabular}{lll}
+\toprule
+low-latency claim & this machine & verdict \\
+\midrule
+``branchless beats branchy'' & 25.1 vs 23.3\,ms & false (predictable) \\
+``binary beats linear'' & 0.005 vs 0.020\,\textmu s (n=64) & true, $4\times$ \\
+``malloc is slow'' & 11\,ns/pair & mostly false (t-cache) \\
+``pool reuse wins'' & 0.000 vs 0.011\,\textmu s & true, margin small \\
+\bottomrule
+\end{tabular}
+\caption{The folklore audit, ch17 edition: four claims run on real
+hardware. ``Branchless'' loses on predictable branches; malloc's
+thread cache makes the allocation scare-claim mostly myth ---
+but predictable-branch cost and the small-size search result are
+the parts everyone gets backwards.}
+\label{fig:audit17}
+\end{figure}

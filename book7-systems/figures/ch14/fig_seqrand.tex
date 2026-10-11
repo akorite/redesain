@@ -1,0 +1,18 @@
+\begin{figure}[htbp]
+\centering
+\begin{tabular}{lrl}
+\toprule
+pattern & MB/s & verdict \\
+\midrule
+sequential read & 17\,269 & RAM-speed: page cache dominates \\
+random 4KB read & 5\,950 & still cached, $3\times$ slower \\
+write buffered & 6\,722 & buffer cache hides the disk \\
+write + fsync/1MB & 1\,896 & real flush, $3.5\times$ slower \\
+\bottomrule
+\end{tabular}
+\caption{Real \texttt{ch14\_fs\_io.c} numbers --- and the honest
+surprise is the top row: at 17\,GB/s you are reading the
+\emph{page cache}, not the disk. The buffer cache is the layer this
+chapter exists to explain; fsync is the syscall that pierces it.}
+\label{fig:seqrand14}
+\end{figure}

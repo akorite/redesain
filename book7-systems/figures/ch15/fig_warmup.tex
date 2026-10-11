@@ -1,0 +1,17 @@
+\begin{figure}[htbp]
+\centering
+\begin{tabular}{ll}
+\toprule
+benchmark sin & the lie it tells \\
+\midrule
+no warmup & measures cold caches/TLB, not the kernel \\
+3 samples & median swings $\pm$13\% run to run (real) \\
+report the mean & hides the tail the user feels \\
+dead code & the compiler deletes the kernel (ch10's sink) \\
+\bottomrule
+\end{tabular}
+\caption{The four ways benchmarks lie, each one demonstrated live in
+this book: cold-start bias, small-sample noise, mean-vs-tail, and
+dead-code elimination --- the last already caught once in ch10.}
+\label{fig:warmup15}
+\end{figure}

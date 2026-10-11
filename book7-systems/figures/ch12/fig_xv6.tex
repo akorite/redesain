@@ -1,0 +1,19 @@
+\begin{figure}[htbp]
+\centering
+\begin{tabular}{p{0.9\linewidth}}
+\toprule
+Guided read --- xv6 \texttt{proc.c} \\
+\midrule
+\texttt{swtch.S}: 14 instructions that save callee-saved registers,
+swap \texttt{sp}, restore the other side. The whole of a context
+switch is literally those 14 lines --- ch8's trap path plus this.
+\texttt{scheduler()}: a 6-line loop --- pick first RUNNABLE, switch
+to it, repeat. The OS's most famous 20 lines do everything this
+chapter's sim does, with real registers instead of arrays. \\
+\bottomrule
+\end{tabular}
+\caption{The read-the-source payoff: xv6's context switch and
+scheduler fit in about twenty lines between them. The policy
+chapter's machinery is this small on a real OS.}
+\label{fig:xv6_12}
+\end{figure}

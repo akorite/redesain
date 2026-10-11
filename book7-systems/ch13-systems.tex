@@ -1,0 +1,300 @@
+% ch13-systems.tex -- Concurrency and synchronisation
+\chapter{Concurrency and synchronisation}
+\label{ch:systems13}
+\index{race condition}\index{mutex}\index{condition variable}\index{deadlock}
+
+Chapter~12 gave every process its own world; this chapter takes
+threads into one shared address space and watches the world break.
+A single shared counter, six threads, three million increments ---
+and 83\% of them simply vanish. That number isn't a metaphor; it's
+the chapter's opening measurement. The rest is the machinery that
+prevents it, priced honestly on the same hardware.
+
+\section{The race, demonstrated}
+\label{sec:race13}
+
+\input{figures/ch13/fig_racetime.tex}
+
+\begin{example}[83\% of updates lost, real]
+\texttt{ch13\_race.c} runs 6 threads of the unprotected
+\texttt{load--add--store} sequence, 500\,k increments each. Three
+runs: counter lands at 519\,517, 502\,923, 521\,101 --- never the
+expected 3\,000\,000. Each run loses $\approx$2.5\,million updates
+because both threads load before either stores. A race isn't a
+sometimes-bug; under contention it is the \emph{usual} result.
+\end{example}
+
+\section{The atomic ladder}
+\label{sec:atomic13}
+
+\input{figures/ch13/fig_atomic.tex}
+
+Hardware provides one indivisible thing: a read-modify-write that
+no other core can interleave with. RISC-V's A extension gives two
+flavours --- \texttt{lr.d}/\texttt{sc.d} (load-reserved /
+store-conditional, the retry-loop primitive) and \texttt{amo}
+instructions (atomic memory ops that complete without a retry).
+Every synchronisation primitive above them is software.
+
+\section{Three fixes, one measurement}
+\label{sec:fix13}
+
+Same race, fixed three ways: a mutex around the increment, a C11
+\texttt{atomic\_fetch\_add}, and partitioning (each thread counts
+privately, sum at the end). \texttt{ch13\_lockscale.c} times all
+three at 1--8 threads:
+
+\input{figures/ch13/fig_lockscale.tex}
+
+\begin{example}[The honest surprise]
+Partition wins trivially --- flat $\sim$0.1\,ms because nothing is
+shared. Mutex scales badly (1.8$\to$35.4\,ms) as expected. But at
+8 threads the \emph{atomic} path is slower than the mutex
+(56.3\,ms): the single contended cache line's coherency traffic
+costs more than the lock's parking. On a laptop with real cores the
+curve isn't monotonic --- and that's the lesson: don't guess,
+measure.
+\end{example}
+
+\section{Condition variables, done right}
+\label{sec:cv13}
+
+\input{figures/ch13/fig_cvstate.tex}
+
+The classic producer--consumer: the consumer waits on a CV while
+the queue is empty; the producer signals after pushing. Mesa
+semantics --- the woken consumer competes for the lock and
+\emph{must} re-check the predicate in a \texttt{while} loop, because
+a sibling consumer may have drained the queue in the gap. The
+\texttt{if}-instead-of-\texttt{while} bug produces a consumer that
+pops from an empty queue --- intermittent, load-dependent, and the
+single most-repeated concurrency bug in history.
+
+\section{Deadlock and lock ordering}
+\label{sec:deadlock13}
+
+\input{figures/ch13/fig_deadlock.tex}
+
+A deadlock is a cycle in the wait-for graph. Preventing cycles is
+simpler than finding them: impose a global lock \emph{order} (always
+acquire A before B) and cycles become impossible. Lock-free designs
+skip locks entirely but pay in memory-ordering reasoning --- the
+[hard] exercise below repairs a broken one informally.
+
+\section{What concurrency actually buys}
+\label{sec:amdahl13}
+
+\input{figures/ch13/fig_amdahl.tex}
+
+At 90\% parallel work, 8 cores buy 4.7$\times$, not 8 --- and the
+partitioned counter's flat curve shows the actual path to the
+speedup: eliminate the shared state, not just the locks around it.
+Amdahl isn't pessimism; it's the design brief.
+
+\section{Common mistakes}
+\label{sec:mistakes13}
+\begin{itemize}
+\item \textbf{``It works on my machine'' races.} The unfixed race
+      lost 0 updates at \texttt{-O2}/few threads on some runs ---
+      volatility and contention are what expose it, not correctness.
+\item \textbf{\texttt{if} instead of \texttt{while} on a CV.} Mesa
+      semantics require re-checking; the intermittent failure is
+      the classic heisenbug.
+\item \textbf{Atomic = fast, assumed.} One contended line out-
+      costs a mutex at 8 threads, measured --- contention is the
+      enemy, not the mechanism.
+\item \textbf{Deadlock by ``it can't happen here''}. Any lock
+      acquired while holding another can cycle; ordering is
+      cheap, analysis is expensive.
+\item \textbf{Sharing the cache line, not the data.} Adjacent
+      counters on one line bounce between cores (false sharing) ---
+      ch10's geometry returning through the abstraction.
+\end{itemize}
+
+\section{Summary}
+\label{sec:summary13}
+\begin{tabularx}{\linewidth}{@{}l X@{}}
+\toprule
+\textbf{Piece} & \textbf{Verified version} \\
+\midrule
+race      & 6 threads: 2.48M of 3M updates lost, real \\
+atomics   & lr/sc + amo are the hardware's indivisible unit \\
+mutex     & scales to 35ms at 8T --- parking cost is real \\
+atomic add & slower than mutex at 8T: contended line wins \\
+partition & flat $\sim$0.1ms: eliminate sharing, not locking \\
+CV        & \texttt{while}-loop re-check is mandatory \\
+Amdahl    & 8T at 90\% parallel = 4.7$\times$, the serial ceiling \\
+\bottomrule
+\end{tabularx}
+
+\section*{Further reading}
+\label{sec:further13}
+\begin{itemize}
+\item OSTEP ch26--33 (the bug taxonomy and all the classic code):
+      \url{https://pages.cs.wisc.edu/~remzi/OSTEP/}
+\item xv6 ch6, ch9 (spinlock + sleep/wakeup on a real kernel):
+      \url{https://github.com/mit-pdos/xv6-riscv}
+\item CS:APP ch12 (concurrent programming):\ \url{https://csapp.cs.cmu.edu/}
+\item RISC-V A-extension spec (lr/sc semantics): \texttt{riscv.org/specifications}
+\end{itemize}
+
+\begin{rulebox}[Watch instead]
+\begin{itemize}
+\item \textbf{Concurrency \& Race Conditions --- Computerphile}
+      --- the same lost-update demo at this altitude
+      (verified 2026-10-11).
+      \url{https://youtu.be/7ENFeb-J75k}
+\end{itemize}
+\end{rulebox}
+
+\section*{Notes}
+\label{sec:notes13}
+\begin{itemize}
+\item All numbers are verbatim outputs of the chapter's C programs
+      on Apple Silicon with clang+pthreads; the atomic-at-8T
+      regression is measured, not an artifact.
+\item The deliberate-race demo is intentionally volatile-marked ---
+      with optimisation and few threads it sometimes ``passes'';
+      that unreliability is itself a Common-mistakes entry.
+\end{itemize}
+
+\section*{Exercises}
+\addcontentsline{toc}{section}{Exercises}
+\stepcounter{section}
+
+\begin{exercise}[easy]
+Why does the race \emph{sometimes} produce the right answer? Name
+the two factors that decide whether the interleaving bites.
+\end{exercise}
+\begin{solution}[hint]
+Timing (how often threads overlap the load-store window) and
+contention level; correctness never depends on them, only speed.
+\end{solution}
+
+\begin{exercise}[easy]
+Distinguish a data race from a race condition in one sentence each.
+\end{exercise}
+\begin{solution}[hint]
+Race: two accesses to one location, one a write, unsynchronised.
+Condition: program output depends on interleaving order.
+\end{solution}
+
+\begin{exercise}[easy]
+What does the mutex actually \emph{do} when it can't acquire the
+lock --- on this implementation, sleep or spin?
+\end{exercise}
+\begin{solution}[hint]
+pthreads mutexes park the thread in the kernel; pure spinlocks
+burn cycles instead.
+\end{solution}
+
+\begin{exercise}[easy]
+Why does partitioning beat even an uncontended lock? One line.
+\end{exercise}
+\begin{solution}[hint]
+No shared line means no coherency traffic at all.
+\end{solution}
+
+\begin{exercise}[medium]
+Show the exact two-instruction interleaving that loses an update in
+\texttt{counter++} on a single core. Can it happen on one core?
+\end{exercise}
+\begin{solution}[hint]
+Load 5, preempted; other thread loads 5, stores 6; first stores 6
+--- yes, preemption alone suffices.
+\end{solution}
+
+\begin{exercise}[medium]
+Implement the producer--consumer queue with CVs, then break it by
+changing \texttt{while} to \texttt{if}. Describe the failure mode
+and why it passes light testing.
+\end{exercise}
+\begin{solution}[hint]
+Two consumers wake on one signal; loser pops empty --- rare under
+low load, common at capacity.
+\end{solution}
+
+\begin{exercise}[medium]
+Explain why the atomic counter loses to the mutex at 8 threads on
+this laptop, in cache terms.
+\end{exercise}
+\begin{solution}[hint]
+Every atomic op forces line ownership transfers; a parked thread
+makes no traffic at all.
+\end{solution}
+
+\begin{exercise}[medium]
+Design the experiment that distinguishes spinlock vs mutex on a
+load where the critical section is 5 instructions. Predict the
+crossover point.
+\end{exercise}
+\begin{solution}[hint]
+Sweep contention; spin wins when wait $<$ park/wake cost ---
+roughly microseconds.
+\end{solution}
+
+\begin{exercise}[medium]
+A team replaces a mutex with a lock-free queue and sees latency
+\emph{worse} at 2 threads. Two plausible mechanisms?
+\end{exercise}
+\begin{solution}[hint]
+Retry storms under contention, and memory-ordering fences costing
+more than the lock's fast path.
+\end{solution}
+
+\begin{exercise}[hard]
+Prove or repair this ``lock-free'' counter: both writers run a
+shared check-then-store on one variable. Give the Dekker-style
+argument for the failure, state the ordering assumption used, then
+write the correct primitive in pseudo-code.
+\end{exercise}
+\begin{solution}[hint]
+Check-then-act is two operations; need CAS (compare-and-swap) as
+one atomic unit --- on RISC-V, lr/sc loop.
+\end{solution}
+
+\begin{exercise}[hard]
+Extend the lockscale measurement to \emph{reader}-heavy workloads
+(95\% reads). Which mechanism wins then, and which C++17/Rust
+primitive implements it? Why does it beat a mutex?
+\end{exercise}
+\begin{solution}[hint]
+A shared lock (rwlock/shared\_mutex) wins: read paths don't
+serialise; the mutex treats reads as writes.
+\end{solution}
+
+\begin{exercise}[hard]
+Argue from our data that \emph{eliminating sharing} dominates
+\emph{faster locking} at scale: at what thread count does the
+atomic's cache-line cost exceed even the partitioned loop's total
+runtime? Verify on your machine.
+\end{exercise}
+\begin{solution}[hint]
+At 8T atomic=56ms vs partition=0.1ms --- the gap is already
+500$\times$; contention only grows.
+\end{solution}
+
+\begin{exercise}[easy]
+What is the wait-for graph, and which of its shapes is a deadlock?
+\end{exercise}
+\begin{solution}[hint]
+Nodes = threads/locks, edges = holds/wants; a cycle is deadlock.
+\end{solution}
+
+\begin{exercise}[medium]
+Rank the three fixes by engineering cost: partitioned counter,
+mutex, lock-free CAS loop. Which requires the most reasoning per
+line of code?
+\end{exercise}
+\begin{solution}[hint]
+Lock-free --- memory ordering is where the real cost lives.
+\end{solution}
+
+\begin{exercise}[medium]
+False sharing: two threads increment \emph{different} counters on
+one cache line. Predict the scaling curve vs truly-private counters
+and name the fix.
+\end{exercise}
+\begin{solution}[hint]
+Same contention cost as one counter --- pad to line boundary.
+\end{solution}

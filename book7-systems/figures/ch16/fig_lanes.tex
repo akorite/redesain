@@ -1,0 +1,15 @@
+\begin{figure}[htbp]
+\centering
+\begin{tabular}{lccc}
+\toprule
+& \multicolumn{3}{c}{one instruction, four lanes} \\
+\midrule
+scalar & y0+ax0 & y1+ax1 & y2+ax2 \dots \\
+NEON   & \multicolumn{3}{c}{\texttt{vmlaq}: lanes 0--3 in one op} \\
+\bottomrule
+\end{tabular}
+\caption{Data-level parallelism: one \texttt{vmlaq} updates 4 floats
+per issue where the scalar loop updates one. The ALU count is the
+same; the instruction stream is $4\times$ shorter.}
+\label{fig:lanes16}
+\end{figure}
