@@ -12,6 +12,6 @@ all:
 figures:
 	@for f in figures/*.py; do [ -e "$$f" ] && python3 "$$f"; done; true
 test:
-	@for f in code/test_*.sh; do [ -e "$$f" ] && sh "$$f"; done; echo "tests done"
+	@for f in code/test_*.sh; do [ -e "$$f" ] && bash "$$f"; done; echo "tests done"
 clean:
 	rm -f *.aux *.log *.toc *.idx *.ind *.ilg *.out *.lof *.lot

@@ -18,3 +18,9 @@
 | ch14 ALU | elec-0006 | coordinator | REVISE 2026-10-11 — test_ch14.sh delivered was a CSES C++ script (counting_divisors et al.), not an electronics test; replaced with iverilog wrapper, 64-vector + 131072-exhaustive sims PASS — RESOLVED, ACCEPTED |
 | ch15 regfile/datapath | elec-0006 | coordinator | ACCEPTED 2026-10-11 — test_ch15.sh passes as delivered; build clean |
 | ch16 CPU capstone | elec-0006 | coordinator | REVISE 2026-10-11 — test_ch16.sh was a geometry C++ script (point_location et al.); cpu8_tb additionally needs ch14_alu8.v + ch15_regfile8.v on the compile line; fixed wrapper, fib/mult/uart sims PASS — RESOLVED, ACCEPTED |
+| ch14 The 8-bit ALU | elec-0006 | ml-f668 | ACCEPT 2026-10-11 — sims+flags live-verified (131072 exhaustive), watch verified |
+| ch15 Registers/buses/datapath | elec-0006 | ml-f668 | ACCEPT 2026-10-11 — 3 benches live-verified, watch verified |
+| ch16 Small CPU | elec-0006 | ml-f668 | ACCEPT 2026-10-11 — fib/mult/uart live-verified, baud+cell claims real |
+| ch17 Breadboard/real bench | elec-0006 | ml-f668 | ACCEPT 2026-10-11 — sims live; FLAG: WE=3<5 (promote 2 builds to example envs) |
+| ch18 Schematic to board | elec-0006 | ml-f668 | ACCEPT 2026-10-11 — ngspice/gerber/DRC live; FLAG: WE=3<5 |
+| ch19 Microcontrollers/road ahead | elec-0006 | ml-f668 | ACCEPT 2026-10-11 — datasheet quotes real; FLAG: ex=13<15, figs=3<6 |
