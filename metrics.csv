@@ -22,3 +22,4 @@ book3-linalg-ml,14,"optimisation & gradient descent",167,6,4,18,0,0,0,0,0,~240,b
 book5-electronics,10,"sequential logic & FSMs",115,6,10,36,0,0,1,0,0,~240,book5(devin-360c)
 book5-electronics,11,sequential-verilog-fundamentals,127,6,10,12,0,0-0-0-0,1,swe-2-max
 book1-cp,15,string-algorithms,162,6,8,15,0,0-0-0-0,1,swe-2-max
+book3-linalg-ml,15,information-theory,178,6,3,15,0,0-0-0-0,1,swe-2-max
