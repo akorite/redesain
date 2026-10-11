@@ -333,10 +333,10 @@ Derive the risk-parity weight update when sleeves are correlated:
 why does $1/\sigma$ stop being the answer?
 \end{exercise}
 \begin{solution}
-With a general $\Sigma$, risk contribution is
-$w_i(\Sigma w)_i/\sigma_p$; equalizing needs an iterative
-solve (Spinu/Newton), not a closed form --- $1/\sigma_i$ is only exact
-when $\Sigma$ is diagonal.
+With $\Sigma\ne\mathrm{diag}$, risk contribution is
+\[ \mathrm{RC}_i = w_i(\Sigma w)_i/\sigma_p ; \]
+equalizing needs iterative solve (Spinu/Newton), not a closed form ---
+$1/\sigma_i$ is only exact when $\Sigma$ is diagonal.
 \end{solution}
 
 \begin{exercise}[hard]
