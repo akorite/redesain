@@ -238,3 +238,36 @@ DP's tight automaton and the bitset trick are cp-algorithms and the
 USACO Guide's treatment~\cite{usacoguide,cpalgorithms}; the
 optimization horizon is signposted in Halim~\cite{halimcp4}; archive
 problems are official CSES/USACO~\cite{cses}.
+\begin{exercise}[hard] CSES \emph{Hamiltonian Flights} --- Held--Karp counting over masks. \end{exercise}
+
+\section*{Further reading}
+\begin{itemize}
+\item USACO Guide, ``Bitmask DP'' (advanced) --- \S\ref{sec:masks}
+extended to assignment and TSP-shaped problems. \newline\url{https://usaco.guide/gold/dp-bitmasks}
+\item USACO Guide, ``Digit DP'' (advanced) --- the (pos, tight,
+leading) automaton of \S\ref{sec:digit} with variants beyond this
+chapter's adjacent-digit predicate. \newline\url{https://usaco.guide/gold/digit-dp}
+\item USACO Guide, ``Range DP'' (advanced) --- the by-length interval
+recurrence of \S\ref{sec:range} on more problems. \newline\url{https://usaco.guide/gold/dp-ranges}
+\item USACO Guide, ``Tree DP'' (advanced) --- \S\ref{sec:treedp}
+extended to rerooting and heavier tree states. \newline\url{https://usaco.guide/gold/dp-trees}
+\item CSES 1653 \emph{Elevator Rides} (practice) --- \ref{ex:elev}
+verbatim; the canonical bitmask-DP submission. \newline\url{https://cses.fi/problemset/task/1653}
+\item CSES 2220 \emph{Counting Numbers} and 1655 \emph{Removal Game}
+(practice) ---
+\ref{ex:num}/\ref{ex:removal} as archive runs. \newline\url{https://cses.fi/problemset/task/2220}\end{itemize}
+
+\begin{rulebox}[Watch instead]
+\smallskip\noindent\textbf{Best first.}
+``Introduction to Digit Dynamic Programming'' --- Kartik Arora,
+31 min --- \url{https://youtu.be/heUFId6Qd1A}. The
+tight/leading flags and per-digit enumeration of \S\ref{sec:digit}
+built on a SPOJ-style count; uses \texttt{dp[pos][tight][prev]}
+exactly as \texttt{digitdp.h} does.
+\smallskip\noindent
+``Episode 20 --- Bitmask Dynamic Programming'' --- Algorithms Live!,
+67 min --- \url{https://youtu.be/rlTkd4yOQpE}.
+Held--Karp-style mask states and subset iteration for
+\S\ref{sec:masks}; stream format, deeper than needed --- watch the
+first half for the state design. Access date 2026-10-10.
+\end{rulebox}

@@ -235,6 +235,8 @@ includes the next vertex.
 \begin{exercise}[medium] USACO-S \emph{Milk Visits} --- LCA + path membership. \end{exercise}
 \begin{exercise}[medium] AC \emph{Count Descendants} --- Euler + count. \end{exercise}
 \begin{exercise}[medium] CF \emph{Minimize the Diameter} --- reroot variant. \end{exercise}
+\begin{exercise}[medium] CSES \emph{Subtree Queries} --- Euler tour + range structure. \end{exercise}
+\begin{exercise}[medium] CSES \emph{Path Queries} --- the same tour answering root-to-node aggregates. \end{exercise}
 \begin{exercise}[hard] CSES \emph{Finding a Centroid} --- subtree-size bisect. \end{exercise}
 \begin{exercise}[hard] CSES \emph{Counting Paths} --- difference array on paths. \end{exercise}
 \begin{exercise}[hard] CSES \emph{Fixed-Length Paths I} --- centroid decomposition preview. \end{exercise}
@@ -247,3 +249,35 @@ modules~\cite{usacoguide}; cp-algorithms carries the two-DFS proof
 and lifting table~\cite{cpalgorithms}; Halim supplies named
 variants~\cite{halimcp4}; archive problems are official
 CSES/USACO~\cite{cses}.
+
+\section*{Further reading}
+\begin{itemize}
+\item USACO Guide, ``Introduction to Tree Algorithms''
+(intermediate) ---
+subtree aggregations and the two-DFS diameter of \S\ref{sec:diam}. \newline\url{https://usaco.guide/silver/intro-tree}
+\item USACO Guide, ``Euler Tour Technique'' (advanced) --- the tour view of
+\S\ref{sec:euler} with data-structure queries on top. \newline\url{https://usaco.guide/gold/tree-euler}
+\item USACO Guide, ``Binary Jumping'' (advanced) --- the $2^k$ ancestors
+machinery behind \S\ref{sec:lca}/\S\ref{sec:distq}. \newline\url{https://usaco.guide/plat/binary-jump}
+\item cp-algorithms, ``Lowest Common Ancestor --- Binary Lifting''
+(reference) ---
+\S\ref{sec:lca} with the $\mathrm{up}[k][v]$ table in full. \newline\url{https://cp-algorithms.com/graph/lca_binary_lifting.html}
+\item CSES 1131 \emph{Tree Diameter} and 1135 \emph{Distance Queries}
+(practice) ---
+\ref{ex:diam}/\ref{ex:distq} verbatim. \newline\url{https://cses.fi/problemset/task/1131}
+\item CSES 1688 \emph{Company Queries II} (practice) --- LCA-as-submission for
+\ref{ex:comp}. \newline\url{https://cses.fi/problemset/task/1688}\end{itemize}
+
+\begin{rulebox}[Watch instead]
+\smallskip\noindent\textbf{Best first.}
+``LCA -- Lowest Common Ancestor'' --- Errichto Algorithms, 16 min ---
+\url{https://youtu.be/dOAxrhAUIhA}. The binary-lifting
+walk of \S\ref{sec:lca}--\S\ref{sec:distq} from a contestant's angle;
+same \texttt{up[k][v]} table, slightly different lift order in code.
+\smallskip\noindent
+``How to find Diameter of a Tree'' --- Luv, 12 min ---
+\url{https://youtu.be/m8qXEz1Xe8w}. The two-DFS
+diameter trick of \S\ref{sec:diam} plus why it is correct on trees
+only --- matches the book's caution about weighted/non-tree inputs.
+Access date 2026-10-10.
+\end{rulebox}

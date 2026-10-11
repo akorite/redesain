@@ -229,3 +229,37 @@ USACO-Guide lazy-propagation walkthrough~\cite{usacoguide}); Halim's
 structure-selection advice shaped the decision
 table~\cite{halimcp4}; archive problems are official
 CSES/USACO~\cite{cses}.
+
+\section*{Further reading}
+\begin{itemize}
+\item USACO Guide, ``Point Update Range Sum'' (intermediate) --- the Fenwick/segtree
+point-update family of \S\ref{sec:family} with Gold problems. \newline\url{https://usaco.guide/gold/PURS}
+\item cp-algorithms, ``Fenwick Tree'' (reference) ---
+\S\ref{sec:fenwick} plus range-update tricks and the
+\texttt{lower\_bound} descent of \S\ref{sec:orderstat}. \newline\url{https://cp-algorithms.com/data_structures/fenwick.html}
+\item cp-algorithms, ``Segment Tree'' (reference) ---
+\S\ref{sec:segtree}--\S\ref{sec:lazy} including lazy propagation in
+full generality. \newline\url{https://cp-algorithms.com/data_structures/segment_tree.html}
+\item USACO Guide, ``Segment Tree Beats'' (advanced) --- what lies beyond the
+monoid rule of \S\ref{sec:segtree}: chmin-style range bounds. \newline\url{https://usaco.guide/adv/segtree-beats}
+\item CSES 1648 \emph{Dynamic Range Sum Queries} and 1649
+\emph{Dynamic Range Minimum Queries} (practice) ---
+\ref{ex:rsq}/\ref{ex:rmq} verbatim. \newline\url{https://cses.fi/problemset/task/1648}
+\item CSES 1143 \emph{Hotel Queries} and 1749 \emph{List Removals}
+(practice) --- the
+descent-on-tree problems of \S\ref{sec:walk}--\S\ref{sec:orderstat}. \newline\url{https://cses.fi/problemset/task/1143}\end{itemize}
+
+\begin{rulebox}[Watch instead]
+\smallskip\noindent\textbf{Best first.}
+``Fenwick Tree (Binary Index Tree) --- Quick Tutorial and Source Code
+Explanation'' --- Stable Sort, 9 min ---
+\url{https://youtu.be/uSFzHCZ4E-8}. The lowbit trick
+of \S\ref{sec:fenwick} line by line; uses \texttt{bit} array name for
+the book's \texttt{t}, same indexing.
+\smallskip\noindent
+``Segment Tree (Implementation)'' --- Errichto Hard Algorithms,
+79 min --- \url{https://youtu.be/2FShdqn-Oz8}.
+Recursive segtree and lazy propagation coded live, covering
+\S\ref{sec:segtree}--\S\ref{sec:lazy}; deeper and longer than the
+chapter --- pairs with \texttt{lazyseg.h}. Access date 2026-10-10.
+\end{rulebox}

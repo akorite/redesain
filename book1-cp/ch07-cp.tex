@@ -274,3 +274,41 @@ carry the same drills~\cite{usacoguide}; the rho-shape framing and
 Monsters-style multi-source tricks are in
 cp-algorithms~\cite{cpalgorithms} and Halim~\cite{halimcp4}; archive
 problems are official CSES/USACO~\cite{cses}.
+
+\section*{Further reading}
+\begin{itemize}
+\item USACO Guide, ``Graph Traversal'' (intermediate).
+\url{https://usaco.guide/silver/graph-traversal} --- BFS/DFS with the
+same adjacency-list convention, more problems.
+\item USACO Guide, ``Depth First Search'' (intermediate).
+\url{https://usaco.guide/silver/dfs} --- the recursive form of
+\S\ref{sec:dfs} plus flood-fill on grids.
+\item USACO Guide, ``Functional Graphs'' (intermediate).
+\url{https://usaco.guide/silver/func-graphs} --- the successor-graph
+machinery behind \S\ref{sec:func} (\ref{ex:planets}, \ref{ex:teams}).
+\item Laaksonen, \emph{Competitive Programmer's Handbook}, ch.~7
+``Graph algorithms'' (beginner). \url{https://cses.fi/book/book.pdf}
+--- the whole chapter's vocabulary in forty pages.
+\item CSES 1192 \emph{Counting Rooms} and 1193 \emph{Labyrinth}
+(practice). \url{https://cses.fi/problemset/task/1192} ---
+\ref{ex:rooms} and \ref{ex:labyrinth} verbatim.
+\item CSES 1667 \emph{Message Route} and 1679 \emph{Course Schedule}
+(practice). \url{https://cses.fi/problemset/task/1667} --- parent
+pointers and Kahn's order as live submissions.
+\end{itemize}
+
+\begin{rulebox}[Watch instead]
+\smallskip\noindent\textbf{Best first.}
+``Lecture 13: Breadth-First Search (BFS)'' --- MIT OpenCourseWare,
+51 min --- \url{https://www.youtube.com/watch?v=s-CYnVz-uh4}. Levels,
+parent pointers, and the unweighted-shortest-path theorem behind
+\S\ref{sec:bfs}; OCW draws layers as ``level sets'', same idea as the
+book's frontier.
+\smallskip\noindent
+``Lecture 14: Depth-First Search (DFS), Topological Sort'' --- MIT
+OpenCourseWare, 51 min ---
+\url{https://www.youtube.com/watch?v=AfSk24UTFS8}. Edge classification
+and the reverse-finish topological order of \S\ref{sec:topo} (the book
+shows Kahn's algorithm --- both orders are correct; the lecture's is
+DFS-based). Access date 2026-10-10.
+\end{rulebox}

@@ -3,7 +3,7 @@ set -e
 cd "$(dirname "$0")"
 CXX=${CXX:-clang++}; F="-std=c++17 -O2 -Wall -Wextra"
 mkdir -p .build
-for p in nsv histogram sliding_min rmq sqrt_sum; do
+for p in nsv histogram sliding_min rmq sqrt_sum josephus1; do
     $CXX $F -o .build/$p $p.cpp
 done
 expect() { echo "$3" | grep -qF "$2" || { echo "FAIL $1: wanted '$2' in: $3" >&2; exit 1; }; echo "$1 PASS"; }
@@ -81,3 +81,4 @@ for _ in range(300):
 print("histogram stress: 300/300 PASS")
 PY
 echo "test_ch06: ALL PASS"
+expect josephus1 "2 4 6 1 5 3 7" "$(echo 7 | ./.build/josephus1)"

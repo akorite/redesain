@@ -8,7 +8,7 @@ CXX=${CXX:-clang++}
 CXXFLAGS="-std=c++17 -O2 -Wall -Wextra"
 mkdir -p .build
 
-for p in weird missing_math missing_set missing_int mss_linear mss_brute; do
+for p in weird missing_math missing_set missing_int mss_linear mss_brute repetitions; do
     $CXX $CXXFLAGS -o .build/$p $p.cpp
 done
 
@@ -38,3 +38,4 @@ for t in range(200):
         sys.exit(1)
 print("200/200 rounds agree")
 PY
+[ "$(echo ATTCGGGA | .build/repetitions)" = "3" ] && echo "repetitions PASS"

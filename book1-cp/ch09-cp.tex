@@ -239,3 +239,42 @@ USACO Guide's DSU module~\cite{usacoguide}; cp-algorithms carries the
 charged-ranks proof sketch and MST variants~\cite{cpalgorithms};
 Halim supplies the named variants~\cite{halimcp4}; archive problems
 are official CSES/USACO~\cite{cses}.
+
+\section*{Further reading}
+\begin{itemize}
+\item USACO Guide, ``Disjoint Set Union'' (intermediate).
+\url{https://usaco.guide/gold/dsu} --- the union-by-size structure of
+\S\ref{sec:conn} with more Gold problems.
+\item USACO Guide, ``Minimum Spanning Trees'' (intermediate).
+\url{https://usaco.guide/gold/mst} --- Kruskal/Prim with the same
+cut-property framing as \S\ref{sec:cut}.
+\item cp-algorithms, ``Disjoint Set Union'' (reference).
+\url{https://cp-algorithms.com/data_structures/disjoint_set_union.html}
+--- full proof of the near-constant union bound behind
+\S\ref{sec:ack}.
+\item cp-algorithms, ``Kruskal's algorithm'' (reference).
+\url{https://cp-algorithms.com/graph/mst_kruskal.html} ---
+\S\ref{sec:kruskal} with correctness and implementation variants.
+\item CSES 1675 \emph{Road Reparation} and 1676 \emph{Road
+Construction} (practice). \url{https://cses.fi/problemset/task/1675} ---
+\ref{ex:reparation}/\ref{ex:roads} verbatim.
+\item Laaksonen, \emph{Competitive Programmer's Handbook}, ch.~15
+``Spanning trees'' (beginner). \url{https://cses.fi/book/book.pdf} ---
+the whole MST half in twenty pages.
+\end{itemize}
+
+\begin{rulebox}[Watch instead]
+\smallskip\noindent\textbf{Best first.}
+``1.12 Disjoint Sets Data Structure - Weighted Union and Collapsing
+Find'' --- Abdul Bari, 26 min ---
+\url{https://www.youtube.com/watch?v=wU6udHRIkcc}. Array-based union
+by weight + find with path halving --- exactly \S\ref{sec:conn} and
+\S\ref{sec:ack}; Bari calls them ``weighted union''/``collapsing
+find'', the book calls them union by size/path compression.
+\smallskip\noindent
+``Lec 8'' --- MIT OpenCourseWare 6.042J, 83 min ---
+\url{https://www.youtube.com/watch?v=GJpt_3ie4WU}. Spanning trees and
+the gray-zone/grow-where-you-can MST method matching
+\S\ref{sec:kruskal}--\S\ref{sec:prim}; more proof depth than the book
+needs, worth it for \S\ref{sec:cut}. Access date 2026-10-10.
+\end{rulebox}

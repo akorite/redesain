@@ -66,7 +66,7 @@ cleverer. The clever algorithm that takes an hour to find loses to the
 enumeration that takes ten minutes to write and a second to run.
 \end{remark}
 
-\begin{example}[WE 2.4 --- USACO Bronze \emph{Milk Pails}: bounds from the
+\begin{example}[WE 2.4 --- USACO-B \emph{Milk Pails}: bounds from the
 constraints]\label{ex:milkpails}
 Farmer John has two pails of sizes $X$ and $Y$, which he may fill completely
 any number of times and pour into a third pail of capacity $M$ ($M \le 1000$).
@@ -467,15 +467,15 @@ its own search tree]
 adjacent strings differ in one bit. [implement --- one recursive flip order
 produces the whole list]
 \end{exercise}
-\begin{exercise}[easy] USACO Bronze \emph{Diamond Collector}: choose the two
+\begin{exercise}[easy] USACO-B \emph{Diamond Collector}: choose the two
 largest diamonds whose sizes differ by at most $k$. Trains bounded nested
 loops and the ``sort then think'' reflex.
 \end{exercise}
-\begin{exercise}[easy] USACO Bronze \emph{Daisy Chains}: count plants whose
+\begin{exercise}[easy] USACO-B \emph{Daisy Chains}: count plants whose
 height equals the average height of some contiguous interval. Nested loops
 over interval endpoints --- the space is $O(n^2)$, the check is $O(n)$.
 \end{exercise}
-\begin{exercise}[easy] USACO Bronze \emph{Counting Liars}: find the earliest
+\begin{exercise}[easy] USACO-B \emph{Counting Liars}: find the earliest
 true statement in a list of claims about a hidden position. Sort the claims
 and walk --- complete search over $n$ candidates.
 \end{exercise}
@@ -486,11 +486,11 @@ with given scores, or report impossible. Search meets construction.
 \times n$ grid so each cell's mex condition holds. Enumeration under a local
 constraint --- a backtracking-shaped construction.
 \end{exercise}
-\begin{exercise}[medium] USACO Bronze \emph{Cow Gymnastics}: from $K$
+\begin{exercise}[medium] USACO-B \emph{Cow Gymnastics}: from $K$
 practice rankings, count pairs of cows whose order never changes. Triple
 nested loops bounded by the constraints.
 \end{exercise}
-\begin{exercise}[medium] USACO Bronze \emph{Triangles}: sum the areas of all
+\begin{exercise}[medium] USACO-B \emph{Triangles}: sum the areas of all
 axis-aligned right triangles in a point set. Enumeration over $\binom{n}{2}$
 or $\binom{n}{3}$ --- choose which.
 \end{exercise}
@@ -524,3 +524,44 @@ ratios, not the numbers, carry the argument. Halim's text~\cite{halimcp4}
 organises the same material around UVa problem families --- cited here, not
 consulted for content.
 
+
+\section*{Further reading}
+\begin{itemize}
+\item Laaksonen, \emph{Competitive Programmer's Handbook}, ch.~5
+``Complete search'' (beginner). \url{https://cses.fi/book/book.pdf} ---
+subset/permutation generation and pruning, the backbone of this chapter.
+\item USACO Guide, ``Complete Search'' (beginner).
+\url{https://usaco.guide/bronze/intro-complete} --- the enumerative half of
+the chapter in more exercises.
+\item USACO Guide, ``Complete Search with Recursion'' (beginner).
+\url{https://usaco.guide/bronze/complete-rec} --- the recursive half,
+including the same subset/queen idioms.
+\item USACO Guide, ``Introduction to Greedy Algorithms'' (beginner).
+\url{https://usaco.guide/bronze/intro-greedy} --- when enumeration is too
+big: the Ch~3 bridge.
+\item CSES 1623 \emph{Apple Division} (practice).
+\url{https://cses.fi/problemset/task/1623} --- the canonical subset-sum
+search used in \ref{ex:apple} and a good first archive submission.
+\item cp-algorithms, ``Generating all $k$-combinations'' (reference).
+\url{https://cp-algorithms.com/combinatorics/generating_combinations.html}
+--- bitmask iteration idioms beyond the two shown here.
+\item Wikipedia, ``Backtracking'' (reference).
+\url{https://en.wikipedia.org/wiki/Backtracking} --- the general
+vocabulary (state space tree, constraint propagation) this chapter
+specializes.
+\end{itemize}
+
+\begin{rulebox}[Watch instead]
+\smallskip\noindent\textbf{Best first.}
+``6.2 Sum Of Subsets Problem - Backtracking'' --- Abdul Bari, 12 min ---
+\url{https://www.youtube.com/watch?v=kyLxTdsT8ws}. The state-space tree and
+prune-on-dead-end of \S\ref{sec:exhaustive}, worked on the same problem
+shape as \ref{ex:apple}; hand-drawn trees, code-agnostic.
+\smallskip\noindent
+``The N Queens Problem using Backtracking/Recursion - Explained'' ---
+Back To Back SWE, 14 min ---
+\url{https://www.youtube.com/watch?v=wGbuCyNpxIg}. Covers
+\S\ref{sec:backtracking} end-to-end (place/backtrack on the diagonal
+constraints); Java-flavoured code, same recursion shape as the book's C++.
+Access date 2026-10-10.
+\end{rulebox}

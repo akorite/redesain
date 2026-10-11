@@ -281,3 +281,40 @@ Guide's Gold modules~\cite{usacoguide} and
 cp-algorithms~\cite{cpalgorithms}; 0-1 BFS and the negative-edge
 autopsy appear in Halim~\cite{halimcp4}; archive problems are
 official CSES/USACO~\cite{cses}.
+
+\section*{Further reading}
+\begin{itemize}
+\item USACO Guide, ``Shortest Paths with Non-Negative Edge Weights''
+(intermediate). \url{https://usaco.guide/gold/shortest-paths} ---
+Dijkstra as used in \S\ref{sec:dij} with harder problems.
+\item cp-algorithms, ``Dijkstra Algorithm'' (reference).
+\url{https://cp-algorithms.com/graph/dijkstra.html} --- the
+priority-queue version and its proof of correctness.
+\item cp-algorithms, ``Bellman--Ford Algorithm'' (reference).
+\url{https://cp-algorithms.com/graph/bellman_ford.html} ---
+\S\ref{sec:bf} including the negative-cycle reachability trick of
+\ref{ex:highscore}.
+\item cp-algorithms, ``Floyd--Warshall'' (reference).
+\url{https://cp-algorithms.com/graph/all-pair-shortest-path-floyd-warshall.html}
+--- \S\ref{sec:fw}'s cubic all-pairs DP and when to prefer it.
+\item CSES 1671 \emph{Shortest Routes I} and 1672 \emph{Shortest
+Routes II} (practice). \url{https://cses.fi/problemset/task/1671} ---
+\ref{ex:routes1}/\ref{ex:routes2} verbatim.
+\item CSES 1673 \emph{High Score} and 1197 \emph{Cycle Finding}
+(practice). \url{https://cses.fi/problemset/task/1673} --- negated
+Bellman--Ford; the Common mistakes section's exercise.
+\end{itemize}
+
+\begin{rulebox}[Watch instead]
+\smallskip\noindent\textbf{Best first.}
+``Lecture 16: Dijkstra'' --- MIT OpenCourseWare, 51 min ---
+\url{https://www.youtube.com/watch?v=2E7MmKv0Y24}. The settle-order
+invariant of \S\ref{sec:dij} with the same relaxation picture as
+Figure~\ref{fig:relax}; OCW writes $d(s,v)$ for the book's
+$\mathrm{dist}(v)$.
+\smallskip\noindent
+``Lecture 17: Bellman-Ford'' --- MIT OpenCourseWare, 49 min ---
+\url{https://www.youtube.com/watch?v=ozsuci5pIso}. The edge-relaxation
+proof and negative-cycle detection of \S\ref{sec:bf}; notation matches
+one-to-one. Access date 2026-10-10.
+\end{rulebox}
