@@ -1,0 +1,18 @@
+* ch06_switch_load.cir -- 2N7000-class NMOS, low-side switch, gate sweep
+* 12 V rail, 600 ohm LED-strip load; sweep gate 0..5 V
+V12 3 0 dc 12
+VG 1 0 dc 0
+M1 2 1 0 0 NMOS2N7000 W=1u L=1u
+RLOAD 3 2 600
+.model NMOS2N7000 NMOS(vto=2.1 kp=15m lambda=0.01)
+.control
+dc VG 0 5 0.1
+set filetype=ascii
+wrdata ch06_switch_load.dat v(2)
+* operating points at 3.3 V and 5 V gate drive
+dc VG 3.3 3.3 0.01
+print v(2)
+dc VG 5 5 0.01
+print v(2)
+.endc
+.end

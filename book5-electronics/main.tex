@@ -1,0 +1,32 @@
+\documentclass[11pt,a4paper,twoside,openany]{book}
+\usepackage{lifeos}
+\usepackage{pgfplots}\pgfplotsset{compat=1.17}
+\usepackage{circuitikz}
+\usepackage{graphicx}
+\usepackage[font=small,labelfont=bf]{caption}
+\usepackage{subcaption}
+\usepackage{siunitx}
+\usepackage{makeidx}\makeindex
+\setlifeostitle{BOOK TITLE}
+\setcounter{tocdepth}{1}
+
+\begin{document}
+\frontmatter
+\pagestyle{empty}
+\makecover{BOOK TITLE}{Subtitle}{Study textbook}
+\newpage\pagestyle{fancy}
+\tableofcontents
+\mainmatter
+\input{ch01-electronics}
+\input{ch02-electronics}
+\input{ch03-electronics}
+\input{ch04-electronics}
+\input{ch05-electronics}
+\input{ch06-electronics}
+\input{ch07-electronics}
+\input{ch08-electronics}
+\input{ch09-electronics}
+\backmatter
+\input{bib}
+\printindex
+\end{document}

@@ -1,0 +1,26 @@
+% Figure 2.1: reading a 4-band resistor
+\begin{tikzpicture}[scale=1.0,font=\small]
+  % resistor body
+  \draw[thick] (-4.2,0) -- (-3.1,0);
+  \draw[thick] (3.1,0) -- (4.2,0);
+  \draw[thick,fill=graybg,rounded corners=2pt] (-3.1,-0.55) rectangle (3.1,0.55);
+  % bands: red red brown gold = 220 ohm
+  \fill[red!75!black]     (-2.55,-0.55) rectangle (-2.05,0.55);
+  \fill[red!75!black]     (-1.35,-0.55) rectangle (-0.85,0.55);
+  \fill[brown!70!black]   ( 0.05,-0.55) rectangle ( 0.55,0.55);
+  \fill[yellow!60!orange!70] ( 2.15,-0.55) rectangle ( 2.65,0.55);
+  % callouts: stagger two depths to avoid collisions
+  \draw[->,slate] (-2.3,-0.6) -- (-2.3,-1.1);
+  \node[below,align=center,font=\scriptsize] at (-2.3,-1.1) {1st digit\\[-2pt]red = 2};
+  \draw[->,slate] (-1.1,-0.6) -- (-1.1,-1.75);
+  \node[below,align=center,font=\scriptsize] at (-1.1,-1.75) {2nd digit\\[-2pt]red = 2};
+  \draw[->,slate] (0.3,-0.6) -- (0.3,-1.1);
+  \node[below,align=center,font=\scriptsize] at (0.3,-1.1) {multiplier\\[-2pt]brown = $\times 10^{1}$};
+  \draw[->,slate] (2.4,-0.6) -- (2.4,-1.75);
+  \node[below,align=center,font=\scriptsize] at (2.4,-1.75) {tolerance\\[-2pt]gold = $\pm 5\%$};
+  \node[align=center,font=\small] at (0,-3.1)
+    {$2\,2\,\times 10^{1} = \qty{220}{\ohm}\pm5\%$};
+  % read direction note
+  \node[slate,align=left,font=\scriptsize,anchor=west] at (4.5,-1.1)
+    {read digits toward the\\[-2pt]multiplier; the tolerance\\[-2pt]band sits alone at the end};
+\end{tikzpicture}

@@ -1,0 +1,18 @@
+\begin{circuitikz}[american, scale=0.9, transform shape]
+  % low-side: NMOS between load and ground
+  \node[above, align=center] at (1.5,3.6) {\small\textbf{low-side} (ours)};
+  \draw (0,3.2) node[vcc]{12 V} to[R, l_={load}] (0,1.8) -- (1.5,1.8);
+  \draw (1.5,0.6) node[nmos, anchor=S](M){};
+  \draw (M.D) -- (1.5,1.8);
+  \draw (M.S) node[ground]{};
+  \draw (M.G) to[short,-o] ++(-1.2,0) node[left]{3.3 V logic};
+  \node[align=left, font=\small, anchor=west] at (3.0,1.2) {load keeps 12 V on top;\\source on ground --- easy gate drive};
+  % high-side: switch above the load
+  \node[above, align=center] at (8.5,3.6) {\small\textbf{high-side}};
+  \draw (7,3.2) node[vcc]{12 V} -- (8.5,3.2);
+  \draw (8.5,2.4) node[nmos, anchor=D](H){};
+  \draw (8.5,3.2) -- (H.D);
+  \draw (H.S) to[R, l_={load}] (8.5,0) node[ground]{};
+  \draw (H.G) to[short,-o] ++(-1.2,0) node[left]{drive};
+  \node[align=left, font=\small, anchor=west] at (10.0,1.2) {source rides the load ---\\gate must go \emph{above} the rail};
+\end{circuitikz}

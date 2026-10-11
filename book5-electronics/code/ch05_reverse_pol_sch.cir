@@ -1,0 +1,10 @@
+* ch05_reverse_pol_sch.cir -- same guard with a Schottky diode
+.model DSCH D(is=1e-5 n=1.05 rs=0.2)
+V1 1 0 dc 5
+D1 1 2 DSCH
+R1 2 0 100
+.control
+op
+print v(1) v(2) i(v1)
+.endc
+.end

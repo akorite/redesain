@@ -1,0 +1,30 @@
+% The three everyday configs side by side
+\begin{circuitikz}[american, scale=0.82, transform shape]
+% --- buffer ---
+\begin{scope}
+\draw (0,0) node[op amp] (a1) {};
+\draw (a1.-) -- ++(0,-1) -| (a1.out) node[right] {$v_{\mathrm{out}}$};
+\draw (a1.+) to[short, -o] ++(-0.8,0) node[left] {$v_{\mathrm{in}}$};
+\node at (0,-2.6) {\small buffer: $v_{\mathrm{out}}=v_{\mathrm{in}}$};
+\end{scope}
+% --- inverting ---
+\begin{scope}[xshift=4.6cm]
+\draw (0,0) node[op amp] (a2) {};
+\draw (a2.-) to[R, l=$R_{\mathrm{in}}$, -o] ++(-2,0) node[left] {$v_{\mathrm{in}}$};
+\draw (a2.-) -- ++(0,1.0) coordinate (fb);
+\draw (fb) to[R, l=$R_f$] (fb -| a2.out) -- (a2.out);
+\draw (a2.out) node[right] {$v_{\mathrm{out}}$};
+\draw (a2.+) -- ++(0,-0.7) node[ground] {};
+\node at (0,-2.6) {\small inverting: $v_{\mathrm{out}}=-\dfrac{R_f}{R_{\mathrm{in}}}v_{\mathrm{in}}$};
+\end{scope}
+% --- non-inverting ---
+\begin{scope}[xshift=9.4cm]
+\draw (0,0) node[op amp] (a3) {};
+\draw (a3.-) -- ++(0,-0.8) coordinate (div);
+\draw (div) to[R, l_=$R_2$] ++(-1.7,0) node[ground] {};
+\draw (a3.out) -- ++(0,-0.8) -| (div -| a3.out) to[R, l_=$R_1$] (div);
+\draw (a3.+) to[short, -o] ++(-0.8,0) node[left] {$v_{\mathrm{in}}$};
+\draw (a3.out) node[right] {$v_{\mathrm{out}}$};
+\node at (0,-2.6) {\small non-inverting: $v_{\mathrm{out}}=\Bigl(1+\dfrac{R_1}{R_2}\Bigr)v_{\mathrm{in}}$};
+\end{scope}
+\end{circuitikz}

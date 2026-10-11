@@ -1,0 +1,12 @@
+% fig_chargedischarge.tex -- Figure 4.4: charging vs discharging
+\begin{tikzpicture}
+\begin{axis}[width=0.85\textwidth, height=6cm,
+  xlabel={$t$ (\unit{\milli\second})}, ylabel={$v_C$ (\unit{\volt})},
+  xmin=0, xmax=5, ymin=0, ymax=5.4, grid=both, grid style={gray!15},
+  legend style={at={(0.97,0.5)},anchor=east,font=\small}]
+  \addplot[blue, thick] table {figures/ch04/ch04_rc_step_ms.dat};
+  \addlegendentry{charging toward 5 V}
+  \addplot[red, thick] table {figures/ch04/ch04_rc_discharge_ms.dat};
+  \addlegendentry{discharging toward 0}
+\end{axis}
+\end{tikzpicture}

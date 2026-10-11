@@ -1,0 +1,18 @@
+* ch05_flyback_diode.cir -- ch4 relay coil with a freewheel diode across it
+* WITHOUT the diode the switch node peaked at 1646 V (ch4 sim).
+* WARNING comment: omitting this diode is what kills real transistors.
+.model SW1 SW vt=0.5 vh=0.1 ron=1 roff=1e9
+.model DSI D(is=1e-14 n=1.1 rs=0.5)
+V1 1 0 dc 12
+Rcoil 1 2 70
+L1 2 3 10m IC=0
+S1 3 0 10 0 SW1
+Cpar 3 0 100p
+D1 3 1 DSI
+Vsw 10 0 pulse(1 0 1m 1n 1n 1 1)
+.control
+tran 500n 1.06m uic
+wrdata ch05_flyback_diode.dat v(3) i(l1)
+meas tran VPK MAX v(3)
+.endc
+.end

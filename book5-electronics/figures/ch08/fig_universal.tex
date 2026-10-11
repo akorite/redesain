@@ -1,0 +1,27 @@
+% NAND universality: NOT, AND, OR from NANDs only
+\begin{circuitikz}[american, scale=0.8, transform shape, font=\small]
+% NOT from NAND (tie inputs)
+\node[american nand port] (n1) at (0,0) {};
+\draw (n1.in 1) -- (n1.in 2) to[short,-o] ++(-0.7,0) node[left] {$a$};
+\draw (n1.out) to[short,-o] ++(0.4,0) node[right] {$\bar a$};
+\node at (0,-1.4) {NOT};
+% AND from NAND + NAND-NOT
+\node[american nand port] (n2) at (3.4,0) {};
+\node[american nand port] (n3) at (5.4,0) {};
+\draw (n2.in 1) to[short,-o] ++(-0.7,0) node[left] {$a$};
+\draw (n2.in 2) to[short,-o] ++(-0.7,0) node[left] {$b$};
+\draw (n3.in 1) -- (n3.in 2);
+\draw (n2.out) -- ++(0.6,0) |- (n3.in 1) -- ++(-0.6,0);
+\draw (n3.out) to[short,-o] ++(0.4,0) node[right] {$ab$};
+\node at (4.4,-1.4) {AND};
+% OR from NAND-NOT inputs + NAND
+\node[american nand port] (n4) at (8.0,0.5) {};
+\node[american nand port] (n5) at (8.0,-0.9) {};
+\node[american nand port] (n6) at (10.2,-0.2) {};
+\draw (n4.in 1) -- (n4.in 2) to[short,-o] ++(-0.7,0) node[left] {$a$};
+\draw (n5.in 1) -- (n5.in 2) to[short,-o] ++(-0.7,0) node[left] {$b$};
+\draw (n4.out) -| (n6.in 1);
+\draw (n5.out) -| (n6.in 2);
+\draw (n6.out) to[short,-o] ++(0.4,0) node[right] {$a+b$};
+\node at (9.0,-2.0) {OR (De Morgan)};
+\end{circuitikz}

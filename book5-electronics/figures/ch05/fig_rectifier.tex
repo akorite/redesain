@@ -1,0 +1,28 @@
+% fig_rectifier.tex -- half-wave rectifier schematic + real .tran waveforms
+\begin{tikzpicture}[american, font=\small]
+  \draw (0,0) node[sground]{};
+  \draw (0,0) to[sV, l_=$v_{\mathrm{in}}$] (0,2)
+        to[D, l=D1] (2,2) -- (4,2)
+        to[C, l_={\qty{100}{\micro\farad}}, *-] (4,0) -- (0,0);
+  \node[font=\small, left, align=right] at (-0.5,1.0) {10 Vpk\\50 Hz};
+  \draw (4,2) to[R, l={\qty{1}{\kilo\ohm}}] (6,2) -- (6,0) -- (4,0);
+  \node[circ] at (4,2) {}; \node[right, font=\small] at (4.1,2.25){$v_{\mathrm{out}}$};
+\end{tikzpicture}\\[0.8em]
+\begin{tikzpicture}
+\begin{axis}[
+  width=0.72\linewidth, height=4.6cm,
+  xlabel={$t$ (ms)}, ylabel={V},
+  xmin=40, xmax=100, ymin=-11, ymax=11,
+  grid=both, tick label style={font=\small},
+  legend style={font=\small, at={(0.03,0.30)}, anchor=west},
+]
+\addplot[gray] table[x index=0, y index=1] {figures/ch05/ch05_rectifier_ms.dat};
+\addlegendentry{$v_{\mathrm{in}}$}
+\addplot[blue, thick] table[x index=0, y index=2] {figures/ch05/ch05_rectifier_ms.dat};
+\addlegendentry{$v_{\mathrm{out}}$ (C=\qty{100}{\micro\farad})}
+\draw[dashed, red] (axis cs:40,9.19) -- (axis cs:100,9.19);
+\draw[dashed, red] (axis cs:40,7.69) -- (axis cs:100,7.69);
+\node[font=\small, anchor=west, text=red] at (axis cs:50,-4)
+  {ripple $\approx$ \qty{1.5}{\volt} p-p};
+\end{axis}
+\end{tikzpicture}

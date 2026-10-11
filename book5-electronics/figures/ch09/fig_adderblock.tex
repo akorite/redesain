@@ -1,0 +1,7 @@
+% adder block diagram, CLA teaser
+\begin{tikzpicture}[font=\footnotesize, box/.style={draw, rounded corners=2pt, minimum width=2.2cm, minimum height=1.0cm, align=center}]
+\node[box] (rc) at (0,0) {ripple adder\\ area: $n$ FAs\\ delay: $\sim2n$};
+\node[box] (cla) at (5.2,0) {carry-lookahead\\ area: more logic\\ delay: $\sim$4 levels};
+\draw[->, thick] (rc) -- (cla) node[midway, above] {trade};
+\node[gray] at (2.6,-1.4) {same result, different patience — ch10 counts real delays};
+\end{tikzpicture}

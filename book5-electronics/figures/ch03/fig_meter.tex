@@ -1,0 +1,10 @@
+% fig_meter.tex -- Figure 3.5: meter loading
+\begin{circuitikz}[american]
+  \draw (0,0) to[battery1, l_=\qty{5}{\volt}, invert] (0,3.4);
+  \draw (0,3.4) to[R, l=\qty{1}{\mega\ohm}] (3,3.4);
+  \draw (3,3.4) to[R, l_=\qty{1}{\mega\ohm}] (3,0) -- (0,0);
+  % DMM across bottom resistor
+  \draw (3,3.4) -- (5,3.4) to[vR, l_=DMM, n=mymeter] (5,0) -- (3,0);
+  \draw[dashed] (5,3.4) to[R, l=\qty{10}{\mega\ohm}] (5,0);
+  \node[right,align=left] at (5.9,1.9) {reads \qty{2.38}{\volt},\\ not \qty{2.5}{\volt}};
+\end{circuitikz}

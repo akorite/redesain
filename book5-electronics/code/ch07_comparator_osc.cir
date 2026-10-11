@@ -1,0 +1,25 @@
+* ch07_comparator_osc.cir -- comparator + RC = relaxation oscillator
+* positive feedback divider k=R1/(R1+R2)=0.5 -> thresholds +-k*Vsat;
+* RC charges toward the rail, flips state each threshold crossing.
+* f = 1 / (2*R*C*ln((1+k)/(1-k))) = 1/(2*10k*100n*ln3) ~= 455 Hz
+Vcc 10 0 dc 12
+Vee 11 0 dc -12
+X1 4 5 3 10 11 OPAMP
+R2 3 4 10k
+R1 4 0 10k
+R 3 5 10k
+C 5 0 100n ic=1
+.subckt OPAMP p n out vcc vee
+* teaching macro: differential gain ~10500 (tanh), saturates +-10.5 V
+* (~1.5 V inside the +-12 V rails, typical non-RRIO swing)
+B1 int 0 V = 10.5*tanh((v(p)-v(n))/0.001)
+Ro int out 50
+.ends OPAMP
+.control
+tran 2u 25m uic
+set filetype=ascii
+wrdata ch07_osc_ms.dat v(3) v(5)
+meas tran T4 when v(3)=0 rise=4
+meas tran T8 when v(3)=0 rise=8
+.endc
+.end

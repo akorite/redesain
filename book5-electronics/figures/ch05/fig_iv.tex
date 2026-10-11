@@ -1,0 +1,16 @@
+% fig_iv.tex -- real ngspice-47 dc sweep of the chapter's diode model
+\begin{tikzpicture}
+\begin{axis}[
+  width=0.7\linewidth, height=5.2cm,
+  xlabel={diode voltage $v_D$ (V)}, ylabel={diode current $i_D$ (mA)},
+  xmin=0, xmax=1.0, ymin=0, ymax=260,
+  grid=both, minor tick num=1, tick label style={font=\small},
+]
+\addplot[blue, thick] table[x index=0, y expr=\thisrowno{1}*1e3]
+  {figures/ch05/ch05_iv.dat};
+\draw[dashed, gray] (axis cs:0.7,0) -- (axis cs:0.7,250)
+  node[pos=0.94, anchor=south, rotate=90, font=\small] {$\approx$0.7 V knee};
+\node[font=\small, anchor=west] at (axis cs:0.35,180)
+  {exponential, not a wall};
+\end{axis}
+\end{tikzpicture}

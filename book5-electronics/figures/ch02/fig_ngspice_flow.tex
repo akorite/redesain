@@ -1,0 +1,29 @@
+% Figure 2.3: what a netlist is, and where the output comes from
+\begin{tikzpicture}[font=\small,>=stealth,
+  box/.style={draw,rounded corners=1pt,inner sep=6pt,align=left},
+  lbl/.style={font=\scriptsize\itshape,text=slate}]
+  % left: the netlist
+  \node[box,fill=graybg,text width=4.6cm] (nl) {
+    \ttfamily\scriptsize
+    * ch02\_led.cir\\[1pt]
+    V1 1 0 DC 5\\
+    R1 1 2 200\\
+    D1 2 0 LEDMOD\\
+    .model LEDMOD D (...)\\
+    .op\\
+    .end};
+  % middle: the simulator
+  \node[box,fill=accentsoft,anchor=west,align=center] (sim) at ($(nl.east)+(0.9cm,0)$)
+    {\textbf{ngspice}\\[-2pt]\scriptsize builds equations\\[-2pt]\scriptsize solves them};
+  % right: the output
+  \node[box,fill=graybg,text width=4.4cm,anchor=west] (out) at ($(sim.east)+(0.9cm,0)$) {
+    \ttfamily\scriptsize
+    v(2) = 2.0451e+00\\
+    v1\#branch = -1.47745e-02\\[1pt]
+    \rmfamily\scriptsize (volts and amps,\\[-2pt]\scriptsize\ttfamily every node and element)};
+  \draw[->,thick] (nl) -- (sim) node[midway,above,lbl]{text in};
+  \draw[->,thick] (sim) -- (out) node[midway,below,lbl]{numbers out};
+  % annotations under netlist
+  \node[lbl,anchor=north west,text width=4.6cm] at ($(nl.south west)+(0,-4pt)$)
+    {a text file: one line per element, first letter = type (V, R, D), numbers = node names, node 0 = ground};
+\end{tikzpicture}

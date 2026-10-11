@@ -1,0 +1,18 @@
+\begin{tikzpicture}
+\begin{axis}[width=11cm,height=6.5cm, xlabel={$v_{in}$ (V)}, ylabel={$v_{out}$ (V)},
+  xmin=0,xmax=3.3, ymin=0,ymax=3.4, grid=both, legend pos=north east,
+  every axis plot/.append style={thick}]
+  \addplot[blue] table {figures/ch06/ch06_nmos_inv.dat};
+  \addlegendentry{NMOS + $10\,\mathrm{k}\Omega$ pull-up}
+  \addplot[red] table {figures/ch06/ch06_cmos_inv.dat};
+  \addlegendentry{CMOS}
+  % noise-margin landmarks on the NMOS curve
+  \draw[dashed, slate] (axis cs:1.2,0) -- (axis cs:1.2,3.3);
+  \draw[dashed, slate] (axis cs:1.7,0) -- (axis cs:1.7,3.3);
+  \draw[dashed, slate] (axis cs:0,0.071) -- (axis cs:3.3,0.071);
+  \node[font=\scriptsize, anchor=west] at (axis cs:0.05,0.45) {$V_{OL}\approx0.07$};
+  \node[font=\scriptsize, rotate=90, anchor=south] at (axis cs:1.2,1.0) {$V_{IL}\approx1.2$};
+  \node[font=\scriptsize, rotate=90, anchor=south] at (axis cs:1.7,1.0) {$V_{IH}\approx1.7$};
+  \node[font=\scriptsize, anchor=west] at (axis cs:0.05,3.15) {$V_{OH}=3.30$};
+\end{axis}
+\end{tikzpicture}

@@ -1,0 +1,13 @@
+* ch05_rectifier_bigc.cir -- same rectifier with 470 uF for ripple-vs-C
+.model DSI D(is=1e-14 n=1.1 rs=0.5)
+Vin 1 0 sin(0 10 50)
+D1 1 2 DSI
+R1 2 0 1000
+C1 2 0 470u
+.control
+tran 20u 100m
+wrdata ch05_rectifier_bigc.dat v(1) v(2)
+meas tran VMAX MAX v(2) from=60m to=100m
+meas tran VMIN MIN v(2) from=60m to=100m
+.endc
+.end

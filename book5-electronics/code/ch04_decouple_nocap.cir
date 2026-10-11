@@ -1,0 +1,11 @@
+* ch04_decouple_nocap.cir -- SAME rail, same current step, NO cap
+V1 1 0 DC 5
+R1 1 2 10
+I1 2 0 PULSE(0 0.05 0.5u 1n 1n 0.2u 1)
+.control
+tran 1n 1.5u
+let vrail = v(2)
+set filetype=ascii
+wrdata ch04_decouple_nocap.dat vrail
+.endc
+.end

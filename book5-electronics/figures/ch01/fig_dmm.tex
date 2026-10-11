@@ -1,0 +1,25 @@
+% Figure: a multimeter -- dial and probe jacks (ch01)
+\begin{tikzpicture}[scale=0.95,font=\small]
+  % body
+  \draw[thick,rounded corners=8pt] (-2.3,-3.4) rectangle (2.3,3.4);
+  % screen
+  \draw[thick,fill=graybg] (-1.4,2.35) rectangle (1.4,3.05);
+  \node at (0,2.7) {\scriptsize\texttt{1.990}};
+  % dial
+  \draw[thick] (0,0.35) circle (1.5);
+  \fill[accentsoft] (0,0.35) circle (1.18);
+  % needle
+  \draw[thick,accent,->] (0,0.35) -- (210:1.05);
+  \fill[accent] (0,0.35) circle (0.09);
+  % dial markings around
+  \foreach \a/\t in {150/{V$\sim$}, 120/{V\textbf{---}}, 90/{$\Omega$}, 60/{mA}, 30/{10\,A}, 0/{OFF}, -30/{cont.}, -60/{CAP}}
+    \node[font=\scriptsize] at (\a:1.95) {\t};
+  % jacks
+  \draw[thick,fill=white] (-1.3,-2.3) circle (0.32) node[below,yshift=-7pt]{\scriptsize 10\,A};
+  \draw[thick,fill=white] (0,-2.3) circle (0.32) node[below,yshift=-7pt]{\scriptsize COM};
+  \draw[thick,fill=white] (1.3,-2.3) circle (0.32) node[below,yshift=-7pt]{\scriptsize V$\Omega$};
+  % probes
+  \draw[very thick] (-1.6,-2.9) -- (-2.5,-4.3) node[pos=1.05,below]{\scriptsize red};
+  \draw[very thick] (0,-2.62) -- (-0.4,-4.4) node[pos=1.05,below]{\scriptsize black};
+  \node[slate] at (0,-5.1) {\scriptsize red into V$\Omega$ for volts and ohms; the 10\,A jack is for current only};
+\end{tikzpicture}

@@ -1,0 +1,11 @@
+* ch03_thevenin_model.cir -- Thevenin equivalent, same sweep
+I1 2 0 DC 0
+VT 1 0 DC 3.3333333
+RT 1 2 666.66667
+.control
+dc i1 0 0.01 0.0005
+let vout = v(2)
+set filetype=ascii
+wrdata ch03_thevenin_loadline.dat vout
+.endc
+.end

@@ -1,0 +1,11 @@
+\begin{tikzpicture}
+  % NMOS symbol with terminals labelled and body diode noted
+  \node[nmos, scale=1.4](Q) at (2,1.5) {};
+  \node[left] at (Q.G) {gate $G$};
+  \node[above right] at (Q.D) {drain $D$};
+  \node[below right] at (Q.S) {source $S$};
+  \draw[->, accent, thick] ($(Q.G)+(-0.6,0)$) -- ($(Q.G)+(-0.1,0)$);
+  \node[anchor=west, align=left, font=\small] at (3.6,1.5)
+    {$v_{GS} > V_{th}$: channel conducts $D \leftrightarrow S$\\
+     gate draws (almost) no DC current};
+\end{tikzpicture}

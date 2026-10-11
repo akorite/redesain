@@ -1,0 +1,23 @@
+% Figure 2.1: resistor V-I line vs LED I-V curve (diode data = real ngspice sweep,
+% figures/ch02/ch02_diode_iv.dat, produced by code/ch02_diode_iv.cir)
+\begin{tikzpicture}
+\begin{axis}[
+  width=12cm,height=6.8cm,
+  xlabel={voltage across the part (V)},
+  ylabel={current through it (mA)},
+  xmin=0,xmax=3,ymin=0,ymax=20,
+  grid=both,grid style={rulegray!40},
+  legend style={at={(0.03,0.97)},anchor=north west,draw=none,font=\small,fill=none},
+  tick label style={font=\small},label style={font=\small},
+]
+% resistor: I = V/200 ohm -> mA = 1000*V/200 = 5*V
+\addplot[domain=0:3,samples=2,thick,ink] {5*x};
+\addlegendentry{\qty{200}{\ohm} resistor: $I=V/R$, a straight line through 0}
+% LED curve from real ngspice data (amps -> mA)
+\addplot[thick,accent] table[x index=0,y index=1] {figures/ch02/ch02_diode_iv_ma.dat};
+\addlegendentry{LED (diode model): nothing until $\sim$2 V, then a cliff}
+% guide lines
+\draw[dashed,slate] (axis cs:2,0) -- (axis cs:2,20);
+\node[slate,font=\scriptsize,anchor=west] at (axis cs:2.03,18.5) {$V_F \approx 2$ V};
+\end{axis}
+\end{tikzpicture}

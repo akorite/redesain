@@ -1,0 +1,15 @@
+% Inside a wall wart - admire, don't open
+\begin{tikzpicture}[font=\small]
+\draw[thick, rounded corners=8pt] (0,0) rectangle (7.2,3.4);
+\node[align=center] at (3.6,4.0) {\textbf{Inside the USB charger you must not open}};
+\draw[fill=gray!15] (0.4,0.5) rectangle (1.4,2.9); \node[rotate=90] at (0.9,1.7) {\footnotesize prongs};
+\draw[fill=gray!15] (1.8,0.7) rectangle (2.9,2.7); \node[align=center] at (2.35,1.7) {\footnotesize fuse\\ \footnotesize + bridge};
+\draw[fill=gray!15] (3.2,0.7) rectangle (4.3,2.7); \node[align=center] at (3.75,1.7) {\footnotesize high-volt\\ \footnotesize switcher};
+\draw[fill=gray!15] (4.6,0.9) rectangle (5.6,2.5); \node[align=center] at (5.1,1.7) {\footnotesize tiny\\ \footnotesize transf.};
+\draw[fill=gray!15] (5.9,0.7) rectangle (6.8,2.7); \node[align=center] at (6.35,1.7) {\footnotesize rect.\\ \footnotesize + cap};
+\draw[dashed, thick, red] (4.4,0.4) -- (4.4,3.1);
+\node[red, font=\footnotesize, align=center] at (2.35,0.25) {mains side --- lethal};
+\node[font=\footnotesize, align=center] at (6.0,0.25) {isolated side};
+\draw[->, gray] (1.4,1.7) -- (1.8,1.7); \draw[->, gray] (2.9,1.7) -- (3.2,1.7);
+\draw[->, gray] (4.3,1.7) -- (4.6,1.7); \draw[->, gray] (5.6,1.7) -- (5.9,1.7);
+\end{tikzpicture}

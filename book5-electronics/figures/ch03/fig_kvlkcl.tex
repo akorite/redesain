@@ -1,0 +1,19 @@
+% fig_kvlkcl.tex -- Figure 3.3: KVL signed drops + KCL node
+\begin{circuitikz}[american]
+  % left: KVL loop
+  \draw (0,0) to[battery1, l_=\qty{9}{\volt}, invert] (0,3.4);
+  \draw (0,3.4) to[R, l=\qty{220}{\ohm}, v^<=$v_1$] (3,3.4);
+  \draw (3,3.4) to[R, l=\qty{470}{\ohm}, v^<=$v_2$] (3,0) -- (0,0);
+  \draw[->,thick] (0.9,1.2) arc[start angle=200,end angle=-20,radius=0.75];
+  \node at (1.55,1.5) {$\sum v_k = 0$};
+  % right: KCL node
+  \node[circ] (n) at (7,2.2) {};
+  \draw (n) -- (5.4,3.4) node[left]{$i_1$};
+  \draw (n) -- (8.6,3.4) node[right]{$i_2$};
+  \draw (n) -- (7,0.8) node[below]{$i_3$};
+  \draw[->,thick] (5.9,3.2) -- (6.8,2.4);
+  \draw[->,thick] (8.1,3.2) -- (7.2,2.4);
+  \draw[->,thick] (7,1.6) -- (7,2.0);
+  \node[right,align=left] at (8.8,1.6) {signs first:\\ $+i_1+i_2-i_3=0$\\ if $i_3$ leaves};
+  \node[below] at (9.6,0.6) {};
+\end{circuitikz}

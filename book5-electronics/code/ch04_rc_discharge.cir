@@ -1,0 +1,12 @@
+* ch04_rc_discharge.cir -- precharged 1 uF cap discharging through 1k
+* v(2) starts at 5 V, decays toward 0 with tau = 1 ms
+R1 2 0 1000
+C1 2 0 1u IC=5
+.ic v(2)=5
+.control
+tran 5u 5m
+let vout = v(2)
+set filetype=ascii
+wrdata ch04_rc_discharge.dat vout
+.endc
+.end

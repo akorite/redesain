@@ -1,0 +1,30 @@
+% fig_flybackdiode.tex -- freewheel diode placement + real clamped waveform
+\begin{tikzpicture}[american, font=\small]
+  \draw (0,0) to[V, l_={\qty{12}{\volt}}] (0,3) -- (1.5,3)
+        to[R, l_={\qty{70}{\ohm}}, a={coil $R$}] (1.5,1.6);
+  \draw (1.5,1.6) to[L, l_={\qty{10}{\milli\henry}}] (1.5,0.2) -- (1.5,0);
+  \draw (1.5,0) to[cspst, l_={switch}] (3.4,0) -- (4.4,0) node[sground]{};
+  \draw (0,0) -- (1.5,0);
+  \draw (3.4,0) to[D, l_={$D_{\mathrm{fw}}$}] (3.4,3);
+  \draw (1.5,3) -- (3.4,3) -- (4.4,3);
+  \draw (4.4,3) -- (4.4,0.4);
+  \node[circ] at (1.5,0){}; \node[circ] at (3.4,0){}; \node[circ] at (3.4,3){};
+  \node[font=\small, align=left, anchor=west] at (4.7,1.6)
+    {coil current freewheels\\through $D_{\mathrm{fw}}$ at\\switch-off};
+\end{tikzpicture}\\[0.8em]
+\begin{tikzpicture}
+\begin{axis}[
+  width=0.72\linewidth, height=4.6cm,
+  xlabel={$t$ (ms)}, ylabel={$v_{\mathrm{sw}}$ (V)},
+  xmin=0.95, xmax=1.06, ymin=0, ymax=15,
+  grid=both, tick label style={font=\small},
+  restrict y to domain=-1:20,
+]
+\addplot[blue, thick] table[x index=0, y index=1]
+  {figures/ch05/ch05_flyback_diode_ms.dat};
+\draw[dashed, red] (axis cs:0.95,13.03) -- (axis cs:1.06,13.03)
+  node[pos=0.2, anchor=south, font=\small] {clamped at $\approx$\qty{13}{\volt}};
+\node[font=\small, anchor=south west] at (axis cs:0.96,5.5)
+  {without the diode: \qty{1646}{\volt} (ch.~4 sim)};
+\end{axis}
+\end{tikzpicture}

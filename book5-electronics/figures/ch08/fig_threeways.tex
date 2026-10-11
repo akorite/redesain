@@ -1,0 +1,45 @@
+% same function three ways: SOP AND-OR, factored, NAND-only
+\begin{circuitikz}[american, scale=0.72, transform shape, font=\footnotesize]
+% --- 1) AND-OR SOP: I&D + I&~B ---
+\node[american not port] (nB) at (0.6,1.9) {};
+\draw (nB.in) to[short,-o] ++(-0.5,0) node[left] {$B$};
+\node[american and port] (a1) at (2.2,2.0) {};
+\node[american and port] (a2) at (2.2,0.4) {};
+\node[american or port] (o1) at (4.4,1.2) {};
+\draw (nB.out) -| (a1.in 1);
+\draw (a1.in 2) to[short,-o] ++(-1.9,0) node[left] {$I$};
+\draw (a2.in 1) to[short,-o] ++(-1.9,0) node[left] {$I$};
+\draw (a2.in 2) to[short,-o] ++(-1.9,0) node[left] {$D$};
+\draw (a1.out) -| (o1.in 1); \draw (a2.out) -| (o1.in 2);
+\draw (o1.out) to[short,-o] ++(0.5,0) node[right] {$y$};
+\node at (2.6,-0.7) {$I\bar B + ID$};
+% --- 2) factored: I(D + ~B) ---
+\begin{scope}[xshift=7.2cm]
+\node[american not port] (nB2) at (0.6,1.9) {};
+\draw (nB2.in) to[short,-o] ++(-0.5,0) node[left] {$B$};
+\node[american or port] (o2) at (2.2,1.2) {};
+\node[american and port] (a3) at (4.4,0.9) {};
+\draw (nB2.out) -| (o2.in 1);
+\draw (o2.in 2) to[short,-o] ++(-1.9,0) node[left] {$D$};
+\draw (a3.in 1) to[short,-o] ++(-0.9,0) node[left] {$I$};
+\draw (o2.out) -| (a3.in 2);
+\draw (a3.out) to[short,-o] ++(0.5,0) node[right] {$y$};
+\node at (2.6,-0.7) {$I(D+\bar B)$};
+\end{scope}
+\end{circuitikz}
+\vspace{4pt}
+\begin{circuitikz}[american, scale=0.72, transform shape, font=\footnotesize]
+% --- 3) NAND-only: ~( ~(I~B) * ~(ID) ) = (IB')' (ID)' then NAND them ---
+\node[american not port] (nB3) at (0.6,1.9) {};
+\draw (nB3.in) to[short,-o] ++(-0.5,0) node[left] {$B$};
+\node[american nand port] (na) at (2.6,2.0) {};
+\node[american nand port] (nb) at (2.6,0.4) {};
+\node[american nand port] (nc) at (4.8,1.2) {};
+\draw (nB3.out) -| (na.in 1);
+\draw (na.in 2) to[short,-o] ++(-2.3,0) node[left] {$I$};
+\draw (nb.in 1) to[short,-o] ++(-2.3,0) node[left] {$I$};
+\draw (nb.in 2) to[short,-o] ++(-2.3,0) node[left] {$D$};
+\draw (na.out) -| (nc.in 1); \draw (nb.out) -| (nc.in 2);
+\draw (nc.out) to[short,-o] ++(0.5,0) node[right] {$y$};
+\node at (2.8,-0.8) {NAND-only: $(I\bar B)' \cdot (ID)'$ NANDed};
+\end{circuitikz}

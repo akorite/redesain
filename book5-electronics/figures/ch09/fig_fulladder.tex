@@ -1,0 +1,20 @@
+% full adder gate map: sum = a^b^cin ; cout = ab + cin(a^b)
+\begin{circuitikz}[american, scale=0.75, transform shape, font=\footnotesize]
+\node[american xor port] (x1) at (0,2.0) {};
+\node[american xor port] (x2) at (2.4,1.7) {};
+\node[american and port] (a1) at (0.6,0.0) {};
+\node[american and port] (a2) at (2.4,0.4) {};
+\node[american or port]  (o1) at (4.4,0.6) {};
+\draw (x1.in 1) to[short,-o] ++(-0.9,0) node[left] {$a$};
+\draw (x1.in 2) to[short,-o] ++(-0.9,0) node[left] {$b$};
+\draw (x1.out) -| (x2.in 1);
+\draw (x2.in 2) to[short,-o] ++(-2.6,0) node[left] {$c_{in}$};
+\draw (x2.out) to[short,-o] ++(0.5,0) node[right] {sum};
+\draw (a1.in 1) to[short,-o] ++(-1.5,0) node[left] {$a$};
+\draw (a1.in 2) to[short,-o] ++(-1.5,0) node[left] {$b$};
+\draw (a1.out) -| (o1.in 2);
+\draw (x1.out) ++(0.4,0) -- ++(0,-0.9) -| (a2.in 1);
+\draw (x2.in 2) ++(-0.4,0) -- ++(0,-1.0) -| (a2.in 2);
+\draw (a2.out) -| (o1.in 1);
+\draw (o1.out) to[short,-o] ++(0.4,0) node[right] {$c_{out}$};
+\end{circuitikz}

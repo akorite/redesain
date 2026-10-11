@@ -1,0 +1,8 @@
+\begin{tikzpicture}[font=\small]
+  \draw[rounded corners, fill=slate!10] (0,0) rectangle (3,2.4);
+  \node[align=center] at (1.5,1.2) {\textbf{analog world}\\ $v(t)$ continuous\\ noise accumulates};
+  \draw[rounded corners, fill=accent!12] (5.5,0) rectangle (8.5,2.4);
+  \node[align=center] at (7,1.2) {\textbf{digital world}\\ only two levels\\ \texttt{0} / \texttt{1}};
+  \draw[->, very thick] (3.2,1.2) -- (5.3,1.2)
+    node[midway, above, align=center, font=\small]{static discipline\\ $V_{IL},V_{IH},V_{OL},V_{OH}$\\ + noise margins};
+\end{tikzpicture}

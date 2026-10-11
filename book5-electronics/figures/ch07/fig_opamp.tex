@@ -1,0 +1,21 @@
+% Op-amp symbol + golden rules (circuitikz, book palette)
+\begin{circuitikz}[american]
+\draw (0,0) node[op amp, yscale=1.2] (amp) {};
+\node at (amp.up) [above=2pt] {\small $+V_S$};
+\node at (amp.down) [below=2pt] {\small $-V_S$};
+\node[left] at (amp.+) {\small $v_+$};
+\node[left] at (amp.-) {\small $v_-$};
+\node[right] at (amp.out) {\small $v_{\mathrm{out}}$};
+\end{circuitikz}
+\vspace{6pt}
+
+\begin{minipage}{\linewidth}
+\small
+\textbf{Golden rules} (while negative feedback is in charge):
+\begin{enumerate}\setlength{\itemsep}{1pt}
+\item The inputs draw no current --- $i_+ = i_- = 0$.
+\item The feedback forces $v_+ = v_-$.
+\end{enumerate}
+Rule 2 is not magic: it is the output moving until the difference the
+amplifier sees is nearly zero. It fails when the output hits a rail.
+\end{minipage}

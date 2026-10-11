@@ -1,0 +1,25 @@
+* ch07_buffer.cir -- buffer (voltage follower) for a weak sensor
+* sensor = Thevenin 2.5 V behind 100k, load 10k. Without buffer the load
+* reads 2.5*10k/(100k+10k)=0.227 V; with buffer it reads ~2.5 V.
+Vsen 1 0 dc 2.5
+Rs 1 2 100k
+* loaded alone (reference divider, no op-amp)
+Rload_alone 2 0 10k
+* buffered copy of the same sensor
+Vsen2 4 0 dc 2.5
+Rs2 4 5 100k
+X1 5 6 7 10 11 OPAMP
+Rload 7 0 10k
+Vcc 10 0 dc 12
+Vee 11 0 dc -12
+.subckt OPAMP p n out vcc vee
+* teaching macro: differential gain ~10500 (tanh), saturates +-10.5 V
+* (~1.5 V inside the +-12 V rails, typical non-RRIO swing)
+B1 int 0 V = 10.5*tanh((v(p)-v(n))/0.001)
+Ro int out 50
+.ends OPAMP
+* feedback: inverting input tied to output
+Rfb 7 6 1
+.op
+.print op v(2) v(7)
+.end

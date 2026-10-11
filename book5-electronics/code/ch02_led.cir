@@ -1,0 +1,8 @@
+* ch02_led.cir -- operating point of the 5 V, R, LED circuit
+* Worked example 2.1 target: about 15 mA through the LED
+V1 1 0 DC 5
+R1 1 2 200
+D1 2 0 LEDMOD
+.model LEDMOD D (IS=1e-19 N=2 BV=100)
+.op
+.end

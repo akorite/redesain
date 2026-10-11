@@ -1,0 +1,34 @@
+% fig_redraws.tex -- Figure 3.1: same parallel network drawn four ways
+\begin{tikzpicture}[scale=0.82, transform shape]
+  % drawing 1
+  \draw (0,4.5) to[short,o-] (0,5.3) -- (3,5.3) to[short,-o] (3,4.5);
+  \draw (0.8,5.3) to[R=$R_1$] (0.8,3.5) -- (0.8,3.0);
+  \draw (2.2,5.3) to[R=$R_2$] (2.2,3.5) -- (2.2,3.0);
+  \draw (0.8,3.0) -- (2.2,3.0);
+  \draw (0,3.0) to[short,o-] (0,4.5); \draw (3,3.0) to[short,-o] (3,4.5);
+  \draw (0,3.0) -- (0.8,3.0); \draw (2.2,3.0) -- (3,3.0);
+  \node[below] at (1.5,2.8) {(a)};
+  % drawing 2: folded rail
+  \draw (5.5,4.5) to[short,o-] (5.5,5.3) -- (8.5,5.3) to[short,-o] (8.5,4.5);
+  \draw (6.3,5.3) to[R=$R_1$] (6.3,3.5) -- (6.3,3.0);
+  \draw (7.7,5.3) -- (7.7,4.6) to[R=$R_2$] (9.1,4.6) -- (9.1,3.0) -- (6.3,3.0);
+  \draw (5.5,3.0) to[short,o-] (5.5,4.5); \draw (8.5,3.0) to[short,-o] (8.5,4.5);
+  \draw (5.5,3.0) -- (6.3,3.0); \draw (8.5,3.0) -- (8.5,3.0);
+  \node[below] at (7.3,2.8) {(b)};
+  % drawing 3: sideways
+  \draw (11,4.5) to[short,o-] (11,5.3) -- (14,5.3) to[short,-o] (14,4.5);
+  \draw (11.8,5.3) to[R=$R_1$] (13.4,5.3);
+  \draw (11.8,3.6) to[R=$R_2$] (13.4,3.6);
+  \draw (11.8,3.0) -- (11.8,5.3); \draw (13.4,3.0) -- (13.4,5.3);
+  \draw (11.8,3.6) -- (13.4,3.6);
+  \draw (11,3.0) to[short,o-] (11,4.5); \draw (14,3.0) to[short,-o] (14,4.5);
+  \draw (11,3.0) -- (11.8,3.0); \draw (13.4,3.0) -- (14,3.0);
+  \node[below] at (12.6,2.8) {(c)};
+  % drawing 4: squashed triangle
+  \draw (0.5,0.2) to[short,o-] (0.5,1.0) -- (1.5,1.8) -- (3.5,1.8) to[short,-o] (4.3,0.6);
+  \draw (1.8,1.8) to[R=$R_1$] (1.8,0.0);
+  \draw (3.2,1.8) to[R=$R_2$] (3.2,0.0);
+  \draw (0.5,0.2) -- (1.8,0.0) -- (3.2,0.0) -- (4.3,0.6);
+  \draw (4.3,0.6) to[short,-o] (4.3,1.0); \draw (4.3,1.0) -- (3.5,1.8);
+  \node[below] at (2.4,-0.2) {(d)};
+\end{tikzpicture}

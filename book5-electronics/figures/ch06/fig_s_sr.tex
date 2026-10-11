@@ -1,0 +1,12 @@
+\begin{circuitikz}[american]
+  % S model: ideal switch
+  \node[above] at (1,3.2) {\small\textbf{S model}};
+  \draw (1,3) node[circ]{} node[left]{$D$} to[cspst, l_={\scriptsize$v_{GS}>V_{th}$}] (1,1);
+  \draw (1,1) node[left]{$S$} node[circ]{};
+  \node[align=left, font=\small] at (1,-0.4) {on: wire\\ off: open};
+  % SR model: switch + R_on
+  \node[above] at (5,3.2) {\small\textbf{SR model}};
+  \draw (5,3) node[circ]{} node[left]{$D$} to[cspst, l_={\scriptsize$v_{GS}>V_{th}$}] (5,2)
+        to[R, l_=$R_{on}$, -*] (5,0.6) node[left]{$S$} node[circ]{};
+  \node[align=left, font=\small] at (5,-0.4) {on: $R_{on}$ (ohms, not zero)\\ off: open};
+\end{circuitikz}

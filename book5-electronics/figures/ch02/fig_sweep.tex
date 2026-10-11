@@ -1,0 +1,21 @@
+% Figure 2.4: the real .dc sweep (data = ngspice output, figures/ch02/ch02_sweep.dat)
+\begin{tikzpicture}
+\begin{axis}[
+  width=12cm,height=6.8cm,
+  xlabel={supply voltage $V_1$ (V)},
+  ylabel={circuit current (mA)},
+  xmin=0,xmax=5,ymin=0,ymax=17,
+  grid=both,grid style={rulegray!40},
+  tick label style={font=\small},label style={font=\small},
+]
+\addplot[thick,accent] table[x index=0,y index=1] {figures/ch02/ch02_sweep_ma.dat};
+% annotations
+\draw[dashed,slate] (axis cs:2.045,0) -- (axis cs:2.045,17);
+\node[slate,font=\scriptsize,anchor=south west] at (axis cs:2.1,1) {LED turns on, $V_F\approx2.05$ V};
+\filldraw[ink] (axis cs:5,14.7745) circle (2pt);
+\node[font=\scriptsize,anchor=east,align=right] at (axis cs:4.9,15.6)
+  {the \texttt{.op} point you ran:\\[-2pt]$(5\,\mathrm{V},\,14.77\,\mathrm{mA})$};
+\node[font=\scriptsize,anchor=west,align=left,slate] at (axis cs:0.15,12.5)
+  {above the knee the line is straight:\\[-2pt]slope $=1/R$ — Ohm's law\\[-2pt]re-emerging once $V_F$ is paid};
+\end{axis}
+\end{tikzpicture}

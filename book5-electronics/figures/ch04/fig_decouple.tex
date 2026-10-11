@@ -1,0 +1,12 @@
+% fig_decouple.tex -- Figure 4.6: decoupling before/after, real .tran data
+\begin{tikzpicture}
+\begin{axis}[width=0.85\textwidth, height=6cm,
+  xlabel={$t$ (\unit{\micro\second})}, ylabel={rail voltage (\unit{\volt})},
+  xmin=0.3, xmax=1.0, ymin=4.35, ymax=5.1, grid=both, grid style={gray!15},
+  legend style={at={(0.5,-0.28)},anchor=north,font=\small}]
+  \addplot[gray, thick] table {figures/ch04/ch04_decouple_nocap_us.dat};
+  \addlegendentry{no capacitor: \qty{0.50}{\volt} dip}
+  \addplot[blue, thick] table {figures/ch04/ch04_decouple_cap_us.dat};
+  \addlegendentry{with \qty{100}{\nano\farad}: \qty{0.091}{\volt} dip}
+\end{axis}
+\end{tikzpicture}

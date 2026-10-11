@@ -1,0 +1,25 @@
+* ch07_inv_amp.cir -- inverting amplifier gain -10, rails +-12 V,
+* input amplitude steps 0.8 -> 1.5 Vpk at 12 ms: clean gain, then clipping.
+* op-amp model: differential gain 1e5, output clamped 1.5 V inside rails.
+Vcc 10 0 dc 12
+Vee 11 0 dc -12
+Venv 8 0 pwl(0 0.8 12m 0.8 12.01m 1.5)
+Bsig 1 0 V = v(8) * sin(6283.185307179586*time)
+Rin 1 2 1k
+Rf 3 2 10k
+X1 0 2 3 10 11 OPAMP
+.subckt OPAMP p n out vcc vee
+* teaching macro: differential gain ~10500 (tanh), saturates +-10.5 V
+* (~1.5 V inside the +-12 V rails, typical non-RRIO swing)
+B1 int 0 V = 10.5*tanh((v(p)-v(n))/0.001)
+Ro int out 50
+.ends OPAMP
+.control
+tran 10u 25m
+set filetype=ascii
+wrdata ch07_inv_amp_ms.dat v(1) v(3)
+meas tran VCLEAN max v(3) from=2m to=10m
+meas tran VMAX max v(3) from=15m to=25m
+meas tran VMIN min v(3) from=15m to=25m
+.endc
+.end

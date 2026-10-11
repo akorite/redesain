@@ -1,0 +1,13 @@
+% Regulator block: 9V -> 7805 -> decoupling -> load
+\begin{circuitikz}[american]
+\draw (0,0) node[left] {$9$ V input};
+\draw (0,0) to[C, l=$C_{\mathrm{in}}$] ++(0,-2) node[ground] {};
+\draw (0,0) -- ++(1.4,0);
+\draw (1.4,0.6) rectangle (2.9,-0.6);
+\node at (2.15,0) {\small 7805};
+\draw (2.9,0) -- ++(1.0,0) coordinate (v5);
+\draw (v5) to[C, l=$C_{\mathrm{out}}$] ++(0,-2) node[ground] {};
+\draw (v5) to[R, l=$R_{\mathrm{load}}$] ++(0,-3) node[ground] {};
+\draw (v5) -- ++(0.8,0) node[right] {$+5$ V to load};
+\node[font=\footnotesize, text=gray] at (2.15,-1.6) {dropout: needs $V_{\mathrm{in}} \gtrsim V_{\mathrm{out}}+2$ V};
+\end{circuitikz}

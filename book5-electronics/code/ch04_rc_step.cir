@@ -1,0 +1,12 @@
+* ch04_rc_step.cir -- RC step response: 0->5 V step through R=1k into C=1uF
+* tau = 1 ms; watch v(2) charge toward 5 V  (simulation S1)
+V1 1 0 PULSE(0 5 0 1n 1n 1 1)
+R1 1 2 1000
+C1 2 0 1u
+.control
+tran 5u 5m
+let vout = v(2)
+set filetype=ascii
+wrdata ch04_rc_step.dat vout
+.endc
+.end

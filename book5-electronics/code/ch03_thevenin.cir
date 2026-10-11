@@ -1,0 +1,13 @@
+* ch03_thevenin.cir -- load-line sweep: original divider vs Thevenin model
+* sweep load current 0..10 mA, record v(out): same line = same circuit
+I1 2 0 DC 0
+V1 1 0 DC 5
+R1 1 2 1000
+R2 2 0 2000
+.control
+dc i1 0 0.01 0.0005
+let vout = v(2)
+set filetype=ascii
+wrdata ch03_divider_loadline.dat vout
+.endc
+.end

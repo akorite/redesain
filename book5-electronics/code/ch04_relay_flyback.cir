@@ -1,0 +1,20 @@
+* ch04_relay_flyback.cir -- open a relay coil mid-current, watch the node fly
+* WARNING: the spike this produces (~1.7 kV simulated) is what kills
+* transistors. The fix is Chapter 5's flyback diode -- do NOT leave the
+* inductor's current path open in real hardware. Simulation S3.
+* Topology: 12 V -> Rcoil -> node 2 -> coil L -> node 3 -> switch -> gnd
+V1 1 0 DC 12
+Rcoil 1 2 70
+L1 2 3 10m IC=0
+S1 3 0 10 0 SW1
+Cpar 3 0 100p
+Vsw 10 0 PULSE(1 0 1m 1n 1n 1 1)
+.model SW1 SW vt=0.5 vh=0.1 ron=1 roff=1e9
+.control
+tran 500n 1.06m uic
+let vnode = v(3)
+let icoil = i(l1)
+set filetype=ascii
+wrdata ch04_flyback.dat vnode
+.endc
+.end

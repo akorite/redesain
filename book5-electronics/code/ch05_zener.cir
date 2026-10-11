@@ -1,0 +1,13 @@
+* ch05_zener.cir -- 3.3 V zener shunt regulator from 9 V, load-current sweep
+* zener: anode grounded, cathode at output -> breaks down at bv=3.3
+.model DZ3V3 D(is=1e-14 n=1.0 rs=5 bv=3.3 ibv=0.02)
+V1 1 0 dc 9
+Rs 1 2 180
+Dz 0 2 DZ3V3
+IL 2 0 dc 0
+.control
+dc IL 0 0.03 0.0005
+wrdata ch05_zener.dat -i(v1) v(2)
+print v(2)
+.endc
+.end

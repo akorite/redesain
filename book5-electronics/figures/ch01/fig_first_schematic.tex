@@ -1,0 +1,12 @@
+% Figure: first real schematic -- USB 5V, resistor, LED (ch01)
+\begin{circuitikz}[scale=1.0,transform shape]
+  \draw (0,0) node[ground]{};
+  \draw (0,0) to[battery1,l_=\qty{5}{\volt},invert] (0,2.4);
+  \draw (0,2.4) to[R,l=$R$] (3.2,2.4);
+  \draw (3.2,2.4) to[leD,l=LED] (3.2,0) node[ground]{};
+  % current arrow on top wire
+  \draw[->,thick,accent] (0.6,2.85) -- (1.8,2.85) node[midway,above]{$I$};
+  % node dots (the two wires between parts are "the same node")
+  \node[circ] at (0,2.4) {};
+  \node[circ] at (3.2,0) {};
+\end{circuitikz}

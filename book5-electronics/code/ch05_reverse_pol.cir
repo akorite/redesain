@@ -1,0 +1,18 @@
+* ch05_reverse_pol.cir -- series-diode reverse-polarity guard
+* run 1: +5 V through silicon diode -> load sees ~4.3 V
+* run 2: -5 V (reversed plug) -> load sees ~0 V, current ~0
+.model DSI D(is=1e-14 n=1.1 rs=0.5)
+.model DSCH D(is=1e-5 n=1.05 rs=0.2)
+V1 1 0 dc 5
+D1 1 2 DSI
+R1 2 0 100
+.control
+op
+print v(1) v(2) i(v1)
+alter v1 dc=-5
+op
+print v(1) v(2) i(v1)
+alter v1 dc=5
+altermod d1 file=ch05_reverse_pol.cir model=DSCH
+.endc
+.end

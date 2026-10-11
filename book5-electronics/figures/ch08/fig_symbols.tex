@@ -1,0 +1,15 @@
+% Gate symbols table (circuitikz logic ports, book palette)
+\newcommand{\gatesym}[2]{%
+  \begin{circuitikz}[baseline=(g.center), scale=0.75, transform shape]
+    \node[#1] (g) {};
+  \end{circuitikz} & #2 \\}
+\begin{tabular}{@{}c l c l@{}}
+AND ($ab$)   & \gatesym{american and port}{$y = a\cdot b$} &
+NAND ($\overline{ab}$) & \gatesym{american nand port}{$y=\overline{a\cdot b}$} \\
+OR ($a+b$)   & \gatesym{american or port}{$y = a+b$} &
+NOR ($\overline{a+b}$) & \gatesym{american nor port}{$y=\overline{a+b}$} \\
+XOR ($a\oplus b$) & \gatesym{american xor port}{$y = a\oplus b$} &
+XNOR ($\overline{a\oplus b}$) & \gatesym{american xnor port}{$y=\overline{a\oplus b}$} \\
+NOT ($\bar a$) & \gatesym{american not port}{$y=\bar a$} &
+buffer & \gatesym{american buffer port}{$y=a$} \\
+\end{tabular}

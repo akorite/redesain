@@ -1,0 +1,13 @@
+* ch05_iv.cir -- diode I-V characteristic (forward knee)
+* sweep Vd 0..1V, diode current = -i(Vd)
+.model DSI D(is=1e-14 n=1.1 rs=0.5)
+Vd 1 0 dc 0
+D1 1 0 DSI
+.control
+dc Vd 0 1 0.002
+let id = -i(vd)
+wrdata ch05_iv.dat v(1) id
+* also print a few spot values
+print v(1) id
+.endc
+.end

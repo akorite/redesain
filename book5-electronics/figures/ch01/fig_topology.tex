@@ -1,0 +1,19 @@
+% Figure: same topology, different geography (ch01)
+\begin{circuitikz}[scale=0.9,transform shape]
+  % (a) canonical loop
+  \begin{scope}
+    \draw (0,0) node[ground]{};
+    \draw (0,0) to[battery1,l_=\qty{5}{\volt},invert] (0,2.2);
+    \draw (0,2.2) to[R,l=$R$] (2.8,2.2);
+    \draw (2.8,2.2) to[leD,l=LED] (2.8,0) node[ground]{};
+    \node at (1.4,-0.9) {\scriptsize (a) the tidy drawing};
+  \end{scope}
+  % (b) same netlist, bent around
+  \begin{scope}[xshift=5.6cm]
+    \draw (0,0) node[ground]{};
+    \draw (0,0) to[battery1,l_=\qty{5}{\volt},invert] (0,2.2);
+    \draw (0,2.2) -- (1.6,2.2) -- (1.6,0.9) to[R,l=$R$] (3.4,0.9);
+    \draw (3.4,0.9) -- (3.4,1.8) to[leD,l=LED] (4.9,1.8) -- (4.9,0) node[ground]{};
+    \node at (2.45,-0.9) {\scriptsize (b) bent, stretched --- still the same circuit};
+  \end{scope}
+\end{circuitikz}

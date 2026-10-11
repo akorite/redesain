@@ -1,0 +1,13 @@
+* ch04_decouple.cir -- rail droop under a 200 ns, 50 mA current step
+* WITH 100 nF decoupling cap.  Simulation S2 (the "after" case).
+V1 1 0 DC 5
+R1 1 2 10
+C1 2 0 100n
+I1 2 0 PULSE(0 0.05 0.5u 1n 1n 0.2u 1)
+.control
+tran 1n 1.5u
+let vrail = v(2)
+set filetype=ascii
+wrdata ch04_decouple_cap.dat vrail
+.endc
+.end

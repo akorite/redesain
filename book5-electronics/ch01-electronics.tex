@@ -1,0 +1,838 @@
+% Chapter 1 -- Electricity, circuits and the workbench
+\chapter{Electricity, circuits and the workbench}
+\label{ch:workbench}
+
+This chapter builds the vocabulary and the bench habits that every later chapter
+takes for granted. It answers four questions: what electricity \emph{is}
+(as much as an engineer needs to know), what voltage, current and resistance
+measure, how to read a schematic and turn it into a shopping list, and which of
+the things on a workbench can hurt you. When you finish it you should be able
+to: translate a simple schematic into parts and measurements, use a multimeter
+for the three basic measurements without blowing its fuse, say precisely what
+this book will and will not ask you to touch, and check whether your computer
+already has the tools this book needs.
+
+\section{What electricity is}
+\label{sec:charge}
+
+Strip everything away and electricity starts with one observation: objects can
+push and pull on each other without touching. Rub a balloon on your hair and it
+will pick up scraps of paper from a table. Something invisible reached out and
+grabbed them. That something is \emph{charge}\index{charge|textbf}: a basic
+property of matter, like mass, that some particles carry and others do not.
+Charge comes in two flavours that attract each other and repel their own kind,
+which we call positive and negative — the names are a bookkeeping device, not a
+value judgment. The electron carries one fixed small negative charge; the proton
+carries the same amount positive. That fixed amount, $e \approx
+1.602\times10^{-19}$~coulombs\index{coulomb}, is the smallest packet of free
+charge we ever deal with. Ordinary matter contains roughly equal numbers of
+protons and electrons and so looks neutral; ``charging'' an object means
+unbalancing that equality slightly.
+
+A charge creates a disturbance in the space around it — an \emph{electric
+field}\index{electric field|textbf} — and other charges feel that disturbance as
+a force. We almost never draw the field itself in this book, but it is what
+makes everything else work, so we define the quantity that packages it:
+\emph{voltage}\index{voltage|textbf} (also called \emph{potential
+difference}\index{potential difference}). Voltage is the field's push measured
+as energy: the voltage between two points is the energy needed to move one unit
+of charge from one to the other,
+\[
+  V = \frac{W}{q}, \qquad \text{1 volt} = \text{1 joule per coulomb}.
+\]
+A ``\qty{9}{\volt} battery'' is a device that gives each coulomb of charge
+\qty{9}{\joule} of push between its terminals. Voltage is always measured
+\emph{between two points}; the phrase ``the voltage at this wire'' is shorthand
+for ``the voltage between this wire and whatever we agreed to call zero,'' and
+that agreed-zero is the \emph{ground}\index{ground} node we draw at the bottom
+of every schematic.
+
+\begin{remark}[What we are skipping]
+That paragraph is honest but thin. The full story is electromagnetic field
+theory — fields propagate, wires are not the whole circuit, and at high
+frequencies our tidy model breaks. For the circuits in this book (centimetres
+across, signals slower than tens of megahertz) the \emph{lumped} model — every
+property lives inside components connected by ideal wires — is accurate to far
+better than the tolerance of any part you can buy. Where it stops being true
+(radio, very fast digital edges, mains safety) we say so at the point it matters
+rather than here. If you want the real derivations, a free calculus-based
+physics text covers charge, field and potential properly \cite{openstaxv2}.
+\end{remark}
+
+\begin{figure}[htbp]
+\centering
+\input{figures/ch01/fig_charge}
+\caption{Read left to right: atoms are mostly neutral; a metal wire contains
+electrons that are free to drift; a battery (the field source) makes them drift
+in one direction. That drift \emph{is} the current. Notice what is \emph{not}
+shown: the battery does not inject electrons into an empty pipe — the electrons
+are already in the wire; the source only organises their motion.}
+\label{fig:charge}
+\end{figure}
+
+\section{Current}
+\label{sec:current}
+
+A metal wire is full of electrons that belong to no particular atom and drift
+randomly, as much left as right: no net motion, no current. Put a source across
+the wire — a field along it — and the random drift gains a small organised
+component in one direction. That net flow of charge is
+\emph{current}\index{current|textbf}:
+\[
+  I = \frac{\Delta Q}{\Delta t}, \qquad \text{1 ampere} = \text{1 coulomb per second}.
+  \index{ampere}
+\]
+One amp is roughly $6\times10^{18}$ electrons per second squeezing through a
+cross-section of wire. You never count electrons; the meter does it for you by
+watching the field they drag with them.
+
+It is worth calibrating the unit with real numbers. The LED we light in this
+chapter runs at about \qty{20}{\milli\ampere}. A phone charger supplies
+\qtyrange{1}{2}{\ampere}. The LED strips in cheap room lighting draw a few
+hundred milliamps. A bolt of lightning peaks in the tens of kiloamps — which is
+why ``it is only a little circuit'' is a sentence that needs a voltage and a
+current attached before it means anything.
+
+Two conventions matter immediately. First, current is a \emph{signed}
+quantity with an arrow: we pick a direction for the arrow, compute or measure
+$I$, and a negative answer means the flow goes opposite to our arrow. Second —
+and this trips up every beginner — the arrow points the way \emph{positive}
+charge would move, which is opposite to the actual electron drift. That
+historical quirk is Section~\ref{sec:conventions}'s whole topic; for now just
+note that the arrow in Figure~\ref{fig:first} points the engineering way.
+
+\section{Resistance and the resistor}
+\label{sec:resistance}
+
+Push charge through almost any material and it meets drag: the moving electrons
+scatter off the lattice and hand their energy back as heat. The measure of that
+drag is \emph{resistance}\index{resistance|textbf},
+\[
+  R = \frac{V}{I}, \qquad \text{1 ohm} = \text{1 volt per ampere}.
+\]
+A material with twice the resistance needs twice the voltage to push the same
+current. Copper wire has nearly none (milliohms per metre); the carbon film
+inside a quarter-watt \emph{resistor}\index{resistor|textbf} — the single most
+common component in this book — is manufactured to a precise value from
+fractions of an ohm to tens of megohms.
+
+The relationship $V = I\,R$ is \emph{Ohm's law}\index{Ohm's law}: one equation
+linking all three quantities, so that knowing any two fixes the third. We use
+it lightly this chapter (to estimate a battery's life and to \emph{pose} the
+problem in Example~\ref{ex:led}), and Chapter~2 turns it into a working tool.
+\begin{remark}
+``Ohm's law'' is really an empirical pattern, not a law of nature — it holds
+beautifully for resistors and not at all for LEDs, transistors or arcs. The
+components that break it are exactly the interesting ones; that is Chapters 5
+and 6.
+\end{remark}
+
+Resistor values are printed as coloured bands\index{resistor!colour code} — a
+holdover from when components were too small to label. You need only the
+four-band reading: first two bands are digits, the third is the multiplier
+(power of ten), the fourth is tolerance. Table~\ref{tab:bands} gives the digits;
+Exercise~\ref{ex:easy-bands} drills it.
+
+\begin{table}[htbp]
+\centering\small
+\begin{tabularx}{\linewidth}{lY}
+\toprule
+\thead{Colour} & \thead{Digit (multiplier $10^{n}$)}\\
+\midrule
+Black & 0\\
+Brown & 1\\
+Red & 2\\
+Orange & 3\\
+Yellow & 4\\
+Green & 5\\
+Blue & 6\\
+Violet & 7\\
+Grey & 8\\
+White & 9\\
+\midrule
+Gold (4th band) & tolerance $\pm 5\%$\\
+Silver (4th band) & tolerance $\pm 10\%$\\
+\bottomrule
+\end{tabularx}
+\caption{The only colour-code facts this book needs: digit values and the two
+common tolerance bands. Brown--black--red--gold $=1,0,\times10^{2},\pm5\% =
+\qty{1}{\kilo\ohm}$. Notice you read \emph{toward} the gap between the digit
+bands and the spaced-off tolerance band.}
+\label{tab:bands}
+\end{table}
+
+Values span so many orders of magnitude that electronics runs on
+\emph{engineering prefixes}\index{metric prefixes} in steps of $10^{3}$:
+milli~m ($10^{-3}$), micro~µ (``u'' in plain ASCII, $10^{-6}$), nano~n
+($10^{-9}$), pico~p ($10^{-12}$), kilo~k ($10^{3}$), mega~M ($10^{6}$). A
+``4k7'' resistor is \qty{4.7}{\kilo\ohm} $= \qty{4700}{\ohm}$; a ``100 nF''
+capacitor is \qty{100}{\nano\farad} $= \qty{0.1}{\micro\farad}$. Datasheets,
+schematics and meters each pick different prefixes, so fluency is not optional.
+The chapter ships a tiny converter (Listing~\ref{lst:prefix}) you can check your
+mental arithmetic against.
+
+\begin{exercise}[easy]
+Convert: \qty{0.05}{\ampere} to milliamps; \qty{4.7}{\kilo\ohm} to ohms;
+\qty{0.0000001}{\farad} to nanofarads. Then run \texttt{prefix.py} and check.
+\end{exercise}
+
+Before leaving the three quantities, one deserved warning about how you will
+hear them explained elsewhere. The \emph{water analogy}\index{water analogy} —
+voltage is pressure, current is flow, a resistor is a narrow pipe — is the
+standard pictorial model, and it is not useless: it correctly predicts that
+more pressure drives more flow and that pinching the pipe reduces it.
+Figure~\ref{fig:analogy} puts it beside the honest version. It fails in
+exactly the places where intuition matters most (a cut wire does not ``leak''
+current onto the bench; a battery does not inject anything) — which is why
+this book uses it as a first sketch and then abandons it.
+Exercise~\ref{ex:water} asks you to catalogue the failures properly.
+
+\begin{figure}[htbp]
+\centering
+\input{figures/ch01/fig_analogy}
+\caption{The water analogy, kept honest. Left: the picture as usually drawn
+(pump = battery, pipe = wire, constriction = resistor). Right: what each piece
+actually is — pressure is energy per charge, flow is charge per second, the
+``constriction'' is energy lost to lattice collisions. The analogy survives
+Ohm's-law arithmetic and dies at the physics: a cut pipe leaks, a cut wire
+just stops.}
+\label{fig:analogy}
+\end{figure}
+
+\section{A complete circuit — and the schematic as the real object}
+\label{sec:schematic}
+
+Current flows only in loops. Three things must exist for it to do so: a
+\emph{source} that provides the push (a battery, a USB port, a power supply), a
+\emph{conducting path} that carries the flow (wire, plus the components in the
+way), and a route \emph{back to the source}\index{circuit!closed loop}. Break
+the loop anywhere and the current stops everywhere — instantly, throughout the
+whole loop. That is the entire operating principle of a switch, and it is the
+reason one broken wire can kill a whole circuit.
+
+Figure~\ref{fig:first} shows the smallest circuit that does something useful:
+a \qty{5}{\volt} source, a resistor, and a light-emitting diode (LED). The
+schematic\index{schematic|textbf} — the drawn map of symbols and wires — is not
+an illustration of the circuit; in every practical sense it \emph{is} the
+circuit. The copper and plastic are just a heavy, solderable printout of the
+schematic. This is why we insist all circuits in this book be drawn properly
+(with \texttt{circuitikz}) rather than photographed.
+
+\begin{figure}[htbp]
+\centering
+\input{figures/ch01/fig_first_schematic}
+\caption{Our first real schematic. Read it as a loop, not a picture: leave the
+top of the source at $+\qty{5}{\volt}$, pass through $R$ (which will limit the
+current), through the LED (which lights if the current is right), down to the
+ground symbol and back into the bottom of the source. The arrow marks the
+\emph{chosen} current direction (Section~\ref{sec:conventions}). Notice the LED
+symbol: diode triangle plus two small arrows = ``the diode that emits.''}
+\label{fig:first}
+\end{figure}
+
+Here is the subtle point beginners miss. The schematic records
+\emph{connections}, not \emph{locations}. Two points joined by a drawn wire (or
+marked with the same net name) are the same electrical object — the same
+\emph{node}\index{node|textbf}. Points merely near each other on paper are
+nothing. Figure~\ref{fig:topology} draws the same circuit twice: tidy, and
+stretched into an ugly pose. Electrically they are identical, because every
+node contains the same component leads. Reading schematics as
+\emph{topology}\index{topology} — who is connected to whom, never where they
+sit — is the skill this section exists to install. We will reuse it
+mercilessly when schematics get big in Chapter~17.
+
+\begin{figure}[htbp]
+\centering
+\input{figures/ch01/fig_topology}
+\caption{Same circuit, two drawings. To prove (a) $\equiv$ (b), list what is
+attached to each node: node A holds source-$+$ and resistor lead 1; node B holds
+resistor lead 2 and LED anode; node C holds LED cathode and source$-$. The lists
+match, so the circuits are the same. The drawing changed; the
+\emph{connections} — the only thing the circuit cares about — did not.}
+\label{fig:topology}
+\end{figure}
+
+\begin{example}[From schematic to shopping list]
+\label{ex:partslist}
+\emph{Problem.} Turn Figure~\ref{fig:first} into a parts order.\par
+\emph{Strategy.} Walk the schematic component by component, not wire by wire.
+For each symbol write the thing to buy and the value or rating written beside
+it. Wires and ground symbols buy nothing — they come free with the breadboard
+and cables.\par
+\emph{Solution.}
+\begin{itemize}
+\item one \qty{5}{\volt} source — a USB cable or a \qty{5}{\volt} supply;
+\item one resistor, value $R$ — value still undetermined
+(Example~\ref{ex:led} is about exactly this gap);
+\item one LED, any colour, standard \qty{5}{\milli\metre} or
+\qty{3}{\milli\metre} package;
+\item means of connecting: breadboard + jumper wires (Section~\ref{sec:kit}).
+\end{itemize}
+\emph{Notice:} the schematic already told us everything except one number —
+which is the kind of gap a circuit diagram is supposed to leave for analysis.
+\end{example}
+
+\begin{example}[The LED question, posed on purpose]
+\label{ex:led}
+\emph{Problem.} The LED in Figure~\ref{fig:first} wants about \qty{2}{\volt}
+across itself and shines nicely at \qty{10}{\milli\ampere}, burns at
+\qty{30}{\milli\ampere}. The source is \qty{5}{\volt}. What should $R$
+be?\par
+\emph{Strategy.} Take stock of what each quantity does. The source fixes the
+total push: \qty{5}{\volt}. The LED spends about \qty{2}{\volt} of it (a fact of
+diode physics we take on trust until Chapter~5). The resistor must drop the
+rest, and the same current must pass through everything in a single loop. So
+the missing ingredient is a law that links the resistor's voltage share to the
+current through it — which is $V = IR$. We \emph{have} that law already; what
+we are missing is practice using it and one bookkeeping rule (Kirchhoff's
+voltage law) that makes ``the rest'' precise.\par
+\emph{Solution.} Held for Chapter~2, where it becomes a one-line computation.
+The point of posing it now: you can already see that $R$ exists to dispose of a
+voltage difference and to choose a current — the two jobs resistors do all book
+long.
+\end{example}
+
+\section{Two conventions for direction}
+\label{sec:conventions}
+
+Benjamin Franklin guessed the sign of charge wrongly, and by the time electrons
+were identified the convention was set: circuit arrows point the way
+\emph{positive} charge would flow — \emph{conventional
+current}\index{conventional current|textbf}. Electrons, being negative, drift
+the other way — \emph{electron flow}\index{electron flow}.
+
+Nothing about this is optional to get right, because everyone — every
+datasheet, every schematic, every simulator — uses conventional current. When
+someone (or a YouTube video) insists on electron flow, mentally flip every
+arrow; the numbers and the physics are unaffected. The failure mode is not
+choosing the ``wrong'' convention but switching conventions
+\emph{mid-argument}: if you label an arrow one way and reason about electrons
+the other way, signs invert silently and the sums stop making sense. Pick
+conventional current and stay there; this book never leaves it.
+
+\begin{principle}[Arrows are reference directions]
+Draw the arrow whichever way is convenient. A positive computed value means
+flow along your arrow; negative means against it. You do not have to guess the
+``true'' direction first — the sign will tell you.
+\end{principle}
+
+\section{The multimeter}
+\label{sec:dmm}
+
+The \emph{multimeter}\index{multimeter|textbf} (or DMM, for digital
+multimeter) is the one instrument this book treats as essential. It measures
+the three quantities of Sections~1--3 and nothing else we need. Everything else
+in electronics is learned through it. Figure~\ref{fig:dmm} shows a typical
+unit.
+
+\begin{figure}[htbp]
+\centering
+\input{figures/ch01/fig_dmm}
+\caption{A typical multimeter. Three things to notice. (1)~The dial divides the
+world into ranges: $\mathrm{V}\!\sim$ (AC volts — never used in this book),
+$\mathrm{V}\!\text{-}\!\!\cdot$ (DC volts), $\Omega$ (resistance), mA (current),
+10\,A (the big current range), plus extras (continuity beeper, capacitance).
+(2)~Three jacks: COM is where the black probe always lives; V$\Omega$ is red for
+volts, ohms and small currents; 10\,A is a separate, typically \emph{unfused}
+path for large currents. (3)~The screen reads the number \emph{in the selected range's units} —
+``1.990'' on the 2\,V range means \qty{1.990}{\volt}, on the mA range
+\qty{1.990}{\milli\ampere}.}
+\label{fig:dmm}
+\end{figure}
+
+The three measurements differ in a way that matters physically, and the
+difference explains every DMM accident:
+
+\begin{itemize}
+\item \textbf{Voltage} is a \emph{difference between two points}. To measure
+it you touch the two probes to the two points — the meter is in
+\emph{parallel}\index{multimeter!measuring voltage} with whatever is there.
+The circuit does not change; you added an observer, not a wire. Inside the
+meter is a very large resistance ($\sim\qty{10}{\mega\ohm}$), so almost no
+current diverts into it. Voltage measurement is the safe, always-allowed move.
+\item \textbf{Current} is a \emph{flow through a point}. To measure it you must
+put the meter \emph{into} the path — break the circuit\index{multimeter!measuring current}
+and bridge the gap with the probes, so all the circuit's current passes through
+the meter. Inside it is a very \emph{small} resistance (a shunt). This is the
+measurement that changes the circuit and the one beginners fry meters with.
+\item \textbf{Resistance} is measured with the circuit \emph{unpowered}: the
+meter sends out its own small test current and reads the resulting voltage.
+Measuring resistance on a live circuit gives wrong numbers at best.
+\end{itemize}
+
+\begin{tripwire}[The fuse-blower]
+Red probe in the current jack + probes across a voltage source = a short
+circuit through the meter's (very small) input resistance. On most meters the
+mA jack is the fused one — a sacrificial fuse dies for your mistake; the
+10\,A jack is typically \emph{unfused}, so the same mistake there can kill
+the meter itself, not to mention the circuit you shorted. Make a habit: \emph{after} a
+current measurement, the red probe goes back to V$\Omega$ before anything else
+is touched. We will never again let it live in the current jack when idle.
+\end{tripwire}
+
+\begin{tripwire}[``OL'' is an answer]
+On a resistance or voltage range, an ``OL''/``1\ \ '' display means
+\emph{over-range}, not zero and not broken: the value exceeds what that range
+can show (or the path is genuinely open). On the mA current jack by
+contrast, ``OL'' with a live circuit almost always means the range's fuse
+blew — that fuse exists precisely for this accident. Same screen, opposite
+meanings — know which.
+\end{tripwire}
+
+\begin{checkpoint}[Predict before you measure]
+A fresh 9\,V battery reads $\sim$9.4--9.6\,V on a meter, not 9.000. An
+``empty'' one reads $\sim$7\,V. \emph{Before} every measurement this book asks
+you to make, write down your expected number and its range. If the meter
+disagrees wildly, the mistake is in the setup, not the meter — check the dial
+and the jacks first.
+\end{checkpoint}
+
+\begin{exercise}[medium]
+You want to measure the current through the LED of
+Figure~\ref{fig:first}. State exactly what you physically change in the
+circuit, which range and jacks you use, and where each probe tip lands.
+\end{exercise}
+
+\section{The workbench kit and the budget}
+\label{sec:kit}
+
+This book is built to need almost nothing bought. Every analogue circuit is
+simulated in ngspice before (or instead of) being built; the entire digital
+half runs in simulation on free tools; the one hard purchase — a Tang Nano 9K
+FPGA board — is needed only from Chapter~13 and costs about US\$20. But a
+minimum physical kit makes several chapters concrete, so Table~\ref{tab:kit}
+lists it with honest prices.
+
+\begin{table}[htbp]
+\centering\small
+\begin{tabularx}{\linewidth}{lYl}
+\toprule
+\thead{Item} & \thead{What it is for} & \thead{Budget (USD)}\\
+\midrule
+Multimeter & every chapter's measurements; buy auto-ranging, fused & \$15--30\\
+Breadboard + jumpers & solderless builds, ch17--19 & \$5--8\\
+Resistor assortment (E24) & every analogue build & \$4--6\\
+LEDs, a few colours & ch2, ch5, board bring-up & \$2--4\\
+USB cable / 5\,V supply & power for bench circuits & \$3--5\\
+9\,V battery + clip & the battery-life experiment below & \$2--3\\
+\midrule
+\textbf{Physical kit subtotal} & & \textbf{\$31--56}\\
+Tang Nano 9K (Sipeed, GW1NR-LV9) & FPGA chapters 13--16, required then & \${18--23}~\cite{tangnano9k}\\
+\bottomrule
+\end{tabularx}
+\caption{The shopping list as a figure: what a minimal bench costs in 2026.
+Notice the split — the top block is a \emph{recommended} bench; the FPGA board
+is the only \emph{required} purchase, and only from Chapter~13. Indonesian
+availability/price for the board is marked unverified in the sources log; the
+global street price is US\$18--23 \cite{tangnano9k}.}
+\label{tab:kit}
+\end{table}
+
+Two things about this list deserve saying. First, a simulator never burns
+fingers and never needs resoldering — every analogue circuit in this book comes
+with an ngspice run you can do for free, and the experiments are structured so
+hardware is always a checkpoint, not a gate. Second, the board matters later:
+the custom CPU you design in Chapters 14--16 runs on real silicon, and the
+difference between ``simulated'' and ``it blinks on a board'' is the whole
+reason Part~V exists.
+
+The tools, unlike the kit, must be checked on your computer now.
+Listing~\ref{lst:checktools} probes each command the book needs and reports
+what is installed; Listing~\ref{lst:checktools-out} is its real output on a
+fresh machine — read the MISSING lines as a to-install list, not an error.
+
+\begin{lstlisting}[language=bash,caption={\texttt{code/check\_tools.sh} --
+reports which toolchain commands exist on your PATH.},label={lst:checktools}]
+#!/bin/sh
+# check_tools.sh -- verify the toolchain for this book is installed.
+# Run: sh code/check_tools.sh
+# Goal: every line says "found". Anything MISSING tells you what to install.
+
+check() {
+  # $1 = command to try, $2 = version flag, $3 = what it is for
+  if command -v "$1" >/dev/null 2>&1; then
+    ver=$("$1" $2 2>/dev/null | head -n 1)
+    printf 'found    %-22s %s\n' "$1" "$ver"
+  else
+    printf 'MISSING  %-22s %s\n' "$1" "$3"
+  fi
+}
+
+check iverilog    -V        "Verilog simulation (ch11+)"
+check verilator   --version "lint / fast simulation (ch12+)"
+check yosys       -V        "synthesis (ch13+)"
+check nextpnr-himbaechel --version "place-and-route, Gowin (ch13+)"
+check gowin_pack  --help    "bitstream packer, Gowin (ch13+)"
+check openFPGALoader --Version  "programming the board (ch13+)"
+check gtkwave     --version "viewing waveforms (ch11+)"
+check ngspice     --version "analog simulation (ch2+)"
+check kicad-cli   version   "PCB work (ch18)"
+check python3     --version "scripts and vector generators"
+
+echo "----"
+echo "Missing tools come from the OSS CAD Suite (FPGA tools) and your"
+echo "package manager (ngspice, KiCad). See code/README.md for versions."
+\end{lstlisting}
+
+\begin{lstlisting}[language={},numbers=none,caption={Real output of
+\texttt{check\_tools.sh} on a machine before installing the toolchain. Every
+MISSING line names both the command and where it will first be needed.},
+label={lst:checktools-out}]
+MISSING  iverilog               Verilog simulation (ch11+)
+MISSING  verilator              lint / fast simulation (ch12+)
+MISSING  yosys                  synthesis (ch13+)
+MISSING  nextpnr-himbaechel     place-and-route, Gowin (ch13+)
+MISSING  gowin_pack             bitstream packer, Gowin (ch13+)
+MISSING  openFPGALoader         programming the board (ch13+)
+MISSING  gtkwave                viewing waveforms (ch11+)
+MISSING  ngspice                analog simulation (ch2+)
+MISSING  kicad-cli              PCB work (ch18)
+found    python3                Python 3.9.6
+----
+Missing tools come from the OSS CAD Suite (FPGA tools) and your
+package manager (ngspice, KiCad). See code/README.md for versions.
+\end{lstlisting}
+
+The second small program converts between the engineering prefixes that meters
+and datasheets disagree about (Listing~\ref{lst:prefix}); its output is
+Listing~\ref{lst:prefix-out}. Neither program is mandatory — both exist so the
+chapter has real, runnable code like every other one.
+
+\begin{lstlisting}[language=Python,caption={\texttt{code/prefix.py} --
+metric-prefix helper used in the exercises.},label={lst:prefix}]
+#!/usr/bin/env python3
+"""prefix.py -- metric-prefix converter used in Chapter 1 exercises.
+
+Given a value like 0.0047 it prints engineering notation (4.7 m).
+Why: datasheets and meters never agree on the prefix; being able to
+shift between them fluently is the first practical skill.
+"""
+
+PREFIXES = [
+    (1e9, "G"), (1e6, "M"), (1e3, "k"),
+    (1.0, ""), (1e-3, "m"), (1e-6, "u"), (1e-9, "n"), (1e-12, "p"),
+]
+
+def to_eng(value):
+    """Format a plain number in engineering (prefix-aligned) notation."""
+    if value == 0:
+        return "0"
+    for factor, sym in PREFIXES:
+        if abs(value) >= factor:
+            return f"{value / factor:g} {sym}".rstrip()
+    return f"{value:g}"
+
+if __name__ == "__main__":
+    for v in [4700, 0.0047, 0.0000001, 20e-3, 3.3]:
+        print(f"{v:g}  ->  {to_eng(v)}")
+\end{lstlisting}
+
+\begin{lstlisting}[language={},numbers=none,caption={Real output of
+\texttt{python3 code/prefix.py}. Compare the third line: $10^{-7}$ F is
+the ceramic-disc capacitor marked ``104'' you will meet in Chapter~4.},
+label={lst:prefix-out}]
+4700  ->  4.7 k
+0.0047  ->  4.7 m
+1e-07  ->  100 n
+0.02  ->  20 m
+3.3  ->  3.3
+\end{lstlisting}
+
+\begin{exercise}[medium]
+Prove Figure~\ref{fig:topology}(a) $\equiv$ (b) formally: write the contents
+of each node in each drawing and show the two tables are identical. (This is
+Exercise~\ref{ex:easy-bands}'s harder sibling: the colour-code drill is
+mechanical; this one tests whether the \emph{idea} of a node landed.)
+\end{exercise}
+
+\section{Worked example: how long does the battery last?}
+\label{sec:battery}
+
+We finish the technical content with a worked calculation of the sort this
+book does constantly — a back-of-envelope estimate that turns component numbers
+into an engineering decision.
+
+\begin{example}[Battery life for a 20 mA LED]
+\label{ex:battery}
+\emph{Problem.} You power the LED of Figure~\ref{fig:first} from a 9\,V
+battery instead of USB. How long will it run?\par
+\emph{Strategy.} Batteries store charge, rated in
+milliamp-hours\index{milliamp-hour}: the product ``mA $\times$ hours'' the
+battery can deliver before it is flat. The naive estimate is capacity
+$\div$ current. Then derate: real batteries deliver less than nominal,
+especially at higher drain, so multiply by a real-world factor.\par
+\emph{Solution.} A small 9\,V alkaline is rated about 550~mAh.
+\[
+  t \approx \frac{550\ \text{mAh}}{20\ \text{mA}} \times 0.7
+    \approx 19\ \text{hours}.
+\]
+The $0.7$ is honesty, not precision — datasheet curves for this drain sit near
+it. So: a day of continuous light, a week of occasional breadboard use.
+\emph{Notice:} the answer came from one multiplication; the skill was knowing
+that mAh is a charge reservoir and that the LED current, not the voltage, sets
+the drain rate. The voltage instead decides \emph{how many components} the
+battery can push through (Chapter~2's job).
+\end{example}
+
+\section{Safety: what this book will and will not have you touch}
+\label{sec:safety}
+
+Safety in a book like this is not a disclaimer page; it is a set of numbered
+rules you can recite. Here they are, all of them, for the whole book.
+
+\begin{rulebox}[The low-voltage rule]
+Everything this book asks you to build runs at or below
+\qty{9}{\volt} from batteries or a USB port. At these voltages, dry skin stops
+essentially all current — you cannot get a dangerous shock from the circuits
+in this book. What remains dangerous is \emph{heat}: a shorted battery, a
+resistor asked to drop too much power, a reversed electrolytic capacitor. The
+rule: \textbf{low voltage only, and if anything gets hot, disconnect power
+first, then look.}
+\end{rulebox}
+
+What about the numbers that \emph{are} dangerous? Mains in Indonesia is
+\qty{230}{\volt} at \qty{50}{\hertz}, fused at 10--16~A in the wall. Currents
+through the body stop being safe somewhere around 10--20~mA sustained (the
+exact threshold depends on path and person); mains can drive far more through
+muscle and heart. You do not need drama, just arithmetic: $230$~V across the
+$\sim$1--10~k$\Omega$ of skin gives tens to hundreds of milliamps — over the
+threshold by an order of magnitude. The book's treatment of mains is therefore
+complete in one rule.
+
+\begin{rulebox}[The wall rule]
+If it plugs into the wall, we do not open it. Not the charger brick, not the
+supply inside it, not anything. This book never requires you to work on
+mains voltage; do not work on it without proper supervision and equipment.
+\end{rulebox}
+
+Three more standing hazards, all quiet ones:
+
+\begin{itemize}
+\item \textbf{ESD} (electrostatic discharge\index{ESD}): the spark you feel
+touching a doorknob is thousands of volts at trivial energy — harmless to you,
+fatal to the MOSFETs and the FPGA inside Chapters 6 onward. Handle boards by
+their edges; touch a grounded metal object first; keep ICs in their foam or
+bags until use.
+\item \textbf{Battery shorts}\index{battery!short}: an AA or 9\,V shorted
+across its own terminals heats fast enough to burn. A lithium (LiPo) cell
+shorted or punctured can enter thermal runaway — fire, not warmth. Never let
+loose batteries share a pocket with keys or wire ends; never leave a LiPo
+charging unattended.
+\item \textbf{Hot solder and hot parts}: from Chapter 17 we solder. The iron
+lives in its stand; parts get 30~seconds before fingers. A dropped hot iron is
+caught by reflex — break the reflex now: let it fall.
+\end{itemize}
+
+\begin{checkpoint}[Rules audit]
+Say these back without looking: the voltage ceiling for this book's builds;
+the one place the red probe may not rest; what to do when a component is hot;
+the four words of the wall rule. If any answer took more than a second, reread
+this section — it is the only one where the stakes are not academic.
+\end{checkpoint}
+
+\section{Common mistakes}
+\label{sec:mistakes}
+
+Each chapter ends the main text by naming the errors that actually hurt people.
+Four belong to this chapter.
+
+\begin{description}
+\item[Reading the schematic as geography.] Positions on paper mean nothing;
+connections mean everything. Two drawn wires that cross without a junction dot
+do not connect; two points at opposite corners of the page joined by a net name
+are the same node. Re-doing Figure~\ref{fig:topology}'s node-listing exercise
+until it is automatic is the fix. \index{schematic!as topology}
+\item[Mixing current conventions mid-argument.] Choosing an arrow, then
+reasoning in electron flow, silently flips signs and produces $I = -20$~mA
+``errors'' that are pure bookkeeping noise. Conventional current, always.
+\index{conventional current}
+\item[Thinking the meter ``uses up'' what it measures.] A voltmeter adds a
+10~M$\Omega$ observer in parallel — it diverts essentially nothing. An
+\emph{ammeter}, inserted in series, is the opposite: a near-short in the path.
+The confusion between the two is exactly the fuse-blower tripwire of
+Section~\ref{sec:dmm}. \index{multimeter}
+\item[Forgetting that a wire is a component too.] Ideal schematics hide
+resistance in wire and contacts; breadboards add ohms where fingers expect
+zero. When a measured number disagrees with a simulation in later chapters,
+the first suspect is the \emph{connection}, not the math.
+\end{description}
+
+\section{Chapter summary}
+\label{sec:ch1summary}
+
+\begin{table}[htbp]
+\centering\small
+\begin{tabularx}{\linewidth}{llY}
+\toprule
+\thead{Quantity / idea} & \thead{Symbol \& unit} & \thead{The one-line version}\\
+\midrule
+Charge & $q$,\,C & property of matter; electrons carry $-e$\\
+Voltage & $V$,\,V & energy per charge, between two points ($V=W/q$)\\
+Current & $I$,\,A & charge per second through a point ($I=\Delta Q/\Delta t$)\\
+Resistance & $R$,\,$\Omega$ & volts needed per amp pushed ($R=V/I$)\\
+Node & — & all points joined by wire/name = one object\\
+Conventional current & — & arrows point positive flow; electrons go the other way\\
+Multimeter & V, A, $\Omega$ & parallel for V; series (break it) for A; power off for $\Omega$\\
+Metric prefixes & m, µ, n, p, k, M & $10^{-3}$ to $10^{6}$ in steps of $10^{3}$\\
+Battery capacity & mAh & charge reservoir; life $\approx$ capacity/current $\times$ 0.7\\
+\midrule
+Safety & — & $\le 9$\,V builds only; never open wall-powered gear; ESD kills chips\\
+\bottomrule
+\end{tabularx}
+\caption{Chapter 1 on a page. If a term in the left column does not produce the
+right column instantly, the section named in its row is the one to reread.}
+\label{tab:ch1summary}
+\end{table}
+
+\section*{Exercises}
+\addcontentsline{toc}{section}{Exercises}
+\label{sec:ch1exercises}
+
+The exercises marked in the text were checkpoints; these stand alone.
+[easy] is one step, [medium] a small argument, [hard] an open problem.
+
+\begin{exercise}[easy]
+\label{ex:units2}
+Convert each to engineering notation, then verify with \texttt{prefix.py}:
+\qty{0.0022}{\ampere}; \qty{10000}{\ohm}; \qty{0.000000047}{\farad}.
+\end{exercise}
+
+\begin{exercise}[easy]
+\label{ex:easy-bands}
+Using Table~\ref{tab:bands}, decode: (a) red--red--brown--gold;
+(b) yellow--violet--orange--gold; (c) brown--black--green--gold.
+\end{exercise}
+
+\begin{exercise}[easy]
+\label{ex:dmm-select}
+For each measurement, name the dial position \emph{and} the two jacks:
+(a) voltage of a 9\,V battery; (b) current through the LED in
+Figure~\ref{fig:first}; (c) resistance of an unmounted \qty{1}{\kilo\ohm}
+resistor.
+\end{exercise}
+
+\begin{exercise}[easy]
+\label{ex:nodes}
+How many distinct nodes does Figure~\ref{fig:first} contain? Name them.
+(Count the ground node; it is one node.)
+\end{exercise}
+
+\begin{exercise}[medium]
+\label{ex:samecircuit}
+Two schematics are described in words. A: ``source, then LED, then resistor,
+then ground.'' B: ``source, then resistor, then LED, then ground.'' Same
+circuit or different? Justify with node lists — this has a correct
+electrical answer, not a taste answer.
+\end{exercise}
+
+\begin{exercise}[medium]
+\label{ex:aa-life}
+Two AA alkaline cells in series make a nominal 3\,V, $\sim$2400~mAh pack.
+Recompute Example~\ref{ex:battery} for a 15~mA draw, including the 0.7
+derating. Then explain \emph{why} the derating exists — what is the battery
+losing to? (Hint: a battery is not an ideal voltage source; it has
+resistance inside it, called internal resistance, and real capacity falls as
+drain rate rises.)
+\end{exercise}
+
+\begin{exercise}[medium — derive]
+\label{ex:ledmissing}
+An LED datasheet says: ``$V_F = 2.1$ V (typical), $I_F$ max = 30 mA.''
+To pick $R$ for the circuit of Figure~\ref{fig:first} with a 5\,V source and a
+target of 15~mA, list each quantity Ohm's law needs, state which of them the
+datasheet gives, and write the one equation you are still a step short of
+solving. (You are deriving the shopping list of Chapter~2, not solving it.)
+\end{exercise}
+
+\begin{exercise}[medium]
+\label{ex:ol}
+Your meter on the 10\,A current setting shows ``OL'' for every circuit you
+try. Give two explanations consistent with the display — one in the circuit,
+one in the meter — and a test that separates them.
+\end{exercise}
+
+\begin{exercise}[hard — essay]
+\label{ex:water}
+The water analogy (voltage = pressure, current = flow, resistor = narrow
+pipe) is everywhere, and it is wrong in instructive ways. Write one page:
+identify \emph{two} concrete places it misleads (suggestions: what happens
+when a pipe ``ends'' vs.\ a wire ends; what a battery actually does to
+electrons already in the wire; what ``pressure between two points'' means for
+a hanging wire with no return path), and for each give the correct lumped-model
+statement instead. Marking rubric in the hints.
+\end{exercise}
+
+\begin{exercise}[hard — design]
+\label{ex:kitdesign}
+You have \$40 for the kit of Table~\ref{tab:kit}, and the breadboard and
+multimeter are non-negotiable. Choose the rest and defend the two items you
+left out: for each, name a chapter capability you sacrificed and the
+simulation that partially covers it. (There are at least three defensible
+answers; grade is on the justification matching the book's structure.)
+\end{exercise}
+
+\subsection*{Hints and selected answers}
+\addcontentsline{toc}{subsection}{Hints and selected answers}
+
+\begin{description}
+\item[\ref{ex:units2}] 2.2~mA; 10~k$\Omega$; 47~nF.
+\item[\ref{ex:easy-bands}] (a) 220~$\Omega$; (b) 47~k$\Omega$;
+(c) 1~M$\Omega$; all $\pm$5\%.
+\item[\ref{ex:dmm-select}] (a) DC~V range, COM + V$\Omega$, probes across the
+battery (parallel). (b) mA or 10\,A range, COM + current jack, \emph{break}
+the loop and bridge with probes (series). (c) $\Omega$ range, COM +
+V$\Omega$, resistor unpowered.
+\item[\ref{ex:nodes}] Three: source$+$/resistor; resistor/LED anode; LED
+cathode/ground/source$-$.
+\item[\ref{ex:samecircuit}] Same circuit. In a single loop, element order does
+not enter the node table — every element sits between the same two neighbours'
+nodes. Node lists identical $\Rightarrow$ identical.
+\item[\ref{ex:aa-life}] $2400/15 \times 0.7 = 112$~h. The battery's internal
+resistance converts part of its energy to heat inside itself, and effective
+capacity shrinks as current rises — the mAh rating assumes a gentle drain.
+\item[\ref{ex:ledmissing}] Needed: resistor voltage $V_R$ and target current
+$I$. Given: $V_F \approx 2.1$ V, source 5\,V $\Rightarrow V_R = 5-2.1=2.9$ V;
+$I = 15$~mA. Missing equation solved next chapter: $R = V_R/I$.
+\item[\ref{ex:ol}] Either the circuit's current path is open (a break
+somewhere) or the meter's mA-range fuse is blown — the fuse lives on the
+current-measurement path, not the (unfused) 10\,A jack. Test: measure the
+meter's own resistance between COM and the mA jack — near 0 $\Rightarrow$
+path good, OL $\Rightarrow$ blown fuse.
+\item[\ref{ex:water}] Rubric: each failure must (1) state the wrong
+prediction the analogy makes, (2) name the lumped fact that replaces it,
+(3) fit in two sentences. Examples that pass: ``pipe ends $\Rightarrow$ leak''
+vs.\ open circuit $\Rightarrow$ current simply stops; ``pump adds water'' vs.\
+source reorganises drift of electrons already present.
+\item[\ref{ex:kitdesign}] Strong answers drop, e.g., the 9\,V battery (the
+USB supply covers every experiment) and spare LEDs (one suffices for ch2),
+and note ngspice covers the battery-life check in simulation.
+\end{description}
+
+\chapternotes
+
+\begin{enumerate}
+\item T.~R. Kuphaldt, \emph{Lessons in Electric Circuits}, Vol.~I ``DC'',
+chapters 1--3 (static electricity, conductors/insulators/electron flow,
+electric safety). The sequencing theory-then-safety is inherited from here;
+the safety facts are restated in our terms. Free online
+\cite{aacvol1}.
+\item OpenStax, \emph{University Physics} Vol.~2 (Ling, Moebs, Sanny et
+al.): the charge, field and potential definitions that
+Section~\ref{sec:charge} compresses; the reference for readers who want the
+skipped derivations \cite{openstaxv2}.
+\item SparkFun Electronics, ``How to Use a Multimeter'': the dial/jack
+anatomy Figure~\ref{fig:dmm} redraws, and the fuse/jack warning
+\cite{sparkfunmultimeter}.
+\item SparkFun Electronics, ``How to Use a Breadboard'': internal connection
+topology used later in ch17; cited here because the ``rails are not joined''
+trap is first mentioned in Section~\ref{sec:kit}
+\cite{sparkfunbreadboard}.
+\item The water analogy's honest limits are standard physics-teaching fare;
+OpenStax vol.~2's treatment of potential is the correct statement
+\cite{openstaxv2}. (Exercise~\ref{ex:water} asks you to produce it, not
+quote it.)
+\item Tang Nano 9K specifications and the open-source toolchain for it
+(yosys, nextpnr-himbaechel, \texttt{gowin\_pack}, openFPGALoader) are
+documented by Project Apicula; the street price is marked [unverified] per
+the decisions log \cite{tangnano9k}.
+\end{enumerate}

@@ -1,0 +1,11 @@
+* ch02_diode_iv.cir -- bare-diode I-V sweep for figure 2.1
+V1 1 0 DC 0
+D1 1 0 LEDMOD
+.model LEDMOD D (IS=1e-19 N=2 BV=100)
+.control
+dc v1 0 2.15 0.02
+let id = -i(v1)
+set filetype=ascii
+wrdata ch02_diode_iv.dat id
+.endc
+.end

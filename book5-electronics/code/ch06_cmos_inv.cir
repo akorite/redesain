@@ -1,0 +1,20 @@
+* ch06_cmos_inv.cir -- CMOS inverter .dc + static current
+VDD 3 0 dc 3.3
+Vin 1 0 dc 0
+M1 2 1 0 0 NMOS1 W=10u L=1u
+M2 2 1 3 3 PMOS1 W=20u L=1u
+.model NMOS1 NMOS(vto=1.0 kp=200u lambda=0.02)
+.model PMOS1 PMOS(vto=-1.0 kp=60u lambda=0.02)
+.control
+dc Vin 0 3.3 0.025
+set filetype=ascii
+wrdata ch06_cmos_inv.dat v(2)
+let ivdd = -i(VDD)
+wrdata ch06_cmos_pwr.dat v(1) ivdd
+* static current holding a logic level: vin = 0 then vin = 3.3
+dc Vin 0 0 0.01
+print i(VDD)
+dc Vin 3.3 3.3 0.01
+print i(VDD)
+.endc
+.end

@@ -1,0 +1,29 @@
+\begin{circuitikz}[american, scale=0.9, transform shape]
+  % CMOS inverter: PMOS pull-up + NMOS pull-down
+  \node[above] at (1.2,4.9) {\small\textbf{inverter}};
+  \draw (1.2,4.4) node[pmos, anchor=D](P){};
+  \draw (1.2,1.2) node[nmos, anchor=D](N){};
+  \draw (P.S) -- (N.D);
+  \draw ($(P.S)!.5!(N.D)$) node[circ]{} to[short,-o] ++(1.4,0) node[right]{$Y=\overline{A}$};
+  \draw (P.G) -- ++(-0.6,0) |- ($(P.G)!.5!(N.G)+(-0.6,0)$) -- (N.G) ++(-0.6,0);
+  \draw ($(P.G)!.5!(N.G)+(-0.6,0)$) node[circ]{} to[short,-o] ++(-0.8,0) node[left]{$A$};
+  \draw (N.S) node[ground]{};
+  \draw (P.D) ++(0,0.4) node[vdd]{$V_{DD}$} -- (P.D);
+  % CMOS NAND: PMOS pair in parallel on top, NMOS pair in series below
+  \node[above] at (7.6,4.9) {\small\textbf{NAND}};
+  \draw (6.4,4.0) node[pmos, anchor=D](P1){};
+  \draw (8.6,4.0) node[pmos, anchor=D](P2){};
+  \draw (P1.D) -- ++(0,0.5) -| (P2.D);
+  \draw (P1.S) -- (P2.S);
+  \draw (7.4,3.6) node[nmos, anchor=D](N1){};
+  \draw (7.4,1.6) node[nmos, anchor=D](N2){};
+  \draw (N1.S) -- (N2.D);
+  \draw (P1.S) -- (N1.D);
+  \draw ($(P1.S)!.5!(P2.S)$) node[circ]{} to[short,-o] ++(0.8,0) node[right]{$Y=\overline{A\cdot B}$};
+  \draw (N2.S) node[ground]{};
+  \draw ($(P1.D)+(0,0.5)$) to[short,-*] ++(0,0.2) node[vdd]{$V_{DD}$};
+  \draw (P1.G) to[short,-o] ++(-0.9,0) node[left]{$A$};
+  \draw (P2.G) to[short,-o] ++(0.9,0) node[right]{$B$};
+  \draw (N1.G) to[short,-o] ++(-0.9,0) node[left]{$A$};
+  \draw (N2.G) to[short,-o] ++(-0.9,0) node[left]{$B$};
+\end{circuitikz}

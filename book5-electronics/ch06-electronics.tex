@@ -1,0 +1,483 @@
+\chapter{Transistors: the switch and the amplifier}
+\label{ch:transistors}
+
+Everything digital in this book — logic gates, the FPGA fabric you will
+program later — is built from one trick, repeated a billion times: a voltage
+that controls another current. This chapter introduces the transistor as a
+\emph{switch} first (the model you will actually use), then as an
+\emph{amplifier} in one honestly-flagged example. When you finish, you will
+be able to read a voltage-transfer curve for noise margins, explain why CMOS
+logic draws almost no power at rest, and decide whether a given MOSFET can
+really drive a given load from a \qty{3.3}{\volt} pin.
+
+\section{The MOSFET: a voltage-controlled switch}
+\label{sec:mosfet}
+
+The \emph{MOSFET}\index{MOSFET} (metal-oxide-semiconductor field-effect
+transistor) has three terminals we care about — \emph{gate} ($G$),
+\emph{drain} ($D$), \emph{source} ($S$) — drawn in
+Figure~\ref{fig:mosfet}. The gate sits on an insulating oxide layer: it
+controls the device by \emph{electric field}, not by current, so an ideal
+gate draws no DC current at all.
+
+\begin{figure}[htbp]
+\centering
+\input{figures/ch06/fig_mosfet}
+\caption{An NMOS transistor and its three terminals. Notice what the gate
+does \emph{not} do: it draws essentially no DC current — it works by field,
+not by flow.}
+\label{fig:mosfet}
+\end{figure}
+
+\begin{definition}[NMOS threshold]
+\index{threshold voltage}
+An NMOS\index{NMOS} device conducts between drain and source when the
+\emph{gate-source voltage} exceeds a device constant $V_{th}$, the
+\emph{threshold voltage} (a volt or two for small-signal parts). Below
+$V_{th}$ the channel is essentially open.
+\end{definition}
+
+The 6.002 pedagogy layers two models on this~\cite{ocw6002}:
+
+\begin{definition}[S and SR models]
+\index{MOSFET!S model}\index{MOSFET!SR model}
+The \emph{S (switch) model}: $v_{GS} > V_{th}$ $\Rightarrow$ drain and
+source are a wire; otherwise an open circuit. The \emph{SR (switch-resistor)
+model}: on, the channel behaves as a small resistance $R_{on}$ instead of an
+ideal wire — the model you reach for once a load current flows.
+\end{definition}
+
+\begin{figure}[htbp]
+\centering
+\input{figures/ch06/fig_s_sr}
+\caption{The two switch models. Use S to reason about logic levels; use SR
+the moment real current must flow, because $R_{on}$ drops real volts.}
+\label{fig:ssr}
+\end{figure}
+
+\begin{remark}
+Gate current is not literally zero — charging the gate capacitance takes
+charge, which is why fast switching burns power (Section~\ref{sec:cmos})
+and why FPGAs get warm. "No DC gate current" is a DC statement.
+\end{remark}
+
+\section{The NMOS inverter, built by hand}
+\label{sec:nmosinv}
+
+Pull the drain up to $V_{DD}$ through a resistor and drive the gate with the
+input: when $v_{in} > V_{th}$ the channel conducts and drags the output
+down; below threshold the resistor pulls the output up. That is an
+\emph{inverter}\index{inverter (logic)} — input 1 gives output 0 and vice
+versa. Figure~\ref{fig:vtc} plots its \emph{voltage-transfer
+characteristic}\index{voltage-transfer characteristic} (VTC).
+
+\begin{example}[Reading noise margins off a real VTC]\label{ex:vtc}
+\textbf{Strategy.} Simulate the NMOS + \qty{10}{\kilo\ohm} pull-up inverter,
+then read the four landmarks: the flat output levels $V_{OH}$/$V_{OL}$ and
+the input voltages $V_{IL}$/$V_{IH}$ where the curve leaves those flats
+(the unit-slope points, read approximately).
+
+\textbf{Solution.} The netlist and the transfer data:
+\end{example}
+
+\begin{lstlisting}[caption={\ttfamily code/ch06\_nmos\_inv.cir --- NMOS inverter with a resistive pull-up.},label=lst:nmosinv]
+* ch06_nmos_inv.cir -- NMOS + pull-up resistor inverter, .dc transfer
+VDD 3 0 dc 3.3
+Vin 1 0 dc 0
+M1 2 1 0 0 NMOS1 W=10u L=1u
+RD 3 2 10k
+.model NMOS1 NMOS(vto=1.0 kp=200u lambda=0.02)
+.control
+dc Vin 0 3.3 0.025
+set filetype=ascii
+wrdata ch06_nmos_inv.dat v(2)
+* static supply current at vin = 3.3 V (inverter holding "low")
+dc Vin 3.3 3.3 0.01
+print i(VDD)
+.endc
+.end
+\end{lstlisting}
+
+\begin{lstlisting}[language={},caption={Rows of \texttt{ch06\_nmos\_inv.dat}, verbatim --- read $V_{OH}$, $V_{OL}$, and where the knee sits.},label=lst:nmosdata]
+vin        vout
+0.500      3.3000
+1.000      3.3000
+1.250      2.6420
+1.500      0.7619
+1.750      0.2419
+2.000      0.1705
+3.000      0.0820
+3.300      0.0712
+\end{lstlisting}
+
+Reading Figure~\ref{fig:vtc}: $V_{OH}=\qty{3.30}{\volt}$,
+$V_{OL}\approx\qty{0.07}{\volt}$, $V_{IL}\approx\qty{1.2}{\volt}$ (output
+just starting to fall), $V_{IH}\approx\qty{1.7}{\volt}$ (output nearly
+bottomed). The margins of Definition~\ref{def:noisemargin} are then
+$N M_L \approx 1.2-0.07 \approx \qty{1.1}{\volt}$ and
+$N M_H \approx 3.3-1.7 \approx \qty{1.6}{\volt}$.
+
+\begin{figure}[htbp]
+\centering
+\input{figures/ch06/fig_vtc}
+\caption{Measured inverter transfer curves (both real \texttt{.dc} sweeps).
+Notice how much cleaner the CMOS knee is: it snaps over near $V_{DD}/2$ and
+actually reaches the rails.}
+\label{fig:vtc}
+\end{figure}
+
+\section{The static discipline: what makes a level a ``1''}
+\label{sec:staticdisc}
+
+Digital only works if stages can be chained: the output of one inverter must
+be read correctly by the input of the next, with slack for real-world noise.
+
+\begin{definition}[Static discipline and noise margins]
+\label{def:noisemargin}
+\index{static discipline}\index{noise margin}
+A logic family fixes four voltages: a sender guarantees $v \le V_{OL}$
+(``0'') or $v \ge V_{OH}$ (``1''); a receiver accepts $v \le V_{IL}$ as 0
+and $v \ge V_{IH}$ as 1, with $V_{OL} < V_{IL} < V_{IH} < V_{OH}$. The gaps
+are the \emph{noise margins} $NM_L = V_{IL}-V_{OL}$ and
+$NM_H = V_{OH}-V_{IH}$ — how much corruption a wire can absorb before a bit
+flips.
+\end{definition}
+
+\begin{exercise}[easy]
+On Figure~\ref{fig:vtc}'s NMOS curve, is \qty{0.8}{\volt} a safe ``0''
+input? Is \qty{1.4}{\volt} a safe ``1'' input? (Use the landmarks just
+computed.)
+\end{exercise}
+
+\section{CMOS: the pair that draws no power at rest}
+\label{sec:cmos}
+
+The resistor pull-up has a defect you can see in the netlist's own printout:
+holding the output low means burning $V_{DD}/R$ forever.
+
+\begin{lstlisting}[language={},caption={Last lines of \texttt{ngspice -b ch06\_nmos\_inv.cir} --- the static current while holding output low.}]
+i(vdd) = -3.22881e-04
+\end{lstlisting}
+
+\qty{0.32}{\milli\ampere} continuously, \emph{per inverter}, for doing
+nothing. \emph{CMOS}\index{CMOS} (complementary MOS) replaces the resistor
+with a \emph{PMOS}\index{PMOS} transistor — same device, but conducting when
+$v_{GS} < V_{th} < 0$, i.e. when the gate is \emph{low}. Now the pull-up is
+on exactly when the pull-down is off (Figure~\ref{fig:cmos}): one transistor
+of the pair always blocks the rail-to-ground path.
+
+\begin{figure}[htbp]
+\centering
+\input{figures/ch06/fig_cmos}
+\caption{The CMOS inverter (left) and a 2-input CMOS NAND (right): NMOS
+network pulls down, PMOS network pulls up, and exactly one network conducts
+for any input. Notice the NAND structure — series NMOS (both inputs needed
+to pull down), parallel PMOS (either input high pulls up).}
+\label{fig:cmos}
+\end{figure}
+
+\begin{example}[CMOS static power, measured]\label{ex:cmospower}
+\textbf{Strategy.} Sweep the CMOS inverter and read the supply current at
+the two resting points — the claim is that both are ~zero, with current only
+\emph{during} transitions.
+
+\textbf{Solution.} \texttt{code/ch06\_cmos\_inv.cir} prints
+\texttt{i(VDD)} at $v_{in}=0$ and $v_{in}=\qty{3.3}{\volt}$:
+\end{example}
+
+\begin{lstlisting}[language={},caption={Static points of the CMOS sweep --- compare with the NMOS inverter's \qty{0.32}{\milli\ampere}.}]
+i(vdd) = -3.31000e-12      (vin = 0)
+i(vdd) = -3.31000e-12      (vin = 3.3)
+\end{lstlisting}
+
+Three picoamps — numerical noise, not real current. Meanwhile the mid-sweep
+peak is $\qty{0.33}{\milli\ampere}$ at $v_{in}\approx\qty{1.6}{\volt}$: the
+brief window where \emph{both} devices are part-on. That is the whole power
+story of modern silicon: \textbf{CMOS burns energy only while
+switching}\index{CMOS!power}, which is why processor power scales with
+clock frequency.
+
+\begin{principle}[Why CMOS won]
+The complementary pair gets rail-to-rail outputs (0 and $V_{DD}$ exactly,
+see Figure~\ref{fig:vtc}), a steep transition centred near $V_{DD}/2$, and
+zero static current. Resistive pull-ups lose on all three.
+\end{principle}
+
+NOR gates swap the networks (parallel NMOS below, series PMOS above).
+Every logic function you will meet is these two dual networks — a fact the
+FPGA chapters lean on hard.
+
+\begin{exercise}[medium]
+Sketch the transistor-level structure of a 2-input CMOS NOR: which devices
+are in series and which in parallel, and why must it be the dual of NAND?
+\end{exercise}
+
+\section{The BJT: the current-controlled cousin}
+\label{sec:bjt}
+
+The \emph{bipolar junction transistor}\index{BJT} (NPN/PNP) controls
+collector current with a \emph{base current}: $i_C = \beta\, i_B$, with
+$\beta$ of order 100. The mental model shift matters: a MOSFET answers
+voltage, a BJT answers \emph{current} — you must supply base current
+continuously, which is why discrete switch circuits prefer MOSFETs. BJTs
+remain excellent small-signal amplifiers and live inside every op-amp; this
+book treats them conceptually only (full biasing design is AoE territory,
+flagged honestly).
+
+\section{The transistor as amplifier}
+\label{sec:amplifier}
+
+Between "fully on" and "fully off" lies the region the VTC shows as a steep
+slope: small changes in $v_{GS}$ produce large changes in $v_{DS}$ — gain.
+Bias a single transistor mid-slope, feed it a small signal, and the same
+device amplifies. We do exactly one example and then point onward.
+
+\begin{example}[The inverter is also a (bad) amplifier]\label{ex:amp}
+\textbf{Strategy.} The VTC slope $-dv_{out}/dv_{in}$ \emph{is} the small-signal
+voltage gain. Estimate it from Figure~\ref{fig:vtc}'s steepest point.
+
+\textbf{Solution.} The NMOS curve falls from $\approx\qty{2.6}{\volt}$ to
+$\approx\qty{0.76}{\volt}$ between $v_{in}=\qty{1.25}{\volt}$ and
+\qty{1.5}{\volt}: a local gain of about $-7$. Biased at
+$v_{in}=\qty{1.4}{\volt}$, this inverter is a genuine inverting amplifier —
+a terrible one (the bias point wanders with temperature and the pull-up
+wastes power), but the same small-signal idea underlies every real
+amplifier stage. The art of making this robust — feedback, biasing
+networks, differential pairs — is where this book hands you to
+AoE~\cite{aacvol3}.
+\end{example}
+
+\begin{exercise}[easy]
+From the CMOS curve in Figure~\ref{fig:vtc}, estimate its maximum slope in
+V/V. Why does a steeper transition make a better gate \emph{and} a better
+(though twitchier) amplifier?
+\end{exercise}
+
+\section{Driving a load: the switch, for real}
+\label{sec:switchload}
+
+\begin{example}[A 2N7000-class MOSFET switching a \qty{12}{\volt} LED strip from \qty{3.3}{\volt} logic]\label{ex:gate}
+\textbf{Strategy.} Low-side switch (Figure~\ref{fig:lowhigh}): load between
++\qty{12}{\volt} and drain, source grounded, gate to the logic pin. The
+question is never "does it conduct" — it is "does it conduct
+\emph{enough}" at the $v_{GS}$ you can actually supply. Check $V_{th}$
+against your rail, then simulate the gate-drive sweep.
+
+\textbf{Solution.} \texttt{code/ch06\_switch\_load.cir} sweeps the gate of a
+$V_{th}=\qty{2.1}{\volt}$ device driving a \qty{600}{\ohm} strip
+($\approx\qty{20}{\milli\ampere}$):
+\end{example}
+
+\begin{lstlisting}[language={},caption={Gate-drive sweep, verbatim rows --- the transistor turns on only gradually, and \qty{3.3}{\volt} drive leaves it half-on.},label=lst:switchload]
+gate        drain
+0.500       12.000
+2.000       12.000
+3.000        8.061
+3.300        5.184
+5.000        0.479
+\end{lstlisting}
+
+At $v_{GS}=\qty{3.3}{\volt}$ the overdrive is only
+$3.3-2.1=\qty{1.2}{\volt}$: the channel passes \qty{11.4}{\milli\ampere}
+while the load wants 20 — the strip glows at half brightness and the
+transistor eats \qty{5.2}{\volt} of drop. At \qty{5}{\volt} drive the drain
+sits at \qty{0.48}{\volt}: solidly on. \textbf{The lesson: match the FET's
+specified $R_{on}$ to the gate voltage you actually have} — logic-level
+parts specify $R_{on}$ at $v_{GS}=\qty{2.5}{\volt}$ or
+\qty{1.8}{\volt} for exactly this reason.
+
+\begin{figure}[htbp]
+\centering
+\input{figures/ch06/fig_lowhigh}
+\caption{Low-side versus high-side switching. Notice why we always reach
+for low-side first: with the source on ground, a \qty{3.3}{\volt} pin is a
+known $v_{GS}$; high-side, the source rides the load and the gate needs a
+voltage \emph{above the rail} (a bootstrap or charge pump — later study).}
+\label{fig:lowhigh}
+\end{figure}
+
+\begin{checkpoint}
+\textbf{Gate ESD.}\index{ESD!gate} The gate is a few nanometres of oxide; a
+charged finger punctures it. Handle MOSFETs and CMOS ICs with static care,
+and never leave a gate floating — tie it with a pull-down resistor so the
+switch cannot turn on from noise. And this is why Chapter~\ref{ch:transients}'s
+flyback diode matters here: the transistor switching a relay coil is
+exactly the device the spike kills.
+\end{checkpoint}
+
+\begin{rulebox}[High-current switching]
+Breadboards and jumper wires are rated for $\sim$\qty{1}{\ampere}. We
+simulate anything beyond that — the physics of a \qty{20}{\ampere} switch is
+identical, the burns are not.
+\end{rulebox}
+
+\section{Logic families and voltage levels}
+\label{sec:levels}
+
+Legacy TTL and \qty{5}{\volt} CMOS still exist, but this book lives at
+\qty{3.3}{\volt}: modern FPGAs, microcontrollers and the Tang Nano all run
+it, and mixing families costs you level shifters\index{level shifter} and
+noise-margin headaches. The VTC numbers of Figure~\ref{fig:vtc} are why a
+\qty{3.3}{\volt} input is \emph{not} automatically a valid 1 at a
+\qty{5}{\volt} input — read the destination's $V_{IH}$ before connecting.
+
+\begin{figure}[htbp]
+\centering
+\input{figures/ch06/fig_bridge}
+\caption{The bridge this chapter builds: analog voltage in, two clean
+levels out — guaranteed by the static discipline, not by hope.}
+\label{fig:bridge}
+\end{figure}
+
+\section{Common mistakes}
+\label{sec:transistor-mistakes}
+
+\begin{tripwire}[{Treating $V_{th}$ as a sharp on/off}]
+Conduction is gradual (the switch-load sweep rises through 8 V, 5 V on its
+way down). "Above threshold" means \emph{starting} to conduct; enough
+current for your load is a separate question.
+\end{tripwire}
+
+\begin{tripwire}[{Swapping source and drain}]
+A discrete NMOS's body diode\index{body diode} points source$\to$drain:
+wired backwards, it conducts through the diode no matter what the gate
+says. Power packages put a visible diode in the datasheet drawing — look
+for it.
+\end{tripwire}
+
+\begin{tripwire}[{Leaving the gate floating}]
+An un-driven gate drifts on leakage and switches at random — the ESD/gate
+checkpoint's pull-down resistor is not decoration.
+\end{tripwire}
+
+\begin{tripwire}[{Assuming zero resistance when "on"}]
+$R_{on}$ is real: Example~\ref{ex:gate}'s \qty{0.48}{\volt} drain drop at
+full drive is \qty{9.6}{\milli\watt} of heat on a small part — check it
+before claiming "switch closed".
+\end{tripwire}
+
+\section{Summary}
+\label{sec:transistor-summary}
+
+\begin{tabularx}{\linewidth}{l X}
+\toprule
+Concept & Takeaway \\
+\midrule
+S / SR models & on = wire, or wire + $R_{on}$; off = open \\
+VTC & the curve that decides every digital level \\
+Noise margins & $NM_L = V_{IL}-V_{OL}$, $NM_H = V_{OH}-V_{IH}$ \\
+CMOS & complementary pair, ~0 static power, rail-to-rail \\
+Gate drive & $v_{GS}-V_{th}$ sets how \emph{hard} the switch is on \\
+Low-side first & source grounded $\Rightarrow$ easy drive \\
+Amplifier & same device, biased mid-slope; details live in AoE \\
+\bottomrule
+\end{tabularx}
+
+\bigskip
+Next: flip the switch the other way — same transistors, wired as logic
+gates, and the Boolean algebra that drives them.
+
+\begin{exercise}[easy]
+A logic family's sender promises $V_{OL}=\qty{0.4}{\volt}$,
+$V_{OH}=\qty{2.9}{\volt}$ and the receiver needs $V_{IL}=\qty{0.9}{\volt}$,
+$V_{IH}=\qty{2.1}{\volt}$. Compute both noise margins.
+\end{exercise}
+
+\begin{exercise}[easy]
+Why does an ideal CMOS inverter draw no supply current while holding its
+output? Where does the current go during an input transition?
+\end{exercise}
+
+\begin{exercise}[easy]
+Order these by static power, worst first: CMOS inverter, NMOS + resistor
+inverter holding 0, NMOS + resistor inverter holding 1.
+\end{exercise}
+
+\begin{exercise}[easy]
+Your GPIO pin supplies \qty{3.3}{\volt} and your FET has
+$V_{th}=\qty{2.9}{\volt}$. Without simulating: is this a good switch for a
+\qty{20}{\milli\ampere} load? What single datasheet number settles it?
+\end{exercise}
+
+\begin{exercise}[medium]
+Design a 3-input CMOS NAND: draw the pull-down network (series NMOS) and
+the pull-up network (parallel PMOS), then state the output expression.
+\end{exercise}
+
+\begin{exercise}[medium]
+Using Figure~\ref{fig:vtc}'s NMOS curve, estimate $V_{IL}$ and $V_{IH}$ as
+the points where $|dv_{out}/dv_{in}|=1$ (the knee is symmetric enough to
+eyeball). Recompute both noise margins and compare with the text's
+$\approx$1.1/\qty{1.6}{\volt} estimate.
+\end{exercise}
+
+\begin{exercise}[medium]
+In Example~\ref{ex:gate}, what is the FET's dissipated power at
+$v_{GS}=\qty{3.3}{\volt}$ (drain \qty{5.18}{\volt}, current
+\qty{11.4}{\milli\ampere})? Compare with the load's and state why the FET
+gets hot while the strip stays dim.
+\end{exercise}
+
+\begin{exercise}[medium]
+Estimate the NMOS inverter's mid-transition supply current from its
+resistor: when $v_{out}\approx V_{DD}/2$, what flows through the
+\qty{10}{\kilo\ohm} pull-up? Compare with CMOS's measured
+\qty{0.33}{\milli\ampere} crossover peak.
+\end{exercise}
+
+\begin{exercise}[hard]
+Derive the SR-model output low voltage: NMOS on-resistance $R_{on}$ against
+pull-up $R_D$ to $V_{DD}$. With $R_{on}=\qty{220}{\ohm}$ and
+$R_D=\qty{10}{\kilo\ohm}$ at $V_{DD}=\qty{3.3}{\volt}$, compute $V_{OL}$ and
+check it against the simulated \qty{0.071}{\volt}.
+\end{exercise}
+
+\begin{exercise}[hard]
+A \qty{5}{\volt}-rail legacy gate must read a \qty{3.3}{\volt} CMOS output.
+Its $V_{IH}=\qty{3.5}{\volt}$. Quantify the failure, name two fixes, and
+state which this book's ecosystem (Tang Nano at 3.3 V logic) avoids the
+problem by construction.
+\end{exercise}
+
+\section*{Hints and answers}
+\begin{description}
+\item[Noise margins (easy)] $NM_L=0.9-0.4=\qty{0.5}{\volt}$;
+$NM_H=2.9-2.1=\qty{0.8}{\volt}$.
+\item[CMOS static (easy)] One device of each pair is off at every level,
+so no rail-to-ground path exists; crossover current flows only while both
+are part-on, mid-transition.
+\item[Static power order (easy)] NMOS holding 0 (resistor conducts),
+then CMOS (leakage only); NMOS holding 1 is the odd one: its transistor is
+off so it too draws only leakage — the honest order is \{NMOS@0\}
+$\gg$ \{NMOS@1, CMOS\}.
+\item[Marginal gate (easy)] $v_{GS}-V_{th}=\qty{0.4}{\volt}$ — nearly
+closed. $R_{on}$ \emph{at your $v_{GS}$} settles it; a "logic-level" part
+specified at \qty{2.5}{\volt} gate is the fix.
+\item[3-input NAND (medium)] Three series NMOS below, three parallel PMOS
+above: $Y=\overline{A\cdot B\cdot C}$.
+\item[Unity-slope margins (medium)] Knee sits near
+$v_{in}\approx\qty{1.2}{\volt}$–$\qty{1.7}{\volt}$; margins come out
+$\approx$\qty{1.1}{\volt} and $\approx$\qty{1.6}{\volt}, matching the text.
+\item[FET dissipation (medium)]
+$5.18\times11.4\approx\qty{59}{\milli\watt}$ on the transistor vs
+$6.8\times11.4\approx\qty{78}{\milli\watt}$ on the strip
+— the FET burns almost half the delivered power.
+\item[Pull-up current (medium)] $1.65/10\approx\qty{0.17}{\milli\ampere}$
+(\qty{1.65}{\volt} across \qty{10}{\kilo\ohm}); CMOS peaks higher because
+its crossover current is channel-limited, not resistor-limited — but only
+for the nanoseconds of the transition.
+\item[$V_{OL}$ derivation (hard)]
+$V_{OL}=V_{DD}\dfrac{R_{on}}{R_{on}+R_D}
+=3.3\cdot\dfrac{220}{10220}\approx\qty{0.071}{\volt}$ — dead on the sim.
+\item[5 V reading 3.3 V (hard)] Guaranteed-1 input needs
+$v\ge\qty{3.5}{\volt}$ but the sender promises only \qty{3.3}{\volt}: zero
+margin, guaranteed failure with tolerance drift. Fixes: level-shifter /
+gate with lower $V_{IH}$ / run everything at 3.3 V (our choice).
+\end{description}
+
+\section*{Notes}
+The S/SR model ordering and the static-discipline treatment follow MIT
+6.002's digital lectures~\cite{ocw6002}; device physics and the BJT sketch
+draw on All About Circuits vol.~III~\cite{aacvol3}; netlists verified on
+ngspice-47~\cite{ngspice}. All simulated numbers in this chapter are
+verbatim tool output.

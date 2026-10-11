@@ -1,0 +1,582 @@
+% Chapter 5 -- Diodes
+\chapter{Diodes}\label{ch:diodes}
+
+Every component so far has been \emph{linear}: double the voltage and you
+double the current. The diode breaks that. It conducts in one direction
+and blocks in the other, which sounds like a switch but behaves like
+something subtler --- a one-way valve with a pressure threshold. One
+junction of silicon buys you rectification, flyback protection, voltage
+references, reverse-polarity guards, and light. After this chapter you
+will know which of the three diode models to reach for in a calculation,
+design a half-wave rectifier and estimate its ripple, add the flyback
+diode that should have been next to ch.~4's relay all along, build a
+zener shunt regulator and --- just as important --- know when not to.
+
+\section{The junction diode: one curve, three models}\label{sec:diode-iv}
+
+A diode is a $p$--$n$ junction: silicon doped positive on one side,
+negative on the other. Its whole story is one curve, plotted in
+Figure~\ref{fig:diode-iv} from a real DC sweep.
+
+\begin{figure}[htbp]
+\centering
+\input{figures/ch05/fig_iv}
+\caption{Diode $I$--$V$ curve, real \texttt{.dc} sweep of the silicon
+model used all chapter. Notice there is no wall: conduction rises
+exponentially through the ``knee'' near \qty{0.7}{\volt}. At
+\qty{0.6}{\volt} it passes \qty{0.014}{\milli\ampere}; at
+\qty{0.7}{\volt}, \qty{0.48}{\milli\ampere}; at \qty{0.8}{\volt},
+\qty{13}{\milli\ampere}.}
+\label{fig:diode-iv}
+\end{figure}
+
+Physics explains the curve with the \emph{Shockley equation}: current
+grows exponentially with forward voltage,
+$i=I_s\bigl(e^{v/(nV_T)}-1\bigr)$, where $V_T\approx\qty{26}{\milli\volt}$
+at room temperature. We state it, never derive it --- the point of a
+diode in this book is the curve's \emph{shape}, not its semiconductor
+derivation. What the shape buys you: current is a steep function of
+voltage, so voltage is a \emph{flat} function of current. That is why a
+diode makes a usable voltage reference.
+
+Nobody computes with the exponential. You pick one of three models by
+how much precision the question needs:
+
+\begin{figure}[htbp]
+\centering
+\input{figures/ch05/fig_models}
+\caption{The three diode models on one axis. The ideal model says zero
+drop whenever it conducts; the \qty{0.7}{\volt} model says the drop is a
+constant; the real curve (Shockley, simulated) sits between them and is
+never wrong --- it is just useless for hand arithmetic.}
+\label{fig:diode-models}
+\end{figure}
+
+\begin{definition}[The three diode models]\index{diode!models}\index{ideal diode}\index{0.7 V model}
+\begin{itemize}
+\item \textbf{Ideal model} --- a perfect one-way switch: conducts with
+\qty{0}{\volt} drop, blocks completely below it. Use for direction-of-
+flow reasoning and topology questions.
+\item \textbf{Constant-\qty{0.7}{\volt} model} --- conducts at a fixed
+\qty{0.7}{\volt} forward drop, blocks below it. The workhorse of hand
+circuit analysis; correct to within tens of millivolts in typical
+circuits.
+\item \textbf{Shockley model} --- the real exponential. Use only in the
+simulator, where the computer does the exponential for you.
+\end{itemize}
+\end{definition}
+
+\begin{checkpoint}
+An LED circuit needs \qty{5}{\milli\ampere}. Which model do you use to
+size the resistor --- and which does the simulator use? (Hand work:
+\qty{0.7}{\volt}-style constant drop, with the LED's real $V_f$ from the
+datasheet. The simulator: Shockley, always.)
+\end{checkpoint}
+
+\section{LEDs and forward voltage}\label{sec:diode-led}
+
+An LED is a diode that wastes its recombination energy as light instead
+of heat. The physics consequence you can touch: its forward drop is set
+by the photon energy, so $V_f$ depends on colour --- roughly
+\qty{1.8}{\volt} red, \qty{2.2}{\volt} green/yellow, \qty{3.0}{\volt} to
+\qty{3.4}{\volt} blue and white. Get the number from the datasheet, not
+from the generic \qty{0.7}{\volt}.
+
+\begin{exercise}[easy]
+A red LED ($V_f=\qty{1.8}{\volt}$) runs from \qty{5}{\volt} through a
+resistor at \qty{10}{\milli\ampere}. Size the resistor --- once with the
+correct $V_f$, once with the \qty{0.7}{\volt} silicon guess. How far
+off is the current with the wrong model?
+\begin{solution}
+$R=(5-1.8)/0.01=\qty{320}{\ohm}$ correct. Wrong model gives
+$(5-0.7)/0.01=\qty{430}{\ohm}$; real current then
+$(5-1.8)/430=\qty{7.4}{\milli\ampere}$ --- 26\% low and visibly dimmer.
+Using the \qty{0.7}{\volt} model on a non-silicon $V_f$ is the LED
+mistake.
+\end{solution}
+\end{exercise}
+
+\section{The rectifier: AC in, lumpy DC out}\label{sec:diode-rectifier}
+
+Put a diode in series with an AC source and a load: it passes the
+positive half-cycles and blocks the negative ones. That is the
+\emph{half-wave rectifier} --- the simplest possible DC supply, and the
+reason wall-wart chargers exist. Add a reservoir capacitor across the
+load and the gaps between half-cycles get filled in from stored charge:
+the capacitor discharges through the load between peaks, giving DC with
+a residual \emph{ripple}.
+
+\begin{example}[Half-wave rectifier: predict the ripple, then simulate it]\label{ex:rectifier}
+\textbf{Strategy.} The output tops out near the input peak minus one
+diode drop. Between peaks the capacitor discharges through the load for
+almost a full period $T$; treat the discharge as roughly linear and you
+get $\Delta v\approx I\,T/C$ --- the same charge-bucket arithmetic as
+ch.~4's decoupling cap. Simulate to see how honest that estimate is.
+
+\textbf{Solution.} Source: \qty{10}{\volt} peak, \qty{50}{\hertz}
+($T=\qty{20}{\milli\second}$); load \qty{1}{\kilo\ohm}; $C=\qty{100}{\micro\farad}$.
+Peak output $\approx 10-0.8=\qty{9.2}{\volt}$, so load current
+$\approx\qty{9.2}{\milli\ampere}$ (it droops as the voltage does).
+Linear estimate:
+$\Delta v\approx \frac{9.2\text{m}\cdot20\text{m}}{100\mu}\approx\qty{1.8}{\volt}$
+peak-to-peak. The true discharge is exponential with
+$\tau=RC=\qty{100}{\milli\second}$, so the estimate is conservative ---
+as the capacitor sags the load takes less current, which slows the sag.
+
+\begin{lstlisting}[caption={\ttfamily code/ch05\_rectifier.cir --- one
+diode, one capacitor, \qty{50}{\hertz} sine. The \texttt{meas} commands
+quantify the ripple over the last two cycles.},label=lst:rectifier]
+* ch05_rectifier.cir -- half-wave rectifier, 10 Vpk 50 Hz, 100 uF filter
+.model DSI D(is=1e-14 n=1.1 rs=0.5)
+Vin 1 0 sin(0 10 50)
+D1 1 2 DSI
+R1 2 0 1000
+C1 2 0 100u
+.control
+tran 20u 100m
+wrdata ch05_rectifier.dat v(1) v(2)
+meas tran VMAX MAX v(2) from=60m to=100m
+meas tran VMIN MIN v(2) from=60m to=100m
+.endc
+.end
+\end{lstlisting}
+
+\begin{lstlisting}[caption={Output, verbatim from ngspice-47.}]
+vmax                =  9.19186e+00 at=  6.52056e-02
+vmin                =  7.68742e+00 at=  6.32056e-02
+\end{lstlisting}
+\end{example}
+
+Measured: $9.19-7.69=\qty{1.50}{\volt}$ p-p ripple against the predicted
+$\approx\qty{1.8}{\volt}$ --- the estimate overshoots by a fifth, exactly
+as the exponential argument says it should. Swap in \qty{470}{\micro\farad}
+(\texttt{code/ch05\_rectifier\_bigc.cir}) and the measured ripple drops to
+\qty{0.35}{\volt}; the linear estimate predicts $1.8\cdot100/470\approx
+\qty{0.39}{\volt}$. Ripple scales with $1/C$ --- the estimate is a usable
+upper bound, the simulator is the truth.
+
+\begin{figure}[htbp]
+\centering
+\input{figures/ch05/fig_rectifier}
+\caption{Half-wave rectifier and its real \texttt{.tran} waveforms.
+Notice the output is a decaying exponential between brief recharging
+peaks, not a sine minus a piece. The diode only conducts for the short
+window where $v_{\mathrm{in}}$ climbs above $v_{\mathrm{out}}+0.7$.}
+\label{fig:rectifier}
+\end{figure}
+
+\begin{exercise}[medium]
+Same rectifier, but the load is a \qty{10}{\milli\ampere} constant sink
+and $C=\qty{220}{\micro\farad}$. Predict the p-p ripple.
+\begin{solution}
+$\Delta v\approx IT/C=10\text{m}\cdot20\text{m}/220\mu\approx\qty{0.9}{\volt}$.
+(Constant current makes the linear estimate nearly exact --- no drooping
+load to save you.)
+\end{solution}
+\end{exercise}
+
+\section{The flyback diode: ch.~4's missing part}\label{sec:diode-flyback}
+
+Chapter~4 opened a relay coil and watched the switch node jump to
+\qty{1646}{\volt}. In a real circuit that spike lands on a transistor
+rated for maybe \qty{40}{\volt} --- once. The fix is one diode across the
+coil, \emph{freewheeling}: anode at the switched node, cathode at the
+supply rail. While the coil is driven, the diode is reverse-biased and
+invisible. The instant the switch opens, the coil's stored current keeps
+flowing --- inductor current cannot jump --- and now it has somewhere to
+go: through the diode, clamping the node at rail plus one drop.
+
+\begin{lstlisting}[caption={\ttfamily code/ch05\_flyback\_diode.cir ---
+identical to ch.~4's flyback netlist except one added line: \texttt{D1 3 1
+DSI}. This diode is the difference between a circuit that works and a
+dead transistor.},label=lst:flybackd]
+* ch05_flyback_diode.cir -- ch4 relay coil with a freewheel diode
+* WARNING: omitting this diode is what kills real transistors.
+.model SW1 SW vt=0.5 vh=0.1 ron=1 roff=1e9
+.model DSI D(is=1e-14 n=1.1 rs=0.5)
+V1 1 0 dc 12
+Rcoil 1 2 70
+L1 2 3 10m IC=0
+S1 3 0 10 0 SW1
+Cpar 3 0 100p
+D1 3 1 DSI
+Vsw 10 0 pulse(1 0 1m 1n 1n 1 1)
+.control
+tran 500n 1.06m uic
+wrdata ch05_flyback_diode.dat v(3) i(l1)
+meas tran VPK MAX v(3)
+.endc
+.end
+\end{lstlisting}
+
+\begin{lstlisting}[caption={Output, verbatim. Same relay, same switch ---
+the \qty{1646}{\volt} spike is gone.}]
+vpk                 =  1.30279e+01 at=  1.00001e-03
+\end{lstlisting}
+
+\qty{13.0}{\volt}: rail plus one diode drop. The coil current decays
+gently through the diode instead of detonating the voltage node.
+
+\begin{figure}[htbp]
+\centering
+\input{figures/ch05/fig_flybackdiode}
+\caption{Freewheel diode placement and the real clamped waveform. Notice
+the diode is \emph{backwards} --- it can never conduct while the switch
+is on; it exists purely for the turn-off instant.}
+\label{fig:flybackd}
+\end{figure}
+
+\begin{remark}
+This is not a textbook scare story. Relay drivers, solenoid valves,
+motor H-bridges and DC-DC converter switches all die this way in real
+products --- the failure signature is a transistor that measures
+shorted drain-to-source. Every bench engineer has a ``forgot the
+flyback diode'' story; the part costs cents.
+\end{remark}
+
+\begin{exercise}[hard]
+Pick a flyback diode rating for our relay: coil \qty{12}{\volt},
+\qty{70}{\ohm} resistance, \qty{10}{\milli\henry}, switched by a
+\qty{40}{\volt}-rated transistor.
+\begin{solution}
+Peak diode current = coil current at switch-off =
+$12/70=\qty{171}{\milli\ampere}$. Peak reverse voltage = supply =
+\qty{12}{\volt} (plus margin). Any diode rated $\ge$\qty{200}{\milli\ampere},
+$\ge$\qty{25}{\volt} works --- a 1N4148 (200 mA, 75 V) is the classic
+answer here; a 1N4007 if the coil were fat.
+\end{solution}
+\end{exercise}
+
+\section{The zener and the shunt regulator}\label{sec:diode-zener}
+
+A \emph{zener} is a diode manufactured to break down cleanly in
+\emph{reverse}: above its rated $V_z$ it conducts hard, holding its
+terminals near $V_z$. Use that flat spot as a voltage reference: feed it
+through a series resistor, hang your load across the zener, and it
+absorbs whatever current the load doesn't take. That is the \emph{shunt
+regulator}.
+
+\begin{definition}[Zener diode]\index{zener diode}\index{shunt regulator}
+A diode run intentionally in reverse breakdown, where $v\approx V_z$
+over a range of currents. The shunt regulator is a series resistor plus
+a zener to ground: the resistor takes the rail-to-$V_z$ difference, the
+zener takes the leftover current.
+\end{definition}
+
+\begin{example}[A \qty{3.3}{\volt} reference from \qty{9}{\volt}, sized and simulated]\label{ex:zener}
+\textbf{Strategy.} Size $R_s$ so the zener still sees a few milliamps at
+\emph{maximum} load (otherwise it drops out of breakdown), and so its
+power is safe at \emph{zero} load (when it takes everything). Then
+sweep the load current and look at what ``regulates'' really means.
+
+\textbf{Solution.} Load: up to \qty{30}{\milli\ampere}. Give the zener
+$\sim$\qty{2}{\milli\ampere} margin at full load:
+$R_s=(9-3.3)/(30\text{m}+2\text{m})\approx\qty{180}{\ohm}$. Worst-case
+resistor power at zero load: $(5.7)^2/180\approx\qty{0.18}{\watt}$ ---
+a quarter-watt part is adequate, barely. Worst-case zener power:
+$3.3\cdot30\text{m}\approx\qty{0.1}{\watt}$.
+
+\begin{lstlisting}[caption={\ttfamily code/ch05\_zener.cir --- shunt
+regulator; the \texttt{.dc} sweep drives a current source as the load
+and records $v_{\mathrm{out}}$.},label=lst:zener]
+* ch05_zener.cir -- 3.3 V zener shunt regulator from 9 V
+.model DZ3V3 D(is=1e-14 n=1.0 rs=5 bv=3.3 ibv=0.02)
+V1 1 0 dc 9
+Rs 1 2 180
+Dz 0 2 DZ3V3
+IL 2 0 dc 0
+.control
+dc IL 0 0.03 0.0005
+wrdata ch05_zener.dat -i(v1) v(2)
+.endc
+.end
+\end{lstlisting}
+
+\begin{lstlisting}[caption={Selected rows of the \texttt{.dc} sweep
+(every 10th of 61): load current, total supply current, output voltage.
+Notice $v_{\mathrm{out}}$ slides \qty{0.22}{\volt} end to end --- this is
+regulation, not magic.}]
+IL (mA)   supply I (mA)   vout (V)
+0.0       30.75           3.465
+10.0      31.07           3.407
+20.0      31.43           3.343
+30.0      31.95           3.250
+\end{lstlisting}
+\end{example}
+
+\begin{figure}[htbp]
+\centering
+\input{figures/ch05/fig_zener}
+\caption{Zener shunt regulator and its real load-regulation curve.
+Notice the output sits \emph{above} \qty{3.3}{\volt} at light load and
+sags below it at full load --- a low-voltage zener's knee is soft, so
+``3.3 V'' is a neighborhood, not a number.}
+\label{fig:zener}
+\end{figure}
+
+Honest verdict on the shunt regulator: it is simple, it is robust, it
+wastes power continuously (the resistor burns $\sim$\qty{0.2}{\watt}
+always), and it regulates loosely. Reach for it when you need a cheap
+\emph{reference} for milliamps of bias or a comparator threshold ---
+never for powering anything that cares.
+
+\begin{exercise}[medium]
+Your load can pull \qty{20}{\milli\ampere} and you want the zener to
+keep $\ge$\qty{5}{\milli\ampere} at worst. What is the largest legal
+$R_s$ from \qty{9}{\volt}, and what power must it survive at zero load?
+\begin{solution}
+$R_{s,\max}=(9-3.3)/(20\text{m}+5\text{m})=\qty{228}{\ohm}$ ---
+pick \qty{220}{\ohm}. Zero-load power:
+$(5.7)^2/220=\qty{0.15}{\watt}$, so a quarter-watt part survives with
+40\% margin --- use a half-watt if the chassis gets hot.
+\end{solution}
+\end{exercise}
+
+\section{The diode in the wild: ESD and reverse-polarity guards}\label{sec:diode-wild}
+
+Two more jobs you will meet diodes doing on every board you open.
+\emph{ESD protection}: tiny fast diodes from a signal line to each rail
+clamp electrostatic hits (a finger is a few-kilovolt capacitor) before
+they reach the chip. \emph{Reverse-polarity protection}: a diode in
+series with the supply so a backwards plug or reversed battery does
+nothing --- the diode blocks the negative rail outright.
+
+The series guard costs you one forward drop, always. That is the whole
+trade, quantified:
+
+\begin{example}[Reverse-polarity protection: silicon vs Schottky vs no guard]\label{ex:revpol}
+\textbf{Strategy.} Price the protection: what voltage does the load
+lose forwards, what does it see backwards, and what power does the
+diode burn. A Schottky diode trades a lower drop for looser blocking.
+
+\textbf{Solution.} \qty{5}{\volt} supply, \qty{100}{\ohm} load
+(\qty{50}{\milli\ampere} class), series diode:
+
+\begin{lstlisting}[caption={\ttfamily code/ch05\_reverse\_pol.cir ---
+\texttt{alter} re-runs the operating point with the supply flipped;
+\texttt{ch05\_reverse\_pol\_sch.cir} swaps the silicon model for
+Schottky.},label=lst:revpol]
+* ch05_reverse_pol.cir -- series-diode reverse-polarity guard
+.model DSI D(is=1e-14 n=1.1 rs=0.5)
+V1 1 0 dc 5
+D1 1 2 DSI
+R1 2 0 100
+.control
+op
+print v(1) v(2) i(v1)
+alter v1 dc=-5
+op
+print v(1) v(2) i(v1)
+.endc
+.end
+\end{lstlisting}
+
+\begin{lstlisting}[caption={Outputs, verbatim: silicon forward,
+reversed, then the Schottky run.}]
+v(1) = 5.000000e+00   v(2) = 4.152554e+00   i = -4.15255e-02
+v(1) = -5.00000e+00   v(2) = -5.01000e-10   i =  5.01110e-12
+v(1) = 5.000000e+00   v(2) = 4.760269e+00   i = -4.76027e-02
+\end{lstlisting}
+
+Silicon: the load gets \qty{4.15}{\volt} and the diode burns
+$0.85\cdot42\text{m}\approx\qty{36}{\milli\watt}$. Reversed: the load
+sees $\sim$\qty{0}{\volt} and the circuit pulls picoamps. Schottky:
+\qty{4.76}{\volt} delivered, only \qty{0.24}{\volt} sacrificed and
+$\sim$\qty{11}{\milli\watt} burned. The trade: Schottkys leak more in
+reverse and cost slightly more --- and ``just don't plug it in wrong''
+remains the cheapest option on the table.
+\end{example}
+
+\section{Safety}\label{sec:diode-safety}
+
+\begin{rulebox}
+Rectifier circuits in this chapter are simulated at \qty{10}{\volt} and
+lower. Real rectifiers live next to mains --- that is out of scope for
+this book, full stop. The same diode that is a gentle one-way valve at
+\qty{5}{\volt} is part of a lethal circuit at \qty{230}{\volt}.
+\end{rulebox}
+
+\begin{rulebox}
+An inductor with no freewheel path does not negotiate --- it makes the
+voltage it needs. Never switch a relay, solenoid, or motor coil without
+the diode fitted first, and never trust a ``it worked on the bench''
+argument: the transistor fails on the Nth switch, not the first.
+\end{rulebox}
+
+\section{Common mistakes}\label{sec:diode-mistakes}
+
+\begin{tripwire}[Treating the diode as a zero-volt drop]
+The ideal model is for direction questions only. The \qty{0.7}{\volt}
+the load never sees is also power the diode has to dissipate ---
+\qty{1}{\ampere} through a series guard is \qty{0.7}{\watt} to heat.
+\end{tripwire}
+
+\begin{tripwire}[Forgetting the reverse-voltage limit]
+Every diode has a peak inverse voltage rating (1N4007: \qty{1000}{\volt};
+a small-signal diode may only manage \qty{75}{\volt}). Exceed it and the
+diode breaks down --- sometimes usefully (a zener), usually not (it
+fails shorted).
+\end{tripwire}
+
+\begin{tripwire}[Sizing LED current off the ideal model]
+``The diode drops zero, so $R=V/I$'' leaves nothing for the LED's real
+\qty{1.8}{\volt}--\qty{3.4}{\volt} $V_f$. Always subtract $V_f$ first ---
+and get it from the datasheet, because colour sets the voltage.
+\end{tripwire}
+
+\begin{tripwire}[Believing a zener holds its rated voltage]
+Low-voltage zeners have soft knees: our ``3.3 V'' part delivered
+\qty{3.25}{\volt} to \qty{3.47}{\volt} across the load range. If your
+circuit cares about 6\%, you need a real reference IC, not a shunt
+regulator.
+\end{tripwire}
+
+\section{Summary}\label{sec:diode-summary}
+
+\begin{center}
+\begin{tabularx}{\textwidth}{l>{\raggedright\arraybackslash}X}
+\toprule
+\textbf{Object} & \textbf{What you need to know}\\
+\midrule
+Diode models & ideal (0 V) for direction; \qty{0.7}{\volt} for hand
+math; Shockley exponential in the simulator \\
+LED & a diode that emits; $V_f$ is colour-set,
+\qty{1.8}{\volt}--\qty{3.4}{\volt} --- read the datasheet \\
+Rectifier & half-wave: one diode; cap filters gaps;
+$\Delta v\lesssim IT/C$ p-p ripple; more $C$, less ripple \\
+Flyback diode & across the coil, backwards; clamps switch-off spike at
+rail+drop --- never optional \\
+Zener & reverse breakdown held at $V_z$; shunt regulator = $R_s$ +
+zener; loose ($\pm$5--10\%), always dissipating \\
+Guards & series diode blocks reversed supply at one drop; Schottky
+halves the toll; ESD diodes clamp signal pins to the rails \\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+\section*{Exercises}
+\addcontentsline{toc}{section}{Exercises}
+
+\begin{exercise}[easy]
+An ideal-model analysis says a diode drops nothing. Your circuit feeds
+\qty{9}{\volt} through one diode to a \qty{3}{\volt} zener clamp. What
+does the \qty{0.7}{\volt} model say the clamp sees? When does the 0.7 V
+matter?
+\end{exercise}
+
+\begin{exercise}[easy]
+Green LED, $V_f=\qty{2.1}{\volt}$, from \qty{3.3}{\volt} at
+\qty{8}{\milli\ampere}: size the resistor.
+\end{exercise}
+
+\begin{exercise}[easy]
+Which model do you use to (a) decide whether a diode conducts at all,
+(b) size a series resistor by hand, (c) check a circuit in ngspice?
+\end{exercise}
+
+\begin{exercise}[easy]
+In a half-wave rectifier, which half of the AC cycle appears at the
+output --- and what decides which half? Trace the current path for the
+conducting half.
+\end{exercise}
+
+\begin{exercise}[medium]
+A rectifier must hold ripple under \qty{0.5}{\volt} p-p at
+\qty{20}{\milli\ampere}, \qty{50}{\hertz}. What is the smallest
+capacitor the linear estimate allows?
+\end{exercise}
+
+\begin{exercise}[medium]
+Why is $\Delta v\approx IT/C$ an \emph{overestimate} of the ripple for
+a resistive load but nearly exact for a constant-current load?
+\end{exercise}
+
+\begin{exercise}[medium]
+A relay coil: \qty{24}{\volt}, \qty{15}{\milli\henry}, \qty{120}{\ohm},
+switched at \qty{10}{\hertz}. Specify a flyback diode (current and
+reverse-voltage rating with margin) and estimate the energy dissipated
+per switch-off.
+\end{exercise}
+
+\begin{exercise}[medium]
+A \qty{4.3}{\volt}-logic board must survive reversed \qty{5}{\volt}
+input. Compare series silicon diode, series Schottky, and ``no guard''
+on delivered voltage and dissipation at \qty{100}{\milli\ampere}.
+\end{exercise}
+
+\begin{exercise}[hard]
+An LED matrix row drives 8 parallel LEDs ($V_f=\qty{2.0}{\volt}$ each)
+from \qty{5}{\volt} through one shared resistor. Why is one resistor
+per LED the correct design instead? (Hint: what happens to current
+sharing when one LED's $V_f$ is \qty{0.1}{\volt} low?)
+\end{exercise}
+
+\begin{exercise}[hard]
+Design a zener reference for \qty{5.1}{\volt} $\pm$\qty{0.2}{\volt}
+into a load of \qty{0}{\milli\ampere}--\qty{10}{\milli\ampere} from a
+\qty{12}{\volt} rail: choose $R_s$, bound the zener and resistor power,
+and estimate the real output range given our measured low-$V_z$ slope
+($\sim$\qty{7}{\milli\volt}/mA).
+\end{exercise}
+
+\section*{Hints and answers}
+\addcontentsline{toc}{section}{Hints and answers}
+
+\begin{description}
+\item[Clamp after diode.] $9-0.7=\qty{8.3}{\volt}$ across $R_s$, so the
+zener sees slightly less drive current --- the drop matters when $R_s$
+is tight or the rail is low; it's why low-voltage designs use Schottky.
+\item[Green LED.] $R=(3.3-2.1)/0.008=\qty{150}{\ohm}$.
+\item[Model picking.] (a) ideal, (b) \qty{0.7}{\volt} (or LED $V_f$),
+(c) Shockley --- the simulator never uses your shortcuts.
+\item[Rectifier half.] Whichever half forward-biases the diode ---
+anode side positive. Flip the diode to pick the other half.
+\item[Ripple cap.] $C\ge IT/\Delta v=20\text{m}\cdot20\text{m}/0.5
+=\qty{800}{\micro\farad}$ --- the estimate is an upper bound on ripple,
+so this is conservative; buy \qty{1000}{\micro\farad}.
+\item[Overestimate.] Resistive load current sags with the voltage, so
+the bucket empties slower than $I\cdot t$ assumes; a constant-current
+load never sags, so the linear discharge is real.
+\item[24 V relay.] $I_{\mathrm{pk}}=24/120=\qty{200}{\milli\ampere}$;
+diode $\ge$\qty{250}{\milli\ampere}, $\ge$\qty{50}{\volt} (e.g.
+1N4001). Energy per switch-off:
+$\frac12 LI^2=\frac12\cdot0.015\cdot0.2^2=\qty{0.3}{\milli\joule}$ ---
+at \qty{10}{\hertz}, \qty{3}{\milli\watt} in the diode loop.
+\item[Reversed guard.] At \qty{100}{\milli\ampere}: silicon delivers
+$\approx$\qty{4.15}{\volt} and burns $\approx$\qty{85}{\milli\watt};
+Schottky $\approx$\qty{4.76}{\volt}, $\approx$\qty{24}{\milli\watt};
+no guard delivers \qty{5}{\volt} and dies if someone plugs it in wrong.
+\item[LED matrix.] A shared resistor sets total current but the LED
+with the lowest $V_f$ hogs it --- exponential $I$--$V$ means
+\qty{0.1}{\volt} low doubles its share. One resistor per LED fixes
+each branch's own current.
+\item[5.1 V reference.] $R_s\le(12-5.1)/15\text{m}=\qty{460}{\ohm}$;
+pick \qty{430}{\ohm}. Resistor power $(6.9)^2/430\approx\qty{0.11}{\watt}$;
+zener worst case $5.1\cdot16\text{m}\approx\qty{0.08}{\watt}$.
+At $\sim$\qty{7}{\milli\volt}/mA the output stays inside
+$\pm$\qty{0.2}{\volt} up to $\sim$28 mA of load swing --- yours has 10.
+Feasible.
+\end{description}
+
+\section*{Notes}
+\addcontentsline{toc}{section}{Notes}
+
+\chapternotes{%
+The three-models presentation and the Shockley-stated-not-derived choice
+follow the layered-model approach of the 6.002 nonlinear lectures
+\cite{ocw6002} and All About Circuits vol.~III's diode chapter
+\cite{aacvol3}. The flyback-diode-as-required-instrument framing is
+standard bench practice; the simulated spike and clamp are real ngspice
+runs of the relay from ch.~4. Zener knee softness at low $V_z$ is a
+documented device property, which is why the chapter's regulator verdict
+is honest rather than enthusiastic \cite{aacvol3}.}
+
+\begin{wins}
+\begin{itemize}
+\item Read a diode $I$--$V$ curve and pick the right model for the job.
+\item Predict and verify rectifier ripple; know why $IT/C$ overestimates.
+\item Add the flyback diode to any inductive switch --- and justify its rating.
+\item Build and honestly evaluate a zener shunt reference.
+\item Price reverse-polarity protection in volts and milliwatts.
+\end{itemize}
+\end{wins}

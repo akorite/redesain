@@ -1,0 +1,18 @@
+% fig_models.tex -- three diode models overlaid; real curve from ngspice
+\begin{tikzpicture}
+\begin{axis}[
+  width=0.7\linewidth, height=5.2cm,
+  xlabel={$v_D$ (V)}, ylabel={$i_D$ (mA)},
+  xmin=0, xmax=1.0, ymin=0, ymax=60,
+  grid=both, tick label style={font=\small},
+  legend style={font=\small, at={(0.03,0.97)}, anchor=north west},
+]
+\addplot[blue, very thick] table[x index=0, y expr=\thisrowno{1}*1e3]
+  {figures/ch05/ch05_iv.dat};
+\addlegendentry{real diode (Shockley)}
+\addplot[black, thick, dashed, sharp plot] coordinates {(0,0) (0,60)};
+\addlegendentry{ideal: 0 V drop}
+\addplot[red, thick, dashed, sharp plot] coordinates {(0.7,0) (0.7,60)};
+\addlegendentry{0.7 V model}
+\end{axis}
+\end{tikzpicture}

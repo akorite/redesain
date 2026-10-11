@@ -1,0 +1,15 @@
+* ch06_nmos_inv.cir -- NMOS + pull-up resistor inverter, .dc transfer
+VDD 3 0 dc 3.3
+Vin 1 0 dc 0
+M1 2 1 0 0 NMOS1 W=10u L=1u
+RD 3 2 10k
+.model NMOS1 NMOS(vto=1.0 kp=200u lambda=0.02)
+.control
+dc Vin 0 3.3 0.025
+set filetype=ascii
+wrdata ch06_nmos_inv.dat v(2)
+* static supply current at vin = 3.3 V (inverter holding "low")
+dc Vin 3.3 3.3 0.01
+print i(VDD)
+.endc
+.end

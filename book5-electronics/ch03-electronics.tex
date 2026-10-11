@@ -1,0 +1,552 @@
+% ch03-electronics.tex -- Chapter 3: Series, parallel and Kirchhoff's laws
+\chapter{Series, parallel and Kirchhoff's laws}
+\label{ch:networks}
+
+Chapter~2 gave you one rule, $V=IR$, and one tool, ngspice. This chapter
+connects resistors into \emph{networks} and asks the obvious question: what is
+the voltage \emph{here}, when the circuit has more than one place to look?
+You will learn the two bookkeeping laws every engineer uses without thinking
+(Kirchhoff's), the voltage divider — the single most-used fragment of analogue
+circuitry in this book — a systematic way to solve any linear network
+(node voltages), and a compression trick (Th\'evenin) that turns a whole
+network into one source and one resistor. By the end you can take any
+resistor circuit this book will build, write its equations by hand in a few
+lines, and check the answer in the simulator before reaching for a wire.
+
+\section{Series and parallel are about nodes}
+\label{sec:seriesparallel}
+
+\begin{definition}[Series]\index{series}
+Two elements are in \emph{series} when they share exactly one node and nothing
+else connects to that node. Whatever current enters one must leave through
+the other — there is nowhere else for it to go.
+\end{definition}
+
+\begin{definition}[Parallel]\index{parallel}
+Two elements are in \emph{parallel} when both of their terminals connect to the
+same pair of nodes. They therefore see the same voltage.
+\end{definition}
+
+The definitions are about \emph{nodes}, not geometry. Figure~\ref{fig:redraws}
+shows one circuit — $R_1$ in parallel with $R_2$ — drawn four ways. Beginners
+call (c) and (d) "different circuits" because the resistors point differently
+or sit in a triangle. They are the same circuit: in all four drawings every
+$R_1$ terminal and every $R_2$ terminal lands on the same two nodes. The
+schematic is the topology (Section~1.4); squint at connections, not shapes.
+
+\begin{figure}[htbp]
+\centering
+\input{figures/ch03/fig_redraws}
+\caption{One parallel circuit, four drawings. In every panel each end of
+$R_1$ shares a node with an end of $R_2$ and nothing in between splits them.
+If you can label only two distinct nodes, the resistors are in parallel —
+however the wires are bent.}
+\label{fig:redraws}
+\end{figure}
+
+\begin{exercise}[easy]
+In Figure~\ref{fig:redraws}(b), trace from the top of $R_1$ to the top of
+$R_2$ without lifting your pen. You never pass through a component — so those
+ends are one node. Do the same for the bottoms.
+\end{exercise}
+
+\section{Equivalent resistance}
+\label{sec:req}
+
+A network of resistors between two terminals behaves, at those terminals, like
+one resistor called the \emph{equivalent resistance}\index{equivalent
+resistance} $R_{\mathrm{eq}}$. Two cases cover nearly everything.
+
+\textbf{Series:} the same current crosses both, voltages add (KVL), so
+$R_{\mathrm{eq}} = R_1 + R_2$. \textbf{Parallel:} the same voltage sits across
+both, currents add (KCL):
+\[
+\frac{1}{R_{\mathrm{eq}}} = \frac{1}{R_1} + \frac{1}{R_2}
+\qquad\Longleftrightarrow\qquad
+R_{\mathrm{eq}} = \frac{R_1 R_2}{R_1 + R_2}\quad\text{("product over sum")}.
+\]
+For $n$ resistors, series just sums; parallel sums the reciprocals. Reduce
+any network by repeatedly collapsing the two-terminal pieces. Sanity checks
+that catch almost every slip: in parallel, $R_{\mathrm{eq}}$ is
+\emph{smaller than the smallest} resistor (more paths, more current); in
+series, $R_{\mathrm{eq}}$ is larger than the largest.
+
+\begin{exercise}[easy]
+Reduce this to one resistor: \qty{1}{\kilo\ohm} in parallel with
+\qty{2}{\kilo\ohm}, in series with \qty{470}{\ohm}. (Answer:
+$667 + 470 \approx \qty{1.14}{\kilo\ohm}$.)
+\end{exercise}
+
+\section{The voltage divider}
+\label{sec:divider}
+
+Two series resistors across a source split the voltage in proportion to their
+resistances. With $R_1$ on top and $R_2$ to ground as in
+Figure~\ref{fig:divider},
+\[
+v_{\mathrm{out}} \;=\; V_{\mathrm{in}}\,\frac{R_2}{R_1+R_2}.
+\]
+One line of KVL derives it: the current is $V_{\mathrm{in}}/(R_1+R_2)$, and
+the output is that current times $R_2$. This fragment appears dozens of times
+in this book — scaling sensor signals, setting logic levels, biasing
+transistors. Learn it once, recognise it everywhere.
+
+\begin{figure}[htbp]
+\centering
+\input{figures/ch03/fig_divider}
+\caption{The voltage divider. The output is taken \emph{at the middle node};
+$R_2$ is the resistor \emph{to ground}. Notice the formula needs the same
+current through both — the moment something draws current out of the middle
+node, $v_{\mathrm{out}}$ falls (Section~\ref{sec:thevenin} quantifies it).}
+\label{fig:divider}
+\end{figure}
+
+\begin{example}[A 3.3 V logic level from a 5 V rail]
+\label{ex:div33}
+\textbf{Strategy.} The ratio sets the voltage; the absolute values set how
+much current the divider wastes. Pick a ratio from the E24 ladder, then
+choose a magnitude that burns little current but still makes the output
+stiff compared to anything the logic input draws (chip inputs want microamps
+or less).
+
+\textbf{Solution.} We need $R_2/(R_1+R_2) = 3.3/5 = 0.66$, i.e.
+$R_1 : R_2 \approx 1 : 1.94$. E24 gives a clean hit: $R_1=\qty{1}{\kilo\ohm}$,
+$R_2=\qty{2}{\kilo\ohm}$, ratio $2000/3000=0.667$.
+Then $v_{\mathrm{out}}=5\times0.667=\qty{3.33}{\volt}$ and the standing
+current is $5/3000=\qty{1.67}{\milli\ampere}$ — under \qty{10}{\milli\watt}
+from the rail. Tolerance corners (\qty{5}{\percent} parts): worst high is
+$5\times2.1/3.05=\qty{3.44}{\volt}$, worst low is
+$5\times1.9/2.95=\qty{3.22}{\volt}$ — a \qty{3.3}{\volt} input typically
+accepts down to about \qty{2.5}{\volt} as "high", so both corners pass.
+
+\textbf{Check.} Listing~\ref{lst:dividerop} runs it. Notice the simulator
+takes the question "what are all node voltages and branch currents" literally
+— and answers 3.33 V and $1.67$ mA exactly as derived.
+\end{example}
+
+\begin{lstlisting}[language={},caption={\texttt{code/ch03\_divider.cir} — the divider as a netlist.},label=lst:dividercir]
+* ch03_divider.cir -- 5 V -> 3.3 V divider, operating point
+V1 1 0 DC 5
+R1 1 2 1000
+R2 2 0 2000
+.op
+.end
+\end{lstlisting}
+
+\begin{lstlisting}[language={},caption={ngspice output of \texttt{code/ch03\_divider.cir}, verbatim (simulation S1).},label=lst:dividerop]
+V(2)                             3.333333e+00
+V(1)                             5.000000e+00
+v1#branch                        -1.66667e-03
+\end{lstlisting}
+
+\section{The current divider}
+\label{sec:curdiv}
+
+Parallel is the mirror image. Two parallel resistors share a voltage and split
+an incoming current \emph{inversely} to their resistances — more current takes
+the easier path:
+\[
+i_2 = I\,\frac{R_1}{R_1+R_2}.
+\]
+Note the twist: the current through $R_2$ is proportional to the
+\emph{other} resistor. (The clean derivation uses conductances
+$G=1/R$\index{conductance}: in parallel, conductances add and current splits
+in proportion to $G$, i.e. $i_2 = I\,G_2/(G_1+G_2)$ — same thing, one less
+fraction to fumble.)
+
+\section{KCL and KVL: bookkeeping, signed}
+\label{sec:klaws}
+
+\begin{definition}[Kirchhoff's current law]\index{Kirchhoff's current law}
+The sum of currents \emph{into} a node is zero — or equivalently, what flows
+in flows out. Charge is conserved and nodes store none of it.
+\end{definition}
+
+\begin{definition}[Kirchhoff's voltage law]\index{Kirchhoff's voltage law}
+The sum of signed voltage changes around any closed loop is zero. Voltage is
+a potential difference; returning to the same node must return the same
+potential.
+\end{definition}
+
+The laws are trivial. The discipline is the \emph{signs}. Pick a direction and
+label every drop before writing equations — Figure~\ref{fig:kvlkcl} marks the
+convention this book uses: a drop is $+$ when your loop direction enters the
+$+$ labelled terminal. Then the equation writes itself. Sign errors, not
+concept errors, are what actually go wrong (Section~\ref{sec:mistakes3}).
+
+\begin{figure}[htbp]
+\centering
+\input{figures/ch03/fig_kvlkcl}
+\caption{Left: KVL on the series loop — walking clockwise,
+$+9 - v_1 - v_2 = 0$. Right: KCL at a node — assign each current a direction
+\emph{first} (here $i_3$ defined leaving), then sum algebraically:
+$i_1 + i_2 - i_3 = 0$. Negative answers just mean "the arrow was guessed
+backwards", which is fine.}
+\label{fig:kvlkcl}
+\end{figure}
+
+\begin{checkpoint}
+In Figure~\ref{fig:kvlkcl} (left), $v_1=\qty{3}{\volt}$. Write the KVL sum
+and find $v_2$ without computing any current. (Answer:
+$9-3-v_2=0 \Rightarrow v_2=\qty{6}{\volt}$.)
+\end{checkpoint}
+
+\section{The node-voltage method}
+\label{sec:nodevoltage}
+
+For a network that will not collapse to one $R_{\mathrm{eq}}$, do this
+instead\index{node-voltage method}: pick a ground, name every other node
+voltage $v_1, v_2, \dots$, and write KCL at each node with each current
+expressed via Ohm's law. One equation per node, solved together — that is the
+entire method, and it is exactly what the simulator does internally.
+
+\begin{example}[Two sources, one node: by hand then by ngspice]
+\label{ex:twoloop}
+\textbf{Strategy.} Node 3 joins three resistors to two sources. Write KCL
+there; the branch currents are $(v_3 - 12)/100$, $(v_3 - 6)/220$ and
+$v_3/470$. One unknown, one equation.
+
+\textbf{Solution.}
+\[
+\frac{v_3-12}{100} + \frac{v_3-6}{220} + \frac{v_3}{470} = 0
+\;\Longrightarrow\;
+v_3\!\left(\tfrac{1}{100}+\tfrac{1}{220}+\tfrac{1}{470}\right)
+= \tfrac{12}{100}+\tfrac{6}{220}
+\]
+\[
+v_3 = \frac{0.1473}{0.01667} \approx \qty{8.83}{\volt}.
+\]
+Notice the form: \emph{weighted average}. $v_3$ lies between 6 and 12 V,
+pulled toward the 12 V source because its \qty{100}{\ohm} link is the
+strongest (lowest resistance).
+
+\textbf{Check.} Listing~\ref{lst:twoloopop} — ngspice agrees to the fourth
+decimal, and reports the branch currents $-31.7$ mA and $+12.9$ mA that the
+hand work predicts ($\frac{8.83-12}{100}=-31.7$ mA;
+$\frac{8.83-6}{220}=+12.9$ mA; both plus $v_3/470=18.8$ mA sum to zero —
+KCL, closing the loop on itself).
+\end{example}
+
+\begin{lstlisting}[language={},caption={\texttt{code/ch03\_twoloop.cir} — the two-source network of Example~\ref{ex:twoloop}.},label=lst:twoloopcir]
+* ch03_twoloop.cir -- two sources feeding one node through resistors
+V1 1 0 DC 12
+V2 2 0 DC 6
+R1 1 3 100
+R2 2 3 220
+R3 3 0 470
+.op
+.end
+\end{lstlisting}
+
+\begin{lstlisting}[language={},caption={ngspice output of \texttt{code/ch03\_twoloop.cir}, verbatim (simulation S2).},label=lst:twoloopop]
+V(3)                             8.832947e+00
+V(2)                             6.000000e+00
+V(1)                             1.200000e+01
+v1#branch                        -3.16705e-02
+v2#branch                        1.287703e-02
+\end{lstlisting}
+
+\section{Th\'evenin and Norton: networks compressed}
+\label{sec:thevenin}
+
+\begin{definition}[Th\'evenin equivalent]\index{Th\'evenin equivalent}
+Any linear network viewed from two terminals behaves exactly like one voltage
+source $V_{\mathrm{th}}$ in series with one resistor $R_{\mathrm{th}}$:
+$V_{\mathrm{th}}$ is the open-circuit voltage at the terminals, and
+$R_{\mathrm{th}}$ is the resistance looking in (all independent sources
+zeroed) — equivalently $R_{\mathrm{th}} = V_{\mathrm{th}}/I_{\mathrm{sc}}$
+where $I_{\mathrm{sc}}$ is the short-circuit current.
+\end{definition}
+
+"Behaves exactly like" means \emph{for every possible load}: the terminal's
+voltage-versus-load-current line is identical. Figure~\ref{fig:thevenin}
+shows the picture; Figure~\ref{fig:loadline} proves it on the divider —
+sweep a load current through the original and through the model and the lines
+coincide. The \emph{Norton equivalent}\index{Norton equivalent} is the same
+idea drawn the other way: a current source $I_{\mathrm{sc}}$ in parallel with
+$R_{\mathrm{th}}$, interchangeable by $V_{\mathrm{th}}=I_{\mathrm{sc}}R_{\mathrm{th}}$.
+Worked use of it: our divider's Norton form is \qty{5}{\milli\ampere} in
+parallel with \qty{667}{\ohm}. Ask how much current a \qty{2}{\kilo\ohm} load
+draws and the current divider answers in one line:
+$5\,\mathrm{mA}\times 667/(667+2000) = \qty{1.25}{\milli\ampere}$ — the same
+answer KCL gives on the full circuit ($v_{\mathrm{out}}=\qty{2.5}{\volt}$),
+with the network replaced by two numbers. Norton is the natural form
+whenever the quantity you care about is current — sensors, current-output
+devices, parallel paths.
+
+\begin{figure}[htbp]
+\centering
+\input{figures/ch03/fig_thevenin}
+\caption{The Th\'evenin picture: whatever is inside the left box — any number
+of sources and resistors — the terminals see only $V_{\mathrm{th}}$ and
+$R_{\mathrm{th}}$. Two measurements determine it: open-circuit voltage, and
+either short-circuit current or resistance-with-sources-zeroed.}
+\label{fig:thevenin}
+\end{figure}
+
+\begin{example}[The divider, compressed — and when "3.3 V" lies]
+\label{ex:thevdiv}
+\textbf{Strategy.} Compress the Example~\ref{ex:div33} divider
+($R_1=\qty{1}{\kilo\ohm}$, $R_2=\qty{2}{\kilo\ohm}$ on 5 V) into a
+Th\'evenin model, then ask it a loaded question.
+
+\textbf{Solution.} $V_{\mathrm{th}}$ = open-circuit output = \qty{3.33}{\volt}.
+Looking in with the 5 V source zeroed (shorted): $R_1$ and $R_2$ are both
+from the output node to ground $\Rightarrow
+R_{\mathrm{th}} = 1\|2\,\mathrm{k}\Omega = \qty{667}{\ohm}$.
+Now attach a \qty{1}{\kilo\ohm} load: the model predicts
+$v_{\mathrm{out}} = 3.33 \times 1000/1667 = \qty{2.0}{\volt}$ — the "3.3 V
+rail" collapsed by \qty{40}{\percent}. The simplification does not lie; the
+lie was treating an unstiff divider as a voltage source. The load-line
+sweep in Figure~\ref{fig:loadline} (from the Listings below) shows the model
+and the original agreeing to seven digits: slope $-667\ \Omega$, intercept
+\qty{3.33}{\volt}, zero crossing at $I_{\mathrm{sc}}=\qty{5}{\milli\ampere}
+= 3.33/0.667$.
+
+\textbf{Rule of thumb.} A divider feeding a load wants
+$R_{\mathrm{th}} \ll R_{\mathrm{load}}$ — a factor of 10 keeps the sag under
+about \qty{9}{\percent}.
+\end{example}
+
+\begin{lstlisting}[language={},caption={\texttt{code/ch03\_thevenin.cir} — sweep a load current, record $v_{\mathrm{out}}$ (simulation S3). \texttt{code/ch03\_thevenin\_model.cir} is the same file with the two resistors replaced by $V_{\mathrm{th}}{=}\qty{3.333}{\volt}$ and $R_{\mathrm{th}}{=}\qty{667}{\ohm}$.},label=lst:thevcir]
+* ch03_thevenin.cir -- load-line sweep: original divider
+I1 2 0 DC 0          * load current pulled OUT of node 2
+V1 1 0 DC 5
+R1 1 2 1000
+R2 2 0 2000
+.control
+dc i1 0 0.01 0.0005
+let vout = v(2)
+set filetype=ascii
+wrdata ch03_divider_loadline.dat vout
+.endc
+.end
+\end{lstlisting}
+
+\begin{lstlisting}[language={},caption={Verification output, verbatim — every 4th row shown of 21 simulated rows: load current, $v_{\mathrm{out}}$ of the real divider, $v_{\mathrm{out}}$ of the Th\'evenin model. Column 3 minus column 2 never exceeds \qty{7e-8}{\volt} on any row.},label=lst:thevout]
+i_load          v_orig          v_model
+0.00000000e+00  3.33333333e+00  3.33333330e+00
+2.00000000e-03  2.00000000e+00  1.99999996e+00
+4.00000000e-03  6.66666667e-01  6.66666620e-01
+6.00000000e-03 -6.66666667e-01 -6.66666720e-01
+8.00000000e-03 -2.00000000e+00 -2.00000006e+00
+1.00000000e-02 -3.33333333e+00 -3.33333340e+00
+\end{lstlisting}
+
+\begin{figure}[htbp]
+\centering
+\input{figures/ch03/fig_loadline}
+\caption{Simulation S3: $v_{\mathrm{out}}$ against pulled load current for the
+real divider (blue) and its Th\'evenin model (red, dashed) — the same line,
+to \qty{70}{\nano\volt}. The marked endpoints are the theorem's two handles:
+open-circuit voltage \qty{3.33}{\volt} and short-circuit current
+\qty{5}{\milli\ampere}. Every linear network has exactly one such line.}
+\label{fig:loadline}
+\end{figure}
+
+\section{Measuring without breaking the circuit}
+\label{sec:meterloading}
+
+A voltmeter connects in parallel — so it adds a resistance in parallel.
+Real DMMs present about \qty{10}{\mega\ohm}\index{meter loading}; on
+kiloohm-scale circuits that is invisible, but measure a megaohm divider and
+the meter \emph{becomes part of the circuit}
+(Figure~\ref{fig:meter}): $1\,\mathrm{M}\Omega \| 10\,\mathrm{M}\Omega =
+\qty{909}{\kilo\ohm}$, so a \qty{5}{\volt} rail reads $5\times909/1909 =
+\qty{2.38}{\volt}$ instead of \qty{2.5}{\volt}. The meter did not "use up"
+voltage; it changed the divider. When a reading surprises you, suspect the
+probe before the circuit.
+
+\begin{figure}[htbp]
+\centering
+\input{figures/ch03/fig_meter}
+\caption{Meter loading. Two \qty{1}{\mega\ohm} resistors divide 5 V to
+\qty{2.5}{\volt} until a \qty{10}{\mega\ohm} meter joins the bottom leg —
+\qty{2.38}{\volt} now. Dashed: the resistance you added by measuring.}
+\label{fig:meter}
+\end{figure}
+
+\begin{exercise}[medium — predict, then run]
+A \qty{4.7}{\mega\ohm} / \qty{4.7}{\mega\ohm} divider sits on \qty{9}{\volt}.
+Predict the DMM reading ($R_{\mathrm{meter}}=\qty{10}{\mega\ohm}$), write the
+three-line netlist, run it, compare. (Answer: $4.7\|10=\qty{3.20}{\mega\ohm}$,
+$9\times3.20/7.90=\qty{3.64}{\volt}$ — the meter drags it down by
+\qty{19}{\percent}.)
+\end{exercise}
+
+\section{Common mistakes}
+\label{sec:mistakes3}
+
+\begin{tripwire}[KVL around a non-loop / KCL at a non-node]
+Writing $\sum v = 0$ across elements that do not form a closed loop, or
+summing currents at a "node" that secretly contains a junction you missed.
+Trace the loop with a finger; list the node's wires explicitly.
+\end{tripwire}
+
+\begin{tripwire}[Signs guessed mid-equation]
+Assigning polarities while solving instead of before. If $v_1$ was labelled
+one way in the figure and flipped in the algebra, the sign error compounds
+silently. Label first; solve second; never adjust.
+\end{tripwire}
+
+\begin{tripwire}[Using the divider formula on a loaded divider]
+$v_{\mathrm{out}} = V R_2/(R_1+R_2)$ assumes the middle node's only currents
+are through $R_1$ and $R_2$. Any load at the node breaks the premise —
+Example~\ref{ex:thevdiv}'s \qty{2.0}{\volt} instead of \qty{3.3}{\volt}.
+Check what else connects.
+\end{tripwire}
+
+\begin{tripwire}[Mixing series and parallel formulas mid-redraw]
+$R_1+R_2$ used where resistors share a node-pair but also a third element,
+or "product over sum" applied to resistors that are not both on the same two
+nodes. Redraw to the canonical form of Figure~\ref{fig:redraws} before any
+arithmetic.
+\end{tripwire}
+
+\section{Chapter summary}
+\label{sec:ch3summary}
+
+Figure~\ref{fig:cheatsheet} is the whole chapter on one card. The method
+hierarchy: redraw until it is series/parallel; if it will not collapse, write
+KCL at each node; if you only care about one port, compress to Th\'evenin.
+Everything else is algebra.
+
+\begin{figure}[htbp]
+\centering
+\input{figures/ch03/fig_cheatsheet}
+\caption{Cheat-sheet for Chapter 3. The last row is why Th\'evenin matters:
+one measured line replaces the whole internal network.}
+\label{fig:cheatsheet}
+\end{figure}
+
+\begin{wins}
+\begin{itemize}
+\item You classify connections by node counting and reduce any
+series/parallel network to one resistor.
+\item You can design and load-check a voltage divider — the most common two
+resistors in this book.
+\item KCL, KVL and the node-voltage method solve any linear resistive
+circuit; you verified one against ngspice to the fourth decimal.
+\item Th\'evenin compression tells you when a "supply" will sag, and the
+meter-loading rule keeps your measurements honest.
+\end{itemize}
+\end{wins}
+
+\section*{Exercises}
+\addcontentsline{toc}{section}{Exercises}
+
+\begin{exercise}[easy]
+Three resistors — \qty{1}{\kilo\ohm}, \qty{2}{\kilo\ohm}, \qty{3}{\kilo\ohm} —
+are placed end-to-end in a ring, terminals taken across the
+\qty{1}{\kilo\ohm} only. What is $R_{\mathrm{eq}}$? (Careful: it is a
+parallel question.)
+\end{exercise}
+
+\begin{exercise}[easy]
+A node has four wires carrying \qty{2}{\milli\ampere},
+\qty{-5}{\milli\ampere} and \qty{4}{\milli\ampere} (signs = into node).
+What does the fourth carry?
+\end{exercise}
+
+\begin{exercise}[easy]
+Using Figure~\ref{fig:divider}'s labels: $V_{\mathrm{in}}=\qty{12}{\volt}$,
+$R_1=\qty{4.7}{\kilo\ohm}$, $R_2=\qty{10}{\kilo\ohm}$. Find
+$v_{\mathrm{out}}$ and the standing current.
+\end{exercise}
+
+\begin{exercise}[easy]
+True or false, with a one-sentence justification: two \qty{100}{\ohm}
+resistors in parallel carry the same current as one \qty{50}{\ohm} resistor
+at the same voltage.
+\end{exercise}
+
+\begin{exercise}[medium — derive]
+Derive the parallel law from KCL: for $n$ resistors on the same node pair at
+voltage $v$, show $1/R_{\mathrm{eq}} = \sum 1/R_k$; specialise to the
+product-over-sum two-resistor form.
+\end{exercise}
+
+\begin{exercise}[medium — the classic trap]
+Design a divider that outputs \qty{3.3}{\volt} from \qty{5}{\volt}
+\emph{while the output node sources \qty{10}{\milli\ampere}}. Hint: you
+cannot treat the load as infinite — write KCL at the output node including
+the \qty{10}{\milli\ampere}. Choose real E24 values and report the delivered
+voltage.
+\end{exercise}
+
+\begin{exercise}[medium]
+Find the Th\'evenin equivalent of: \qty{9}{\volt} source, \qty{2}{\kilo\ohm}
+series, \qty{3}{\kilo\ohm} to ground, terminals at the middle node. Then
+predict the terminal voltage with a \qty{6}{\kilo\ohm} load.
+\end{exercise}
+
+\begin{exercise}[medium]
+You probe the middle of an unloaded \qty{100}{\kilo\ohm}/\qty{100}{\kilo\ohm}
+divider on \qty{10}{\volt} and read \qty{4.762}{\volt}. Infer the meter's
+input resistance.
+\end{exercise}
+
+\begin{exercise}[hard — mesh]
+The circuit of Example~\ref{ex:twoloop} modified: add a fourth resistor
+\qty{330}{\ohm} from node 3 to a \emph{new} node 4, and connect node 4 to
+ground through \qty{680}{\ohm}. Write the two node-voltage equations, solve
+by hand, then confirm with a netlist you write yourself.
+\end{exercise}
+
+\begin{exercise}[hard]
+A linear network is characterised only by two measurements: open-circuit
+\qty{4.2}{\volt}; with a \qty{1}{\kilo\ohm} load it reads \qty{3.0}{\volt}.
+Reconstruct $V_{\mathrm{th}}$ and $R_{\mathrm{th}}$, and state what load
+resistance would pull the terminal down to half its open-circuit value.
+\end{exercise}
+
+\section*{Hints and answers}
+\addcontentsline{toc}{section}{Hints and answers}
+
+\begin{description}
+\item[Ring.] \qty{1}{\kilo\ohm} in parallel with the series chain
+$(2+3)\,\mathrm{k}\Omega$: $R_{\mathrm{eq}}=1000\cdot5000/6000
+\approx\qty{833}{\ohm}$.
+\item[KCL.] The three given sum to $+1$ mA; the fourth must carry
+\qty{-1}{\milli\ampere} (i.e.\ \qty{1}{\milli\ampere} leaving).
+\item[12 V divider.] $v_{\mathrm{out}}=12\times10/14.7=\qty{8.16}{\volt}$;
+$i=12/14.7\,\mathrm{k}=\qty{0.816}{\milli\ampere}$.
+\item[50 ohm.] True — equivalence means identical terminal behaviour; that is
+the definition's whole point.
+\item[Derivation.] Same $v$ on all $n$ branches, $i_k=v/R_k$, KCL gives
+$I=v\sum 1/R_k$; compare with $I=v/R_{\mathrm{eq}}$. For $n=2$:
+$R_{\mathrm{eq}}=1/(1/R_1+1/R_2)=R_1R_2/(R_1+R_2)$.
+\item[Loaded divider.] KCL at the output: $(5-v)/R_1 = v/R_2 + 0.01$ with
+$v=3.3$. Pick $R_1=\qty{100}{\ohm}$: $17$ mA in, so $3.3/R_2=7$ mA,
+$R_2\approx\qty{471}{\ohm}\to\qty{470}{\ohm}$ E24; simulated value
+$\approx\qty{3.30}{\volt}$. Any pair with the same current budget works.
+\item[Th\'evenin.] $V_{\mathrm{th}}=9\times3/5=\qty{5.4}{\volt}$;
+$R_{\mathrm{th}}=2\|3=\qty{1.2}{\kilo\ohm}$; loaded:
+$5.4\times6/7.2=\qty{4.5}{\volt}$.
+\item[Meter inference.] Reading $4.762=10\times R_{\mathrm{eq}}/(100+R_{\mathrm{eq}})$
+gives $R_{\mathrm{eq}}\approx\qty{90.9}{\kilo\ohm}$, so
+$R_{\mathrm{meter}}\approx\qty{1}{\mega\ohm}$.
+\item[Mesh/nodes.] Equations: $(v_3-12)/100+(v_3-6)/220+v_3/470+(v_3-v_4)/330=0$;
+$v_4/680+(v_4-v_3)/330=0$. Second gives $v_4=0.673\,v_3$; substituting,
+$v_3\approx\qty{8.34}{\volt}$, $v_4\approx\qty{5.61}{\volt}$.
+\item[Two measurements.] $V_{\mathrm{th}}=\qty{4.2}{\volt}$; under
+\qty{1}{\kilo\ohm}: $3.0=4.2\times1000/(R_{\mathrm{th}}+1000)$ gives
+$R_{\mathrm{th}}=\qty{400}{\ohm}$; half open-circuit when
+$R_{\mathrm{load}}=R_{\mathrm{th}}=\qty{400}{\ohm}$.
+\end{description}
+
+\chapternotes
+\begin{enumerate}
+\item Series/parallel-by-nodes presentation and the four-redraws exercise
+format follow the sequencing of Kuphaldt's Vol.~I ch.~5--6 \cite{aacvol1};
+the example networks are original constructions.
+\item The node-voltage method and the weighted-average reading of
+Example~\ref{ex:twoloop} track MIT 6.002 lectures 1--3 \cite{ocw6002}, which
+also teach Th\'evenin as a load-line measurement — the basis of
+Figure~\ref{fig:loadline}'s simulation.
+\item Meter-loading numbers use the conventional \qty{10}{\mega\ohm} DMM
+input resistance \cite{sparkfunmultimeter}.
+\item All ngspice outputs in this chapter are verbatim from ngspice-47 on the
+author's machine; the load-line agreement ($<\qty{1e-7}{\volt}$) is exact up
+to the model's truncated $V_{\mathrm{th}}$ \cite{ngspice}.
+\end{enumerate}
