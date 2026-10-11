@@ -1,0 +1,37 @@
+book,chapter,title,pages_book_total,figures,listings,exercises,review_rounds,defects_math,defects_code,defects_citation,defects_style,time_min,agents
+book2-discrete,01,"Logic and quantifiers",17,4,2,21,2,1,0,1,3,~60,2
+book2-discrete,02,"How to write a proof",25,4,2,20,2,1,0,0,4,~55,2
+book2-discrete,03,"Induction",33,4,2,19,2,2,0,0,5,~55,2
+book2-discrete,04,"Sets relations functions",45,5,2,18,2,1,0,0,0,~60,2
+book2-discrete,05,"Divisibility and primes",56,5,3,17,1,0,0,0,3,~45,2
+book2-discrete,06,"Modular arithmetic",66,5,3,16,1,0,0,0,4,~50,2
+book2-discrete,07,"CRT and Fermat-Euler",78,4,3,16,2,1,0,0,0,~55,2
+book2-discrete,08,"Counting principles",88,5,3,17,1,0,0,0,3,~55,2
+book2-discrete,09,"PIE and generating functions",99,5,3,15,2,1,1,0,0,~60,2
+book2-discrete,10,"Recurrences",107,5,3,16,1,0,0,0,3,~50,2
+book2-discrete,11,"Graphs trees planarity",115,6,2,18,1,0,0,0,3,~55,2
+book2-discrete,12,"Probability finite",122,5,3,17,1,0,0,0,3,~45,2
+book2-discrete,13,"Inequalities",130,5,2,16,2,1,0,0,0,~60,2
+book2-discrete,14,"Functional equations",137,5,2,17,1,0,1,0,3,~55,2
+book2-discrete,15,"Olympiad geometry",143,6,0,14,2,1,0,0,0,~65,2
+book2-discrete,16,"Invariants monovariants",147,5,1,14,1,0,0,0,3,~50,2
+book2-discrete,17,"Exam craft and portfolio",151,5,3,15,1,0,0,0,3,~55,2
+book2-discrete,bm,"Back matter (hints/solutions/index)",151,0,0,0,0,0,0,0,0,~40,1
+book1-cp,14,"number theory & combinatorics",147,6,8,21,0,0,0,0,0,~240,book1(devin-0873)
+book3-linalg-ml,14,"optimisation & gradient descent",167,6,4,18,0,0,0,0,0,~240,book3(devin-33ac)
+book5-electronics,10,"sequential logic & FSMs",115,6,10,36,0,0,1,0,0,~240,book5(devin-360c)
+book5-electronics,11,sequential-verilog-fundamentals,127,6,10,12,0,0-0-0-0,1,swe-2-max
+book1-cp,15,string-algorithms,162,6,8,15,0,0-0-0-0,1,swe-2-max
+book3-linalg-ml,15,information-theory,178,6,3,15,0,0-0-0-0,1,swe-2-max
+book1-cp,16,geometry-optional,186,6,7,12,0,0-0-0-0,1,swe-2-max
+book1-cp,17,probability-optional,186,6,6,12,0,0-0-0-0,1,swe-2-max
+book5-electronics,12,verilog-testbenches-bugs,142,6,8,15,0,0-0-0-0,1,swe-2-max
+book1-cp,18,contest-playbook,196,6,3,15,0,0-0-0-0,1,swe-2-max
+book3-linalg-ml,16,capstone-mlscratch,191,6,4,15,0,0-0-0-0,1,swe-2-max
+book5-electronics,13,fpga-flow,153,6,14,15,0,0-0-0-0,1,swe-2-max
+book2-discrete,depth-pass-all,179,~30+new,listings,+ex,1,0 math(1 resolved S-G)/0/1 ln-log/cite,~160 files,book2+coordinator
+book1-cp,ch16-17-review-fix,1,0,0,0,1,0/0/1 URL (live-checked 404→200),review-cycle,book2+coordinator
+book1-cp,v0.1-tag,200,,,,,,release,coordinator
+book2-discrete,watchlist-appendix,+3,0,0,0,0,0/0/0,coordinator-assembly,coordinator
+book3-linalg-ml,depth-retrofit-ch01-13,208,11 new,+FR/Watch/WEs,+ex,3 batches,0,book1,~10min
+book5-electronics,ch14-16-land,194,18 fig,16 lst,45 ex,3 coordinator rows,2 wrong test scripts fixed (iverilog PASS),elec-0006+coordinator
