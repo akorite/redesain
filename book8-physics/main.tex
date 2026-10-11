@@ -1,0 +1,23 @@
+\documentclass[11pt,a4paper,twoside,openany]{book}
+\usepackage{lifeos}
+\usepackage{pgfplots}\pgfplotsset{compat=1.17}
+\usepackage{circuitikz}
+\usepackage{graphicx}
+\usepackage[font=small,labelfont=bf]{caption}
+\usepackage{subcaption}
+\usepackage{makeidx}\makeindex
+\setlifeostitle{BOOK TITLE}
+\setcounter{tocdepth}{1}
+
+\begin{document}
+\frontmatter
+\pagestyle{empty}
+\makecover{BOOK TITLE}{Subtitle}{Study textbook}
+\newpage\pagestyle{fancy}
+\tableofcontents
+\mainmatter
+\input{ch01-smoke}
+\backmatter
+\input{bib}
+\printindex
+\end{document}
