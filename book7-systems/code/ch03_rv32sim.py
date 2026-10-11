@@ -49,7 +49,15 @@ class CPU:
             immB = sext((((w >> 31) & 1) << 12) | (((w >> 7) & 1) << 11) |
                        (((w >> 8) & 0xF) << 1) | (((w >> 25) & 0x3F) << 5), 13)
             npc = self.pc + 4
-            if op == 0x37:                      # lui
+            if op == 0x6F:                      # jal
+                immJ = sext((((w >> 31) & 1) << 20) | (((w >> 12) & 0xFF) << 12) |
+                           (((w >> 20) & 1) << 11) | (((w >> 21) & 0x3FF) << 1), 21)
+                self.x[rd] = self.pc + 4
+                npc = (self.pc + immJ) & 0xFFFFFFFF
+            elif op == 0x67:                    # jalr
+                self.x[rd] = self.pc + 4
+                npc = (self.x[rs1] + immI) & 0xFFFFFFFE
+            elif op == 0x37:                      # lui
                 self.x[rd] = w & 0xFFFFF000
             elif op == 0x33:                      # R-type
                 a, b = self.x[rs1], self.x[rs2]

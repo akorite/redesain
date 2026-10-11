@@ -1,0 +1,24 @@
+\begin{tikzpicture}[font=\scriptsize, >=latex]
+% O0 vs O2 side by side (real clang riscv64 output counts)
+\node[align=left, font=\footnotesize\bfseries] at (4.7,4.6)
+  {\ttfamily grade()\rmfamily\ switch: -O0 vs -O2 (real clang 23,
+   riscv64 target)};
+\draw[thick, fill=graybg] (0.4,1.0) rectangle (4.4,4.2);
+\node[font=\footnotesize] at (2.4,3.8) {-O0};
+\node[align=left, font=\tiny, text width=3.7cm] at (2.4,2.5)
+  {32 instructions:\\frame setup, stores to\\
+stack, one branch per case,\\
+reload return value, epilogue};
+\draw[thick, fill=goodbg] (5.4,1.0) rectangle (9.4,4.2);
+\node[font=\footnotesize] at (7.4,3.8) {-O2};
+\node[align=left, font=\tiny, text width=3.7cm] at (7.4,2.5)
+  {9 instructions, no branches:\\
+\texttt{slli, slli, sltiu, add,\\
+addiw 60, neg, and, ret} ---\\
+the switch became arithmetic};
+\node[align=left, text=slate, text width=10cm] at (5.0,0.2)
+  {The jump table never appeared: clang proved the four cases were
+   linear in n and replaced lookup by computation. Reading
+   \ttfamily -O2\rmfamily\ output is how you learn what your C
+   really means.};
+\end{tikzpicture}

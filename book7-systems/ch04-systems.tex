@@ -1,0 +1,409 @@
+% ch04-systems.tex -- RV32I assembly II: functions, the calling
+% convention, stack frames, recursion, and reading real compiler output.
+\chapter{Functions and the Stack}
+\label{ch:stack}
+
+A function call looks like one line of source and feels free. On the
+machine it is two instructions of mechanism --- \texttt{call} writes
+the return address into \texttt{ra} and jumps; \texttt{ret} jumps back
+--- wrapped in a \emph{convention}: an agreement about which registers
+survive the trip and where memory holds the values that do not fit in
+registers. In the last chapter every program was a leaf: it never
+called anything, so \texttt{ra} stayed safe in a register and the
+stack was never touched. This chapter breaks that. We give the machine
+a real \texttt{sp}, write a recursive \texttt{fib} that saves and
+restores \texttt{ra} correctly, measure what a call costs in retired
+instructions, and then look at real compiler output --- where the
+calling convention lives inside every function you will ever write.
+By the end, \texttt{addi sp,sp,-16 / sw ra,12(sp) / sw s0,8(sp)} reads
+like a signature, not a spell.
+
+\section{The contract in one paragraph}
+\label{sec:contract04}
+\index{calling convention}\index{psABI}\index{register!caller-saved}
+\index{register!callee-saved}
+
+The RISC-V calling convention (the \emph{psABI}) divides the 32
+registers into two families \emph{by agreement}, not by hardware.
+\textbf{Caller-saved} registers (\texttt{t0}--\texttt{t6},
+\texttt{a0}--\texttt{a7}, \texttt{ra}) may be destroyed by any call:
+if the caller needs the value afterwards, the \emph{caller} saves it
+before the call. \textbf{Callee-saved} registers (\texttt{s0}--\texttt{s11},
+\texttt{sp}) must be unchanged when the callee returns: if the callee
+wants to use them, the \emph{callee} saves and restores them. The
+arguments go in \texttt{a0}--\texttt{a7}, the return value comes back
+in \texttt{a0}, and \texttt{sp} must stay 16-byte aligned at every
+call site. That is the whole contract. Everything else --- the frame,
+the spill slots, the order of saves --- is what the contract costs
+when calls nest.
+
+\section{The stack frame}
+\label{sec:frame04}
+\index{stack frame}\index{sp@\texttt{sp}}\index{ra@\texttt{ra}}
+
+When a function calls another function, its own \texttt{ra} is about
+to be overwritten --- \texttt{call} always writes the same register.
+So before a non-leaf function calls anything, it builds a
+\emph{stack frame}: a fixed-size block of memory below \texttt{sp}
+that holds what the function cannot afford to lose. Three writes at
+the top, three loads at the bottom, and the space in between is the
+function's private scratch:
+
+\begin{lstlisting}
+fib:
+        addi  sp, sp, -16    # carve 16 B below sp (aligned)
+        sw    ra, 12(sp)     # save MY return address
+        sw    s0, 8(sp)      # save caller's s0
+        ...
+        lw    ra, 12(sp)     # restore ra
+        lw    s0, 8(sp)      # restore s0
+        addi  sp, sp, 16     # pop the frame
+        ret
+\end{lstlisting}
+
+The pairing is the discipline: what goes \texttt{sw} at the top comes
+\texttt{lw} at the bottom, in the same offsets, every path out. Miss
+either half and the function returns to the wrong place --- the
+classic \emph{stack corruption} bug that no error message names.
+
+\begin{example}[follow one frame]\label{ex:frametrace04}
+For \texttt{fib(7)}: the outer call pushes a 16-byte frame at
+\texttt{sp=0x0ff0}, saves \texttt{ra} and \texttt{s0}, calls
+\texttt{fib(6)} --- which pushes another at \texttt{sp=0x0fe0}. At the
+deepest, \texttt{fib(1)} is a leaf-ish base case that returns without
+recursing. How many frames are live at once? The call tree of fib(7)
+reaches depth 7 (fib(7)→fib(6)→…→fib(1)) before the first unwind ---
+seven frames, 112 bytes of stack, live simultaneously.
+\end{example}
+
+\begin{figure}[t]
+\centering
+\input{figures/ch04/fig_frame}
+\caption[The stack frame]{Anatomy of one \texttt{fib} frame. Every
+non-leaf call pays this tax: the saved \texttt{ra} keeps the return
+path alive, the saved \texttt{s0} honours the callee-saved contract,
+and the scratch slot parks \texttt{fib(n-1)} while the second
+recursive call runs.}
+\label{fig:frame04}
+\end{figure}
+
+\section{Caller-saved, callee-saved}
+\label{sec:ownership04}
+\index{caller-saved}\index{callee-saved}
+
+The rule that confuses everyone on first contact: \texttt{fib} saves
+\texttt{ra} --- a \emph{caller}-saved register --- yet the text above
+calls that ``the callee's'' job. The resolution is that ownership
+follows the \emph{overwrite}, not the register name. \texttt{fib}'s
+\texttt{ra} is a value \texttt{fib} still needs; the thing that would
+destroy it is \texttt{fib}'s own inner \texttt{call}. So \texttt{fib},
+acting as the \emph{caller} of that call, saves it. The same function
+plays both roles: it is a callee to whoever called it (so it saves
+\texttt{s0} before using it) and a caller to its recursive call (so it
+saves \texttt{ra} before that call).
+
+\begin{figure}[t]
+\centering
+\input{figures/ch04/fig_ownership}
+\caption[Caller- vs callee-saved]{Who saves what. Caller-saved
+registers are the caller's problem; callee-saved registers are the
+callee's problem. One register, \texttt{ra}, sits in the caller-saved
+family and is the first thing every non-leaf function saves.}
+\label{fig:ownership04}
+\end{figure}
+
+\begin{checkpoint}[leaf or not?]\label{cp:leaf04}
+A \emph{leaf} function --- one that calls nothing --- needs no frame
+at all if it fits in registers and touches no callee-saved ones. Our
+\texttt{max} from ch03 was a leaf: \texttt{bge / mv / ret}, three
+instructions, zero memory traffic. Predict: does \texttt{empty: ret}
+need \texttt{addi sp,sp,-16}? No --- nothing to save.
+\end{checkpoint}
+
+\begin{example}[non-leaf: recursive fib]\label{ex:fib04}
+\texttt{code/ch04\_fib.S} runs \texttt{fib(7)} on the book's
+simulator with a real \texttt{sp} (\texttt{li sp,0x1000}) and a real
+stack. The recursion is honest: \texttt{fib} calls itself twice, so
+\texttt{ra} must be saved --- and is, at \texttt{12(sp)}. Running it:
+\begin{lstlisting}
+$ python3 ch03_rv32sim.py ch04_fib.S
+13
+# 565 instructions retired
+\end{lstlisting}
+\texttt{fib(7)=13} is correct --- and 565 retired instructions for a
+seven-deep recursion is the price tag this chapter is about.
+\end{example}
+
+\begin{figure}[t]
+\centering
+\input{figures/ch04/fig_leaftree}
+\caption[fib(7) call tree]{The call tree of \texttt{fib(7)}. Every
+non-leaf node pays a frame; fib(7) makes 41 calls total --- the
+recursion is legible, and it is expensive.}
+\label{fig:leaftree04}
+\end{figure}
+
+\section{What a call costs}
+\label{sec:cost04}
+\index{calling overhead}
+
+\begin{example}[predict, then measure]\label{ex:cost04}
+Prediction first: \texttt{call} = \texttt{jal} = one instruction;
+\texttt{ret} = \texttt{jalr} = one instruction. So a call should cost
+2 retired instructions beyond the inlined body. Measure it:
+\texttt{ch04\_callcost.S} calls \texttt{empty} 100 times;
+\texttt{ch04\_inline.S} runs the same loop with the body inlined.
+\begin{lstlisting}
+$ python3 ch03_rv32sim.py ch04_callcost.S
+A
+# 410 instructions retired
+$ python3 ch03_rv32sim.py ch04_inline.S
+B
+# 207 instructions retired
+\end{lstlisting}
+$410-207 = 203$ for 100 calls: just over 2 instructions each ---
+the prediction is exact once the loop counter's three instructions
+account for the shared work. On a real CPU the frame traffic adds
+cache misses on top of this instruction tax.
+\end{example}
+
+\begin{figure}[t]
+\centering
+\input{figures/ch04/fig_callret}
+\caption[call/ret mechanism]{The two-instruction mechanism everything
+sits on. \texttt{call} leaves the return link in \texttt{ra};
+\texttt{ret} consumes it. Frames exist to keep that link alive across
+nesting.}
+\label{fig:callret04}
+\end{figure}
+
+\section{Reading real compiler output}
+\label{sec:readasm04}
+\index{compiler output}\index{-O0}\index{-O2}
+
+\begin{example}[-O0 vs -O2 on a switch]\label{ex:switch04}
+\texttt{grade(int s)} maps $0\to60, 1\to70, 2\to80, 3\to90$ by
+\texttt{switch}. Compiled \texttt{clang -target riscv64 -O0}: 32
+instructions --- a 32-byte frame, \texttt{ra}/\texttt{s0} spilled, the
+argument stored to the stack, reloaded, \texttt{sext.w}'d, compared
+case by case. The same file at \texttt{-O2}: \textbf{nine}
+instructions, zero branches ---
+\begin{lstlisting}
+slli a1, a0, 1        # a1 = 2s
+slli a2, a0, 3        # a2 = 8s
+sltiu a0, a0, 4       # a0 = (s < 4)
+add   a1, a1, a2      # a1 = 10s
+addiw a1, a1, 60      # a1 = 60 + 10s
+neg   a0, a0          # a0 = -(s<4)
+and   a0, a0, a1      # mask: result or 0
+ret
+\end{lstlisting}
+The compiler noticed the cases were linear in \texttt{s} and replaced
+the jump table --- and the whole control flow --- with arithmetic and
+a sign mask. Prediction failed, delightfully: the real lesson is that
+\texttt{-O2} rewrites structure, not just speed.
+\end{example}
+
+\begin{figure}[t]
+\centering
+\input{figures/ch04/fig_codegen}
+\caption[-O0 vs -O2 codegen]{Real clang~23 output for the same
+\texttt{grade()} switch: 32 framed, branching instructions at
+\texttt{-O0}; 9 branchless ones at \texttt{-O2}. The jump table never
+materialised because the table was linear.}
+\label{fig:codegen04}
+\end{figure}
+
+\begin{checkpoint}[why the frame at all?]\label{cp:frame04}
+At \texttt{-O0} \texttt{grade} spills \texttt{ra} and \texttt{s0} even
+though it calls nothing --- the compiler emits the safe frame
+unconditionally at that level. At \texttt{-O2} it proves the function
+is a leaf and emits no frame at all. That one observation --- leaf
+vs.\ non-leaf, proven by the compiler --- is the whole
+\texttt{-O0}/\texttt{-O2} gap in miniature.
+\end{checkpoint}
+
+\begin{example}[when the compiler deletes your code]\label{ex:volatile04}
+A benchmark loop of the form \texttt{sum += i} over \texttt{N}
+iterations, at \texttt{-O2}, collapses to a constant --- clang computes
+$N(N-1)/2$ at compile time and the loop vanishes. To keep
+measurements honest you mark the variable \texttt{volatile} (forces
+a real load each iteration) or feed the result into something the
+compiler cannot see through. The chapter's own sim-side measurement
+needed no such trick: our interpreter does not optimise at all.
+\end{example}
+
+\section{PIC in one page}
+\label{sec:pic04}
+\index{PIC}\index{position-independent code}
+
+Shared libraries cannot know their load address at compile time, so
+they are compiled \emph{position-independent}: data access goes
+through the GOT, calls go through the PLT --- the same relocation
+plumbing ch01 showed. RV32I keeps PIC cheap because \texttt{auipc}
+materialises pc-relative addresses in one instruction; our bare-metal
+programs sidestep it entirely by linking at absolute addresses.
+
+\section{Common mistakes}
+\label{sec:mistakes04}
+\begin{itemize}
+\item \textbf{Saving \texttt{ra} only sometimes.} A non-leaf function
+      must save \texttt{ra} on \emph{every} path --- including error
+      returns --- or some returns go to the wrong pc.
+\item \textbf{Misaligned \texttt{sp}.} The psABI wants \texttt{sp}
+      16-aligned at call sites; \texttt{addi sp,sp,-12} breaks it.
+\item \textbf{Using \texttt{s0} without saving.} Callee-saved means
+      \emph{the callee} promises; touch \texttt{s0} and you inherit
+      the obligation.
+\item \textbf{Assuming arguments survive.} \texttt{a0}--\texttt{a7}
+      are caller-saved: anything still needed across a call must be
+      in an \texttt{s}-register or a frame slot first.
+\item \textbf{Trusting \texttt{-O0} codegen to mean anything.}
+      \texttt{-O0} writes a frame for a leaf function --- it encodes
+      the safe pattern, not the truth about your algorithm.
+\item \textbf{Benchmarking at \texttt{-O2} without volatile.}
+      The compiler deletes dead loops; what you measured was the
+      delete.
+\end{itemize}
+
+\section{Summary}
+\label{sec:summary04}
+\begin{tabularx}{\linewidth}{@{}l X@{}}
+\toprule
+\textbf{Concept} & \textbf{What it was} \\
+\midrule
+mechanism & \texttt{call}/\texttt{ret}: two instructions, one register \\
+contract & caller-saved vs callee-saved, args \texttt{a0}--\texttt{a7},
+ ret \texttt{a0}, \texttt{sp} 16-aligned \\
+frame & \texttt{sw ra,12(sp)} pattern; non-leaf only \\
+measured & \texttt{fib(7)} = 13 in 565 instrs; call tax = 2 instr \\
+compiler & \texttt{-O0} = safe frames; \texttt{-O2} = structure rewritten \\
+\bottomrule
+\end{tabularx}
+
+\section*{Further reading}
+\label{sec:further04}
+\begin{itemize}
+\item RISC-V psABI specification (the calling convention itself):\\
+      \url{https://github.com/riscv-non-isa/riscv-elf-psabi-doc}
+\item CS:APP ch3 (procedures, stack discipline):\\
+      \url{https://csapp.cs.cmu.edu/}
+\item Compiler Explorer (watch -O0/-O2 on your own C):\\
+      \url{https://godbolt.org/}
+\item The RISC-V Reader, Patterson \& Waterman (calling convention ch):\\
+      \url{http://www.riscvbook.com/}
+\item GCC -O documentation:\\
+      \url{https://gcc.gnu.org/onlinedocs/gcc/Optimize-Options.html}
+\end{itemize}
+
+\begin{rulebox}[Watch instead]
+\begin{itemize}
+\item \textbf{RISC-V General-Purpose Registers: Usage and Calling
+      Convention} --- Austin's BSP Lab, 6:35 --- caller-vs-callee-saved
+      register roles and why they split that way. Matches
+      sec:contract04--sec:ownership04. \url{https://youtu.be/WawdgAEfwvA}
+\item \textbf{What Has My Compiler Done for Me Lately?} ---
+      Matt Godbolt (CppCon 2017), 75:45 --- Compiler Explorer's author
+      reading -O0/-O2 output live. Matches sec:readasm04.
+      \url{https://youtu.be/bSkpMdDe4g4}
+\end{itemize}
+\end{rulebox}
+
+\section*{Notes}
+\label{sec:notes04}
+\begin{itemize}
+\item psABI register roles and \texttt{sp} alignment: riscv-elf-psabi-doc.
+\item Frame shape, leaf/non-leaf, -O0 spill behaviour: CS:APP ch3;
+      verified against clang 23 riscv64 output captured in
+      \texttt{code/ch04\_switch\_O0.s} and \texttt{ch04\_switch\_O2.s}.
+\item fib(7)=13 and the 565/410/207 counts: real runs of
+      \texttt{ch03\_rv32sim.py}; \texttt{call}/\texttt{j} encoding bug
+      fixed in-tree this chapter (0x00800000$\to$0x0080006f).
+\end{itemize}
+
+\section{Exercises}
+\label{sec:exercises04}
+
+\begin{exercise}[easy]\label{ex:e04a}
+Is \texttt{empty: ret} a leaf? Does it need a frame? Justify in one
+sentence.
+\end{exercise}
+\begin{solution}[hint]
+Leaf --- no \texttt{call} inside --- and no: nothing it uses can be
+clobbered.
+\end{solution}
+
+\begin{exercise}[easy]\label{ex:e04b}
+Classify \texttt{a0}, \texttt{t2}, \texttt{s3}, \texttt{ra},
+\texttt{sp} as caller- or callee-saved.
+\end{exercise}
+\begin{solution}[hint]
+a0,t2,ra caller; s3,sp callee.
+\end{solution}
+
+\begin{exercise}[medium]\label{ex:m04a}
+\texttt{fib} saves \texttt{ra} at \texttt{12(sp)} but a caller of
+\texttt{fib} need not save \texttt{ra}. Who is responsible for which
+\texttt{ra}?
+\end{exercise}
+\begin{solution}[hint]
+Every non-leaf saves its OWN ra; the caller never touches the
+callee's.
+\end{solution}
+
+\begin{exercise}[medium]\label{ex:m04b}
+Why is \texttt{fib(n-1)} stored at \texttt{4(sp)} rather than in
+\texttt{t0}? What would \texttt{t0} become after the second
+\texttt{call}?
+\end{exercise}
+\begin{solution}[hint]
+t0 is caller-saved --- the inner call may trash it; the frame slot
+is the safe place.
+\end{solution}
+
+\begin{exercise}[medium]\label{ex:m04c}
+Predict then check: at \texttt{-O2} would clang still emit a frame
+for \texttt{grade}? What does it emit instead of the switch?
+\end{exercise}
+\begin{solution}[hint]
+No frame --- it proves leaf-ness. The switch became arithmetic
+(60+10s masked).
+\end{solution}
+
+\begin{exercise}[medium]\label{ex:m04d}
+\texttt{sum += i} loops disappear at \texttt{-O2}. What are two ways
+to keep a benchmark loop alive?
+\end{exercise}
+\begin{solution}[hint]
+volatile on the accumulator, or an opaque sink for the result.
+\end{solution}
+
+\begin{exercise}[hard]\label{ex:h04a}
+Write a \texttt{sum4(a,b,c,d)} that chains four calls: \texttt{add2}
+called twice, results combined. List every register you saved and
+justify each.
+\end{exercise}
+\begin{solution}[hint]
+sum4 is non-leaf: save ra + s-registers for the two partial results;
+a-regs die on every call.
+\end{solution}
+
+\begin{exercise}[hard]\label{ex:h04b}
+Design a harness that detects a callee failing to restore
+\texttt{s7}: set \texttt{s7}, call the suspect function, check on
+return. Write it for the book's simulator.
+\end{exercise}
+\begin{solution}[hint]
+li s7,<sentinel> / call f / compare s7, report mismatch via MMIO.
+\end{solution}
+
+\begin{exercise}[hard]\label{ex:h04c}
+Predict \texttt{fib(8)}'s instruction count on the sim --- it is
+not 565. Then run it and explain the ratio.
+\end{exercise}
+\begin{solution}[hint]
+Calls grow ~1.6x per step (fib calls fib twice); expect $\sim$900,
+then measure.
+\end{solution}
+
+% chapter end
