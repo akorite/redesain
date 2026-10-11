@@ -62,3 +62,6 @@ also has its own `docs/outline.md`, `docs/notation.md` and (books 3/4/6) `docs/n
 8. GitHub: ONE private repo `akorite/study-textbooks` — `book1-cp/ … book8-physics/`, `shared/` (lifeos.sty, notation-shared.md, template), `docs/` (decisions.md, status.md), PROJECT.md, COMMUNICATION.md, README.md. PR per chapter (reviewer checklist + findings in description, merge after pass). Pinned "Status" issue. `needs-user` labelled issues w/ options + recommendation + 48h default. Tag vX.Y per book + main.pdf on releases. No secrets, no personal data, no private Life OS content.
 9. The build is a portfolio/Substack project: PROJECT.md (pipeline, architecture, risks, AI-use statement), metrics.csv per chapter, case-study/lessons.md growing with each review, one-page retrospective per finished book.
 10. Book 2 depth pass: 151pp → ~220pp across all 17 chapters (more WEs/figs/exercises + further reading + watch), re-review every changed chapter, tag v0.2.
+
+## D-2026-10-11c — \ln → \log harmonization (ch04, ch07)
+9 uses of `\ln` (natural log in RC/diode derivations, not base-contrast) normalized to `\log` per the all-books decision (log = natural log; ln only when contrasting with another base). Build clean, 153pp.
