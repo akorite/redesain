@@ -1,0 +1,18 @@
+=== diabetes: OLS vs Ridge(1.0) vs Lasso(0.05) coefs ===
+feature      OLS    Ridge    Lasso
+    age   -55.62    17.89   -25.73
+    sex  -259.84   -75.51  -215.68
+    bmi   540.31   285.75   541.73
+     bp   344.62   188.72   304.36
+     s1  -971.67    10.02  -116.42
+     s2   612.39   -22.12    -0.00
+     s3   155.14  -147.98  -234.64
+     s4   190.64   117.87     3.64
+     s5   830.74   252.81   536.93
+     s6    73.87   114.56    54.37
+test R2: OLS 0.404  Ridge 0.401  Lasso 0.422
+
+=== california: which features die first under lasso? ===
+alpha=0.001: kept 8/8 -> ['MedInc=0.82', 'HouseAge=0.12', 'AveRooms=-0.25', 'AveBedrms=0.29', 'Population=-0.00', 'AveOccup=-0.04', 'Latitude=-0.89', 'Longitude=-0.86']
+alpha=0.01: kept 7/8 -> ['MedInc=0.78', 'HouseAge=0.12', 'AveRooms=-0.13', 'AveBedrms=0.17', 'AveOccup=-0.03', 'Latitude=-0.80', 'Longitude=-0.76']
+alpha=0.1: kept 3/8 -> ['MedInc=0.71', 'HouseAge=0.11', 'Latitude=-0.01']

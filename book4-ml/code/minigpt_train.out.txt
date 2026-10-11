@@ -1,0 +1,18 @@
+gpt it 0: loss 4.301
+gpt it 200: loss 2.177
+gpt it 400: loss 1.784
+gpt it 600: loss 1.657
+gpt 19s
+params: 241406
+no-pos it 0: loss 4.264
+no-pos it 200: loss 2.250
+no-pos it 300: loss 2.192
+no-pos 10s
+held-out loss/char 2.186  ppl 8.9 (115k slice)
+--- gpt sample ---
+To be or not to be, we disede and fathel
+Set man: our father ase heart: nesenentumpintents her ond with knower,
+With mock a pastide
+Wriccluke vercuse and party if ours of
+What he p
+attention weights for last block saved (4 heads, real)

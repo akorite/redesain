@@ -1,0 +1,16 @@
+== checklist output ==
+init=     bad
+  epoch-0 loss          19.476   (ln 10 = 2.303 expected)
+  dead hidden units      56.2%  of 48
+  |grad W1| mean      7.56e-02
+  |grad W2| mean      1.97e-01
+  |W1| std               0.992   |W2| std 0.964
+  z1 saturation          23.8%  (should be ~0 for ReLU)
+
+init= kaiming
+  epoch-0 loss           2.510   (ln 10 = 2.303 expected)
+  dead hidden units      56.2%  of 48
+  |grad W1| mean      6.37e-03
+  |grad W2| mean      1.43e-02
+  |W1| std               0.175   |W2| std 0.197
+  z1 saturation           0.0%  (should be ~0 for ReLU)

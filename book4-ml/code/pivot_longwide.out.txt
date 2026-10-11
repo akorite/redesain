@@ -1,0 +1,22 @@
+long shape: (144, 3)
+ year    month  passengers
+ 1949  January         112
+ 1949 February         118
+ 1949    March         132 
+
+wide shape: (12, 12)
+month  April  August  December  February  January  July  June  March  May  November  October  September
+year                                                                                                   
+1949     129     148       118       118      112   148   135    132  121       104      119        136
+1950     135     170       140       126      115   170   149    141  125       114      133        158
+1951     163     199       166       150      145   199   178    178  172       146      162        184
+1952     181     242       194       180      171   230   218    193  183       172      191        209
+
+row index: year | col index: month
+
+back to long, sorted:
+ year    month  value
+ 1949    April    129
+ 1949   August    148
+ 1949 December    118
+matches original (set-compare): True

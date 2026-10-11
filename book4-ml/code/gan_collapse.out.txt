@@ -1,0 +1,5 @@
+it 0: D loss 1.38  sample coverage 0.95  spread 0.25 vs data 1.00
+it 500: D loss 1.43  sample coverage 0.73  spread 0.71 vs data 1.00
+it 1000: D loss 1.37  sample coverage 0.71  spread 1.23 vs data 1.00
+it 1500: D loss 1.48  sample coverage 0.80  spread 1.24 vs data 1.00
+final coverage 0.81 -- one moon got dropped (mode collapse, real)

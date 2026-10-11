@@ -1,0 +1,27 @@
+it   0: train loss 4.117  (0s)
+it 200: train loss 1.984  (6s)
+it 400: train loss 1.736  (13s)
+it 600: train loss 1.666  (19s)
+it 800: train loss 1.592  (25s)
+
+held-out perplexity (200k-slice tail): 6.0
+
+three-way (apples-to-apples where possible):
+  trigram (lst 1):      ppl 7.6  (115k disjoint held-out)
+  scratch RNN h=64:     ppl 9.0  (train-window ppl -- not held-out)
+  torch LSTM h=128:     ppl 7.3  (same 115k held-out)
+
+--- LSTM sample ---
+Tosserain wost nor one with mish stance.
+
+AEll:
+May, you pribure!
+'Ty constran:
+I never pertiue lath, liver: fame
+Thy is then foor belling To this woilius.
+
+ADY ANNHA:
+But a graints.
+
+VLUMINIA:
+Than do

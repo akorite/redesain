@@ -1,0 +1,11 @@
+ep 0: return -1.05
+ep 9: return -1.45
+ep 99: return 0.94
+ep 799: return 0.93
+mean return last 100: 0.587
+greedy policy (L D R U):
+D L D L
+D X D X
+R R D X
+X R R G
+saved /tmp/qlearn_Q.npy /tmp/qlearn_rews.npy

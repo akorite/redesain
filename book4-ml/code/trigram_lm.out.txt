@@ -1,0 +1,26 @@
+chars: train 900,000  test 115,394  |V| 65
+trigram perplexity on held-out 115k chars: 7.6
+
+--- tau=0.5 ---
+To hall there the the a son your mand sting shat then the of and the whather move then thiment to dour his of and the way live hin more heres of her the mand wer 
+
+--- tau=1.0 ---
+To facknot, tat thou, I son:ly pre so; us, diels of tho, anight and by boy. LetySQkTVmNins sur try woul.
+Selloate say way het:
+For forn.
+
+Rave?
+O graver
+MEO:
+Wer 
+
+--- tau=1.5 ---
+To-d.
+Romfour
+m, You.
+
+Clindysell argednqbYHZIMsBb'nobraifen,
+I ancids!
+My whemys; goodgivapty
+ows woul, welfq!ia rGkUv&p&JOwZDCsB.FZXnXFOZbxLWZq3Nu-meo
+SICHEf.e$

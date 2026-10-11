@@ -1,0 +1,10 @@
+--- variance across seeds (same config) ---
+{'t': '12:06:42', 'max_iter': 5000, 'C': 1.0, 'seed': 0, 'train_acc': 0.9626, 'test_acc': 0.9474}
+{'t': '12:06:43', 'max_iter': 5000, 'C': 1.0, 'seed': 1, 'train_acc': 0.9626, 'test_acc': 0.9474}
+{'t': '12:06:43', 'max_iter': 5000, 'C': 1.0, 'seed': 2, 'train_acc': 0.9692, 'test_acc': 0.9298}
+{'t': '12:06:43', 'max_iter': 5000, 'C': 1.0, 'seed': 3, 'train_acc': 0.9626, 'test_acc': 0.9386}
+{'t': '12:06:43', 'max_iter': 5000, 'C': 1.0, 'seed': 4, 'train_acc': 0.9626, 'test_acc': 0.9123}
+test accs [0.9474, 0.9474, 0.9298, 0.9386, 0.9123]  mean 0.9351 sd 0.0131
+--- one knob turned (C=100) ---
+{'t': '12:06:43', 'max_iter': 5000, 'C': 100, 'seed': 0, 'train_acc': 0.978, 'test_acc': 0.9649}
+log written: repro_log.jsonl -- diff two lines to see what changed

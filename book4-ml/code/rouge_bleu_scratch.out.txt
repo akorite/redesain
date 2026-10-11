@@ -1,0 +1,8 @@
+reference : the cat sat on the mat and slept peacefully all afternoon
+A faithful-terse: BLEU 0.752  ROUGE-1 0.909  ROUGE-L 0.909
+B fluent-wrong: BLEU 0.000  ROUGE-1 0.182  ROUGE-L 0.182
+C degenerate-repeat: BLEU 0.247  ROUGE-1 0.545  ROUGE-L 0.545
+
+reference2: the new drug reduced tumour growth by 40 percent in mice
+D one-token-error: BLEU 0.893  ROUGE-1 0.909  ROUGE-L 0.909
+E faithful-rephrase: BLEU 0.002  ROUGE-1 0.727  ROUGE-L 0.455

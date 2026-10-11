@@ -1,0 +1,11 @@
+single tree over 20 bootstraps: mean acc 0.824  sd 0.018  (min 0.784, max 0.856)
+
+ depth   train    test
+     2   0.323   0.307
+     4   0.581   0.533
+     6   0.810   0.751
+    10   0.976   0.856
+  None   1.000   0.849
+
+full tree    test acc 0.849
+300-tree RF  test acc 0.982   OOB-free, no tuning

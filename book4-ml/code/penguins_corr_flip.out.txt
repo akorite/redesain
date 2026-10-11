@@ -1,0 +1,9 @@
+pooled correlation (342 complete pairs):
+  all species together: r = -0.235
+
+per species:
+  Adelie    (n=152): r = +0.391
+  Chinstrap (n= 68): r = +0.654
+  Gentoo    (n=124): r = +0.643
+
+same table, three opposite stories -- the aggregate lied.

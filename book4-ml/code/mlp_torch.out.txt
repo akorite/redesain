@@ -1,0 +1,14 @@
+torch epoch   0: loss 2.316  test acc 0.100
+torch epoch  10: loss 1.950  test acc 0.718
+torch epoch  20: loss 1.230  test acc 0.844
+torch epoch  30: loss 0.717  test acc 0.887
+torch epoch  40: loss 0.488  test acc 0.911
+torch epoch  50: loss 0.371  test acc 0.920
+torch epoch  60: loss 0.301  test acc 0.924
+
+agreement on the SAME 48-hidden-unit net:
+  scratch (60 ep, lr .5): test acc ~0.94-0.95 (listing above)
+  torch   (60 ep, lr .5): test acc 0.927
+  sklearn (39 it, lr .1): test acc 0.982
+  (sklearn's lr .5 diverged to 0.102 -- lr is a real dial,
+   and each solver's defaults are their own trajectory.)

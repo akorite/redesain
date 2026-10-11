@@ -1,0 +1,6 @@
+confusion matrix (rows=true, cols=pred):
+            pred=0  pred=1
+  true=1        24      48
+  true=0        97      22
+
+accuracy 0.759   precision 0.686   recall 0.667

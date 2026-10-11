@@ -1,0 +1,4 @@
+full-batch GD  lr=.5 : loss 2.24->0.268  (ep10 1.469)  test acc 0.947
+SGD B=64      lr=.05: loss 2.14->0.143  (ep10 0.702)  test acc 0.967
+SGD+momentum  lr=.05: loss 1.31->0.013  (ep10 0.097)  test acc 0.980
+Adam          lr=.01: loss 0.86->0.003  (ep10 0.080)  test acc 0.987

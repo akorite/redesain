@@ -1,0 +1,5 @@
+op speedup
+scores-loop 128
+scores-nprow 165
+dist-loop 62
+pairwise-loop 32
