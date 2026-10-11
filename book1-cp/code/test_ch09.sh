@@ -1,6 +1,6 @@
 #!/bin/bash
 set -e; cd "$(dirname "$0")"; CXX=${CXX:-clang++}; F="-std=c++17 -O2 -Wall -Wextra"; mkdir -p .build
-for p in road_construction building_roads road_reparation closing_farm; do $CXX $F -o .build/$p $p.cpp; done
+for p in road_construction building_roads road_reparation closing_farm network_breakdown; do $CXX $F -o .build/$p $p.cpp; done
 expect() { echo "$3" | grep -qF "$2" || { echo "FAIL $1: wanted '$2' in: $3" >&2; exit 1; }; echo "$1 PASS"; }
 expect constr "$(printf "4 2\n3 3\n2 3")" "$(printf "5 3\n1 2\n1 3\n4 5\n" | ./.build/road_construction)"
 expect roads "$(printf "1\n1 3")" "$(printf "4 2\n1 2\n3 4\n" | ./.build/building_roads)"
@@ -54,3 +54,4 @@ for _ in range(150):
 print("kruskal stress: 150/150 PASS")
 PY
 echo "test_ch09: ALL PASS"
+expect breakdown "2 2 3" "$(printf "5 5 3\n1 2\n1 3\n2 3\n3 4\n4 5\n3 4\n2 3\n4 5\n" | ./.build/network_breakdown)"

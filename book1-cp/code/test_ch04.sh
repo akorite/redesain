@@ -5,7 +5,7 @@ cd "$(dirname "$0")"
 CXX=${CXX:-clang++}; F="-std=c++17 -O2 -Wall -Wextra"
 mkdir -p .build
 for p in bsearch_template factory_machines array_division \
-         social_distancing mult_table real_bsearch; do
+         social_distancing mult_table real_bsearch concert_tickets; do
     $CXX $F -o .build/$p $p.cpp
 done
 
@@ -85,3 +85,4 @@ for n in [3,5,7,9,15,33,39]:
 print("mult stress: 7/7 PASS")
 PY
 echo "test_ch04: ALL PASS"
+printf "5 3\n5 3 7 8 5\n4 8 3\n" | ./.build/concert_tickets | diff - <(printf "3\n8\n-1\n") && echo "concert PASS"

@@ -524,3 +524,44 @@ ratios, not the numbers, carry the argument. Halim's text~\cite{halimcp4}
 organises the same material around UVa problem families --- cited here, not
 consulted for content.
 
+
+\section*{Further reading}
+\begin{itemize}
+\item Laaksonen, \emph{Competitive Programmer's Handbook}, ch.~5
+``Complete search'' (beginner). \url{https://cses.fi/book/book.pdf} ---
+subset/permutation generation and pruning, the backbone of this chapter.
+\item USACO Guide, ``Complete Search'' (beginner).
+\url{https://usaco.guide/bronze/intro-complete} --- the enumerative half of
+the chapter in more exercises.
+\item USACO Guide, ``Complete Search with Recursion'' (beginner).
+\url{https://usaco.guide/bronze/complete-rec} --- the recursive half,
+including the same subset/queen idioms.
+\item USACO Guide, ``Introduction to Greedy Algorithms'' (beginner).
+\url{https://usaco.guide/bronze/intro-greedy} --- when enumeration is too
+big: the Ch~3 bridge.
+\item CSES 1623 \emph{Apple Division} (practice).
+\url{https://cses.fi/problemset/task/1623} --- the canonical subset-sum
+search used in \ref{ex:apple} and a good first archive submission.
+\item cp-algorithms, ``Generating all $k$-combinations'' (reference).
+\url{https://cp-algorithms.com/combinatorics/generating_combinations.html}
+--- bitmask iteration idioms beyond the two shown here.
+\item Wikipedia, ``Backtracking'' (reference).
+\url{https://en.wikipedia.org/wiki/Backtracking} --- the general
+vocabulary (state space tree, constraint propagation) this chapter
+specializes.
+\end{itemize}
+
+\begin{rulebox}[Watch instead]
+\smallskip\noindent\textbf{Best first.}
+``6.2 Sum Of Subsets Problem - Backtracking'' --- Abdul Bari, 12 min ---
+\url{https://www.youtube.com/watch?v=kyLxTdsT8ws}. The state-space tree and
+prune-on-dead-end of \S\ref{sec:exhaustive}, worked on the same problem
+shape as \ref{ex:apple}; hand-drawn trees, code-agnostic.
+\smallskip\noindent
+``The N Queens Problem using Backtracking/Recursion - Explained'' ---
+Back To Back SWE, 14 min ---
+\url{https://www.youtube.com/watch?v=wGbuCyNpxIg}. Covers
+\S\ref{sec:backtracking} end-to-end (place/backtrack on the diagonal
+constraints); Java-flavoured code, same recursion shape as the book's C++.
+Access date 2026-10-10.
+\end{rulebox}

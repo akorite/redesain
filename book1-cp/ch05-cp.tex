@@ -352,3 +352,36 @@ are the direct drill source, and Halim~\cite{halimcp4} covers the
 same machinery with more worked IDs. The five archive problems are
 official CSES/USACO tasks~\cite{cses}; the remainder-counting trick
 appears throughout the cp-algorithms notes~\cite{cpalgorithms}.
+
+\section*{Further reading}
+\begin{itemize}
+\item USACO Guide, ``Prefix Sums'' (intermediate).
+\url{https://usaco.guide/silver/prefix-sums} --- 1-D and 2-D prefix sums
+with more graded problems at exactly this chapter's level.
+\item USACO Guide, ``Two Pointers'' (intermediate).
+\url{https://usaco.guide/silver/two-pointers} --- the window idiom of
+\S\ref{sec:twoptr} with a deeper problem bank.
+\item Laaksonen, \emph{Competitive Programmer's Handbook}, ch.~8
+(beginner). \url{https://cses.fi/book/book.pdf} --- prefix sums and the
+sliding-window minimum-sum problems in one short read.
+\item CSES 1646 \emph{Static Range Sum Queries} (practice).
+\url{https://cses.fi/problemset/task/1646} --- the direct archive form
+of \ref{ex:rangesum}.
+\item CSES 1660 \emph{Subarray Sums I} and 1644 \emph{Maximum Subarray
+Sum II} (practice). \url{https://cses.fi/problemset/task/1660} ---
+live exercises for \S\ref{sec:twoptr} and \S\ref{sec:window}.
+\end{itemize}
+
+\begin{rulebox}[Watch instead]
+\smallskip\noindent\textbf{Best first.}
+``Prefix Sum Array and Range Sum Queries'' --- Profound Academy,
+8 min --- \url{https://www.youtube.com/watch?v=xbYr9JOC2Lk}. The
+accumulation trick of \S\ref{sec:prefix} animated cell by cell;
+uses \texttt{sum[i]} where the book writes $p_i$ --- same array.
+\smallskip\noindent
+``Two Pointers in 7 minutes'' --- AlgoMasterIO, 7 min ---
+\url{https://www.youtube.com/watch?v=QzZ7nmouLTI}. The
+shrink-on-violation loop of \S\ref{sec:twoptr} on interview-style
+problems; Python-flavoured, the pointer invariant is identical.
+Access date 2026-10-10.
+\end{rulebox}

@@ -316,3 +316,42 @@ cp-algorithms documents the sparse table's idempotency
 requirement~\cite{cpalgorithms}. Halim~\cite{halimcp4} covers the
 same set with contest IDs; the archive problems are official
 CSES/USACO tasks~\cite{cses}.
+
+\section*{Further reading}
+\begin{itemize}
+\item cp-algorithms, ``Sparse table'' (intermediate).
+\url{https://cp-algorithms.com/data_structures/sparse-table.html} ---
+the static RMQ structure of \S\ref{sec:sparse} with disjoint-range
+queries beyond min.
+\item cp-algorithms, ``Modifying stack/queue for minimum queries''
+(intermediate).
+\url{https://cp-algorithms.com/data_structures/stack_queue_modification.html}
+--- the monotonic queue of \S\ref{sec:monodeque} derived twice over
+(stack-pair and deque).
+\item Laaksonen, \emph{Competitive Programmer's Handbook}, ch.~8
+``Amortized analysis'' (beginner). \url{https://cses.fi/book/book.pdf}
+--- the accounting argument behind \S\ref{sec:amort}.
+\item CSES 1645 \emph{Nearest Smaller Values} (practice).
+\url{https://cses.fi/problemset/task/1645} --- \ref{ex:nsv} verbatim;
+the canonical monotonic-stack submission.
+\item CSES 1647 \emph{Static Range Minimum Queries} (practice).
+\url{https://cses.fi/problemset/task/1647} --- where the sparse table
+of \ref{ex:rmq} earns its keep.
+\item Wikipedia, ``Amortized analysis'' (reference).
+\url{https://en.wikipedia.org/wiki/Amortized_analysis} --- aggregate /
+accounting / potential methods; the book uses the aggregate version.
+\end{itemize}
+
+\begin{rulebox}[Watch instead]
+\smallskip\noindent\textbf{Best first.}
+``Monotonic Stack Data Structure Explained'' --- AlgoMonster, 6 min ---
+\url{https://www.youtube.com/watch?v=Dq_ObZwTY_Q}. The
+pop-while-monotone loop of \S\ref{sec:monostack} on next-greater-element;
+pseudocode-style, no language dependency.
+\smallskip\noindent
+``Sparse Table | Range Minimum Query in O(1)'' --- Kartik Arora,
+17 min --- \url{https://www.youtube.com/watch?v=iaRvydtqLV4}. Builds
+exactly the $k$-level table of \S\ref{sec:sparse} then answers
+$[\ell,r]$ via the two overlapping power-of-2 blocks; uses
+$\lfloor\log_2(r-\ell+1)\rfloor$ like the book. Access date 2026-10-10.
+\end{rulebox}

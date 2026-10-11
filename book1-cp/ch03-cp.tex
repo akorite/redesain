@@ -418,3 +418,39 @@ counter-example-first pedagogy of the USACO Guide~\cite{usacoguide}.
 from cppreference~\cite{cppreference}; Halim's treatment of sort-and-greedy
 problem patterns informed the exercise set~\cite{halimcp4}. All problem
 names and samples are from the CSES Problem Set~\cite{cses}.
+
+\section*{Further reading}
+\begin{itemize}
+\item Laaksonen, \emph{Competitive Programmer's Handbook}, ch.~6 ``Greedy
+algorithms'' (beginner). \url{https://cses.fi/book/book.pdf} --- the
+scheduling/median/coin-canonical results quoted in this chapter.
+\item USACO Guide, ``Introduction to Greedy Algorithms'' (beginner).
+\url{https://usaco.guide/bronze/intro-greedy} --- more greedy exercises at
+the Bronze level, same decision discipline.
+\item USACO Guide, ``Introduction to Sorting'' (beginner).
+\url{https://usaco.guide/bronze/intro-sorting} --- comparators and
+sorting-based problem solving beneath \S\ref{sec:sorting}.
+\item CSES 1629 \emph{Movie Festival} (practice).
+\url{https://cses.fi/problemset/task/1629} --- submit the earliest-finish
+schedule of \ref{ex:movie} yourself.
+\item cppreference, ``std::sort'' (reference).
+\url{https://en.cppreference.com/w/cpp/algorithm/sort} --- comparator
+contract (strict weak ordering) behind \S\ref{sec:sorting}'s rules.
+\item Wikipedia, ``Greedy algorithm'' (reference).
+\url{https://en.wikipedia.org/wiki/Greedy_algorithm} --- general context
+for the exchange/stays-ahead proofs of \S\ref{sec:proofs}.
+\end{itemize}
+
+\begin{rulebox}[Watch instead]
+\smallskip\noindent\textbf{Best first.}
+``3. Greedy Method - Introduction'' --- Abdul Bari, 12 min ---
+\url{https://www.youtube.com/watch?v=ARvQcqJ_-NY}. The greedy-choice
+framing of \S\ref{sec:greedy} with small worked cases; he optimizes
+objectives on the same ``choice + feasibility'' axis this book uses.
+\smallskip\noindent
+``Lec 16'' --- MIT OpenCourseWare 6.046J, 84 min ---
+\url{https://www.youtube.com/watch?v=FPEMBWg_WlY}. Formal greedy-proof
+machinery (greedy-choice property + induction) matching
+\S\ref{sec:proofs}; blackboard pace, uses more algorithm design notation
+than the book needs. Access date 2026-10-10.
+\end{rulebox}

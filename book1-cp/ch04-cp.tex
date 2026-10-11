@@ -80,10 +80,20 @@ and $\log_2$ of $10^{18}$ is only about 60.}
 \label{fig:answerspace}
 \end{figure}
 
+\begin{figure}[ht]\centering
+\input{figures/fig96-bswalk}
+\caption{A first\_true walk on the predicate row of
+Figure~\ref{fig:frontier}: each probe lands on a midpoint, the
+surviving half keeps the boundary inside it, and four probes suffice on
+eight cells --- $\lceil\log_2 8\rceil + 1$. Watch the invariant, not
+the values: the true/false boundary never leaves the live interval.}
+\label{fig:bswalk}
+\end{figure}
+
 \section{Monotone predicates: searching the answer}\label{sec:bs-answer}
 \index{binary search!on the answer}\index{monotone predicate}
 
-Figure~\ref{fig:frontier} is the whole idea. When the predicate is
+Figure~\ref{fig:frontier} is the whole idea; Figure~\ref{fig:bswalk} walks it once, probe by probe. When the predicate is
 monotone --- false up to some boundary, true ever after (or the reverse)
 --- the search runs on the \emph{answer space}, the interval of every
 value the answer could take, not on the input array. Three questions
@@ -366,3 +376,42 @@ pitfalls~\cite{laaksonen2024}. The four archive problems are official
 CSES/USACO tasks~\cite{cses,usacoguide}; standard references on the
 idiom are the C++ reference's \texttt{lower\_bound}
 page~\cite{cppreference} and the cp-algorithms binary-search note.
+
+\section*{Further reading}
+\begin{itemize}
+\item USACO Guide, ``Binary Search'' (intermediate).
+\url{https://usaco.guide/silver/binary-search} --- same first\_true
+template, more answer-search problems at the Silver level.
+\item Laaksonen, \emph{Competitive Programmer's Handbook}, ch.~4
+``Binary search'' (beginner). \url{https://cses.fi/book/book.pdf} ---
+the array half of the technique plus STL lower\_bound idiom.
+\item cp-algorithms, ``Binary search'' (reference).
+\url{https://cp-algorithms.com/num_methods/binary_search.html} ---
+implementation variants incl.\ the real-valued search of
+\S\ref{sec:bs-real}.
+\item CSES 1085 \emph{Array Division} (practice).
+\url{https://cses.fi/problemset/task/1085} --- \ref{ex:arrdiv} yourself;
+CSES 1620 \emph{Factory Machines} likewise.
+\item cppreference, ``std::lower\_bound'' (reference).
+\url{https://en.cppreference.com/w/cpp/algorithm/lower_bound} --- the
+library realization of \S\ref{sec:bs-template}.
+\item Bloch, ``Nearly All Binary Searches and Mergesorts are Broken''
+(blog, intermediate).
+\url{https://research.google/blog/extra-extra-read-all-about-it-nearly-all-binary-searches-and-mergesorts-are-broken/}
+--- the midpoint-overflow bug this book's template avoids.
+\end{itemize}
+
+\begin{rulebox}[Watch instead]
+\smallskip\noindent\textbf{Best first.}
+``Binary Search Algorithm'' --- Computerphile, 19 min ---
+\url{https://www.youtube.com/watch?v=hDn8iOc30Tk}. The halving
+invariant of \S\ref{sec:bs-template} explained visually; Dr.\ Pound
+indexes from 1 where the book uses 0 --- the boundary logic is
+identical.
+\smallskip\noindent
+``Bug in Binary Search'' --- Computerphile, 12 min ---
+\url{https://www.youtube.com/watch?v=_eS-nNnkKfI}. The
+\texttt{(lo+hi)/2} overflow of the Common mistakes section --- the real
+Java library bug, worth watching before you write \texttt{mid} once.
+Access date 2026-10-10.
+\end{rulebox}
