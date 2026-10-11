@@ -1,0 +1,15 @@
+% Mealy vs Moore templates
+\begin{tikzpicture}[font=\footnotesize,
+  box/.style={draw, rounded corners=2pt, minimum width=2.4cm, minimum height=1.1cm, align=center}]
+\node[box] (regm) at (0,2.4) {state\\ register};
+\node[box] (nxtm) at (3.8,2.4) {next-state\\ logic};
+\node[box] (outm) at (3.8,0.4) {output logic\\ Moore: f(state)};
+\draw[->, thick] (-1.8,2.4) node[left] {in} -- (nxtm.west);
+\draw[->, thick] (regm.east) -- (nxtm.west);
+\draw[->, thick] (regm.east) |- (outm.west);
+\draw[->, thick] (outm.east) -- ++(0.8,0) node[right] {out};
+\draw[->, thick] (nxtm.south) |- (regm.north);
+% mealy path
+\draw[->, thick, accent, dashed] (-1.8,2.4) ++(0,-0.15) .. controls (1,1.1) .. (outm.west)
+  node[midway, above, font=\scriptsize, accent] {Mealy: inputs reach output directly};
+\end{tikzpicture}

@@ -10,3 +10,4 @@
 | ch07 Op-amps and power supplies | authored, awaiting review | ~12 | 2026-10-10 |
 | ch08 Numbers, bits and Boolean algebra | authored, awaiting review | ~11 | 2026-10-10 |
 | ch09 Combinational circuits | authored, awaiting review | ~11 | 2026-10-10 |
+| ch10 Sequential circuits and state machines | authored, awaiting review (depth pass: 5 WEs, 15 exercises, further reading) | ~14 | 2026-10-11 |

@@ -1,0 +1,12 @@
+% traffic FSM state diagram (Moore)
+\begin{tikzpicture}[font=\footnotesize, state/.style={draw, circle, minimum size=1.9cm, align=center, inner sep=1pt}]
+\node[state] (g1) at (0,0) {NS\_G\\ \scriptsize NS=grn, EW=red};
+\node[state] (y1) at (3.4,0) {NS\_Y\\ \scriptsize NS=ylw, EW=red};
+\node[state] (g2) at (3.4,-3.0) {EW\_G\\ \scriptsize EW=grn, NS=red};
+\node[state] (y2) at (0,-3.0) {EW\_Y\\ \scriptsize EW=ylw, NS=red};
+\draw[->, thick] (g1) -- node[above] {timer} (y1);
+\draw[->, thick] (y1) -- node[right] {timer} (g2);
+\draw[->, thick] (g2) -- node[below] {timer} (y2);
+\draw[->, thick] (y2) -- node[left] {timer} (g1);
+\draw[->, dashed, ink] (-1.4,1.4) node[left] {rst} -- (g1.north west);
+\end{tikzpicture}
