@@ -1,0 +1,29 @@
+\begin{tikzpicture}[font=\scriptsize, >=latex]
+% operands fan out to every path at once
+\node[left, font=\small] at (-0.4,4.6) {\texttt{i\_a}/8};
+\node[left, font=\small] at (-0.4,4.0) {\texttt{i\_b}/8};
+\draw[thick] (0,4.6) -- (0.6,4.6);
+\draw[thick] (0,4.0) -- (0.6,4.0);
+\draw[thick] (0.6,4.6) -- (0.6,0.6) -- (1.0,0.6);
+\draw[thick] (0.6,4.0) -- (0.8,4.0) -- (0.8,0.9) -- (1.0,0.9);
+% seven paths, always computing
+\foreach \y/\nm/\det in {4.4/{adder}/{\texttt{a+b} \textrightarrow\ 9b},3.7/{subtracter}/{\texttt{a+\textasciitilde b+1} \textrightarrow\ 9b},3.0/{AND}/{\texttt{a\&b}},2.3/{OR}/{\texttt{a|b}},1.6/{XOR}/{\texttt{a\char`^b}},0.9/{SHL}/{\texttt{\{a[6:0],0\}}},0.2/{SHR}/{\texttt{\{0,a[7:1]\}}}}{
+  \draw[thick, fill=graybg] (1.0,\y-0.22) rectangle (2.9,\y+0.22);
+  \node at (1.95,\y) {\det};
+}
+% the big mux
+\draw[thick, fill=accentsoft] (3.6,0.0) -- (4.0,2.0) -- (4.0,4.6) -- (3.6,4.8) -- cycle;
+\node[rotate=90] at (3.85,2.4) {8$\times$8 mux};
+\foreach \y in {4.4,3.7,3.0,2.3,1.6,0.9,0.2}{
+  \draw[->, thick] (2.9,\y) -- (3.75,\y*0.94+0.15);
+}
+\draw[->, thick] (4.0,2.4) -- (5.4,2.4) node[right, font=\small]{\texttt{o\_y}/8};
+% op field selects
+\draw[->, thick, accent] (2.4,-0.7) -- (2.4,1.4) -- (3.65,1.4);
+\node[below, font=\small] at (2.4,-0.7) {\texttt{i\_op}/3};
+% flags ride alongside
+\draw[->, thick, accent] (4.0,1.2) -- (4.6,1.2) -- (4.6,0.4) -- (5.4,0.4);
+\node[right, font=\scriptsize] at (5.4,0.4) {\texttt{o\_z o\_n o\_c o\_v}};
+\node[font=\scriptsize, text=slate, align=center] at (1.9,-1.3) {every path answers, always ---\\
+the mux only picks};
+\end{tikzpicture}

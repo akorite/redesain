@@ -1,0 +1,33 @@
+\begin{tikzpicture}[font=\scriptsize, >=latex]
+% program address space (left column)
+\node[font=\small\bfseries] at (1.3,6.9) {program space};
+\draw[thick] (0,0.4) rectangle (2.6,6.6);
+\foreach \y/\lbl/\det in {6.0/{\texttt{0x00..0x09}}/{demo program\\(10 bytes)},3.6/{\texttt{0x0A..0x0F}}/{padding (NOPs)}}{
+  \draw[thick, fill=amberbg] (0,\y-1.2) rectangle (2.6,\y);
+  \node[align=center] at (1.3,\y-0.5) {\lbl};
+  \node[align=center, font=\tiny, text=slate] at (1.3,\y-0.95) {\det};
+}
+\node[align=center, text=slate] at (1.3,0.0) {ROM 16 x 8 --- read-only,\\\texttt{pc} picks the row};
+% data address space (right column)
+\node[font=\small\bfseries] at (6.0,6.9) {data space};
+\draw[thick] (3.6,0.4) rectangle (8.6,6.6);
+\draw[thick, fill=goodbg] (3.6,5.0) rectangle (6.2,6.2);
+\node[align=center] at (4.9,5.8) {regfile 8x8};
+\node[align=center, font=\tiny, text=slate] at (4.9,5.35) {r0--r7 working registers\\(register-addressed, not memory)};
+\draw[thick, fill=accentsoft] (6.4,5.0) rectangle (8.6,6.2);
+\node[align=center] at (7.5,5.8) {RAM 16x8};
+\node[align=center, font=\tiny, text=slate] at (7.5,5.35) {scratch data\\(BRAM-backed)};
+\draw[thick, fill=amberbg] (3.6,3.4) rectangle (6.2,4.4);
+\node[align=center] at (4.9,4.05) {flags reg};
+\node[align=center, font=\tiny, text=slate] at (4.9,3.7) {Z N C V};
+\draw[thick, fill=amberbg] (6.4,3.4) rectangle (8.6,4.4);
+\node[align=center] at (7.5,4.05) {OUT reg};
+\node[align=center, font=\tiny, text=slate] at (7.5,3.7) {to LEDs/UART};
+\draw[thick, fill=graybg] (3.6,0.8) rectangle (8.6,2.9);
+\node[align=center] at (6.1,2.2) {PC /4};
+\node[align=center, font=\tiny, text=slate] at (6.1,1.5) {not in either space --- the sequencer\\lives beside memory, not inside it};
+% note
+\node[align=center, text=slate, text width=8.5cm] at (4.3,-0.7) {Two separate spaces: the program lives in ROM indexed by \texttt{pc}
+(instruction fetch); everything a program can touch lives in the data space.
+A von Neumann machine would share one space --- ours is Harvard-style.};
+\end{tikzpicture}

@@ -1,0 +1,9 @@
+\begin{tikzpicture}
+\begin{axis}[width=0.85\linewidth, height=4.2cm, xlabel={$t$ (ns)},
+  xmin=0, xmax=175, ymin=-0.3, ymax=1.4, clip=false,
+  ytick={0,1}, yticklabels={0,1}, axis lines=left]
+\addplot[const plot, thick, blue] table[x=t,y=v] {figures/ch13/ch13_blink.dat};
+\node[anchor=east, font=\small] at (axis cs:0,0.5) {\sf led};
+\node[font=\scriptsize, text=gray] at (axis cs:115,1.15) {bit 3 high for 8 clocks};
+\end{axis}
+\end{tikzpicture}
