@@ -228,6 +228,32 @@ terms} (bp or ticks) with the sampling rate attached, then
 $\sigma$ can assist --- never lead.
 \end{example}
 
+\begin{example}[The arrival process is clustered]\label{ex:cluster}
+\textbf{Strategy.} Measure the raw inter-print gaps on the pinned
+tape before modelling anything: a Poisson clock would give an
+exponential tail; real trade arrivals cluster.
+
+\textbf{Solution.} \texttt{tz\_gap.py} prints:
+\begin{verbatim}
+inter-print gaps: n=1005  median 1ms
+p95 2444ms  max 6.6s
+gaps >20x median: 483 (48.1%)
+prints/10s: mean 17.6  max 75  zeros 0
+arrival process is clustered -- Poisson would show smoother counts
+\end{verbatim}
+Half the prints arrive within a millisecond of the last, yet the
+tape still holds $6.6$s holes --- bursts of $75$ prints per 10s
+alternating with silence. The distribution is neither Poisson nor
+uniform: it is \emph{bursty}.
+
+\textbf{Significance.} This is why the chapter insists resampling
+is a contract: any statistic computed per-print inherits the
+arrival process. A mean gap of 1ms does not mean the book updates
+every millisecond --- it means the busy half does and the quiet
+half does not. Sample at clock times, never at print times, for
+anything a model will consume.
+\end{example}
+
 \section{Common mistakes}
 \begin{itemize}
 \item \textbf{Forward-filling prices across gaps.} Manufactures fake flat data and corrupts

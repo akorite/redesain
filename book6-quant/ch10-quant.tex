@@ -200,6 +200,30 @@ picks the risk aversion --- execution policy is portfolio choice
 in miniature.
 \end{example}
 
+\begin{example}[VWAP buys the top on a volume-spike tape]\label{ex:vwaptrap}
+\textbf{Strategy.} Compare TWAP and VWAP on two synthetic
+tapes: a flat tape where they should agree, and a designed trap
+--- quiet all day, then a closing auction carrying $15\times$
+normal volume while price pops $1.5\%$.
+
+\textbf{Solution.} \texttt{vwap\_trap.py} prints:
+\begin{verbatim}
+     flat tape: TWAP 100.0000  VWAP 100.0000  VWAP-TWAP +0.0bp (buyer)
+close-pop tape: TWAP 100.0577  VWAP 100.4167  VWAP-TWAP +3589.7bp (buyer)
+VWAP tracks volume; when volume and price spike together, VWAP buys the top
+\end{verbatim}
+Identical on the flat tape, but on the trap tape VWAP concentrates
+its fills exactly where the price is highest --- $35.9$bp worse
+than the uniform schedule it was supposed to beat.
+
+\textbf{Significance.} ``Trade with volume'' is only a
+benchmark, not a promise: VWAP inherits whatever the volume curve
+does to price. When the auction itself moves the market --- as it
+often does into the close --- participation is precisely the wrong
+hedge. Check correlation between your volume forecast and the
+price path before choosing the schedule.
+\end{example}
+
 \section{Common mistakes}
 \begin{itemize}
 \item \textbf{``Impact is linear.''} It is concave; big prints cost disproportionately.

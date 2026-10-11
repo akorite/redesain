@@ -229,6 +229,32 @@ wearing a disguise. This is the same lesson as the LOB chapter,
 one market microstructure up.
 \end{example}
 
+\begin{example}[How much does the market know?]\label{ex:conviction}
+\textbf{Strategy.} Treat each market's YES-price as a forecast and
+ask the Brier score what it \emph{expects} to score if the market
+were perfectly calibrated. That converts 100 price ticks into an
+information budget.
+
+\textbf{Solution.} \texttt{scoring\_stakes.py} prints:
+\begin{verbatim}
+conviction |2p-1| over 100 binary markets
+mean 0.553   >0.9: 25   <0.1: 20
+E[Brier] if market calibrated = 0.1386 vs 50c baseline 0.25
+info gain over coin-flip = 45%
+\end{verbatim}
+A quarter of the board prices near-certainty ($|2p-1|>0.9$) and a
+fifth sits near $50/50$ --- the market is either very sure or
+barely guessing, rarely in between. If it were calibrated, its
+expected Brier ($0.139$) beats the coin-flip baseline by $45\%$.
+
+\textbf{Significance.} Calibration is a property of the
+\emph{population of prices}, not one market: $E[p(1-p)]$ prices the
+information content of the whole board in one number. It also
+quantifies the stakes --- at $45\%$ better than guessing, a
+forecaster who is merely ``as calibrated as the board'' already
+carries real edge.
+\end{example}
+
 \section{Common mistakes}
 \begin{itemize}
 \item \textbf{Reading price as certainty.} $p=0.9$ is a probability, not a promise; one in ten

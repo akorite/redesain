@@ -283,6 +283,32 @@ Mark vs last & PnL on mark, trades on last & liquidations trigger off mark\\
 \end{tabular}
 \end{table}
 
+\begin{example}[The premium is persistent; the floor is not cheap]\label{ex:fundterm}
+\textbf{Strategy.} Split the pinned 500-hour funding tape into
+its two additive parts --- the interest floor and the premium
+component --- and test whether today's premium carries into
+tomorrow (i.e.\ whether funding is a forecastable term structure).
+
+\textbf{Solution.} \texttt{funding\_term.py} prints:
+\begin{verbatim}
+premium persistence: lag-1 +0.964  lag-24 +0.521
+corr(24h funding paid, 24h premium) = +0.762
+blocks where funding exceeded premium x2: 1/20
+annualised carry if sustained: 9.9%  realized premium: -84.5%
+\end{verbatim}
+Premium deviations persist strongly ($+0.96$ at one hour, $+0.52$
+a day out) --- the basis has memory. But the realized premium was
+\emph{negative} $84.5\%$/yr while funding still cost $+9.9\%$/yr:
+the floor charged longs on top of a discount that never showed up
+in the headline rate.
+
+\textbf{Significance.} Two lessons in one tape: the premium leg
+is forecastable enough to time entries (half-day persistence), and
+the floor leg means ``funding $=0.125$bp'' is never ``free'' even
+when the perp trades under index. Venue-rule statements like this
+one are date-stamped --- re-verify before sizing.
+\end{example}
+
 \section{Common mistakes}
 \begin{itemize}
 \item \textbf{``$1/\text{leverage}$ is my liquidation distance.''} Maintenance margin pulls it

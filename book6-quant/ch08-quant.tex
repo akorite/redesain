@@ -221,6 +221,31 @@ just shows you where it lives. Report the base case \emph{and} the
 survive is a strategy that needs the venue's goodwill.
 \end{example}
 
+\begin{example}[Two more strategies through the same harness]\label{ex:secondstrat}
+\textbf{Strategy.} The chapter's promise --- \emph{the strategy is
+the only variable} --- is only credible if a second and third
+strategy reproduce the framework's verdicts. Run a Donchian(50)
+breakout and an RSI(14) mean-reverter through \texttt{engine.py}
+untouched.
+
+\textbf{Solution.} \texttt{second\_strat.py} prints:
+\begin{verbatim}
+Donchian(50) breakout: ret -40.2%  sharpe -0.64  mdd -50.6%  trades 13
+RSI(14) mean-rev:    ret -38.0%  sharpe -0.80  mdd -42.7%  trades 86
+same harness, same data, same fees -- the strategy is the only variable
+\end{verbatim}
+Both lose --- and lose \emph{differently}: the breakout bleeds
+slowly on 13 round-trips ($-40\%$ over 721 bars), the RSI chops
+86 times for $-38\%$ (nearly 7$\times$ the trades for the same
+damage --- fee drag made visible again).
+
+\textbf{Significance.} Three strategies, one harness, one dataset:
+the results disagree only because the \emph{signals} differ. That
+is the whole thesis of this chapter --- the engine is an
+instrument, not an oracle, and identical losses on a trustworthy
+instrument still certify the strategy was bad, not the test.
+\end{example}
+
 \section{Common mistakes}
 \begin{itemize}
 \item \textbf{Filling at the signal close.} The most common fabrication: you cannot buy at

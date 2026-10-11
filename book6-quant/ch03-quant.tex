@@ -288,6 +288,32 @@ before aggregates\\
 \caption{Chapter 3 toolkit.}
 \end{table}
 
+\begin{example}[Order-flow imbalance predicts size, not side]\label{ex:ofi}
+\textbf{Strategy.} Without a book feed, reconstruct the closest
+thing to queue pressure: order-flow imbalance (signed volume in a
+rolling 100-print window) and test whether it predicts the next
+print's move in sign or in magnitude.
+
+\textbf{Solution.} \texttt{book\_regen.py} prints:
+\begin{verbatim}
+OFI vs next-print move over 1006 prints
+corr(OFI, dp_next) = -0.040
+mean |dp| when |OFI/vol|>0.5: 1.1680
+mean |dp| when |OFI/vol|<0.1: 0.9187
+\end{verbatim}
+Direction: nothing ($r=-0.04$). Magnitude: imbalanced flow
+precedes $27\%$ larger next-print moves --- the imbalance is
+energy, not a compass.
+
+\textbf{Significance.} This is the honest version of ``order flow
+predicts price'': at print granularity the signal is volatility,
+not drift. A model that trades the \emph{sign} of OFI buys noise;
+one that sizes around it is reading the tape correctly. It also
+validates the chapter's claim that microstructure edges need
+book-level state --- prints alone tell you only how hard it will
+move, not where.
+\end{example}
+
 \section{Common mistakes}\index{common mistakes}
 \begin{itemize}
 \item \textbf{Costing a market order as ``the spread''.} You pay

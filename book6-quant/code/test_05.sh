@@ -14,3 +14,8 @@ python3 book_width.py | grep -q 'median .1.030'
 python3 book_width.py | grep -q '0.001 per .1'
 echo "   ok: lock-cost"
 echo "ALL ch05 CHECKS PASS"
+echo "[8] scoring_stakes.py (round-2)"
+python3 scoring_stakes.py | grep -q "info gain over coin-flip = 45%"
+python3 scoring_stakes.py | grep -q "0.1386"
+echo "   ok: conviction"
+echo "ALL ch05 CHECKS PASS"
