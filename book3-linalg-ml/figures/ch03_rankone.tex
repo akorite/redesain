@@ -1,0 +1,10 @@
+% Figure 3.6: a rank-1 matrix is one column times one row.
+\begin{tikzpicture}[scale=1.0,>=stealth]
+  \node[font=\small] at (0.4,1.2) {$\mathbf{u}=\begin{bmatrix}2\\1\\3\end{bmatrix}$};
+  \node[font=\small] at (3.0,1.2) {$\mathbf{v}^{T}=\begin{bmatrix}4&1&2\end{bmatrix}$};
+  \node[font=\small] at (1.7,1.2) {$\times$};
+  \node[font=\small] at (4.2,1.2) {$=$};
+  \node[font=\small] at (6.3,1.2) {$\begin{bmatrix}8&2&4\\4&1&2\\12&3&6\end{bmatrix}$};
+  \node[font=\footnotesize,align=center] at (3.4,-0.1) {every row is a multiple of $\mathbf v^{T}$;\\ every column is a multiple of $\mathbf u$};
+  \draw[->,thick,accent] (2.0,0.35) -- (4.9,0.75);
+\end{tikzpicture}

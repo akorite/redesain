@@ -310,6 +310,27 @@ their squared norm by Pythagoras in matrix space.
 \end{solution}
 \end{exercise}
 
+\begin{example}[Best rank-1 approximation by hand]\label{ex:rank1svd}
+Find the best rank-1 approximation of
+$A=\begin{bmatrix}3&0\\0&2\end{bmatrix}\!$: drop the smaller
+singular value.
+\par\smallskip
+\textbf{Strategy.} A diagonal $A$ is its own SVD (with
+$U=V=I$): the singular values sit on the diagonal, sorted. Eckart--
+Young says keep the biggest, zero the rest --- one line of work.
+\begin{solution}
+$\sigma_1=3$, $\sigma_2=2$. Best rank-1:
+\[
+  A_1=\sigma_1\mathbf u_1\mathbf v_1^{T}
+     =3\begin{bmatrix}1\\0\end{bmatrix}\begin{bmatrix}1&0\end{bmatrix}
+     =\begin{bmatrix}3&0\\0&0\end{bmatrix}.
+\]
+Error: $\|A-A_1\|_F=\sigma_2=2$ --- the dropped value \emph{is} the
+error, which is why the scree plot of figure~\ref{fig:scree} works as a
+budget. \checkmark
+\end{solution}
+\end{example}
+
 \section{PCA: covariance eig = SVD of centered data}\label{sec:pca}
 
 Chapter 9 built principal components as eigenvectors of $C=X^{T}X/(n-1)$.
@@ -499,6 +520,42 @@ PCA & center $X$, SVD: components $=V$ rows, variance $=\sigma_i^2/(n-1)$
 \bottomrule
 \end{tabularx}
 \end{center}
+\begin{rulebox}[{Watch instead}]
+\begin{enumerate}
+\item \emph{Singular Value Decomposition} --- MIT OpenCourseWare,
+18.06 Lecture 29, 40:28, \url{https://youtu.be/TX_vooSnhm8} ---
+\S\ref{sec:svd-statement}--\S\ref{sec:svd-rank} from the source
+(accessed 2026-10-11).
+\item \emph{Principal Component Analysis, Step-by-Step} --- StatQuest
+with Josh Starmer, 21:57, \url{https://youtu.be/FgakZw6K1QQ} ---
+\S\ref{sec:pca} end to end on real data (accessed 2026-10-11).
+\end{enumerate}
+\end{rulebox}
+
+\section*{Further reading}
+\addcontentsline{toc}{section}{Further reading}
+
+\begin{itemize}
+\item G.~Strang, \emph{Introduction to Linear Algebra}, 6th ed., ch.~7
+(textbook level) --- the SVD and its four-subspaces picture.
+\item MIT OpenCourseWare, \emph{18.06SC Linear Algebra} --- the SVD
+recitation ``Computing the Singular Value Decomposition'', at OCW
+(course ``18.06SC''), \url{https://ocw.mit.edu}. Verified 2026-10-11.
+\item S.~Boyd and L.~Vandenberghe, \emph{VMLS} --- least squares and
+low-rank models throughout; PCA-adjacent material in ch.~10.
+\newline
+\url{https://web.stanford.edu/~boyd/vmls/vmls.pdf}
+Verified 2026-10-11.
+\item M.~Deisenroth et al., \emph{Mathematics for Machine Learning},
+ch.~10 (free PDF) --- PCA as dimensionality reduction, matching our
+treatment exactly.\newline
+\url{https://mml-book.github.io/book/mml-book.pdf}
+Verified 2026-10-11.
+\item C.~M.~Bishop, \emph{Pattern Recognition and Machine Learning},
+\S12.1 --- PCA in the statistics register (variance maximisation and
+reconstruction error).\newline
+ISBN 978-0387310732.
+\end{itemize}
 
 \section*{Additional exercises}
 \addcontentsline{toc}{section}{Additional exercises}
@@ -573,6 +630,23 @@ Embedding preview: the word-embedding trick factors a
 co-occurrence matrix and keeps the top $k$ singular directions. On a
 $6\times6$ toy co-occurrence matrix of your own design, SVD it, keep
 $k=2$, and show which items land near each other.
+\end{exercise}
+\begin{exercise}[easy]
+For $A=\begin{bmatrix}3&0\\0&2\end{bmatrix}$, write $\sigma_1$,
+$\sigma_2$, and the error of the best rank-1 approximation. Which
+entry of $\Sigma$ would you zero to get rank exactly 1?
+\end{exercise}
+\begin{exercise}[medium]
+Show $\|A\|_2=\sigma_1$ for any matrix $A$: the spectral norm is the
+largest stretch. (Hint: maximise $\|A\mathbf x\|$ over
+$\|\mathbf x\|=1$ using the SVD.)
+\end{exercise}
+\begin{exercise}[hard]
+Prove Eckart--Young for the rank-1 case only: among all rank-1
+matrices $B$, $\|A-B\|_F$ is minimised by
+$\sigma_1\mathbf u_1\mathbf v_1^{T}$. (Hint: expand
+$\|A-B\|_F^{2}$ and use orthogonality of the
+$\mathbf u_i\mathbf v_j^{T}$ basis.)
 \end{exercise}
 
 \chapternotes{%

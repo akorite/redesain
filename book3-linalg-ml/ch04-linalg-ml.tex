@@ -76,6 +76,28 @@ R_\theta=\begin{bmatrix}\cos\theta&-\sin\theta\\ \sin\theta&\cos\theta\end{bmatr
 \end{solution}
 \end{example}
 
+\begin{example}\label{ex:diffpoly}
+Differentiation on the space $P_3$ of cubics $a_0+a_1x+a_2x^2+a_3x^3$:
+write $D=\frac{d}{dx}$ as a matrix.
+\par\smallskip
+\textbf{Strategy.} A map is linear if it respects $+$ and scaling ---
+differentiation does both, so a matrix must exist. Feed it the basis:
+$D(\mathbf{e}_j)$ is column $j$, exactly the
+$A\mathbf{e}_j=\mathbf{a}_j$ trick of Chapter 2.
+\begin{solution}
+On the monomial basis $\mathcal{B}=\{1,x,x^2,x^3\}$:
+$D(1)=0$, $D(x)=1$, $D(x^2)=2x$, $D(x^3)=3x^2$. Columns are those
+images in $\mathcal{B}$-coordinates:
+\[
+  [D]_{\mathcal{B}}=
+  \begin{bmatrix}0&1&0&0\\0&0&2&0\\0&0&0&3\\0&0&0&0\end{bmatrix}.
+\]
+Now $D(3x^3-2x)=(0,-2,0,9)^{T}$ by the matrix, and directly
+$9x^2-2$ --- same. $[D]^4=0$: differentiating a cubic four times
+annihilates it --- a nilpotent matrix doing honest work. \checkmark
+\end{solution}
+\end{example}
+
 \section{Change of basis and similarity}\label{sec:changebasis}
 
 Chapter 3 ended with coordinates as labels. Now the punchline: the \emph{same} linear map has different matrices in different bases, and the matrices are related by a rule with a name. If $\mathcal B$ is a basis of $V$ with basis-change matrix $B$ (the $\mathbf b_j$ as columns), then
@@ -256,6 +278,34 @@ x = Px + (x-Px): True
 $P=\mathbf{u}\mathbf{u}^{T}/\mathbf{u}^{T}\mathbf{u}$ for $\mathbf{u}=(1,2)$. Compute $P$, then $P(5,0)$ and $P(P(5,0))$ — and explain idempotence in one geometric sentence.
 \end{exercise}
 
+\begin{example}\label{ex:projmat}
+Derive the matrix of orthogonal projection onto the line through
+$\mathbf{u}=(1,2)^{T}$ --- then apply it to $\mathbf{v}=(3,0)^{T}$.
+\par\smallskip
+\textbf{Strategy.} Projection is linear (verify by picture: the
+projected sum is the sum of projections), so find the matrix by feeding
+it $\mathbf{e}_1,\mathbf{e}_2$ --- or shortcut via the outer-product
+formula $P=\mathbf{u}\mathbf{u}^{T}/(\mathbf{u}\cdot\mathbf{u})$
+(figure~\ref{fig:projection}).
+\begin{solution}
+$P=\frac{1}{5}\begin{bmatrix}1&2\\2&4\end{bmatrix}$. Check on
+$\mathbf{v}$: $P\mathbf{v}=\tfrac15(3,6)^{T}=(0.6,1.2)^{T}$ --- a point
+on the line through $(1,2)$ (it is $0.6\mathbf{u}$), and
+$\mathbf{v}-P\mathbf{v}=(2.4,-1.2)^{T}$ is orthogonal:
+$2.4\cdot1+(-1.2)\cdot2=0$. \checkmark\ Idempotence check:
+$P^2=\frac1{25}\begin{bmatrix}5&10\\10&20\end{bmatrix}=P$ --- projecting
+twice moves nothing, exactly as the geometry insists.
+\end{solution}
+\end{example}
+
+\begin{figure}[htbp]\centering
+\input{figures/ch04_projection}
+\caption{Projection as a matrix. Notice the outer product doing the
+work: $P\mathbf v$ keeps only the $\mathbf u$-component of $\mathbf v$.
+The drop from $\mathbf v$ to $P\mathbf v$ is perpendicular --- always.}
+\label{fig:projection}
+\end{figure}
+
 \section{Hand derivation}\label{sec:handderiv4}
 
 Derive $R_\theta$ from trigonometry alone. Take $\mathbf e_1=(1,0)$: after rotation by angle $\theta$ it lands at $(\cos\theta,\sin\theta)$ — that is the definition of $\cos,\sin$ on the unit circle. Then $\mathbf e_2=(0,1)$ sits $90^\circ$ ahead, so it lands at $(\cos(\theta+90^\circ),\sin(\theta+90^\circ))=(-\sin\theta,\cos\theta)$. Assemble the columns. Then complete the check every derivation owes: verify $R_\theta R_\phi=R_{\theta+\phi}$ (the addition formulas emerge as a consequence), and $\det R_\theta=\cos^2\theta+\sin^2\theta=1$.
@@ -302,6 +352,45 @@ You can certify a map linear, write its matrix in any basis, shuttle the same ma
 
 \chapternotes{%
 The definition-first register (linear map before matrix, kernel/image before rank--nullity) follows Axler chapter 3 \cite{axler}; our matrix-first order is Strang's, and this chapter is where the two conventions reconcile. The gallery treatment and grid-deformation figures borrow their pedagogy from \cite{ila} ch.9 and the \emph{Essence of Linear Algebra} series \cite{eola} (episodes 3--4: ``linear transformations'' and ``matrix multiplication as composition''). MML \S2.7 \cite{mml} covers the same ground in ML register.}
+\begin{rulebox}[{Watch instead}]
+\begin{enumerate}
+\item \emph{Linear transformations and matrices} --- 3Blue1Brown,
+Essence of Linear Algebra ch.~3, 10:58,
+\url{https://youtu.be/kYB8IZa5AuE} --- the
+grid-preserving view of \S\ref{sec:linmaps}--\S\ref{sec:matrixrep}
+(accessed 2026-10-11).
+\item \emph{Change of basis} --- 3Blue1Brown, Essence of Linear
+Algebra ch.~13, 12:50, \url{https://youtu.be/P2LTAUO1TdA} ---
+\S\ref{sec:changebasis} visualized (accessed 2026-10-11).
+\end{enumerate}
+\end{rulebox}
+
+\section*{Further reading}
+\addcontentsline{toc}{section}{Further reading}
+
+\begin{itemize}
+\item G.~Strang, \emph{Introduction to Linear Algebra}, 6th ed., \S7.1
+(textbook level) --- linear transformations, matrix form, and
+similarity at full length.
+\item MIT OpenCourseWare, \emph{18.06SC Linear Algebra} --- OCW
+recitations on matrix form of maps. \newline
+OCW (course ``18.06SC''), at \url{https://ocw.mit.edu}
+Verified 2026-10-11.
+\item Margalit and Rabinoff, \emph{Interactive Linear Algebra},
+``Linear Transformations'' and ``Matrix Transformations'' --- the same
+machinery with more pictures. \newline
+\url{https://textbooks.math.gatech.edu/ila/}
+Verified 2026-10-11.
+\item M.~Deisenroth et al., \emph{Mathematics for Machine Learning},
+\S2.7 (free PDF) --- basis change in the ML register.\newline
+\url{https://mml-book.github.io/book/mml-book.pdf}
+Verified 2026-10-11.
+\item J.~Hefferon, \emph{Linear Algebra}, ch.~III (free textbook) ---
+maps defined rigorously, with the proof that matrix form is basis
+dependence. \newline
+\url{https://hefferon.net/linearalgebra/index.html}
+Verified 2026-10-11.
+\end{itemize}
 
 \section*{Additional exercises}
 \addcontentsline{toc}{section}{Additional exercises}
@@ -338,4 +427,24 @@ Prove similarity is an equivalence relation (reflexive, symmetric, transitive) a
 \end{exercise}
 \begin{exercise}[hard]
 Implement change-of-basis as a function \texttt{to\_basis(A, B)} returning $B^{-1}AB$, then test it: generate random $2\times2$ $A$ and random bases $B$, verify $\operatorname{tr}$ and $\det$ are similarity-invariant across 100 trials. File: \texttt{code/ch04\_similarity\_invariants.py}.
+\end{exercise}
+\begin{exercise}[easy]
+Is $T(p)=p'(0)$ linear on $P_3$? Write its matrix on the monomial basis
+$\{1,x,x^2,x^3\}$. What are its kernel and image?
+\end{exercise}
+\begin{exercise}[medium]
+For the projection matrix of example~\ref{ex:projmat}, compute
+$P\mathbf{u}$ and explain in one sentence why the answer had to be
+$\mathbf{u}$. Then project $\mathbf{v}=(1,1)^{T}$ and check
+$\mathbf{v}-P\mathbf{v}\perp\mathbf{u}$.
+\end{exercise}
+\begin{exercise}[medium]
+Write the matrix of the second derivative $D^2$ on $P_3$ in the
+monomial basis, both by composing $[D]_{\mathcal B}$ with itself and by
+differentiating each basis element twice. Confirm they match.
+\end{exercise}
+\begin{exercise}[hard]
+Prove a projection matrix $P$ satisfies $P^2=P$ and $P^{T}=P$ iff it
+is an orthogonal projection. Then show $I-P$ is also a projection, onto
+the perpendicular line.
 \end{exercise}

@@ -586,6 +586,45 @@ state is its eigenvector \\
 \bottomrule
 \end{tabularx}
 \end{center}
+\begin{rulebox}[{Watch instead}]
+\begin{enumerate}
+\item \emph{Eigenvectors and eigenvalues} --- 3Blue1Brown, Essence of
+Linear Algebra ch.~14, 17:15, \url{https://youtu.be/PFDu9oVAE-g} ---
+the eigen-direction picture behind \S\ref{sec:eig-eq}--\S\ref{sec:eig-diag}
+(accessed 2026-10-11).
+\item \emph{Diagonalization and Powers of $A$} --- MIT OpenCourseWare,
+18.06 Lecture 22, 51:50, \url{https://youtu.be/13r9QY6cmjc} ---
+\S\ref{sec:eig-diag}--\S\ref{sec:eig-apps} at full length
+(accessed 2026-10-11).
+\end{enumerate}
+\end{rulebox}
+
+\section*{Further reading}
+\addcontentsline{toc}{section}{Further reading}
+
+\begin{itemize}
+\item G.~Strang, \emph{Introduction to Linear Algebra}, 6th ed., ch.~6
+(textbook level) --- eigenvalues, diagonalisation, and applications.
+\item MIT OpenCourseWare, \emph{18.06SC Linear Algebra} --- recitations
+on eigenproblems, at OCW (course ``18.06SC'', Unit II), at
+\url{https://ocw.mit.edu}. Verified 2026-10-11.
+\item Margalit and Rabinoff, \emph{Interactive Linear Algebra},
+``Eigenvalues'' --- characteristic polynomials to diagonalisation,
+hyperlinked. \newline
+\url{https://textbooks.math.gatech.edu/ila/}
+Verified 2026-10-11.
+\item M.~Deisenroth et al., \emph{Mathematics for Machine Learning},
+\S4.2 (free PDF) --- eigensolvers in the ML register.\newline
+\url{https://mml-book.github.io/book/mml-book.pdf}
+Verified 2026-10-11.
+\item J.~Hefferon, \emph{Linear Algebra}, ch.~Five (free textbook) ---
+similarity and eigenvalues, rigorously.\newline
+\url{https://hefferon.net/linearalgebra/index.html}
+Verified 2026-10-11.
+\item 3Blue1Brown, \emph{Essence of Linear Algebra} ch.~16 ``Abstract
+vector spaces'', 16:46, \url{https://youtu.be/TgKwz5Ikpc8} --- the
+eigen idea beyond $\mathbb{R}^n$ (accessed 2026-10-11).
+\end{itemize}
 
 \section*{Additional exercises}
 \addcontentsline{toc}{section}{Additional exercises}
@@ -668,6 +707,19 @@ A page graph with dangling node: build the $3\times3$ matrix
 $P=\begin{bmatrix}0&0.5&1/3\\0.5&0&1/3\\0.5&0.5&1/3\end{bmatrix}$ plus a
 teleport term $0.85P+0.15\cdot\frac13J$ ($J$ all-ones). Find the PageRank
 vector by power iteration in code and confirm $\lambda_1=1$.
+\end{exercise}
+\begin{exercise}[easy]
+For $A=\begin{bmatrix}2&0\\0&3\end{bmatrix}$, write down both
+eigenvalues and both eigenvectors by inspection, then verify
+$A\begin{bmatrix}1\\0\end{bmatrix}$ and
+$A\begin{bmatrix}0\\1\end{bmatrix}$ directly.
+\end{exercise}
+\begin{exercise}[hard]
+A Markov chain has $\lambda_1=1$ and every other $|\lambda|<1$.
+Explain why the steady state is the $\lambda=1$ eigenvector, then show
+by a $2\times2$ example that a \emph{periodic} chain (e.g.\ the swap
+matrix $\begin{bmatrix}0&1\\1&0\end{bmatrix}$) breaks the convergence
+while keeping the eigenvector.
 \end{exercise}
 
 \chapternotes{%

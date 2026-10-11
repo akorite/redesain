@@ -186,6 +186,39 @@ This is why figure~\ref{fig:solgeom} shows only flats: the solution set is the n
 For the same matrix $A$ as example~\ref{ex:singular}, try $\mathbf{b}=(4,9,1)^{T}$. What row appears in elimination, and what does it say about the solution set? Then pick any $\mathbf{b}$ in the plane $2b_1-b_2=0$ and confirm the system is solvable.
 \end{exercise}
 
+\begin{example}\label{ex:balance}
+Balance the reaction $\mathrm{Fe}_2\mathrm{O}_3 + \mathrm{CO} \to \mathrm{Fe} + \mathrm{CO}_2$:
+find whole numbers $a,b,c,d$ with
+$a\,\mathrm{Fe}_2\mathrm{O}_3 + b\,\mathrm{CO} \to c\,\mathrm{Fe} + d\,\mathrm{CO}_2$.
+\par\smallskip
+\textbf{Strategy.} Each element gives one linear equation in the four
+coefficients. Four unknowns, three equations, zero right-hand sides ---
+this is the homogeneous case of section~\ref{sec:shape}, so the answer
+will be a free-variable family, not a single vector.
+\begin{solution}
+Fe: $2a=c$; C: $b=d$; O: $3a+b=2d$. The C and Fe equations hand $b=d$
+and $c=2a$; the O equation becomes $3a+d=2d$, i.e.\ $d=3a$, so
+$b=3a$ too. Every solution is $(a,b,c,d)=a\,(1,3,2,3)$ --- the solution
+set is a \emph{ray}, exactly the null space of the $3\times4$ atom
+matrix (figure~\ref{fig:balance}). There is no ``the'' answer until the
+physical rule arrives: chemists want the smallest whole numbers, so
+$a=1$ and
+\[
+  \mathrm{Fe}_2\mathrm{O}_3 + 3\,\mathrm{CO} \longrightarrow 2\,\mathrm{Fe} + 3\,\mathrm{CO}_2.
+\]
+Check the atoms: Fe $2=2$, C $3=3$, O $3+3=6$. \checkmark
+\end{solution}
+\end{example}
+
+\begin{figure}[ht]\centering
+\input{figures/ch01_balance}
+\caption{Chemical balancing is elimination on a homogeneous system.
+Notice the pattern of figure~\ref{fig:solgeom}(b) reappearing: one free
+variable means a ray of answers, and the ``smallest whole-number'' rule
+picks the first lattice point on it.}
+\label{fig:balance}
+\end{figure}
+
 \section{LU factorization (and \texorpdfstring{$PA=LU$}{PA = LU} with row exchanges)}\label{sec:lu}
 
 Here is the observation that turns elimination from a procedure into a theory. Each step ``subtract $\ell_{ik}$ times row $k$ from row $i$'' can itself be undone by a matrix. Suppose elimination needs no row swaps. Then the multipliers $\ell_{ik}$, placed in a lower-triangular matrix $L$\index{L matrix} with 1s on the diagonal, satisfy
@@ -265,6 +298,41 @@ The scipy output makes an important point: $PA=LU$ is not unique. Any order you 
 \begin{exercise}[medium]
 Factor $A=\begin{bmatrix} 2 & 1 & 0\\ 4 & 3 & 1\\ 0 & 2 & 1\end{bmatrix}$ as $A=LU$ (no swaps needed). Then solve $A\mathbf{x}=(4,10,3)^{T}$ by solving $L\mathbf{c}=\mathbf{b}$ then $U\mathbf{x}=\mathbf{c}$.
 \end{exercise}
+
+\begin{example}\label{ex:twob}
+You factored
+\(
+  A=\begin{bmatrix} 2 & 1 & 0\\ 4 & 3 & 1\\ 0 & 2 & 1\end{bmatrix}
+  =\underbrace{\begin{bmatrix} 1 & 0 & 0\\ 2 & 1 & 0\\ 0 & 2 & 1\end{bmatrix}}_L
+   \underbrace{\begin{bmatrix} 2 & 1 & 0\\ 0 & 1 & 1\\ 0 & 0 & -1\end{bmatrix}}_U
+\)
+once. Now two queries arrive: solve $A\mathbf{x}=\mathbf{b}_1$ for
+$\mathbf{b}_1=(4,10,3)^{T}$ and $A\mathbf{x}=\mathbf{b}_2$ for
+$\mathbf{b}_2=(1,3,2)^{T}$. What does the second one cost?
+\par\smallskip
+\textbf{Strategy.} Do not re-eliminate. Each solve is two triangular
+systems: $L\mathbf{c}=\mathbf{b}$ forward, $U\mathbf{x}=\mathbf{c}$
+back (figure~\ref{fig:twob}).
+\begin{solution}
+$\mathbf{b}_1$: $c_1=4$, $c_2=10-2\cdot4=2$, $c_3=3-2\cdot2=-1$; then
+$-x_3=-1\Rightarrow x_3=1$, $x_2=2-1=1$, $2x_1=4-1\Rightarrow x_1=\tfrac32$.
+So $\mathbf{x}_1=(\tfrac32,1,1)^{T}$.
+$\mathbf{b}_2$: $c_1=1$, $c_2=3-2=1$, $c_3=2-2=0$; then $x_3=0$,
+$x_2=1$, $2x_1=1-1\Rightarrow x_1=0$. So $\mathbf{x}_2=(0,1,0)^{T}$ ---
+and indeed $A(0,1,0)^{T}=(1,3,2)^{T}$. \checkmark
+The second solve cost two $O(n^2)$ sweeps --- nothing like the
+$\tfrac23 n^3$ of elimination. This is why libraries return a
+factorization object, not an answer.
+\end{solution}
+\end{example}
+
+\begin{figure}[ht]\centering
+\input{figures/ch01_twob}
+\caption{Factor once, solve per right-hand side. Notice where the
+$O(n^3)$ sits: entirely in the factorization. Every later $\mathbf{b}$
+pays only triangular-solve prices.}
+\label{fig:twob}
+\end{figure}
 
 \section{Cost and stability: why elimination is \texorpdfstring{$O(n^3)$}{O(n\string^3)} and why we pivot}\label{sec:cost}
 
@@ -384,6 +452,50 @@ You can now solve any small linear system by hand and read off the shape of its 
 \chapternotes{%
 The structure follows MIT 18.06SC Unit I (\emph{Ax = b and the four subspaces}) \cite{ocw1806sc}: row/column pictures, elimination, $LU$, then the geometry of solution sets. The interactive Immersive Linear Algebra chapter on Gaussian elimination \cite{ila} is a good second pass for the geometry. VMLS chapter 8 \cite{vmls} treats the same material with a data-first slant and is the source of the exercise style used here. MML \S2.3 \cite{mml} covers elimination in the compact ``for ML'' register this book aims at. The pivoting example of section~\ref{sec:cost} is the standard one from Strang's textbook treatment \cite{strangILA}. Timing methodology is best-of-several-repeats after a warm-up call. For the competitive-programming reader this book is aimed at, Sannemo's \emph{Principles of Algorithmic Problem Solving} \cite{sannemo2025} is the sibling text --- its systems material overlaps this chapter's.}
 
+\begin{rulebox}[{Watch instead}]
+The first two lectures of MIT's 18.06 match this chapter's first half
+almost section for section:
+\begin{enumerate}
+\item \emph{The Geometry of Linear Equations} --- MIT OpenCourseWare,
+18.06 Lecture 1, 39:49,
+\url{https://youtu.be/J7DzL2_Na80} --- the row and column pictures of
+\S\ref{sec:rowcol} (accessed 2026-10-11).
+\item \emph{Elimination with Matrices} --- MIT OpenCourseWare, 18.06
+Lecture 2, 47:41, \url{https://youtu.be/QVKj3LADCnA} --- the
+elimination-to-echelon mechanics of \S\ref{sec:elim}--\S\ref{sec:lu}
+(accessed 2026-10-11).
+\end{enumerate}
+\end{rulebox}
+
+\section*{Further reading}
+\addcontentsline{toc}{section}{Further reading}
+
+\begin{itemize}
+\item G.~Strang, \emph{Introduction to Linear Algebra}, 6th ed., chs.~1--2
+(textbook level) --- the canonical treatment of row/column pictures and
+elimination this chapter follows. Companion to the lectures above.
+\item MIT OpenCourseWare, \emph{18.06SC Linear Algebra, Fall 2011},
+Unit I (self-study level) --- worked recitations on the same material.
+Free at OCW (course ``18.06SC'', Unit I page), at
+\url{https://ocw.mit.edu}. Verified 2026-10-11.
+\item Str\"om, \AA str\"om, and Akenine-M\"oller, \emph{Immersive Linear
+Algebra} (interactive level) --- free at \url{https://immersivemath.com},
+chapter ``Gaussian elimination'' --- a second, visual pass at the
+solution-set geometry. Verified 2026-10-11.
+\item S.~Boyd and L.~Vandenberghe, \emph{Introduction to Applied Linear
+Algebra} (VMLS), ch.~8 (free PDF),
+\url{https://web.stanford.edu/~boyd/vmls/vmls.pdf} --- the data-first
+version of our exercise style. Verified 2026-10-11.
+\item Margalit and Rabinoff, \emph{Interactive Linear Algebra} (Georgia
+Tech), ``Systems of Linear Equations'' --- free at
+\url{https://textbooks.math.gatech.edu/ila/} --- hyperlinked
+remediation for any step you found fast here. Verified 2026-10-11.
+\item J.~Hefferon, \emph{Linear Algebra} (free textbook) --- rigorous
+alternative take, with many more proofs than we give.\newline
+\url{https://hefferon.net/linearalgebra/index.html}
+Verified 2026-10-11.
+\end{itemize}
+
 \section*{Additional exercises}
 \addcontentsline{toc}{section}{Additional exercises}
 
@@ -422,4 +534,13 @@ A \emph{tridiagonal} matrix has nonzeros only on the diagonal and its two neighb
 \end{exercise}
 \begin{exercise}[hard]
 Prove that $A=LU$ (no swaps needed) exists iff every leading $k\times k$ submatrix of $A$ is invertible. (Hint: what makes each pivot nonzero?) This is why pivoting is sometimes a mathematical necessity, not just a numerical one.
+\end{exercise}
+\begin{exercise}[medium]
+Balance butane combustion, $a\,\mathrm{C}_4\mathrm{H}_{10} + b\,\mathrm{O}_2 \to c\,\mathrm{CO}_2 + d\,\mathrm{H}_2\mathrm{O}$, by writing the three atom equations, finding the free-variable family, and taking the smallest whole numbers.
+\end{exercise}
+\begin{exercise}[medium]
+Using the $LU$ of example~\ref{ex:twob}, solve $A\mathbf{x}=(2,5,4)^{T}$ without re-factoring --- then verify by multiplying $A$ times your answer.
+\end{exercise}
+\begin{exercise}[hard]
+Show a homogeneous system $A\mathbf{x}=\mathbf{0}$ is never inconsistent. Deduce that a chemical-balance system always has infinitely many solutions whenever there are more unknown coefficients than elements, and explain why ``take the smallest positive integers'' is a convention, not a theorem.
 \end{exercise}

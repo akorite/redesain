@@ -26,6 +26,14 @@ function needs more than axis-wise good behaviour to be well-behaved
 (differentiability is existence of the linear approximation of
 Section~\ref{sec:mvc-jacobian}, not merely of partials).
 
+\begin{figure}[htbp]\centering
+\input{figures/ch11_slice}
+\caption{A partial derivative is a one-variable slope. Notice the
+slice: fixing $y$ cuts the surface to a curve, and
+$\partial f/\partial x$ is just that curve's ordinary derivative.}
+\label{fig:slice}
+\end{figure}
+
 \section{The gradient and the steepest direction}\label{sec:mvc-grad}
 
 \begin{definition}[Gradient]\index{gradient}
@@ -177,6 +185,28 @@ nearly-flat curving floor --- first-order info alone can't see around
 the bend. Regenerate: \ttfamily figures/ch11\_rosenbrock.tex.}
 \label{fig:rosen}
 \end{figure}
+
+\begin{example}[Classifying a critical point via the Hessian]\label{ex:hessclass}
+$f(x,y)=x^{2}+xy+y^{2}-3x$ has one critical point --- find it and
+classify it with the Hessian.
+\par\smallskip
+\textbf{Strategy.} Solve $\nabla f=\mathbf 0$ (a $2\times2$ linear
+system), then check the Hessian's definiteness --- chapter 9's
+machinery doing the second-derivative test's work.
+\begin{solution}
+$\nabla f=(2x+y-3,\;x+2y)$. Setting both to 0: $y=-x/2$, then
+$2x-x/2=3$, so $x=2$, $y=-1$ --- the only critical point.
+\[
+  H=\begin{bmatrix}2&1\\1&2\end{bmatrix},\qquad
+  \lambda=3,\;1 \;>\;0
+\]
+positive definite everywhere (it is constant), so $(2,-1)$ is a
+strict minimum, $f= -3$. The definiteness tests of
+chapter~\ref{ch:spectral} just ran the second-derivative test ---
+that is the whole connection between this chapter and the last.
+\checkmark
+\end{solution}
+\end{example}
 
 \section{The chain rule in matrix form (the backprop engine)}\label{sec:mvc-chain}
 
@@ -473,6 +503,46 @@ the U-curve \\
 \bottomrule
 \end{tabularx}
 \end{center}
+\begin{rulebox}[{Watch instead}]
+\begin{enumerate}
+\item \emph{Gradient descent, how neural networks learn} ---
+3Blue1Brown, Deep Learning ch.~2, 20:33,
+\url{https://youtu.be/IHZwWFHWa-w} --- the gradient-as-steepest-ascent
+view of \S\ref{sec:mvc-grad} in its native habitat
+(accessed 2026-10-11).
+\item \emph{Gradient; directional derivative; tangent plane} --- MIT
+OpenCourseWare, 18.02 Lecture 12, 50:10,
+\url{https://youtu.be/2XraaWefBd8} ---
+\S\ref{sec:mvc-grad}--\S\ref{sec:mvc-jacobian} at full length
+(accessed 2026-10-11).
+\end{enumerate}
+\end{rulebox}
+
+\section*{Further reading}
+\addcontentsline{toc}{section}{Further reading}
+
+\begin{itemize}
+\item MIT OpenCourseWare, \emph{18.02 Multivariable Calculus}
+--- Denis Auroux's full course; our chapter compresses its first
+third. Free at OCW (course ``18.02SC''), \url{https://ocw.mit.edu}.
+Verified 2026-10-11.
+\item S.~Boyd and L.~Vandenberghe, \emph{VMLS}, \S9 (free PDF) ---
+gradients and optimisation in the data register.\newline
+\url{https://web.stanford.edu/~boyd/vmls/vmls.pdf}
+Verified 2026-10-11.
+\item M.~Deisenroth et al., \emph{Mathematics for Machine Learning},
+ch.~5 (free PDF) --- vector calculus, gradients, Jacobians, and the
+backprop chain rule.\newline
+\url{https://mml-book.github.io/book/mml-book.pdf}
+Verified 2026-10-11.
+\item Goodfellow, Bengio, and Courville, \emph{Deep Learning}, \S4.3
+(free online) --- gradient-based optimisation as used in practice.
+\newline
+\url{https://www.deeplearningbook.org/}
+Verified 2026-10-11.
+\item J.~Stewart, \emph{Multivariable Calculus} (textbook) --- the
+full computational drill if our one chapter left you wanting reps.
+\end{itemize}
 
 \section*{Additional exercises}
 \addcontentsline{toc}{section}{Additional exercises}
@@ -546,6 +616,22 @@ analytic matrix.
 Prove: if $f$ is smooth and $\nabla f(\mathbf x_0)=0$ with $H(\mathbf
 x_0)\succ0$, there is a neighbourhood where $f(\mathbf x)>f(\mathbf x_0)$
 --- the second-order sufficient condition, via the SVD of $H$.
+\end{exercise}
+\begin{exercise}[easy]
+For $f(x,y)=x^{2}y+3y$, compute $\partial f/\partial x$ and
+$\partial f/\partial y$, then $\nabla f(1,2)$. What direction does
+$\nabla f(1,2)$ point relative to the level curve through $(1,2)$?
+\end{exercise}
+\begin{exercise}[medium]
+Classify the critical point of $g(x,y)=x^{2}-4xy+2y^{2}$ at
+$(0,0)$ using the Hessian. Is it a min, max, or saddle?
+\end{exercise}
+\begin{exercise}[hard]
+Show the gradient is perpendicular to level sets: for
+$f(x,y)=x^{2}+y^{2}$ at $(1,1)$, find the tangent direction of the
+level curve and confirm $\nabla f\cdot\mathbf t=0$. Why must this
+hold in general? (Hint: differentiate $f(\mathbf{x}(t))=c$ along the
+curve.)
 \end{exercise}
 
 \chapternotes{%

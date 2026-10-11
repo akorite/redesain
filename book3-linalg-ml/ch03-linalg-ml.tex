@@ -293,6 +293,37 @@ for m, n in [(4, 5), (5, 4), (6, 6)]:
 $A$ is $7\times9$ with rank 4. Give the dimensions of all four subspaces. What is the maximum rank a $7\times9$ matrix could have, and what would change?
 \end{exercise}
 
+\begin{example}\label{ex:rankone}
+Show that
+\(A=\begin{bmatrix}8&2&4\\4&1&2\\12&3&6\end{bmatrix}\)
+has rank $1$, and write it as $\mathbf{u}\mathbf{v}^{T}$.
+\par\smallskip
+\textbf{Strategy.} Rank $1$ means every row lives in one line --- check
+that rows 1 and 3 are multiples of row 2, then read off the multiples.
+\begin{solution}
+Row 1 $=2\times$~row 2; row 3 $=3\times$~row 2. Every row is a
+multiple of $(4,1,2)$, so $\operatorname{row}(A)$ is a line and rank
+$=1$. The multipliers are the column factor:
+\[
+  A=\begin{bmatrix}2\\1\\3\end{bmatrix}\begin{bmatrix}4&1&2\end{bmatrix}
+    =\mathbf{u}\mathbf{v}^{T},
+\]
+and symmetrically every column is a multiple of $\mathbf{u}$
+(figure~\ref{fig:rankone}). This is the building block of the whole
+subject: later chapters write $A$ as a \emph{sum} of rank-1 pieces ---
+the spectral theorem does it for symmetric matrices, the SVD for all.
+\checkmark
+\end{solution}
+\end{example}
+
+\begin{figure}[htbp]\centering
+\input{figures/ch03_rankone}
+\caption{Rank $1$ means one column times one row. Notice the two
+readings: row space collapses to the line through $\mathbf v^{T}$;
+column space collapses to the line through $\mathbf u$.}
+\label{fig:rankone}
+\end{figure}
+
 \section{Coordinates}\label{sec:coordinates}
 
 A basis $\mathcal{B}=\{\mathbf{b}_1,\dots,\mathbf{b}_n\}$ of $V$ turns abstract vectors into tuples: the \emph{coordinate vector}\index{coordinates}\index{coordinate vector} $[\mathbf{v}]_{\mathcal{B}}=(c_1,\dots,c_n)$ is defined by $\mathbf{v}=c_1\mathbf{b}_1+\cdots+c_n\mathbf{b}_n$. The point $\mathbf{v}$ does not move — only the labels do. In $\mathbb{R}^n$ the standard basis makes coordinates invisible: $(x_1,\dots,x_n)$ \emph{is} the coordinate vector in the standard basis. Change basis and the same point gets new numbers; figure~\ref{fig:coords} shows the one picture that makes this obvious. Computing coordinates is solving a linear system — find $B\mathbf{c}=\mathbf{v}$ where $B$ has the basis vectors as columns — so everything in Chapter 1 is already coordinate-finding machinery.
@@ -361,6 +392,51 @@ You can test subspaces, pull bases out of RREF, count all four subspaces' dimens
 
 \chapternotes{%
 The four-subspaces diagram and the ``count pivots'' derivation are MIT 18.06SC Unit I's signature content \cite{ocw1806sc}, also chapters 2--3 of \cite{strangILA}. The axioms-with-motivation register follows Axler chapters 1--2 \cite{axler} (his treatment is the rigorous baseline; our applications drive the choices). VMLS chapter 5 \cite{vmls} and MML \S2.4--2.6 \cite{mml} cover the same ground in data-science register. SciPy's \texttt{null\_space} computes an orthonormal basis via SVD — preview of Chapter 9.}
+\begin{rulebox}[{Watch instead}]
+\begin{enumerate}
+\item \emph{Linear combinations, span, and basis vectors} ---
+3Blue1Brown, Essence of Linear Algebra ch.~2, 9:59,
+\url{https://youtu.be/k7RM-ot2NWY} --- span/independence/basis exactly
+as \S\ref{sec:spanindep}--\S\ref{sec:basisdim} teach them
+(accessed 2026-10-11).
+\item \emph{Independence, Basis, and Dimension} --- MIT OpenCourseWare,
+18.06 Lecture 9, 50:14, \url{https://youtu.be/yjBerM5jWsc} --- the
+four-subspaces machinery of \S\ref{sec:foursub}--\S\ref{sec:ranknullity}
+(accessed 2026-10-11).
+\end{enumerate}
+\end{rulebox}
+
+\section*{Further reading}
+\addcontentsline{toc}{section}{Further reading}
+
+\begin{itemize}
+\item G.~Strang, \emph{Introduction to Linear Algebra}, 6th ed., ch.~3
+(textbook level) --- vector spaces and the four subspaces, the source
+of this chapter's structure.
+\item MIT OpenCourseWare, \emph{18.06SC Linear Algebra}, Unit I ---
+recitations on subspaces, bases, and the rank theorem. \newline
+OCW (course ``18.06SC'', Unit I), at \url{https://ocw.mit.edu}
+Verified 2026-10-11.
+\item Margalit and Rabinoff, \emph{Interactive Linear Algebra},
+``Subspaces'' and ``Computing a Basis'' --- the same constructions,
+hyperlinked.\newline
+\url{https://textbooks.math.gatech.edu/ila/}
+Verified 2026-10-11.
+\item S.~Boyd and L.~Vandenberghe, \emph{VMLS}, chs.~1--5 (free PDF) ---
+span and independence in the data-first register.\newline
+\url{https://web.stanford.edu/~boyd/vmls/vmls.pdf}
+Verified 2026-10-11.
+\item J.~Hefferon, \emph{Linear Algebra}, ch.~II (free textbook) ---
+the rigorous version: vector-space axioms to dimension theorems.
+\newline
+\url{https://hefferon.net/linearalgebra/index.html}
+Verified 2026-10-11.
+\item A.~Beezer, \emph{A First Course in Linear Algebra}, sections
+SS, B, D, RNM (free online) --- proof-heavy companion for anyone who
+wants every claim justified. \newline
+\url{https://linear.ups.edu/}
+Verified 2026-10-11.
+\end{itemize}
 
 \section*{Additional exercises}
 \addcontentsline{toc}{section}{Additional exercises}
@@ -400,4 +476,19 @@ The \emph{exchange lemma}\index{exchange lemma}: if $\{\mathbf{u}_1,\dots,\mathb
 \end{exercise}
 \begin{exercise}[hard]
 Let $U=\{A\in\mathbb{R}^{3\times3}:\operatorname{tr}A=0\}$ and $W=\{A:A^{T}=A\}$. Compute $\dim U$, $\dim W$, $\dim(U\cap W)$, and a basis of $U\cap W$. Guess the formula $\dim(U+W)=\dim U+\dim W-\dim(U\cap W)$ and check it on your numbers.
+\end{exercise}
+\begin{exercise}[easy]
+Is the $xy$-plane $\{(x,y,0)\}$ a subspace of $\mathbb{R}^3$? Is
+$\{(x,y,1)\}$? Run the two-test (contains $\mathbf 0$, closed under $+$
+and scaling) on each.
+\end{exercise}
+\begin{exercise}[medium]
+Write $B=\begin{bmatrix}3&0&6\\1&0&2\end{bmatrix}$ as
+$\mathbf{u}\mathbf{v}^{T}$, then name $\operatorname{col}(B)$ and
+$\operatorname{row}(B)$ without any further work.
+\end{exercise}
+\begin{exercise}[hard]
+Prove rank--nullity for the special case $\operatorname{rank}(A)=0$ and
+$\operatorname{rank}(A)=n$ directly from the definitions, then explain
+why the middle cases need elimination.
 \end{exercise}
