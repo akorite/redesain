@@ -221,7 +221,7 @@ bits + \texttt{tc}), but LUTs went $1\to153$ plus 99 wide mux cells --- the
 27-bit equality compare (\texttt{div == TOP}) is where the area went. \emph{An
 equality test against a magic number is a wide AND}, and you are paying for it
 in fabric. A cheaper idiom is to load the period and count down to zero
-(exercise~6).
+(exercise~8).
 \end{example}
 
 \begin{exercise}[easy]
@@ -363,9 +363,9 @@ feature of the chapter, not a gap: claiming a board blinked when it never ran
 is how bad lab reports start.
 
 \begin{exercise}[hard]
-Write the complete on-hardware checklist for programming the
-Tang~Nano~9K with \texttt{counter6}: the four commands you run, the file
-each produces, and the two numbers in the reports you must check before
+For \texttt{counter6}, write the complete on-hardware checklist for
+programming the Tang~Nano~9K: the four commands you run, the file each
+produces, and the two numbers in the reports you must check before
 touching the board.
 \end{exercise}
 
@@ -489,7 +489,8 @@ Verified 200, 2026-10-10.
 the board family's official docs (schematics, pin maps, toolchain links).
 Reference. Verified 200, 2026-10-10.
 \item fpga4fun, \emph{Serial interface (RS-232)},\newline
-\url{fpga4fun.com/SerialInterface.html} ---
+\url{fpga4fun.com/SerialInterface.html} (site's TLS certificate has a
+name mismatch; the page itself loads) ---
 UART TX/RX explained at the bit level with working Verilog, matching this
 chapter's section. Beginner--intermediate. Verified 200, 2026-10-10.
 \item YosysHQ, \emph{Yosys manual and command reference}, \url{yosyshq.net/yosys} ---
@@ -504,11 +505,13 @@ board. Beginner. Verified 200, 2026-10-10.
 \begin{rulebox}{Watch instead}
 \begin{itemize}
 \item ``Get Started With FPGAs and Verilog in 13 Minutes!'' --- Doctor Volt
-(15:19). The same board family and the real vendor-IDE flow end to end.
+(13:30). The same board family and the real vendor-IDE flow end to end.
 Matches \S\S\ref{sec:hardware}; opened and confirmed 2026-10-10.
-\item ``What's an FPGA?'' --- Charles Clayton (17:22). A patient walk through
-LUTs, routing, and why hardware beats clock speed. Matches \S1; opened and
-confirmed 2026-10-10.
+\url{https://youtu.be/aWm9pJ2KobA}
+\item ``What's an FPGA?'' --- Charles Clayton (1:25). A one-minute
+definition of LUTs, routing, and fabric --- a vocabulary warm-up, not a
+walkthrough. Matches \S1; opened and confirmed 2026-10-10.
+\url{https://youtu.be/iHg0mmIg0UU}
 \end{itemize}
 \end{rulebox}
 

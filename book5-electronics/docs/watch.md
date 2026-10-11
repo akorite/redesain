@@ -11,5 +11,5 @@
 | ch12 | 17 - Developing Simple Verilog Testbenches | Anas Salah Eddin | 22:48 | bench organs, wave reading | 2026-10-11 |
 
 ### ch13 — The FPGA flow
-- “Get Started With FPGAs and Verilog in 13 Minutes!” — Doctor Volt — 15:19 — board/toolchain sections — verified opened 2026-10-10 — https://www.youtube.com/watch?v=aWm9pJ2KobA
-- “What's an FPGA?” — Charles Clayton — 17:22 — LUT/fabric section — verified opened 2026-10-10 — https://www.youtube.com/watch?v=iHg0mmIg0UU
+- “Get Started With FPGAs and Verilog in 13 Minutes!” — Doctor Volt — 13:30 — board/toolchain sections — verified opened 2026-10-10 (duration corrected 2026-10-11; was misstated 15:19) — https://www.youtube.com/watch?v=aWm9pJ2KobA
+- “What's an FPGA?” — Charles Clayton — 1:25 — LUT/fabric vocabulary warm-up — verified opened 2026-10-10 (duration corrected 2026-10-11; was misstated 17:22, content description reworded) — https://www.youtube.com/watch?v=iHg0mmIg0UU
