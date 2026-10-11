@@ -1,0 +1,8 @@
+\begin{tikzpicture}[font=\footnotesize]
+\node[draw=slate,font=\tiny] (t) at (0,0) {tight};
+\node[draw=slate,font=\tiny] (l) at (2.4,0) {loose};
+\draw[-{stealth},amber,thick] (t) to[bend left] node[above,font=\tiny] {digit $<$ bound} (l);
+\draw[-{stealth},slate] (t) to[loop above] node[above,font=\tiny] {digit $=$ bound} ();
+\draw[-{stealth},slate] (l) to[loop above] node[above,font=\tiny] {any digit} ();
+\node[font=\tiny] at (1.2,-0.9) {tight dies once you undercut};
+\end{tikzpicture}

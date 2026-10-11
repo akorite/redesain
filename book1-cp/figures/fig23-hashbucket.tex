@@ -1,0 +1,17 @@
+\begin{tikzpicture}[font=\footnotesize]
+% F5.5 residue buckets for {3,1,2,7,4} mod 5.
+\foreach \i/\lbl in {0/r{=}0,1/r{=}1,2/r{=}2,3/r{=}3,4/r{=}4} {
+  \node[draw=slate,minimum width=1.1cm,minimum height=0.5cm,font=\tiny]
+    (b\i) at (\i*1.3,0) {\lbl};
+}
+\node[font=\tiny,above] at (b0) {$P_0$};
+\node[font=\tiny,above] at (b1) {$P_3$};
+\node[font=\tiny,above] at (b2) {$P_5$};
+\node[font=\tiny,above] at (b3) {$P_1, P_4$};
+\node[font=\tiny,above] at (b4) {$P_2$};
+\node[align=left,text width=4.6cm] at (8.6,0.3)
+  {prefixes $P_i$ by residue:\\
+   bucket 3 has a \emph{pair}\\
+   $P_1{=}P_4{=}3$ $\Rightarrow$\\
+   $a_{2..4}$ sums to $0 \bmod 5$};
+\end{tikzpicture}

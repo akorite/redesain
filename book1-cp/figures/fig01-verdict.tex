@@ -1,0 +1,28 @@
+% fig01-verdict.tex -- Figure 1.1: what the judge does with a submission.
+\begin{tikzpicture}[
+  font=\small,
+  box/.style={draw, rounded corners=1.5pt, minimum height=7.5mm,
+              inner xsep=6pt, fill=graybg},
+  good/.style={draw, rounded corners=1.5pt, minimum height=6.5mm,
+              inner xsep=5pt, fill=goodbg},
+  bad/.style={draw, rounded corners=1.5pt, minimum height=6.5mm,
+              inner xsep=5pt, fill=amberbg},
+  lab/.style={font=\footnotesize, text=slate},
+  arr/.style={-{stealth}, thick}
+]
+\node[box] (sub) at (0,0) {source code};
+\node[box, right=7mm of sub] (comp) {compile};
+\node[box, right=7mm of comp] (run) {run on hidden tests};
+\node[good, right=7mm of run, yshift=9mm] (ac) {Accepted};
+\node[bad,  right=7mm of run, yshift=-9mm] (rej) {Rejected};
+\draw[arr] (sub) -- (comp);
+\draw[arr] (comp) -- (run);
+\draw[arr] (run) -- (ac) node[midway, above, lab] {every test passed};
+\draw[arr] (run) -- (rej) node[midway, below, lab] {any failure};
+\draw[arr] (comp.south) |- ($(comp.south)+(0,-5mm)$) -|
+  node[lab, pos=0.75, left] {does not compile} (rej.north);
+\node[lab, text width=12.4cm, align=center] at ($(run.south)+(0.4,-1.9)$)
+  {Rejected comes in five flavours: \textbf{WA} wrong answer,
+   \textbf{TLE} too slow, \textbf{RE} crash, \textbf{MLE} too much memory,
+   \textbf{CE} never built};
+\end{tikzpicture}

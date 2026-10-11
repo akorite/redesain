@@ -1,0 +1,68 @@
+% fig08-queentree.tex -- Figure 2.3: unpruned vs pruned search, 4-queens.
+% Left: the blind tree fans out 4 ways forever (256 leaves).
+% Right: the same search with column+diagonal checks, drawn to scale.
+% Counts measured by code/queens.cpp on n=4 (levels 1,4,6,4,2).
+\begin{tikzpicture}[font=\scriptsize,
+  nd/.style={circle, draw, inner sep=1.2pt, minimum size=9pt, fill=graybg},
+  lf/.style={circle, draw, inner sep=1.2pt, minimum size=9pt, fill=goodbg},
+  xx/.style={font=\scriptsize, text=amber, inner sep=0pt},
+  hd/.style={font=\footnotesize\bfseries},
+  lab/.style={font=\scriptsize, text=slate}]
+
+% ---------- left panel: unpruned ----------
+\begin{scope}[shift={(0,0)}]
+\node[hd] at (0,0.3) {no checks: every branch lives};
+\node[nd] (r0) at (0,-0.7) {};
+\node[nd] (a) at (-1.5,-1.5) {}; \node[nd] (b) at (-0.5,-1.5) {};
+\node[nd] (c) at (0.5,-1.5) {};  \node[nd] (d) at (1.5,-1.5) {};
+\draw (r0) -- (a) (r0) -- (b) (r0) -- (c) (r0) -- (d);
+\node[lab] at (2.6,-1.5) {row 0: 4};
+\foreach \x in {-1.5,-0.5,0.5,1.5} {
+  \draw (\x,-1.5) -- ++(-0.28,-0.55) (\x,-1.5) -- ++(-0.09,-0.55)
+        (\x,-1.5) -- ++(0.09,-0.55) (\x,-1.5) -- ++(0.28,-0.55);
+}
+\node[lab] at (2.6,-2.25) {row 1: $4 \times 4 = 16$};
+\node[lab] at (2.6,-2.85) {row 2: $4^3 = 64$};
+\node[lab] at (2.6,-3.45) {row 3: $4^4 = 256$ leaves};
+\end{scope}
+
+% ---------- right panel: pruned, real shape ----------
+\begin{scope}[shift={(6.6,0)}, scale=1.05]
+\node[hd] at (0,0.3) {column + diagonal checks};
+\node[nd] (q) at (0,-0.7) {};
+% row 0 children: columns 0..3
+\node[nd] (p0) at (-2.4,-1.5) {0}; \node[nd] (p1) at (-0.8,-1.5) {1};
+\node[nd] (p2) at (0.8,-1.5) {2};  \node[nd] (p3) at (2.4,-1.5) {3};
+\draw (q) -- (p0) (q) -- (p1) (q) -- (p2) (q) -- (p3);
+% row 1 survivors
+\node[nd] (p02) at (-2.85,-2.4) {2}; \node[nd] (p03) at (-2.0,-2.4) {3};
+\node[nd] (p13) at (-0.8,-2.4) {3};
+\node[nd] (p20) at (0.8,-2.4) {0};
+\node[nd] (p30) at (2.0,-2.4) {0}; \node[nd] (p31) at (2.8,-2.4) {1};
+\draw (p0) -- (p02) (p0) -- (p03) (p1) -- (p13)
+      (p2) -- (p20) (p3) -- (p30) (p3) -- (p31);
+% pruned row-1 stubs (two for p0, three for p1, three for p2, two for p3)
+\node[xx] at (-2.05,-2.1) {\sf x}; \node[xx] at (-1.65,-2.1) {\sf x};
+\node[xx] at (-1.0,-2.1) {\sf x}; \node[xx] at (-0.55,-2.1) {\sf x};
+\node[xx] at (0.45,-2.1) {\sf x};  \node[xx] at (1.05,-2.1) {\sf x};
+\node[xx] at (2.6,-2.1) {\sf x};   \node[xx] at (3.15,-2.1) {\sf x};
+\node[lab] at (4.6,-2.1) {row 1: 6 of 16};
+% row 2 survivors
+\node[nd] (r21) at (-2.0,-3.3) {1};
+\node[nd] (r20) at (-0.8,-3.3) {0};
+\node[nd] (r23) at (0.8,-3.3) {3};
+\node[nd] (r22) at (2.0,-3.3) {2};
+\draw (p03) -- (r21) (p13) -- (r20) (p20) -- (r23) (p30) -- (r22);
+\node[xx] at (-2.85,-2.95) {\sf x x x x};
+\node[xx] at (0.75,-2.95) {\sf x x x};
+\node[xx] at (2.8,-2.95) {\sf x x x x};
+\node[lab] at (4.6,-3.05) {row 2: 4 of 64};
+% row 3: two solutions
+\node[lf] (s1) at (-0.8,-4.2) {2};
+\node[lf] (s2) at (0.8,-4.2) {1};
+\draw (r20) -- (s1) (r23) -- (s2);
+\node[xx] at (-2.0,-3.85) {\sf x x x x};
+\node[xx] at (2.0,-3.85) {\sf x x x x};
+\node[lab] at (4.6,-3.95) {row 3: 2 solutions};
+\end{scope}
+\end{tikzpicture}

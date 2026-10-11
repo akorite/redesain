@@ -1,0 +1,15 @@
+\begin{tikzpicture}[font=\footnotesize,x=0.62cm,y=0.62cm]
+% F4.4 factory check as a machine-completion timeline (T=8, rates 3,2,5).
+\draw[{stealth}-,ink] (0,0) -- (9.2,0) node[below left]{time};
+\foreach \t in {0,...,8} \draw[ink] (\t,-0.08) -- (\t,0.08)
+  node[below=2pt,font=\tiny]{\t};
+\foreach \y/\rate/\lbl in {1.0/3/$k_1{=}3$, 2.0/2/$k_2{=}2$, 3.0/5/$k_3{=}5$} {
+  \node[anchor=east] at (-0.2,\y) {\lbl};
+  \draw[slate] (0,\y) -- (8.4,\y);
+}
+\foreach \x in {3,6} \fill[accent] (\x,1.0) circle (2.2pt);
+\foreach \x in {2,4,6,8} \fill[accent] (\x,2.0) circle (2.2pt);
+\foreach \x in {5} \fill[accent] (\x,3.0) circle (2.2pt);
+\draw[amber,thick,dashed] (8,0.15) -- (8,3.5)
+  node[above,text=amber]{$T{=}8$: $2{+}4{+}1=7$};
+\end{tikzpicture}

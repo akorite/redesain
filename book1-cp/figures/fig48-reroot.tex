@@ -1,0 +1,8 @@
+\begin{tikzpicture}[font=\footnotesize]
+\node[circle,draw=slate,font=\tiny] (p) at (0,0.9) {v};
+\node[circle,draw=slate,font=\tiny] (c1) at (-0.8,0) {u};
+\node[circle,draw=slate,font=\tiny] (c2) at (0.8,0) {w};
+\draw[-{stealth},amber,thick] (p)--(c1);
+\draw[-{stealth},amber,thick] (p)--(c2);
+\node[font=\tiny,align=center] at (0,-0.9) {pass 2: up[child] uses up[v]\\ + best sibling down};
+\end{tikzpicture}

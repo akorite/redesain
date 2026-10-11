@@ -1,0 +1,10 @@
+\begin{tikzpicture}[font=\tiny]
+\node[draw=slate] (a) at (0,0) {tag $+5$};
+\node[draw=slate] (b) at (2.4,0) {children clean};
+\draw[-{stealth},amber] (a)--(b) node[midway,above,font=\tiny] {defer};
+\node[draw=slate] (c) at (0,-1.2) {push};
+\node[draw=slate] (d) at (2.4,-1.2) {children tagged};
+\draw[-{stealth},amber] (c)--(d) node[midway,above,font=\tiny] {descend};
+\draw[-{stealth},slate] (a)--(c);
+\node[font=\tiny] at (1.2,-2) {a tag travels down only when queried through};
+\end{tikzpicture}

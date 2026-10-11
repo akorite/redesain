@@ -1,0 +1,36 @@
+\documentclass[11pt,a4paper,twoside,openany]{book}
+\usepackage{lifeos}
+\usepackage{pgfplots}\pgfplotsset{compat=1.17}
+\usetikzlibrary{positioning}
+\usepackage{circuitikz}
+\usepackage{graphicx}
+\usepackage[font=small,labelfont=bf]{caption}
+\usepackage{subcaption}
+\usepackage{makeidx}\makeindex
+\setlifeostitle{Competitive Programming and Algorithms}
+\setcounter{tocdepth}{1}
+
+\begin{document}
+\frontmatter
+\pagestyle{empty}
+\makecover{Competitive Programming and Algorithms}{From first submission to gold}{Study textbook}
+\newpage\pagestyle{fancy}
+\tableofcontents
+\mainmatter
+\input{ch01-cp}
+\input{ch02-cp}
+\input{ch03-cp}
+\input{ch04-cp}
+\input{ch05-cp}
+\input{ch06-cp}
+\input{ch07-cp}
+\input{ch08-cp}
+\input{ch09-cp}
+\input{ch10-cp}
+\input{ch11-cp}
+\input{ch12-cp}
+\input{ch13-cp}
+\backmatter
+\input{bib}
+\printindex
+\end{document}

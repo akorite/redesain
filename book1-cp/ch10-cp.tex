@@ -1,0 +1,249 @@
+\chapter{Tree algorithms: subtrees, diameters, LCA}\label{ch:trees}
+\index{tree}\index{LCA}\index{binary lifting}\index{rerooting}
+
+A tree is the graph where every question has a canonical answer:
+exactly one path between any two vertices, and rooting turns
+``around'' into ``down.'' This chapter collects the five patterns
+that solve almost every tree problem on the archive: post-order
+subtree sums, the two-DFS diameter, rerooting (answers for every
+root in one pass), the Euler tour that turns subtrees into subarrays,
+and binary lifting for ancestors and LCA. After it you will compute
+per-vertex farthest distances, answer distance queries in
+$O(\log n)$, and see every ``tree problem'' as pick-a-pattern.
+
+\section{The shape of a tree}\label{sec:tshape}
+$n$ vertices, $n{-}1$ edges, connected, acyclic: any two properties
+imply the third. Rooting is a \emph{design choice} --- most
+algorithms pick an arbitrary root and exploit ``parent vs children''
+as the graph's only direction. Unique paths are what make ancestors,
+depths and diameters well-defined.
+
+\section{Subtree aggregates}\label{sec:subtree}\index{subtree aggregate}
+Post-order accumulation computes any quantity that depends on
+children first: sizes, sums, counts. The pattern is one DFS;
+everything else in the chapter builds on it.
+\begin{example}[CSES \emph{Subordinates}]\label{ex:subor}
+Per employee, count the whole subtree beneath them.
+\par\smallskip
+\textbf{Strategy.} The hierarchy is already rooted: size(v) =
+$\sum_{u\text{ child}}(1+\text{size}(u))$ computed in one post-order
+pass.
+\par\smallskip
+\begin{solution}
+\lstinputlisting{code/subordinates.cpp}
+Real output (CSES sample):
+\begin{lstlisting}[numbers=none]
+4 0 2 0 0
+\end{lstlisting}
+\end{solution}
+\end{example}
+
+\section{Diameter: two DFS}\label{sec:diam}\index{diameter}
+The farthest vertex from \emph{any} start is a diameter endpoint;
+a second farthest-search from it finds the other end. Proof sketch:
+let $u,v$ be a diameter and $a$ the farthest vertex from start $s$;
+if $a$ were not an endpoint, a path past $u$ or $v$ would beat
+$a$'s distance --- contradiction. (The common wrong proof --- ``it
+works because it works on paths'' --- is flagged in the mistakes.)
+\begin{example}[CSES \emph{Tree Diameter}]\label{ex:diam}
+Longest path in the tree.
+\par\smallskip
+\textbf{Strategy.} Two searches, no DP: farthest-from-1, then
+farthest-from-that.
+\par\smallskip
+\begin{solution}
+\lstinputlisting{code/tree_diameter.cpp}
+Real output (CSES sample):
+\begin{lstlisting}[numbers=none]
+3
+\end{lstlisting}
+\end{solution}
+\end{example}
+\begin{figure}[ht]\centering
+\input{figures/fig47-twodfs}
+\caption{The farthest-point argument. Notice the claim is about
+endpoints, not the path --- endpoint first, distance second.}
+\label{fig:twodfs}
+\end{figure}
+
+\section{Rerooting}\label{sec:reroot}\index{rerooting}
+``For every root'' doubles the work naively; rerooting does it in
+two passes: \texttt{down[v]} from children, then \texttt{up[v]}
+passed down from parent using each child's best \emph{sibling}
+value. Per vertex the answer combines both.
+\begin{example}[CSES \emph{Tree Distances II}]\label{ex:dist2}
+Each vertex's farthest distance.
+\par\smallskip
+\textbf{Strategy.} The answer is $\max(\texttt{down},\texttt{up})$;
+the sibling-max trick supplies each child's ``up'' in $O(\deg v)$.
+\par\smallskip
+\begin{solution}
+\lstinputlisting{code/tree_distances2.cpp}
+Real output (CSES sample):
+\begin{lstlisting}[numbers=none]
+2 3 2 3 3
+\end{lstlisting}
+\end{solution}
+\end{example}
+\begin{figure}[ht]\centering
+\input{figures/fig48-reroot}
+\caption{What travels down in pass two. Notice a child never sees its
+own subtree in its ``up'' value --- the sibling max is the key step.}
+\label{fig:reroot}
+\end{figure}
+
+\section{The Euler tour}\label{sec:euler}\index{Euler tour}
+\texttt{tin[v]} on entry, \texttt{tout[v]} on exit: every subtree
+becomes the interval $[\texttt{tin},\texttt{tout})$, turning
+``update/query a subtree'' into range operations --- the bridge to
+segment trees in Chapter~12.
+\begin{figure}[ht]\centering
+\input{figures/fig45-euler}
+\caption{Euler intervals nested. Notice containment is interval
+containment --- $u$ is in $v$'s subtree iff
+$\texttt{tin}[v]\le\texttt{tin}[u]<\texttt{tout}[v]$.}
+\label{fig:euler}
+\end{figure}
+
+\section{Binary lifting and LCA}\label{sec:lca}\index{binary lifting}
+Store the $2^k$-th ancestor of every vertex: $\texttt{up}[k][v] =
+\texttt{up}[k{-}1][\texttt{up}[k{-}1][v]]$ --- a doubling table built
+in $O(n\log n)$. $k$-th ancestor: follow set bits. LCA: equalize
+depth, then lift both ends by descending powers of two until their
+parents coincide. (An Euler-tour + sparse-RMQ alternative exists;
+lifting is the workhorse.)
+\begin{figure}[ht]\centering
+\input{figures/fig46-binlift}
+\caption{The doubling table. Notice each row skips exactly $2^k$
+ancestors --- a jump of $2^k$ is two jumps of $2^{k-1}$.}
+\label{fig:binlift}
+\end{figure}
+\begin{lstlisting}[language=C++,caption={\texttt{lca.h}: lifting
+table, \texttt{kth}, \texttt{lca}, \texttt{dist}.},label={lst:lca}]
+\end{lstlisting}
+\lstinputlisting{code/lca.h}
+\begin{example}[CSES \emph{Company Queries I \& II}]\label{ex:comp}
+$k$-th boss; lowest common boss.
+\par\smallskip
+\textbf{Strategy.} The hierarchy is rooted at the CEO: \texttt{kth}
+answers I, \texttt{lca} answers II --- same table.
+\par\smallskip
+\begin{solution}
+\lstinputlisting{code/company_queries.cpp}
+Real output (CSES sample):
+\begin{lstlisting}[numbers=none]
+3
+1
+-1
+\end{lstlisting}
+\end{solution}
+\end{example}
+
+\section{Distance queries}\label{sec:distq}
+$\texttt{dist}(u,v) = \texttt{depth}[u] + \texttt{depth}[v] -
+2\cdot\texttt{depth}[\texttt{lca}(u,v)]$ --- the unique path is the
+only route, so depth arithmetic is exact.
+\begin{example}[CSES \emph{Distance Queries}]\label{ex:distq}
+Pairwise distances on a tree.
+\par\smallskip
+\textbf{Strategy.} LCA plus depth, $O(\log n)$ per query.
+\par\smallskip
+\begin{solution}
+\lstinputlisting{code/distance_queries.cpp}
+Real output (CSES sample):
+\begin{lstlisting}[numbers=none]
+2
+3
+0
+\end{lstlisting}
+\end{solution}
+\end{example}
+\begin{figure}[ht]\centering
+\input{figures/fig49-lca}
+\caption{LCA in two lifts. Notice the first lift is exact depth
+equalization; the second is the binary search that stops one below
+the meeting point.}
+\label{fig:lca}
+\end{figure}
+
+\begin{exercise}[easy]\label{exr:rooted}
+When does an unrooted answer (diameter) differ from a rooted one
+(deepest child)? Name a quantity insensitive to rooting.
+\end{exercise}
+\begin{exercise}[medium]\label{exr:farthest}
+Complete the farthest-vertex proof: if $a$'s path to a diameter
+endpoint crosses the diameter at $x$, which distance comparison
+contradicts $a$ not being an endpoint?
+\end{exercise}
+\begin{exercise}[medium]\label{exr:liftfill}
+Fill the lift-table recurrence
+$\texttt{up}[k][v]=\texttt{up}[k{-}1][\texttt{up}[k{-}1][v]]$ and
+argue it counts exactly $2^k$ edges.
+\end{exercise}
+\begin{exercise}[medium]\label{exr:subarray}
+Convert ``add 1 to every vertex in $v$'s subtree'' into a
+subarray operation using \texttt{tin}/\texttt{tout}.
+\end{exercise}
+
+\section{Chapter summary}
+\begin{table}[ht]\centering
+{\small
+\begin{tabularx}{\linewidth}{@{}lYYY@{}}
+\toprule
+\tablehead\thead{Need} & \thead{Tool} & \thead{Cost} & \thead{Yields}\\
+\midrule
+subtree sums & post-order & $O(n)$ & aggregates\\
+longest path & two-DFS & $O(n)$ & diameter\\
+answer per root & reroot & $O(n)$ & down+up\\
+$k$-th anc, LCA & lifting & $O(n\log n)$+$O(\log n)$/q & dist\\
+subtree as range & Euler & $O(n)$ & range ops\\
+\bottomrule
+\end{tabularx}}
+\caption{Root it, then pick the pattern: aggregates below, lifts
+above, intervals across.}
+\label{tab:trees}
+\end{table}
+
+\section{Common mistakes}
+\index{common mistakes}
+\begin{itemize}
+\item \textbf{The lazy diameter ``proof.}'' ``Works on paths'' is not
+a proof --- the farthest-point argument is required and is exactly
+what breaks if you skip it.
+\item \textbf{Recursion depth on a path graph.} $n=2\cdot10^5$ chain
+overflows a default stack --- convert to iterative or
+\texttt{vector}-stack DFS.
+\item \textbf{Lifting with \texttt{up[k][v]} unguarded.} Root's
+ancestors are 0; dereferencing \texttt{up[.][0]} must be defined
+(index-0 sentinel) not skipped ad hoc.
+\item \textbf{Sibling-max off-by-one.} The child's own \texttt{down}
+must be \emph{excluded} from its up-value --- prefix/suffix maxima
+around its index, not the global max.
+\item \textbf{Euler half-open confusion.} \texttt{tout} is exclusive
+on exit-time --- mixing $[$tin,tout$]$ and $[$tin,tout$)$ silently
+includes the next vertex.
+\end{itemize}
+
+\section{Additional exercises}
+\begin{exercise}[easy] CSES \emph{Tree Diameter}. \end{exercise}
+\begin{exercise}[easy] CSES \emph{Tree Distances I} --- BFS both ends. \end{exercise}
+\begin{exercise}[easy] CSES \emph{Subordinates}. \end{exercise}
+\begin{exercise}[easy] USACO-S \emph{MooTube} --- threshold component sizes. \end{exercise}
+\begin{exercise}[easy] USACO-B \emph{Family Tree} --- LCA-style ancestry. \end{exercise}
+\begin{exercise}[medium] CSES \emph{Tree Matching} --- greedy DP on children. \end{exercise}
+\begin{exercise}[medium] CSES \emph{Company Queries II} --- LCA direct. \end{exercise}
+\begin{exercise}[medium] USACO-S \emph{Milk Visits} --- LCA + path membership. \end{exercise}
+\begin{exercise}[medium] AC \emph{Count Descendants} --- Euler + count. \end{exercise}
+\begin{exercise}[medium] CF \emph{Minimize the Diameter} --- reroot variant. \end{exercise}
+\begin{exercise}[hard] CSES \emph{Finding a Centroid} --- subtree-size bisect. \end{exercise}
+\begin{exercise}[hard] CSES \emph{Counting Paths} --- difference array on paths. \end{exercise}
+\begin{exercise}[hard] CSES \emph{Fixed-Length Paths I} --- centroid decomposition preview. \end{exercise}
+
+\chapternotes
+Post-order/reroot/diameter patterns follow Laaksonen's tree
+chapter~\cite{laaksonen2024} and Sannemo~\cite{sannemo2025}; binary
+lifting and Euler-tour RMQ are the USACO Guide's Gold tree
+modules~\cite{usacoguide}; cp-algorithms carries the two-DFS proof
+and lifting table~\cite{cpalgorithms}; Halim supplies named
+variants~\cite{halimcp4}; archive problems are official
+CSES/USACO~\cite{cses}.

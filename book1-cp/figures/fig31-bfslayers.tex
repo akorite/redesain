@@ -1,0 +1,33 @@
+\begin{tikzpicture}[font=\footnotesize]
+% F7.3 BFS waves: 4 frames, vertices lit when dequeued.
+\begin{scope}
+  \node[circle,draw=slate,fill=accentsoft,font=\tiny] at (1.1,1.0) {s};
+  \node[circle,draw=slate,font=\tiny] at (0.4,0.2) {};
+  \node[circle,draw=slate,font=\tiny] at (1.1,0.2) {};
+  \node[circle,draw=slate,font=\tiny] at (1.8,0.2) {};
+  \node[font=\tiny] at (1.1,-0.5) {wave 0: \{s\}};
+\end{scope}
+\begin{scope}[xshift=3.2cm]
+  \node[circle,draw=slate,fill=graybg,font=\tiny] at (1.1,1.0) {s};
+  \node[circle,draw=slate,fill=accentsoft,font=\tiny] at (0.4,0.2) {};
+  \node[circle,draw=slate,fill=accentsoft,font=\tiny] at (1.1,0.2) {};
+  \node[circle,draw=slate,fill=accentsoft,font=\tiny] at (1.8,0.2) {};
+  \node[font=\tiny] at (1.1,-0.5) {wave 1};
+\end{scope}
+\begin{scope}[xshift=6.4cm]
+  \node[circle,draw=slate,fill=graybg,font=\tiny] at (1.1,1.0) {s};
+  \node[circle,draw=slate,fill=graybg,font=\tiny] at (0.4,0.2) {};
+  \node[circle,draw=slate,fill=graybg,font=\tiny] at (1.1,0.2) {};
+  \node[circle,draw=slate,fill=accentsoft,font=\tiny] at (1.8,0.2) {};
+  \node[circle,draw=slate,fill=accentsoft,font=\tiny] at (2.6,0.2) {};
+  \node[font=\tiny] at (1.5,-0.5) {wave 2};
+\end{scope}
+\begin{scope}[xshift=10.2cm]
+  \node[circle,draw=slate,fill=graybg,font=\tiny] at (1.1,1.0) {s};
+  \node[circle,draw=slate,fill=graybg,font=\tiny] at (0.4,0.2) {};
+  \node[circle,draw=slate,fill=graybg,font=\tiny] at (1.1,0.2) {};
+  \node[circle,draw=slate,fill=graybg,font=\tiny] at (1.8,0.2) {};
+  \node[circle,draw=slate,fill=graybg,font=\tiny] at (2.6,0.2) {};
+  \node[font=\tiny] at (1.5,-0.5) {wave 3: done};
+\end{scope}
+\end{tikzpicture}

@@ -1,0 +1,15 @@
+\begin{tikzpicture}[font=\footnotesize]
+% F4.1 predicate frontier F...F T...T for the factory check at (3 7 / 3 2 5).
+\foreach \i/\v/\c in {0/1/amberbg,1/3/amberbg,2/5/amberbg,3/7/amberbg,4/9/accentsoft,5/11/accentsoft,6/13/accentsoft,7/15/accentsoft}
+  \node[draw=slate,fill=\c,minimum width=0.85cm,minimum height=0.5cm]
+    (c\i) at (\i*0.95,0) {\v};
+\node[below,font=\tiny] at (c0) {F}; \node[below,font=\tiny] at (c3) {F};
+\node[below,font=\tiny] at (c4) {T}; \node[below,font=\tiny] at (c7) {T};
+\draw[{stealth}-,thick,accent] (c4.south west) -- ++(0,-0.85)
+  node[below,align=center,text=accent]
+  {the answer is the \emph{first} T\\ $=$ the frontier};
+\draw[decorate,decoration={brace,raise=2pt},slate]
+  (c0.north west) -- (c3.north east) node[midway,above=4pt]{reject side};
+\draw[decorate,decoration={brace,raise=2pt},slate]
+  (c4.north west) -- (c7.north east) node[midway,above=4pt]{accept side};
+\end{tikzpicture}

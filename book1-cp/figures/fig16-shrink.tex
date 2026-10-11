@@ -1,0 +1,21 @@
+\begin{tikzpicture}[font=\footnotesize,x=0.62cm,y=0.62cm]
+% F4.2 interval shrinkage on a={2,4,7,7,11}, target ">=7" -> index 2.
+\foreach \row/\lo/\hi/\mid in {0/0/5/2, 1/0/2/1, 2/2/2/-1}{
+  \begin{scope}[yshift=-\row*1.05cm]
+    \foreach \i/\v in {0/2,1/4,2/7,3/7,4/11} {
+      \pgfmathsetmacro{\inbox}{(\i>=\lo && \i<\hi) ? 1 : 0}
+      \node[draw=slate, fill=\ifnum\inbox=1 accentsoft\else graybg\fi,
+            minimum width=0.5cm, minimum height=0.5cm]
+        (r\row c\i) at (\i*0.6,0) {\v};
+    }
+    \ifnum\mid>-1
+      \node[accent,below] at (\mid*0.6,-0.05) {mid};
+      \node[anchor=west] at (3.3,0)
+        {[\lo,\hi): \ifnum\row=0 $a[2]{=}7$ T $\to$ hi=2\fi
+                    \ifnum\row=1 $a[1]{=}4$ F $\to$ lo=2\fi};
+    \else
+      \node[anchor=west,text=accent] at (3.3,0) {lo$=$hi$=$2: first true at index 2};
+    \fi
+  \end{scope}
+}
+\end{tikzpicture}

@@ -1,0 +1,354 @@
+\chapter{Prefix sums, difference arrays, and two pointers}\label{ch:prefix}
+\index{prefix sums}\index{difference array}\index{two pointers}
+
+Chapters 1--4 built answers by searching, sorting, and arguing. This
+chapter is quieter: three bookkeeping patterns that turn interval work
+from $O(n)$ per query into $O(1)$ per query --- or a full scan into a
+single sweep. The prefix sum precomputes every cumulative total once so
+each later range-sum is one subtraction. The difference array is the
+same idea run backwards: one range update is two point writes, and a
+final prefix pass restores every cell. Two pointers replace a doubly
+nested scan with one march when the window's contents are monotone.
+After this chapter you will be able to answer a hundred thousand range
+queries in linear time total, batch range updates for free, and
+recognise exactly when the telescoping window is licensed.
+
+\section{Prefix sums: build once, query forever}\label{sec:prefix}
+\index{prefix sums!1D}
+
+Given an array $a_1, \dots, a_n$, the \emph{prefix table} $P_i = a_1 +
+\dots + a_i$ (with $P_0 = 0$) stores every partial sum in one pass of
+adds. Any later range query is one lookup and one subtraction:
+$\sum_{i=l}^{r} a_i = P_r - P_{l-1}$. The whole bargain is $O(n)$ build,
+$O(1)$ query, forever --- the oldest space-for-time trade in the book,
+and the first thing to try whenever a statement repeats ``the sum over
+a range'' more than once.
+
+\begin{lstlisting}[language=C++,caption={\texttt{prefix.h}: 1D and 2D
+prefix tables.},label={lst:prefix}]
+\end{lstlisting}
+\lstinputlisting{code/prefix.h}
+
+\begin{example}[CSES \emph{Static Range Sum Queries}]\label{ex:rangesum}
+$n$ values, $q$ queries ``sum over $[a,b]$'', $n,q \le 2\cdot10^5$.
+\par\smallskip
+\textbf{Strategy.} $q$ independent sums, $O(n)$ each, is $4\cdot10^{10}$
+adds --- dead. The constraint isn't the input size, it's the repetition:
+precompute $P$, then every query is one subtraction.
+\par\smallskip
+\begin{solution}
+\lstinputlisting{code/range_sum.cpp}
+Real output (CSES sample $\{3,2,4,5,1,1,5,3\}$, queries
+$[2,4],[5,6],[1,8],[3,3]$):
+\begin{lstlisting}[numbers=none]
+11
+2
+24
+4
+\end{lstlisting}
+\end{solution}
+\end{example}
+
+\begin{figure}[ht]\centering
+\input{figures/fig19-prefixsum}
+\caption{Prefix cells versus a range query. Notice the query reads
+\emph{two} of the blue cells, none of the data cells: $P_r - P_{l-1}$
+subtracts everything before the range at once.}
+\label{fig:prefixsum}
+\end{figure}
+
+\begin{exercise}[easy]\label{exr:prefixcalc}
+Given $a = \{4, 1, 7, 2, 6\}$, build $P$ by hand and evaluate
+$\sum_{3}^{5}$ and $\sum_{1}^{4}$ with single subtractions.
+\end{exercise}
+
+\section{Difference arrays: the inverse direction}\label{sec:diff}
+\index{difference array!1D}
+
+The prefix sum reads a finished array per range. Its inverse writes:
+to add $v$ to every $a_i$ for $i \in [l, r]$, do \emph{not} touch the
+range --- write $d_l \mathrel{+}= v$ and $d_{r+1} \mathrel{-}= v$ into
+a difference array $d$. Two point writes per update, and a single
+prefix pass of $d$ at the end restores every cell: position $i$'s
+restored value is exactly the sum of all updates that started at or
+before $i$ minus those that already closed. All updates batched, $O(1)$
+each.
+
+\begin{lstlisting}[language=C++,caption={\texttt{diff.h}: range updates
+as two point writes, 1D and 2D.},label={lst:diff}]
+\end{lstlisting}
+\lstinputlisting{code/diff.h}
+
+\begin{lstlisting}[numbers=none,caption={\texttt{diff\_demo.cpp} real
+output --- three updates, one restore.},label={lst:diffout}]
+updates: [2,4]+3, [1,3]+5, [6,7]+2
+restored: 0 5 8 8 3 0 2 2
+\end{lstlisting}
+
+Check the restore by hand: cell 1 sees only $+5$; cell 3 sees
+$+3{+}5$; cell 5 sits outside every update. Figure~\ref{fig:diffpipe}
+shows the pipeline.
+
+\begin{figure}[ht]\centering
+\input{figures/fig22-diffpipe}
+\caption{A difference-array update becomes two point writes; the
+prefix pass restores cells. Notice what the $-v$ write buys: the
+increase \emph{ends}, which is what makes the restored plateau flat.}
+\label{fig:diffpipe}
+\end{figure}
+
+\section{Two dimensions: rectangles by inclusion--exclusion}\label{sec:2d}
+\index{prefix sums!2D}\index{inclusion--exclusion!rectangles}
+
+The same subtraction generalises to grids. $P_{r,c}$ = sum of the
+$r \times c$ top-left corner. A rectangle $(r_1, c_1)$--$(r_2, c_2)$
+then costs four lookups with the PIE sign pattern:
+$P_{r_2,c_2} - P_{r_1-1,c_2} - P_{r_2,c_1-1} + P_{r_1-1,c_1-1}$ ---
+the two over-subtracted corner strips come back once, exactly the
+inclusion--exclusion of Figure~\ref{fig:ie2d}. And the difference
+array generalises identically: a rectangle $+v$ update is four corner
+writes, restored by a 2D prefix pass.
+
+\begin{example}[CSES \emph{Forest Queries}]\label{ex:forest}
+Count trees in axis-aligned rectangles of an $n \times n$ grid,
+$q \le 2\cdot10^5$ queries.
+\par\smallskip
+\textbf{Strategy.} ``How many inside a rectangle'' repeated $q$ times
+is the 2D prefix pattern verbatim: trees are just values in
+$\{0,1\}$, so build $P$ once and answer each rectangle in four reads.
+\par\smallskip
+\begin{solution}
+\lstinputlisting{code/forest_queries.cpp}
+Real output (CSES sample):
+\begin{lstlisting}[numbers=none]
+3
+1
+2
+\end{lstlisting}
+\end{solution}
+\end{example}
+
+\begin{figure}[ht]\centering
+\input{figures/fig20-ie2d}
+\caption{Rectangle sums by corner algebra. Notice the signs
+$+,-,-,+$: the count over the target rectangle is the big corner
+minus the two flanking strips, plus the little corner both strips
+stole.}
+\label{fig:ie2d}
+\end{figure}
+
+\begin{example}[USACO Silver \emph{Painting the Barn}]\label{ex:barn}
+\index{Painting the Barn}
+$K$ coats visible: given a list of rectangles painted one coat at a
+time, count the unit squares covered by \emph{exactly} $K$
+rectangles (grid $\le 10^3$).
+\par\smallskip
+\textbf{Strategy.} The statement hands you an \emph{update list}, not
+an array --- that is the difference array's native habitat. Every
+rectangle is one 2D-range $+1$ update ($4$ corner writes); after all
+updates, restore the grid once and count cells $= K$.
+\par\smallskip
+\begin{solution}
+\lstinputlisting{code/painting_barn.cpp}
+Real output ($N{=}5$, $K{=}3$, rectangles
+$(1,1){-}(4,4)$, $(2,2){-}(4,4)$, $(3,2){-}(4,4)$ --- cells $(3,2)$
+and $(3,3)$ carry all three coats):
+\begin{lstlisting}[numbers=none]
+2
+\end{lstlisting}
+\end{solution}
+\end{example}
+
+\section{Two pointers: the telescoping window}\label{sec:twoptr}
+\index{two pointers}
+
+Different machine, same moral: if a window only needs to slide, two
+indices can do what a double loop did. For ``count subarrays summing
+to $x$'' over \emph{positive} values: extend $r$ while the window is
+short of $x$, contract $l$ while it overshoots. Each index moves only
+rightward, so the whole march is $O(n)$ --- and each subarray counted
+is genuinely the only window at that $l$ with the right sum, because
+growing or shrinking a positive window monotonically changes the sum.
+
+\begin{example}[CSES \emph{Subarray Sums I}]\label{ex:sums1}
+Count subarrays summing to $x$, all $a_i$ positive.
+\par\smallskip
+\textbf{Strategy.} Positivity is the licence: window sums move
+\emph{monotonically} as $l$ or $r$ advances, so each $l$ has at most
+one valid $r$ to find. March, don't scan.
+\par\smallskip
+\begin{solution}
+\lstinputlisting{code/twoptr_sums.cpp}
+Real output (CSES sample $\{2,4,1,2,7\}$, $x{=}7$ --- windows
+$\{4,1,2\}$, $\{7\}$, $\{2,7\}$):
+\begin{lstlisting}[numbers=none]
+3
+\end{lstlisting}
+\end{solution}
+\end{example}
+
+\begin{figure}[ht]\centering
+\input{figures/fig21-twoptr}
+\caption{The two-pointer march on the CSES sample. Notice each pointer
+travels in one direction only --- $l$ never revisits an index, which is
+where the $n^2$ went.}
+\label{fig:twoptr}
+\end{figure}
+
+\begin{exercise}[easy]\label{exr:positivity}
+The two-pointer code counts \emph{wrongly} once negatives are allowed.
+Explain which step of the march breaks and why (find a counterexample
+with a single $-1$).
+\end{exercise}
+
+\section{Sliding windows with bookkeeping}\label{sec:window}
+\index{sliding window}\index{prefix sums!hash counting}
+
+When values can be negative, the window stops telescoping --- but the
+prefix table still answers, this time by \emph{counting pairs}:
+subarray $[i{+}1,j]$ has sum $x$ iff $P_j - P_i = x$. Walk $j$ once,
+counting how many earlier prefixes equal $P_j - x$ in a \texttt{map}.
+The same trick with remainders counts subarrays divisible by $n$:
+equal prefix residues. Both are $O(n)$ or $O(n \log n)$ where the
+telescoping window was forbidden.
+
+\begin{example}[CSES \emph{Subarray Sums II} + \emph{Subarray
+Divisibility}]\label{ex:sums2}\index{Subarray Sums II}
+Same count with negatives allowed; and subarrays whose sum is a
+multiple of $n$.
+\par\smallskip
+\textbf{Strategy.} Negatives kill monotonicity, so switch the
+predicate's frame: the window condition $P_j - P_i = x$ is a
+\emph{pair} condition between prefix values --- count prefix
+occurrences, not windows. For divisibility, the condition becomes
+equal residues mod $n$.
+\par\smallskip
+\begin{solution}
+\lstinputlisting{code/prefix_map.cpp}
+Real output (CSES samples $\{2,-1,3,5,-2\}$, $x{=}7$;
+$\{3,1,2,7,4\}$ divisibility):
+\begin{lstlisting}[numbers=none]
+sum=7: 2
+divisible by n=5: 1
+\end{lstlisting}
+\end{solution}
+\end{example}
+
+\begin{figure}[ht]\centering
+\input{figures/fig23-hashbucket}
+\caption{Prefix-remainder counting on $\{3,1,2,7,4\}$ mod $5$.
+Notice the answer comes from a \emph{repeated residue}, not from any
+single value: two equal prefix sums bracket a divisible subarray.}
+\label{fig:buckets}
+\end{figure}
+
+\begin{lstlisting}[numbers=none,caption={\texttt{window\_demo.cpp}:
+sliding distinct-count and deque minimum preview.},label={lst:window}]
+window[0..2] distinct=2 min=1
+window[1..3] distinct=3 min=1
+window[2..4] distinct=3 min=1
+window[3..5] distinct=2 min=2
+\end{lstlisting}
+
+The deque line is a preview: Chapter~6 formalises the monotonic queue
+that answers ``window minimum'' in amortised $O(1)$.
+
+\begin{exercise}[medium]\label{exr:remainder}
+Show that if two prefix sums are congruent mod $m$, the subarray
+between them is divisible by $m$. Is the converse true?
+\end{exercise}
+
+\section{Chapter summary}
+\begin{table}[ht]\centering
+{\small
+\begin{tabularx}{\linewidth}{@{}lYYY@{}}
+\toprule
+\tablehead\thead{Asked} & \thead{Tool} & \thead{Cost} & \thead{Needs}\\
+\midrule
+sum over $[l,r]$, $q$ times & 1D prefix $P$ & $O(n)+O(1)$ & static array\\
+rectangle sums & 2D prefix & 4 lookups & static grid\\
+range $+v$ updates & difference array & 2 writes + 1 pass & batch offline\\
+subarray sum $=x$, $a_i>0$ & two pointers & $O(n)$ & positivity!\\
+subarray sum $=x$, any $a_i$ & prefix + \texttt{map} & $O(n\log n)$ & pair count\\
+divisible-sum subarrays & prefix residues & $O(n)$ & mod $n$\\
+window stats & deque/\texttt{map} slide & $O(n)$ & Ch~6 preview\\
+\bottomrule
+\end{tabularx}}
+\caption{Every row is the same idea at a different orientation:
+precompute cumulative structure once, answer forever.}
+\label{tab:prefix}
+\end{table}
+
+\section{Common mistakes}
+\index{common mistakes}
+\begin{itemize}
+\item \textbf{Two pointers on negative data.} The window's sum is not
+monotone in $l$ once a negative value exists, so the march skips
+valid answers --- Subarray Sums II exists precisely because the
+telescope fails. Reach for prefix-pair counting instead.
+\item \textbf{$P_0$ forgetting.} A prefix table without the sentinel
+$P_0 = 0$ cannot answer a range that starts at index $1$ --- every
+book keeps the zero cell.
+\item \textbf{Off-by-one on the difference close.} $d_{r+1}$ ends the
+update, not $d_r$: the subtract write belongs one step \emph{after}
+the range, so the restore is a prefix of $d$, never of $a$.
+\item \textbf{Rectangle corner confusion.} Half-open vs closed corners
+disagree by one in both axes; fix the convention (ours: $P_{r,c}$ is
+the $r\times c$ corner, query subtracts at $r_1-1$, $c_1-1$) and test
+on the $1\times1$ case.
+\item \textbf{Residues that go negative.} $P \bmod m$ in C++ keeps the
+sign of $P$; always normalise $((P \% m) + m) \% m$ before bucketing.
+\end{itemize}
+
+\section{Additional exercises}
+\begin{exercise}[easy]
+USACO-S \emph{Breed Counting} --- three prefix tables, one per breed.
+\end{exercise}
+\begin{exercise}[easy]
+USACO-S \emph{Hoof, Paper, Scissors} --- prefix counts per gesture.
+\end{exercise}
+\begin{exercise}[easy]
+CSES \emph{Maximum Subarray Sum} --- prefix min so far, one pass.
+\end{exercise}
+\begin{exercise}[easy]
+CF \emph{Karen and Coffee} --- difference array over the recipe range.
+\end{exercise}
+\begin{exercise}[medium]
+CSES \emph{Subarray Sums I} --- implement the telescoping window.
+\end{exercise}
+\begin{exercise}[medium]
+CSES \emph{Subarray Sums II} --- prefix + \texttt{map} counting.
+\end{exercise}
+\begin{exercise}[medium]
+CSES \emph{Subarray Divisibility} --- residue buckets mod $n$.
+\end{exercise}
+\begin{exercise}[medium]
+USACO-S \emph{Subsequences Summing to Sevens} --- first/last prefix
+per residue.
+\end{exercise}
+\begin{exercise}[medium]
+SPOJ \emph{Haybale Stacking} --- difference array then read off.
+\end{exercise}
+\begin{exercise}[medium]
+CSES \emph{Distinct Values Subarrays} --- sliding window + last-seen.
+\end{exercise}
+\begin{exercise}[hard]
+USACO-S \emph{Rectangular Pasture} --- 2D prefix over a sparse grid.
+\end{exercise}
+\begin{exercise}[hard]
+USACO-G \emph{Haybale Feast} --- window + monotone queue.
+\end{exercise}
+\begin{exercise}[hard]
+CF \emph{Queries for Number of Palindromes} --- a prefix table with a
+cleverer cell content.
+\end{exercise}
+
+\chapternotes
+The prefix/difference pair and the telescoping window follow
+Sannemo's array-techniques sections~\cite{sannemo2025} and
+Laaksonen's range-query chapter~\cite{laaksonen2024}; the USACO
+Guide's Silver prefix-sum and two-pointer modules~\cite{usacoguide}
+are the direct drill source, and Halim~\cite{halimcp4} covers the
+same machinery with more worked IDs. The five archive problems are
+official CSES/USACO tasks~\cite{cses}; the remainder-counting trick
+appears throughout the cp-algorithms notes~\cite{cpalgorithms}.

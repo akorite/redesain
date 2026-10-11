@@ -1,0 +1,18 @@
+\begin{tikzpicture}[x=0.62cm,y=0.62cm]
+% F3.1: interval scheduling — same instance under two greedy orders.
+% Counterexample instance: (0,10) (1,2) (3,4).
+\draw[->,ink] (0,0) -- (10.8,0) node[below left,font=\footnotesize]{time};
+\foreach \t in {0,1,...,10} \draw[ink] (\t,-0.1) -- (\t,0.1);
+\begin{scope}[font=\footnotesize]
+\node[anchor=east] at (-0.2,0.8) {by end:};
+\draw[fill=accentsoft,draw=accent,rounded corners=1pt] (1,0.55) rectangle (2,1.05) node[midway,font=\tiny]{};
+\draw[fill=amberbg,draw=amber,dashed,rounded corners=1pt] (0,1.15) rectangle (10,1.65);
+\draw[fill=accentsoft,draw=accent,rounded corners=1pt] (3,0.55) rectangle (4,1.05);
+\node[accent,font=\footnotesize] at (10.9,0.8) {$=2$};
+\node[anchor=east] at (-0.2,2.6) {by start:};
+\draw[fill=accentsoft,draw=accent,rounded corners=1pt] (0,2.35) rectangle (10,2.85);
+\draw[fill=graybg,draw=slate,rounded corners=1pt] (1,2.95) rectangle (2,3.45);
+\draw[fill=graybg,draw=slate,rounded corners=1pt] (3,2.95) rectangle (4,3.45);
+\node[amber,font=\footnotesize] at (10.9,2.6) {$=1$};
+\end{scope}
+\end{tikzpicture}

@@ -1,0 +1,420 @@
+\chapter{Sorting and greedy algorithms}
+\label{ch:greedy}
+\index{greedy algorithm}
+
+Half the problems at this level are won by two moves you already own: put
+the input in a useful order, then take whatever looks best next and never
+look back. The first move is \texttt{std::sort}; the second is a
+\emph{greedy} algorithm. Sorting is safe --- it always produces a sorted
+array. Greedy is \emph{not} safe: it is a claim about the problem, and the
+claim needs a proof. This chapter teaches the tools (comparators,
+coordinate compression, \texttt{set} as a ``best available'' structure),
+the two standard proofs (the exchange argument and ``greedy stays
+ahead''), and the discipline of hunting counter-examples before trusting
+a greedy rule. After it, you will sort fluently, compress fluently, and
+--- more importantly --- know which greedy ideas deserve your trust.
+
+\section{Sorting as a tool}
+\label{sec:sorting}
+\index{sorting!std::sort@\texttt{std::sort}}
+
+\texttt{std::sort} runs in $O(n\log n)$ worst case (introsort: quicksort
+with a heapsort fallback) and is \emph{unstable}: equal elements may
+reorder. When equal-order matters, \texttt{stable\_sort} preserves it ---
+a detail that costs a contest point exactly once, the time you forget it.
+A comparator must define a \emph{strict weak ordering}: irreflexive,
+asymmetric, transitive. The classic violation is \texttt{<=} instead of
+\texttt{<}: equal elements then compare ``less'' than each other, the
+invariant breaks, and \texttt{sort} can read out of bounds --- real
+undefined behaviour, not just a wrong answer\index{comparator}.
+
+\begin{lstlisting}[label={lst:sortcmp},
+caption={\texttt{code/sort\_cmp.cpp}: lambda comparator plus structured
+bindings. The comparator asks one question --- ``does $a$ come before
+$b$?'' --- never ``are they equal?''}]
+\end{lstlisting}
+\lstinputlisting{code/sort_cmp.cpp}
+Its real output --- note the tie broken by name:
+\begin{lstlisting}[numbers=none]
+bella 9
+cato 9
+anni 7
+dele 4
+\end{lstlisting}
+
+The second tool is \emph{coordinate compression}\index{coordinate
+compression}: when only the \emph{order} of values matters, replace each
+by its rank among the distinct values. Values up to $4\cdot10^9$ become
+ranks $0\dots k{-}1$ that index a Fenwick tree or a small array ---
+essential from Chapter~12 on.
+
+\begin{lstlisting}[label={lst:compress},
+caption={\texttt{code/compress\_demo.cpp} using
+\texttt{code/lib/compress.h}. Ranks preserve every comparison
+($<$, $=$, $>$); nothing else survives, by design.}]
+\end{lstlisting}
+\lstinputlisting{code/compress_demo.cpp}
+\begin{lstlisting}[numbers=none]
+4000000000 -> 2
+10 -> 0
+10 -> 0
+80 -> 1
+4000000000 -> 2
+distinct values: 3
+\end{lstlisting}
+Figure~\ref{fig:compress} draws the same run.
+
+\begin{figure}[ht]\centering
+\input{figures/fig13-compress}
+\caption{Values $\to$ ranks. Notice what is thrown away: magnitudes,
+gaps, units. If your algorithm ever reads a difference of two values,
+compression is the wrong tool.}
+\label{fig:compress}
+\end{figure}
+
+\begin{exercise}[easy]
+Sort $\{(3,\text{a}),(1,\text{c}),(3,\text{b})\}$ by first element only.
+Which of the two possible outputs can \texttt{sort} produce, and which
+does \texttt{stable\_sort} guarantee?
+\end{exercise}
+
+\section{The greedy method}
+\label{sec:greedy}
+\index{greedy algorithm!definition}
+
+\begin{definition}[Greedy algorithm]
+A \emph{greedy algorithm} builds a solution in steps, at each step taking
+the locally best choice under some fixed rule --- and never revisiting
+the choice. Correctness is not part of the definition.
+\end{definition}
+
+Greedy is fast to write and fast to run --- that is the appeal. The cost
+is outsourced to a proof: ``locally best is globally right'' is a theorem
+about the problem, not about your code. Chapter~2's complete search was
+the pessimist's answer (check everything); greedy is the optimist's
+answer (commit at every step). The skill is knowing which optimism is
+justified.
+
+\begin{example}[CSES \emph{Ferris Wheel}]
+Each gondola carries at most two children of total weight $\le x$.
+Minimise gondolas. \emph{Strategy.} The heaviest child must ride
+somewhere; the only question is whether anyone can join. If the lightest
+does not fit with them, nobody does --- so pair heaviest with lightest
+whenever possible, else heaviest rides alone.
+\end{example}
+\lstinputlisting{code/ferris_wheel.cpp}
+Real output on the CSES sample (\texttt{4 10 / 7 2 3 9}):
+\begin{lstlisting}[numbers=none]
+3
+\end{lstlisting}
+Why does pairing heaviest with lightest work? If the lightest fits,
+using any heavier partner instead cannot do better --- the lightest is
+\emph{at least} as hard to place as whoever replaces it. That is the
+``stays ahead'' instinct of Section~\ref{sec:proofs}.
+
+\section{How to argue correctness}
+\label{sec:proofs}
+\index{exchange argument}\index{greedy stays ahead}
+
+Two proofs cover most contest greedies:
+
+\begin{itemize}
+\item \textbf{Exchange argument.} Take an optimal solution $O$ and the
+greedy solution $G$. Find the first place they differ, and show $O$ can
+be \emph{exchanged} into $G$'s choice without making things worse.
+Repeating morphs $O$ into something no worse that ends with $G$'s
+choices --- so greedy is optimal too.
+\item \textbf{Greedy stays ahead.} Maintain an invariant like ``after $k$
+steps, greedy's partial solution is at least as good as any other partial
+solution'', proved by induction on $k$.
+\end{itemize}
+
+\begin{example}[CSES \emph{Movie Festival} --- the exchange argument]
+\label{ex:movie}
+Choose a maximum set of pairwise non-overlapping movies
+$(a_i, b_i)$. \emph{Strategy.} Sort by \emph{ending} time and always take
+the movie that frees you earliest. Figure~\ref{fig:exchange} is the proof
+in one picture.
+\end{example}
+\lstinputlisting{code/movie_festival.cpp}
+Real output on the CSES sample (\texttt{3 5 / 4 9 / 5 8}):
+\begin{lstlisting}[numbers=none]
+2
+\end{lstlisting}
+
+\begin{theorem}[End-time greedy is optimal]
+\label{thm:movie}
+Let $G = (g_1, \dots, g_t)$ be the schedule produced by always taking the
+compatible movie with the smallest end time, and $O = (o_1, \dots, o_m)$
+any optimal schedule (both sorted by end time). Then $t = m$.
+\end{theorem}
+\begin{proof}
+Let $j$ be the first index where $G$ and $O$ differ (if $t \ge m$ and they
+agree on $m$ entries, we are done --- greedy already has $m$). Since
+$g_j$ is the compatible movie with the smallest end, $b(g_j) \le b(o_j)$.
+Both fit after the common prefix: $g_j$ and $o_j$ each start no earlier
+than $o_{j-1}$'s end. Replace $o_j$ by $g_j$ in $O$: the new schedule is
+still feasible --- $o_{j+1}$ starts after $b(o_j) \ge b(g_j)$, so it also
+clears $g_j$ --- and has the same size $m$. Repeating the exchange turns
+$O$ into a schedule that starts with $G$'s first $t$ movies and still has
+$m$ entries. If $m > t$, the tail movie after $g_t$ was still available
+when greedy stopped --- contradiction. So $m = t$.
+\end{proof}
+
+The picture worth keeping: every exchange \emph{frees time}, never
+consumes it --- Figure~\ref{fig:exchange}. And the wrong greedy rule
+fails concretely: on $\{(0,10),(1,2),(3,4)\}$, earliest-\emph{start}
+takes the long movie and stops at $1$, while the end rule takes both
+short ones --- Listing~\ref{lst:sortcmp}'s program prints $1$ and $2$
+respectively, and Figure~\ref{fig:timeline} draws both runs.
+
+\begin{figure}[ht]\centering
+\input{figures/fig10-interval}
+\caption{Same instance, two greedy orders. Notice the mechanism of the
+failure: the start rule burns the whole timeline on its first pick; the
+end rule's picks are exactly the ones that leave room.}
+\label{fig:timeline}
+\end{figure}
+
+\begin{figure}[ht]\centering
+\input{figures/fig11-exchange}
+\caption{The exchange step. At the first difference, greedy's pick ends
+no later; swapping it in preserves feasibility \emph{and} size. ``No
+later'' is the whole lemma --- everything else is bookkeeping.}
+\label{fig:exchange}
+\end{figure}
+
+\begin{exercise}[medium]
+In the exchange above, where exactly is
+``$b(g_j) \le b(o_j)$'' used --- and which step breaks if the greedy rule
+picked by earliest \emph{start} instead?
+\end{exercise}
+
+\begin{example}[CSES \emph{Stick Lengths} --- the pairing proof]
+\label{ex:sticks}
+Make all $p_i$ equal at cost $\sum |p_i - m|$. Which $m$?
+\emph{Strategy.} Sort and pair the extremes. If $m$ lies between a
+smallest and a largest element, that pair contributes exactly their own
+gap regardless of $m$'s position inside it --- so the middle element
+costs nothing to aim at, and the median is optimal.
+\begin{proof}[Proof sketch]
+Sort $p$. For each pair $(p_i, p_{n+1-i})$ with $i \le n/2$: if
+$p_i \le m \le p_{n+1-i}$, the pair contributes
+$(m - p_i) + (p_{n+1-i} - m) = p_{n+1-i} - p_i$, a constant. Moving $m$
+outside the pair raises the sum by twice the overshoot. Every paired $m$
+between the two middle elements is optimal; the median
+$p_{\lceil n/2 \rceil}$ is one.
+\end{proof}
+\end{example}
+\lstinputlisting{code/stick_lengths.cpp}
+Real output on the CSES sample (\texttt{2 3 1 5 2}):
+\begin{lstlisting}[numbers=none]
+5
+\end{lstlisting}
+Figure~\ref{fig:median} shows the pairing on this data; the stress
+harness in \texttt{code/test\_ch03.sh} checked the claim against an
+exhaustive minimiser on 300 random arrays --- median won every round.
+
+\begin{figure}[ht]\centering
+\input{figures/fig12-median}
+\caption{The pairing picture. Notice the constant: within a pair, the
+two distances to $m$ always sum to the pair's gap. The median sits inside
+\emph{every} pair, so it inherits the minimum possible total.}
+\label{fig:median}
+\end{figure}
+
+\begin{example}[CSES \emph{Apartments} --- greedy stays ahead]
+\label{ex:apts}
+Applicant $i$ accepts $[a_i - k, a_i + k]$. Sort demands and sizes, walk
+two pointers: skip apartments too small for the current applicant; skip
+applicants the current apartment cannot satisfy; on a fit, match.
+\emph{Stays-ahead invariant:} processing applicants in increasing demand,
+after greedy's $i$-th step it has matched at least as many applicants as
+any optimal solution restricted to the same first $i$ --- so when greedy
+stops, no unseen match can exist anywhere in the input.
+\lstinputlisting{code/apartments.cpp}
+Real output on the CSES sample (\texttt{4 3 5 / 60 45 80 60 / 30 60 75}):
+\begin{lstlisting}[numbers=none]
+2
+\end{lstlisting}
+\end{example}
+
+\begin{exercise}[easy]
+On input \texttt{n=3, m=3, k=0}, demands $\{5,5,9\}$, sizes
+$\{5,9,9\}$ --- does sorting the apartments change the greedy answer?
+Answer first, then check by hand.
+\end{exercise}
+
+\section{When greedy fails}
+\label{sec:fail}
+\index{greedy algorithm!failure}
+
+\begin{example}[Coin systems --- prove or distrust]
+\label{ex:coins}
+Coin change, minimum coins for amount $A$ over a fixed system. For
+$\{1,5,10,25\}$, ``always take the largest possible'' is optimal (a
+canonical system --- provable). For $\{1,3,4\}$ the same rule takes
+$4+1+1$ for $6$: three coins where $3+3$ suffices.
+\emph{Strategy.} Never trust the rule because it survives samples ---
+test the \emph{smallest} candidate failure, and if you cannot prove the
+rule, run DP (Chapter~11) instead.
+\end{example}
+\lstinputlisting{code/coins.cpp}
+Real output --- greedy vs the true optimum on both systems:
+\begin{lstlisting}[numbers=none]
+amount=6 coins={1,3,4} greedy=3 optimal=2
+amount=99 coins={1,5,10,25} greedy=9 optimal=9
+\end{lstlisting}
+Figure~\ref{fig:cointree} shows where the wrong branch starts.
+
+\begin{figure}[ht]\centering
+\input{figures/fig14-cointree}
+\caption{The decision tree for amount $6$ on $\{1,3,4\}$. Notice the
+failure is \emph{local}: the first greedy pick ($4$) already forfeits the
+optimum --- there is no way back later. That is what ``greedy fails''
+means mechanically.}
+\label{fig:cointree}
+\end{figure}
+
+\begin{principle}[Prove or distrust]
+\index{prove or distrust}
+A greedy rule you cannot defend in two sentences gets a counter-example
+search before it gets submitted. Try the smallest meaningful instance;
+if it survives, try to \emph{prove} the rule survives; only then code it.
+\end{principle}
+
+\begin{exercise}[medium]
+Find the smallest amount on which greedy fails for system
+$\{1, 7, 10\}$. (Write the three-candidate check before guessing.)
+\end{exercise}
+
+\section{Sets and maps as greedy tools}
+\label{sec:settools}
+\index{std::set@\texttt{std::set}}
+
+A greedy step often asks ``what is the best available option \emph{right
+now}?'' --- which is exactly an ordered-set query:
+\texttt{lower\_bound}/\texttt{upper\_bound} in $O(\log n)$, then
+\texttt{erase} to consume the resource. CSES \emph{Concert Tickets} is
+the archetype: sell each customer the most expensive seat $\le$ their
+limit. Duplicates are real, so \texttt{multiset} --- and
+\texttt{erase(it)} on an \emph{iterator} removes one copy, while
+\texttt{erase(value)} removes them all.
+
+\begin{lstlisting}[label={lst:setpat},
+caption={\texttt{code/set\_pattern.cpp}: the ``best available'' idiom.
+\texttt{upper\_bound(t)} finds the first seat $> t$; stepping back one
+gives the largest $\le t$.}]
+\end{lstlisting}
+\lstinputlisting{code/set_pattern.cpp}
+Real output on \texttt{5 3 / 5 3 7 8 5 / 4 8 3} --- seat $3$ was already
+sold when the last customer asked:
+\begin{lstlisting}[numbers=none]
+3
+8
+-1
+\end{lstlisting}
+
+\section{Chapter summary}
+\begin{table}[ht]\centering
+{\small\begin{tabularx}{\linewidth}{@{}lYYY@{}}
+\toprule
+\thead{Situation} & \thead{Greedy rule} & \thead{Proof tool} & \thead{When to distrust}\\
+\midrule
+intervals/schedules & earliest \emph{end} & exchange argument & earliest start fails\\
+equalise to a point & take the median & pairing (constant per pair) & weighted targets\\
+two sorted lists & advance whichever pointer is behind & stays-ahead invariant & unsorted input\\
+``best available'' & \texttt{set::lower\_bound} & step dominance & duplicates need \texttt{multiset}\\
+coin-like systems & largest first & only if canonical & any non-canonical set\\
+\bottomrule
+\end{tabularx}}
+\caption{The chapter in one table: the rule, the proof that licenses it,
+and the smell that says stop. The middle column is the one to memorise.}
+\label{tab:greedy}
+\end{table}
+
+\section{Common mistakes}
+\index{common mistakes}
+\begin{itemize}
+\item \textbf{Comparator that is not a strict weak order.} \texttt{<=},
+or a comparator that sometimes says both orders, corrupts
+\texttt{sort}'s internal invariant --- silent wrong answers \emph{and}
+possible crashes.
+\item \textbf{Sorting the wrong key.} Movie Festival by start time gives
+$1$ on a 2-answer case. The sort key \emph{is} the greedy rule --- pick
+it by the proof, not by habit.
+\item \textbf{Trusting greedy because samples pass.} Two samples cannot
+witness a coin system's failure at amount $6$. Counter-example hunt
+first, or proof, or DP.
+\item \textbf{Forgetting stability.} \texttt{sort} reorders equals;
+\texttt{stable\_sort} does not. Only matters when ties carry meaning ---
+exactly when you'll least expect it.
+\item \textbf{\texttt{erase(value)} on a multiset.} Removes \emph{every}
+copy. Erase through the iterator the lookup returned.
+\item \textbf{Compressing before seeing all values.} Ranks are defined
+by the full set; an online stream needs a balanced structure, not
+compression.
+\end{itemize}
+
+\section{Additional exercises}
+\begin{exercise}[easy] CSES \emph{Distinct Numbers} --- what does sorting
+buy you here that a \texttt{set} also gives, and which is faster to
+write?
+\end{exercise}
+\begin{exercise}[easy] CSES \emph{Sum of Two Values} --- after sorting,
+which two pointers, and when do they move? (This is the apartment
+pattern without the tolerance.)
+\end{exercise}
+\begin{exercise}[easy] CSES \emph{Collecting Numbers} --- sort values
+keeping original indices; count how many rounds a left-to-right pass
+needs. Which adjacency test detects a new round?
+\end{exercise}
+\begin{exercise}[easy] USACO-B \emph{Cow College} --- the optimal tuition
+is one of the offered prices; why does sorting make trying them all
+$O(n\log n)$ instead of $O(n^2)$?
+\end{exercise}
+\begin{exercise}[easy] USACO-B \emph{Even More Odd Photos} --- greedy
+rules and parity counting meet; identify the greedy rule and the one
+case it must handle carefully.
+\end{exercise}
+\begin{exercise}[easy] USACO-S \emph{Lemonade Line} --- cows tolerate a
+queue position only if enough room remains; sort and simulate. Prove the
+greedy order is optimal by exchange.
+\end{exercise}
+\begin{exercise}[medium] CSES \emph{Restaurant Customers} --- sweep line
+is sorting in disguise: sort all events together and walk a counter.
+Implement it; then say why ``maximum prefix sum of the event order'' is
+the answer.
+\end{exercise}
+\begin{exercise}[medium] CSES \emph{Tasks and Deadlines} --- which order
+minimises total finishing time weighted equally? (Shortest processing
+time first --- prove it by exchanging one adjacent inversion.)
+\end{exercise}
+\begin{exercise}[medium] USACO-S \emph{High Card Wins} --- Bessie's
+strongest card should beat Elsie's weakest beatable card. Write the
+stays-ahead invariant for this greedy.
+\end{exercise}
+\begin{exercise}[medium] USACO-S \emph{Rest Stops} --- Farmer John stops
+only at tastiest-ahead stops. Sort or scan for ``record'' tastiness;
+which direction does the scan run?
+\end{exercise}
+\begin{exercise}[medium] USACO-B \emph{Out of Place} --- one cow is
+misplaced; sorting reveals her. Prove the answer is the count of cows
+off their sorted position, minus one boundary case --- find that case.
+\end{exercise}
+\begin{exercise}[hard] CSES \emph{Josephus Problem I} --- simulate the
+elimination circle. Greedy helps nothing; the honest answer is a
+\texttt{set}/list walk or an order-statistics structure --- implement one
+and compare with $O(n^2)$ simulation on $n=2\cdot10^5$.
+\end{exercise}
+
+\chapternotes
+The greedy-proof taxonomy (exchange, stays-ahead, induction) and the
+canonical/non-canonical coin example follow
+Sannemo~\cite{sannemo2025} and Laaksonen's chapter~6~\cite{laaksonen2024};
+the interval-scheduling exchange is the standard one, retold with the
+counter-example-first pedagogy of the USACO Guide~\cite{usacoguide}.
+\texttt{std::sort}'s introsort and strict-weak-ordering contract are
+from cppreference~\cite{cppreference}; Halim's treatment of sort-and-greedy
+problem patterns informed the exercise set~\cite{halimcp4}. All problem
+names and samples are from the CSES Problem Set~\cite{cses}.

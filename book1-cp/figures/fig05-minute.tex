@@ -1,0 +1,30 @@
+% fig05-minute.tex — Figure 1.5: how a working five minutes is spent on
+% one problem. The same loop returns in Chapter 18 (contest strategy).
+\begin{tikzpicture}[font=\small,
+  seg/.style={draw, minimum height=8mm, inner xsep=0pt},
+  lab/.style={font=\footnotesize},
+  num/.style={font=\footnotesize, text=slate}]
+% proportional widths: read 30s think 75s code 100s test 45s submit 50s = 300s
+\def\u{0.035} % seconds -> cm
+\node[seg, fill=graybg,   minimum width=30*\u cm,  anchor=west] (a) at (0,0) {};
+\node[seg, fill=accentsoft, minimum width=75*\u cm, anchor=west] (b) at (a.east) {};
+\node[seg, fill=graybg,   minimum width=100*\u cm, anchor=west] (c) at (b.east) {};
+\node[seg, fill=accentsoft, minimum width=45*\u cm, anchor=west] (d) at (c.east) {};
+\node[seg, fill=goodbg,   minimum width=50*\u cm,  anchor=west] (e) at (d.east) {};
+\node[lab] at (a.center) {read};
+\node[lab] at (b.center) {think};
+\node[lab] at (c.center) {code};
+\node[lab] at (d.center) {test};
+\node[lab] at (e.center) {submit};
+\node[num, below=1pt of a.west, anchor=north west] {0:30};
+\node[num, below=1pt of b.center] {1:45};
+\node[num, below=1pt of c.center] {3:25};
+\node[num, below=1pt of d.center] {4:10};
+\node[num, below=1pt of e.east, anchor=north east] {5:00};
+\draw[{stealth}-, thick, accent] (c.north) -- ++(0,0.5)
+  node[above, font=\footnotesize, text=accent]
+  {longest block is still under two minutes --- pick the simple plan};
+\draw[-{stealth}, dashed, slate] (e.south east) ++(0,-1.1)
+  -| node[pos=0.25, below, font=\footnotesize, text=slate]
+  {WA $\to$ back to ``think'', not to ``submit again''} (b.south);
+\end{tikzpicture}

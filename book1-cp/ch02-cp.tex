@@ -1,0 +1,526 @@
+\chapter{Complete search}\label{ch:search}
+\index{complete search}
+
+The cheapest algorithm in the book: walk through every candidate answer and
+keep the ones that work. It sounds naive and it is --- and for small enough
+search spaces it is also optimal, since the fastest correct program is the one
+you finish writing. This chapter teaches you the three big enumeration
+idioms --- subsets, permutations, backtracking --- and, more important, the
+habit of measuring the search space before committing to it. After this
+chapter you will be able to look at a constraint like $n \le 20$, recognise it
+as an invitation rather than a warning, and enumerate correctly the first
+time.
+
+\section{The exhaustive idea}\label{sec:exhaustive}
+\index{brute force|see{complete search}}
+
+A \emph{complete search}\index{complete search!definition} enumerates every
+element of the \emph{search space}\index{search space} --- the set of
+candidates the answer could be --- and tests each one. Correctness is free:
+if the space really contains every candidate, the best survivor is the answer.
+The only question that matters is cost, and the cost has one formula:
+
+\[
+\text{time} \;=\; (\text{size of search space}) \times (\text{work per candidate}).
+\]
+
+Both factors are yours to shrink. The first is fixed by the problem, the
+second by your code; keep the per-candidate work small and the formula stays
+friendly surprisingly far up. How far? Figure~\ref{fig:ladder} puts the three
+sizes you will meet most often next to the Chapter~1 budget.
+
+\begin{figure}[ht]\centering
+\input{figures/fig09-ladder}
+\caption{The size ladder. Notice where each curve crosses the amber budget
+line: $n^2$ is comfortable to $n \approx 10^4$, $2^n$ to $n \approx 27$, and
+$n!$ only to $n \approx 11$. The measured points are real: enumerating $2^{30}$
+subsets with one cheap operation each took $286$\,ms on this machine --- the
+shape of the curve, not your machine's speed, is the lesson.}
+\label{fig:ladder}
+\end{figure}
+
+The listing behind those measured points is \texttt{code/size\_ladder.cpp};
+its timing loop touches each subset once. Real output:
+
+\begin{lstlisting}[numbers=none]
+n=15  subsets=32768      time=0.007417 ms
+n=20  subsets=1048576    time=0.235667 ms
+n=24  subsets=16777216   time=3.76142 ms
+n=27  subsets=134217728  time=35.3861 ms
+n=29  subsets=536870912  time=143.94 ms
+n=30  subsets=1073741824 time=285.851 ms
+\end{lstlisting}
+
+Read the doubling, not the absolute numbers: each extra element multiplies
+the work by exactly two, because the space itself doubles. That is the whole
+shape of exponential growth --- Section~\ref{sec:subsets} is about making
+that shape small enough to afford.
+
+\begin{remark}[When $n \le 20$ is a feature]\label{rem:smalln}
+\index{constraint!as invitation}
+Contest setters know Figure~\ref{fig:ladder} too. A constraint like
+$n \le 20$ is not a restriction on the input --- it is a message: \emph{the
+intended solution enumerates something}. When you see an unusually small
+bound, ask ``what is the intended search space?'' before reaching for anything
+cleverer. The clever algorithm that takes an hour to find loses to the
+enumeration that takes ten minutes to write and a second to run.
+\end{remark}
+
+\begin{example}[WE 2.4 --- USACO Bronze \emph{Milk Pails}: bounds from the
+constraints]\label{ex:milkpails}
+Farmer John has two pails of sizes $X$ and $Y$, which he may fill completely
+any number of times and pour into a third pail of capacity $M$ ($M \le 1000$).
+What is the largest amount of milk he can measure into the third pail without
+overflowing it?
+\par\smallskip
+\textbf{Strategy.} What is the search space? Every outcome is ``fill the
+$X$ pail $i$ times and the $Y$ pail $j$ times'', giving $iX + jY$ units. The
+only question is how far $i$ and $j$ can run --- and the constraint answers
+it: $iX + jY \le M \le 1000$, so $i \le M/X$ and $j \le M/Y$ --- worst
+case a few hundred thousand pairs. That is a nested loop, not an algorithm: the constraint is
+small enough that the search space fits inside it twice over.
+\par\smallskip
+\begin{solution}
+Two loops, both bounded by $M$ itself so no legal combination is clipped:
+\lstinputlisting{code/milk_pails.cpp}
+On the sample input \texttt{17 25 77}:
+\begin{lstlisting}[numbers=none]
+$ echo '17 25 77' | ./milk_pails
+76
+\end{lstlisting}
+The inner loop's bound is the line that makes this correct rather than merely
+fast: \texttt{i * X + j * Y <= M} clips the search space to candidates that
+could still win, and \texttt{best} keeps the largest survivor. Notice what we
+did \emph{not} do: no recursion, no pruning rule, no cleverness --- the
+constraint gave the bound, the bound gave the loops.
+\end{solution}
+\end{example}
+
+\section{Enumerating subsets}\label{sec:subsets}
+\index{subset!enumerating}
+
+The first enumeration shape you will use weekly: for a set of $n$ elements,
+produce each of its $2^n$ \emph{subsets}. Two idioms cover everything.
+
+\emph{Recursion first.} Walk the elements in order; at each one, branch into
+``take it'' and ``leave it''. The walk is a binary tree of depth $n$ ---
+Figure~\ref{fig:rectree} draws it for $n=3$ --- and every leaf is one subset.
+
+\begin{figure}[ht]\centering
+\input{figures/fig06-rectree}
+\caption{The recursion tree for subsets of $\{1,2,3\}$. Notice the shape:
+$2^n$ leaves at depth $n$, and every internal node is a decision. Drawing
+this tree before coding is Section~\ref{sec:sketches}'s whole method.}
+\label{fig:rectree}
+\end{figure}
+
+\lstinputlisting[caption={\texttt{code/subsets\_rec.cpp}: recursive take/leave.
+The skeleton of every backtracking program in this book.},
+label={lst:subsetsrec}]{code/subsets_rec.cpp}
+
+Its real output --- the eight subsets in take-first order:
+
+\begin{lstlisting}[numbers=none]
+{1, 2, 3}
+{1, 2}
+{1, 3}
+{1}
+{2, 3}
+{2}
+{3}
+{}
+\end{lstlisting}
+
+\emph{Then bitmasks.}\index{bitmask} A subset of an $n$-element set is also a
+number: bit $k$ of a mask says whether element $k$ is in. Then ``all
+subsets'' is the loop \texttt{for mask in $[0, 2^n)$} --- the cleanest three
+lines in competitive programming, and Figure~\ref{fig:bitmask} shows the
+encoding.
+
+\begin{figure}[ht]\centering
+\input{figures/fig07-bitmask}
+\caption{Mask $\leftrightarrow$ subset for $n=3$. Notice that the loop order
+is \emph{numerical}, not the take-first order of recursion: mask $011$ is
+$\{1,2\}$, not the next recursive leaf. If your output order matters, check
+which order your method produces.}
+\label{fig:bitmask}
+\end{figure}
+
+\lstinputlisting[caption={\texttt{code/subsets\_mask.cpp}: the same eight
+subsets by bitmask. \texttt{mask \& (1 << k)} is the membership test.},
+label={lst:subsetsmask}]{code/subsets_mask.cpp}
+
+Real output --- same subsets, different order:
+
+\begin{lstlisting}[numbers=none]
+{}
+{1}
+{2}
+{1, 2}
+{3}
+{1, 3}
+{2, 3}
+{1, 2, 3}
+\end{lstlisting}
+
+\begin{exercise}[easy]\label{exr:subsetcount}
+How many subsets does a $20$-element set have? How many masks does the loop
+run for $n = 20$ --- and for $n = 64$? What goes wrong in the code of
+Listing~\ref{lst:subsetsmask} for large $n$, and where exactly?
+\end{exercise}
+
+\begin{example}[WE 2.1 --- CSES \emph{Apple Division}: the enumeration is the
+algorithm]\label{ex:apple}
+$n$ apples weigh $w_1, \dots, w_n$. Split them into two groups so the weight
+difference is as small as possible ($n \le 20$).
+\par\smallskip
+\textbf{Strategy.} The answer is $\min |S_A - S_B|$ over partitions. Since
+$S_A + S_B$ is the fixed total $T$, this is $\min |T - 2S_A|$ --- so we only
+need to look at one side: enumerate the subsets that could be group $A$ and
+keep the best. The space is $2^n$ with $n \le 20$: at most a million
+candidates, comfortably inside the budget by Figure~\ref{fig:ladder}. The
+constraint \emph{is} the algorithm.
+\par\smallskip
+\begin{solution}
+\lstinputlisting{code/apple_division.cpp}
+On the CSES sample (\texttt{5} then \texttt{3 2 7 4 1}, total $17$ --- best
+split puts $3+4+1=8$ in $A$, leaving $|17-16|=1$):
+\begin{lstlisting}[numbers=none]
+$ echo '5
+3 2 7 4 1' | ./apple_division
+1
+\end{lstlisting}
+Two details to copy. First, the loop runs to $2^{n-1}$ not $2^n$: element 0 is
+pinned to group $A$, because swapping the two groups changes nothing --- every
+answer appears twice in the free search, and the pin deletes the mirror half.
+Second, \texttt{best} starts at $T$ (the trivial partition $A = \varnothing$),
+so even $n = 1$ works.
+\end{solution}
+\end{example}
+
+\begin{remark}[Is the symmetry real? Measure it.]
+\index{symmetry!halving the tree}
+Pinning element~0 halves the search space \emph{if the objective is symmetric}
+--- here $|S_A - S_B|$ does not change when groups swap, so the move is free.
+\texttt{code/apple\_bench.cpp} times both versions on $n = 22$:
+\begin{lstlisting}[numbers=none]
+free:      leaves=4194304  time=6.467 ms  answer=1
+fixed[0]:  leaves=2097152  time=3.56679 ms  answer=1
+\end{lstlisting}
+Same answer, half the leaves, roughly half the time. The speedup is modest
+because the search was already cheap --- but the \emph{technique} is the
+point: before exploiting a symmetry, verify the objective is actually
+invariant under it, or you have deleted half your answer space for nothing.
+\end{remark}
+
+\section{Enumerating permutations}\label{sec:perms}
+\index{permutation!enumerating}
+
+Subsets cost $2^n$; permutations cost $n!$ --- a much harder wall
+(Figure~\ref{fig:ladder} shows $n!$ crossing the budget near $n = 11$). When
+the constraint allows it, C++ does the walking for you:
+\texttt{next\_permutation}\index{next\_permutation@\texttt{next\_permutation}}
+advances a sequence to its next arrangement in
+\emph{lexicographic order}\index{lexicographic order} --- dictionary order ---
+and returns \texttt{false} at the last one.
+
+\begin{tripwire}[The \texttt{sort} contract]
+\index{next\_permutation@\texttt{next\_permutation}!must sort first}
+\texttt{next\_permutation} only walks \emph{upward}. Called on
+\texttt{"bca"}, it produces \texttt{cab}, \texttt{cba} --- then stops, and you
+have silently missed four permutations. Sort first, always: from the smallest
+arrangement the walk covers all of them. This is the single most common
+submission bug in this chapter.
+\end{tripwire}
+
+\lstinputlisting[caption={\texttt{code/perms\_demo.cpp}: the idiom up close.
+Notice \texttt{"aab"} yields three permutations, not six --- duplicates make
+no duplicates.},label={lst:permsdemo}]{code/perms_demo.cpp}
+
+\begin{lstlisting}[numbers=none]
+abc:
+  abc
+  acb
+  bac
+  bca
+  cab
+  cba
+count: 6
+aab:
+  aab
+  aba
+  baa
+count: 3
+\end{lstlisting}
+
+The second half is worth staring at: repeated elements never produce repeated
+permutations, so the count is $n!/\prod(\text{multiplicity}!)$ for free ---
+\texttt{"aab"} gives $3!/2! = 3$ distinct strings with zero dedup code.
+
+\begin{example}[WE 2.2 --- CSES \emph{Creating Strings}: apply the
+idiom]\label{ex:creating}
+Given a string, print every distinct string that can be formed by rearranging
+its characters, alphabetically sorted ($n \le 8$).
+\par\smallskip
+\textbf{Strategy.} $n \le 8$ means at most $8! = 40\,320$ distinct strings ---
+inside the budget with room to spare, and the problem's own output size is the
+real cost. Sort the input, then let \texttt{next\_permutation} walk; the walk
+is already in alphabetical order, so printing as we go satisfies the output
+contract for free. Collect-or-print is a choice: we collect to learn the count
+first, since the answer's first line must be the total.
+\par\smallskip
+\begin{solution}
+\lstinputlisting{code/creating_strings.cpp}
+On \texttt{aabac} ($5!/(3! \cdot 1! \cdot 1!) = 20$ distinct strings), real
+output:
+\begin{lstlisting}[numbers=none]
+20
+aaabc
+aaacb
+aabac
+aabca
+aacab
+aacba
+abaac
+abaca
+abcaa
+acaab
+acaba
+acbaa
+baaac
+baaca
+bacaa
+bcaaa
+caaab
+caaba
+cabaa
+cbaaa
+\end{lstlisting}
+The lexicographic order you see is exactly the order the algorithm walks ---
+\emph{that's why} sorting first is the contract, not a nicety.
+\end{solution}
+\end{example}
+
+\begin{exercise}[easy]\label{exr:nextperm}
+Write down the permutation \texttt{next\_permutation} produces after
+\texttt{3142} --- then after \texttt{4321}. What does each call return?
+\end{exercise}
+
+\section{Backtracking}\label{sec:backtracking}
+\index{backtracking}
+
+Recursive enumeration has a superpower the loop versions lack: it can see a
+dead end early and turn around. \emph{Backtracking} is recursive search with
+\emph{pruning}\index{pruning} --- before extending a partial solution, check
+whether it can still lead to a valid one, and skip the subtree entirely if
+not. The cost model is unchanged (space size $\times$ work per candidate);
+pruning attacks the first factor by shrinking the space itself.
+
+A prune is only as good as its rule. Three requirements, in order of
+importance: the rule must be \emph{sound} (never kills a branch that contains
+an answer --- else the search is wrong, not fast); it should be \emph{cheap}
+(a prune that costs more than the subtree it saves is a slowdown wearing a
+clever name); and ideally it is \emph{measured} --- which is why the code
+below counts.
+
+\begin{example}[WE 2.3 --- CSES \emph{Chessboard and Queens}: pruning with
+receipts]\label{ex:queens}
+Place eight queens on an $8 \times 8$ board with some squares reserved
+(\texttt{*}), so that no two queens share a row, column, or diagonal. Count
+the valid placements.
+\par\smallskip
+\textbf{Strategy.} Place queens row by row --- one per row is forced anyway,
+so the state at depth $r$ is a partial placement in rows $0..r-1$. The blind
+version tries all $4^8$-style assignments; the smart version checks three
+things before recursing: this column already used? this diagonal taken (two
+families, indexed $r+c$ and $r-c$)? this square reserved? Any ``yes'' and the
+branch dies instantly --- a \emph{prune}, and the program counts them so we
+can see the saving rather than guess at it.
+\par\smallskip
+\begin{solution}
+\lstinputlisting{code/queens.cpp}
+Run on an empty board, then on the real CSES sample (four reserved squares),
+with the diagonal checks switched on and off for comparison:
+\begin{lstlisting}[numbers=none]
+full checks (col+diag+cells):   nodes=2057   pruned=13664  leaves=92
+columns only:                  nodes=109601 pruned=444648 leaves=40320
+
+full checks (col+diag+cells):   nodes=1607   pruned=10730  leaves=65
+columns only:                  nodes=68069  pruned=288324 leaves=23520
+\end{lstlisting}
+Read the counter before the answer. With all checks on, $2057$ nodes produce
+$92$ leaves --- and since only fully valid states reach depth 8, every leaf
+\emph{is} a solution (CSES sample: $65$). With columns alone, the search still
+walks all $8! = 40\,320$ leaf placements --- $53\times$ more nodes visited for
+the same information. The diagonal rules did not make the algorithm cleverer;
+they deleted 98\% of its work. That is what a pruning rule is for.
+\end{solution}
+\end{example}
+
+Figure~\ref{fig:queentree} draws the same story on the small board.
+
+\begin{figure}[ht]\centering
+\input{figures/fig08-queentree}
+\caption{4-queens, unpruned vs pruned (real shape, measured). Left: the blind
+tree fans out to $4^4 = 256$ leaves. Right: with column + diagonal checks, the
+row-1 level keeps 6 of 16 children, row 2 keeps 4 of 64, and exactly 2
+solutions survive. Every \textsf{x} is a subtree that was never entered ---
+the saving is the size of what is missing, not what is present.}
+\label{fig:queentree}
+\end{figure}
+
+\begin{exercise}[medium]\label{exr:prunefire}
+In \texttt{code/queens.cpp}, the three prune rules live inside one boolean
+expression. Which exact line of \texttt{search()} fires when a candidate
+square shares a column with a placed queen? If you removed the
+\texttt{useDiag} term but kept \texttt{useCell}, would \texttt{leaves} still
+equal the answer? Why or why not?
+\end{exercise}
+
+\section{Search-space sketches}\label{sec:sketches}
+\index{search space!sketching}
+
+Every problem in this chapter was planned the same way: draw the tree before
+coding it. The sketch costs a minute and answers three questions an IDE
+cannot: How big is the space? What does a node look like? Where can a check
+fire?
+
+The method is mechanical. First, \emph{name the state}: the minimal
+information a recursion call needs (for subsets, ``depth $k$ + what's been
+chosen''; for queens, ``which columns are taken''). Second, \emph{draw two
+levels of the tree} on a small instance ($n = 3$ or $4$) --- if the leaves are
+not obviously the candidates, the state is wrong. Third, \emph{count the
+leaves and the internal nodes}: leaves tell you the space size, internals tell
+you the real work, and their ratio tells you how much a per-node prune could
+save. Figure~\ref{fig:rectree} and Figure~\ref{fig:queentree} are exactly
+these sketches, left in the book on purpose --- they are not illustrations of
+the code, they are the \emph{design document} the code was written from.
+
+\begin{exercise}[medium]\label{exr:trace}
+Draw the full recursion tree for \texttt{subsets\_rec.cpp} on $n = 4$, marking
+take/leave on every edge as in Figure~\ref{fig:rectree}. How many internal
+nodes and leaves does it have? Now mark the tree for the \emph{fixed-element}
+version of WE~2.1's search: which half disappears, and which node does the
+pin live at?
+\end{exercise}
+
+\section{Common mistakes}
+\index{common mistakes}
+
+\begin{itemize}
+\item \textbf{\texttt{1 << n} on the wrong side of 31.} \texttt{1} is an
+\texttt{int}; shifting it into bit 31 is undefined and bit 32+ is garbage.
+For $n \ge 31$ write \texttt{1LL << n} --- and for $n \ge 64$ admit that a
+single mask cannot hold the subset at all (use \texttt{vector<bool>} or the
+recursive version, which never builds a mask).
+\item \textbf{\texttt{next\_permutation} on unsorted input.} The walk goes
+upward only: from \texttt{"cba"} it ends immediately and you enumerate one
+permutation, silently. Sort first --- then duplicates need no other handling.
+\item \textbf{Marking without unmarking.} Backtracking's bookkeeping is
+borrowed state: \texttt{col[c] = true} before the recursive call,
+\texttt{col[c] = false} after. Forget the second line and the next sibling
+inherits phantom conflicts --- every subsequent branch dies for no reason and
+the count is quietly wrong. The mark/unmark pair is the price of the prune.
+\item \textbf{Halving on a non-symmetric objective.} The WE~2.1 pin worked
+because $|S_A - S_B|$ is unchanged by swapping the groups. If the objective
+distinguishes the sides --- ``first group's sum must not exceed the
+second's'' --- the same pin deletes exactly the answers you needed. Verify
+the invariance on paper before deleting half the tree.
+\item \textbf{Counting leaves as the cost.} The tree's work happens at
+\emph{internal} nodes too: the subset tree of Figure~\ref{fig:rectree} has
+$2^n$ leaves but $2^{n+1} - 1$ nodes total. When estimating a search, count
+nodes, not answers --- and when claiming a prune helps, measure both counters
+as WE~2.3 does, because a rule that prunes the wrong branch is worse than
+none.
+\end{itemize}
+
+\section{Chapter summary}
+\begin{table}[ht]\centering
+\begin{tabularx}{\linewidth}{@{}lYY@{}}
+\toprule
+\tablehead\thead{Tool} & \thead{Use when} & \thead{Cost / first check when wrong}\\
+\midrule
+Nested loops & space is a small product of bounds ($\le 10^6$ pairs) & bound clips a legal case: check $iX + jY \le M$ style\\
+Recursive subsets & you want take/leave order or per-node work & $2^n$ leaves, $2^{n+1}-1$ nodes; depth $= n$\\
+Bitmask \texttt{for mask} & you want three lines and numerical order & \texttt{1 << n} overflows past $n = 30$\\
+\texttt{next\_permutation} & all $n!$ orders needed, $n \le 11$ & \texttt{sort} first or the walk is incomplete\\
+Backtracking & dead branches are detectable early & prune must be sound --- never kills an answer\\
+Symmetry pin & objective invariant under some swap & verify invariance, then halve --- measure it\\
+\bottomrule
+\end{tabularx}
+\caption{Chapter 2 in one page. The meta-rule sits above the table: estimate
+the space before you enumerate it --- size times work per candidate decides
+everything.}
+\label{tab:ch2summary}
+\end{table}
+
+\section{Additional exercises}
+\index{exercises}
+Named archive problems are cited by name only; look them up on
+\texttt{cses.fi} and \texttt{usaco.org}.
+
+\begin{exercise}[easy] CSES \emph{Tower of Hanoi}: print the optimal move
+sequence for $n$ disks. [implement --- this is a recursive walk that emits
+its own search tree]
+\end{exercise}
+\begin{exercise}[easy] CSES \emph{Gray Code}: list all $2^n$ bit strings so
+adjacent strings differ in one bit. [implement --- one recursive flip order
+produces the whole list]
+\end{exercise}
+\begin{exercise}[easy] USACO Bronze \emph{Diamond Collector}: choose the two
+largest diamonds whose sizes differ by at most $k$. Trains bounded nested
+loops and the ``sort then think'' reflex.
+\end{exercise}
+\begin{exercise}[easy] USACO Bronze \emph{Daisy Chains}: count plants whose
+height equals the average height of some contiguous interval. Nested loops
+over interval endpoints --- the space is $O(n^2)$, the check is $O(n)$.
+\end{exercise}
+\begin{exercise}[easy] USACO Bronze \emph{Counting Liars}: find the earliest
+true statement in a list of claims about a hidden position. Sort the claims
+and walk --- complete search over $n$ candidates.
+\end{exercise}
+\begin{exercise}[medium] CSES \emph{Raab Game I}: construct a game history
+with given scores, or report impossible. Search meets construction.
+\end{exercise}
+\begin{exercise}[medium] CSES \emph{Mex Grid Construction}: fill an $n
+\times n$ grid so each cell's mex condition holds. Enumeration under a local
+constraint --- a backtracking-shaped construction.
+\end{exercise}
+\begin{exercise}[medium] USACO Bronze \emph{Cow Gymnastics}: from $K$
+practice rankings, count pairs of cows whose order never changes. Triple
+nested loops bounded by the constraints.
+\end{exercise}
+\begin{exercise}[medium] USACO Bronze \emph{Triangles}: sum the areas of all
+axis-aligned right triangles in a point set. Enumeration over $\binom{n}{2}$
+or $\binom{n}{3}$ --- choose which.
+\end{exercise}
+\begin{exercise}[hard] CSES \emph{Digit Queries}: find the $k$-th digit of
+the concatenated sequence $1, 2, 3, \dots$ --- the search space is far past
+enumeration, so derive the block containing $k$ instead. [derive --- a lesson
+in when \emph{not} to enumerate]
+\end{exercise}
+\begin{exercise}[hard] CSES \emph{Grid Path Description}: count paths
+visiting every square of a $7 \times 7$ grid along a given pattern. Pure
+backtracking --- and it only fits inside the budget once you add the pruning
+rules WE~2.3 taught. [implement]
+\end{exercise}
+
+\chapternotes
+The complete-search chapter of Laaksonen's handbook~\cite{laaksonen2024}
+covers the same three idioms in the same order --- generating subsets both
+ways, permutations, then backtracking with pruning --- and this chapter's
+worked examples are drawn from the CSES introductory set it
+accompanies~\cite{cses}. Sannemo's treatment adds the ``search space size
+times per-candidate work'' cost model used in Section~\ref{sec:exhaustive}
+and the ``small constraint means intended enumeration'' reading of
+Remark~\ref{rem:smalln}~\cite{sannemo2025}. The USACO Guide's Bronze modules
+on complete search and recursion supplied the nested-loop framing of WE~2.4
+and several of the additional-exercise choices~\cite{usacoguide}; the
+backtracking instrumentation (count the nodes, count the prunes) follows the
+measure-first debugging style of cp-algorithms' backtracking
+articles~\cite{cpalgorithms}. All timings are real runs on this machine
+(Apple clang, \texttt{-O2}) and will differ modestly elsewhere --- the
+ratios, not the numbers, carry the argument. Halim's text~\cite{halimcp4}
+organises the same material around UVa problem families --- cited here, not
+consulted for content.
+

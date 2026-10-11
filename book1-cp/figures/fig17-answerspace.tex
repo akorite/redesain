@@ -1,0 +1,19 @@
+\begin{tikzpicture}[font=\footnotesize]
+% F4.3 input space vs answer space.
+\node[draw=slate,fill=graybg,align=left,text width=4.6cm] at (0,0.6)
+  {\textbf{input space}: the array the problem hands you ---
+   $n$ up to $2\cdot10^5$, read once};
+\node[draw=accent,fill=accentsoft,align=left,text width=4.6cm] at (0,-1.2)
+  {\textbf{answer space}: the value the problem asks for ---
+   a number you \emph{choose}, so its shape is yours};
+\draw[{stealth}-,thick,ink] (-2.6,-2.6) -- (2.6,-2.6);
+\foreach \t/\lbl in {-2/1, -0.7/, 0.6/, 2/{$\sim10^{18}$}}
+  \draw (\t,-2.7) -- (\t,-2.5);
+\node[below,font=\tiny] at (-2,-2.75) {1};
+\node[below,font=\tiny] at (2,-2.75) {$\sim 10^{18}$};
+\node[accent] at (0.6,-2.25) {$T^{\ast}$};
+\draw[{stealth}-,accent,thick] (0.6,-2.5) -- ++(0,-0.7)
+  node[below,align=center,text=accent,text width=5.4cm]
+  {$\log_2$ of this whole line is about 60 probes\\
+   --- the answer space shrinks like the array did};
+\end{tikzpicture}

@@ -1,0 +1,11 @@
+\begin{tikzpicture}[font=\tiny]
+\node[draw=slate] (r) at (0,0) {[1,8]};
+\node[draw=slate] (a) at (-1.6,-0.9) {[1,4]};
+\node[draw=slate] (b) at (1.6,-0.9) {[5,8]};
+\node[draw=slate,font=\tiny] (a1) at (-2.4,-1.8) {[1,2]};
+\node[draw=slate,font=\tiny] (a2) at (-0.9,-1.8) {[3,4]};
+\node[draw=slate,font=\tiny] (b1) at (0.9,-1.8) {[5,6]};
+\node[draw=slate,font=\tiny] (b2) at (2.4,-1.8) {[7,8]};
+\draw[slate] (r)--(a) (r)--(b) (a)--(a1) (a)--(a2) (b)--(b1) (b)--(b2);
+\node[font=\tiny] at (0,-2.6) {$2n$ array: node $v$, children $2v,2v{+}1$};
+\end{tikzpicture}

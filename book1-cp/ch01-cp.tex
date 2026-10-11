@@ -1,0 +1,673 @@
+\chapter{The contest machine and the cost model}\label{ch:machine}
+\index{contest workflow}
+
+Competitive programming is a game played inside a strict machine: a judge
+compiles your program, runs it on hidden tests, and returns a one-word verdict
+in seconds. This chapter teaches you how that machine works and how to think
+inside it. By the end you will have a starter file you trust, a working sense
+of how fast a given algorithm is before you write it, and a routine for going
+from a problem statement to an accepted submission without flailing. Everything
+else in the book assumes this chapter's machinery.
+
+\section{How a judge sees your program}\label{sec:judge}
+
+Forget the IDE, the debugger, the terminal prompt. To the judge\index{judge}
+your program is a \emph{function}: it reads characters from standard input
+(\texttt{stdin}\index{stdin}) and writes characters to standard output
+(\texttt{stdout}\index{stdout}). No files, no network, no graphics, no prompts.
+A program that prints \texttt{please enter n:} gets marked wrong, because the
+judge compares your output byte-for-byte with the expected output.
+
+A submission is run once per \emph{test file}. Each test file is one complete
+input; your program must print the correct answer for it within the
+\emph{time limit}\index{time limit} (typically 1--2 seconds) and the
+\emph{memory limit}\index{memory limit} (typically 256--512\,MB). The tests are
+hidden from you. They are also written by people whose job is to break
+plausible-but-wrong programs, so ``it worked on my three tests'' means nothing.
+
+After all runs, the judge reports one \emph{verdict}\index{verdict} per
+submission, sometimes per test:
+
+\begin{center}
+\begin{tabular}{ll}
+\toprule
+\thead{Verdict} & \thead{Meaning}\\
+\midrule
+Accepted (AC) & every test file passed\\
+Wrong Answer (WA) & your output differed from the expected output\\
+Time Limit Exceeded (TLE) & a run did not finish inside the time limit\\
+Runtime Error (RE) & the program crashed (segfault, bad index, \dots)\\
+Memory Limit Exceeded (MLE) & the program exceeded the memory budget\\
+Compile Error (CE) & the judge could not build your code\\
+\bottomrule
+\end{tabular}
+\end{center}
+
+Figure~\ref{fig:verdict} shows the whole pipeline; Figure~\ref{fig:statement}
+annotates a typical statement so you can see where the machine's parameters
+are declared.
+
+\begin{figure}[ht]\centering
+\input{figures/fig01-verdict}
+\caption{What the judge does with your code. Notice there is only one good
+outcome and five distinct ways to lose; each failure tells you where to look
+first. CE means the file did not build at all --- fix that before anything
+else.}
+\label{fig:verdict}
+\end{figure}
+
+\begin{figure}[ht]\centering
+\input{figures/fig02-statement}
+\caption{Anatomy of a problem statement (invented here, in the layout CSES and
+USACO use). Notice the constraints block: it is the most important paragraph
+on the page, and Section~\ref{sec:constraints} teaches you to read it before
+reading anything else.}
+\label{fig:statement}
+\end{figure}
+
+Scoring varies by contest. CSES and most archives are all-or-nothing: a
+submission is worth points only if every test passes. USACO gives partial
+credit per test file. IOI-style problems and some Codeforces subtasks give
+partial credit for easier constraint ranges --- you can AC the small
+\emph{subtasks}\index{subtask} while the hard ones stay red. Always read which
+model a problem uses; it changes which submissions are worth your time.
+
+\begin{exercise}[easy]\label{exr:verdicts}
+A friend submits three programs to the same problem. Predict each verdict:
+(a) the program prints \texttt{answer: 42} instead of \texttt{42};
+(b) the program is correct but takes 30 seconds on the largest test;
+(c) the program declares \texttt{int a[1000000000];} inside \texttt{main}
+(a four-gigabyte stack array).
+\end{exercise}
+
+\begin{example}[WE 1.1 --- CSES \emph{Weird Algorithm}: the full loop]
+\label{ex:weird}
+A problem asks: given an integer $n$ up to $10^6$, print the sequence where
+each step halves an even number and sends an odd number to $3n+1$, ending at
+$1$. Input \texttt{3} should print \texttt{3 10 5 16 8 4 2 1}.
+\par\smallskip
+\textbf{Strategy.} There is nothing to optimise: the statement \emph{is} the
+algorithm, so simulate it directly. The only question is the integer type ---
+intermediate values can exceed $10^6$ even when the input does not. (For the
+record: starting from $n=704\,511$, legal under the limit, the sequence peaks
+at $56\,991\,483\,520$.) A 32-bit \texttt{int} would overflow on a fraction of
+tests, so use 64 bits.
+\par\smallskip
+\begin{solution}
+\begin{lstlisting}
+#include <iostream>
+using namespace std;
+using ll = long long;
+int main() {
+    ll n;
+    cin >> n;
+    while (n != 1) {
+        cout << n << ' ';
+        n = (n % 2 == 0) ? n / 2 : 3 * n + 1;
+    }
+    cout << 1 << '\n';
+}
+\end{lstlisting}
+Run on the sample:
+\begin{lstlisting}[numbers=none]
+$ echo 3 | ./weird
+3 10 5 16 8 4 2 1
+\end{lstlisting}
+It matches, so we also check the edge case $n=1$ (prints \texttt{1}
+immediately) before submitting. The submission returns AC. The real workflow
+here is what matters: read, simulate, test on the sample, test one edge case,
+submit. You will repeat it hundreds of times.
+\end{solution}
+\end{example}
+
+\section{The C++17 starter kit}\label{sec:starter}
+\index{starter file|see{template}}
+\index{template}
+
+Every solution in this book is C++17. Listing~\ref{lst:template} is the
+starter file; it lives in \texttt{code/lib/} and every later chapter
+copies it.
+
+\lstinputlisting[caption={\texttt{code/lib/template.cpp}: the starter file.
+Minimal on purpose --- every line earns its place.},label={lst:template}]
+{code/lib/template.cpp}
+
+Three choices in it deserve a defence. First, the includes are explicit.
+You will see \texttt{\#include <bits/stdc++.h>} in other people's code; judges
+accept it, but it is a GCC-specific catch-all, it hides which facilities you
+actually use, and it fails on compilers that do not ship it. We name the four
+headers this chapter needs and add others as the book demands them.
+
+Second, \texttt{using ll = long long}. The default integer type for counting
+should be 64-bit: \texttt{int}\index{int@{\texttt{int}}} holds only
+about $\pm 2.1\cdot 10^9$, while \texttt{ll} holds about
+$\pm 9.2\cdot 10^{18}$. The price is a few characters and roughly twice the
+memory per number --- cheap insurance against the single most common WA cause
+in the archive.
+
+Third, the two macros. \texttt{rep(i,a,b)} is a counted loop;
+\texttt{all(x)} expands to \texttt{begin(x), end(x)} for calls like
+\texttt{sort(all(v))}. We keep the macro count at two because macros are
+invisible at read time --- a template that does magic for you will do magic
+\emph{to} you in a later chapter's debugging session.
+
+\begin{definition}[Integer overflow]\index{overflow}
+\emph{Overflow} is arithmetic leaving the range of its type. In C++ signed
+overflow is \emph{undefined behaviour}\index{undefined behaviour}: the standard
+allows anything. In practice the value usually wraps to garbage
+($2\,147\,483\,647+1$ becomes $-2\,147\,483\,648$), but ``usually'' is the
+point --- the same code can misbehave differently across compilers and flags.
+\end{definition}
+
+The rules of thumb: any product of two inputs near $10^5$ or larger, any sum
+of up to $10^5$ terms near $10^9$, and any expression like \texttt{n*(n+1)/2}
+with $n$ above $46\,000$ exceeds \texttt{int}. When in doubt, \texttt{ll}.
+
+\begin{tripwire}[The overflow tripwire]
+If a program passes the samples but fails the judge's big tests, check the
+types of every accumulator and every product \emph{before} anything else.
+Worked Example 1.4 is this exact failure.
+\end{tripwire}
+
+\subsection{Fast input and output}\label{sec:fastio}
+\index{fast input/output}
+\index{ios::sync\_with\_stdio@\texttt{ios::sync\_with\_stdio}}
+
+By default, C++ streams are synchronised with the C stdio library --- a
+convenience you pay for on every \texttt{cin}. Two lines in the template turn
+that off: \texttt{ios::sync\_with\_stdio(false)} detaches the streams, and
+\texttt{cin.tie(nullptr)} stops \texttt{cin} from flushing \texttt{cout}
+before each read. Together they make stream I/O fast enough for almost every
+problem in this book.
+
+When input gets large --- a million tokens or more --- even that can be the
+bottleneck. Listing~\ref{lst:fastscan} compares the two levels on a file of
+one million integers: plain \texttt{cin} with sync disabled versus a small
+scanner that reads the raw \texttt{stdin} buffer itself
+(\texttt{code/lib/fastscan.h}, part of the capstone library).
+
+\lstinputlisting[caption={\texttt{code/fastscan.cpp}: two ways to read a
+million integers, timed.},label={lst:fastscan}]{code/fastscan.cpp}
+
+\begin{checkpoint}[Predict before you run]
+Predict the ratio of the two timings: a factor of 2, of 10, or of 100? Then
+look at the measured run below.
+\end{checkpoint}
+
+\begin{lstlisting}[numbers=none]
+$ ./fastscan < ints1e6.txt
+method=cin sum=499884612927859 time_ms=919.0
+$ ./fastscan f < ints1e6.txt
+method=fread sum=499884612927859 time_ms=6.6
+\end{lstlisting}
+
+On this machine the buffer scanner is about $140\times$ faster --- nine
+hundred milliseconds spent purely on parsing. Take the lesson as a range, not
+a law: the ratio varies by machine and judge, but the direction never does.
+Use the template's two lines always; reach for \texttt{fastscan.h} when input
+is the bottleneck.
+
+\subsection{The STL you actually use}\label{sec:stl}
+\index{STL}\index{vector@\texttt{vector}}\index{sort@\texttt{sort}}
+
+You can solve the first hundred problems of this book with five library
+tools. \texttt{vector} is the only array you need: contiguous, resizable,
+O(1) index access. \texttt{sort} orders a range in $O(n\log_2 n)$ and accepts
+a \emph{comparator}\index{comparator} --- a function returning true when the
+first argument belongs before the second. \texttt{set}\index{set@\texttt{set}}
+keeps distinct elements sorted (insert, erase, find all $O(\log_2 n)$);
+\texttt{map}\index{map@\texttt{map}} is the same idea keyed by a value, which
+makes it a frequency table; \texttt{priority\_queue}\index{priority queue}
+keeps the current maximum on top in $O(\log_2 n)$ per operation. Strings are
+\texttt{std::string}; small records are \texttt{pair} or \texttt{tuple},
+unpacked by a \emph{structured binding}\index{structured binding}
+(\texttt{auto\& [k, v] : m}). Listing~\ref{lst:stltour} exercises all of them.
+
+\lstinputlisting[caption={\texttt{code/stl\_tour.cpp}: the four containers
+and a custom comparator, with real output.},label={lst:stltour}]
+{code/stl_tour.cpp}
+
+\begin{lstlisting}[numbers=none]
+sorted: 2 4 8 1 5
+set: 1 2 4
+a=2 b=3 c=1 
+pop order: 9 7 4 3
+\end{lstlisting}
+
+Notice the comparator's effect on the first line: evens sorted before odds,
+each group ascending. Notice too that \texttt{freq[w]++} needs no
+initialisation --- \texttt{map} value-initialises missing entries to zero,
+which is why frequency tables are one line of code.
+
+\begin{exercise}[easy]\label{exr:predict}
+Predict the output of this program, then check yourself by running it:
+\begin{lstlisting}
+int a = 7;
+cout << a/2 << ' ' << a/2.0 << ' ' << (a*a)/2 << '\n';
+\end{lstlisting}
+What type does the middle expression evaluate in, and why do the first and
+last answers differ?
+\end{exercise}
+
+\section{Time complexity}\label{sec:complexity}
+\index{time complexity}
+
+``Is this algorithm fast enough?'' has to be answerable \emph{before} you
+write code, or you will spend contest minutes implementing something that was
+doomed from the statement. The tool is asymptotic analysis: count how the
+work grows with the input size, not how many milliseconds it takes on one
+machine.
+
+\begin{definition}[RAM model]\index{RAM model}
+We count \emph{operations}: arithmetic, comparisons, assignments, array
+reads and writes each cost one unit. A function call is the sum of the work
+it does. This is a model, not physics --- real machines have caches,
+branches and vector units --- but it predicts the shape of runtimes far
+better than it predicts their absolute values.
+\end{definition}
+
+Count the operations in a nested loop exactly once and you will see why the
+abstraction helps:
+
+\begin{lstlisting}
+long long s = 0;                       // 1 op
+for (int i = 0; i < n; ++i)            // n iterations
+    for (int j = i + 1; j < n; ++j)    // n-i-1 iterations
+        s += a[i] * a[j];              // 3 ops each pass
+\end{lstlisting}
+
+The innermost line runs $\sum_{i=0}^{n-1}(n-1-i) = n(n-1)/2$ times, so the
+total is $1 + 3n(n-1)/2$. For large $n$ the $n^2$ term dominates: at
+$n=10^5$ the count is about $1.5\cdot 10^{10}$ --- seconds to minutes, not
+the microseconds a linear algorithm needs. The lower-order terms and the
+constants stop mattering quickly, which is exactly what the notation
+formalises.
+
+\begin{definition}[$O$, $\Theta$, $\Omega$]\index{big-O}\index{Theta@$\Theta$}%
+\index{Omega@$\Omega$}
+For functions $f,g:\mathbb{N}\to\mathbb{R}_{>0}$:
+\begin{itemize}
+\item $f \in O(g)$: there exist $c>0$ and $n_0$ with
+$f(n) \le c\,g(n)$ for all $n\ge n_0$ --- $g$ is an \emph{asymptotic upper
+bound}.
+\item $f \in \Omega(g)$: there exist $c>0$ and $n_0$ with
+$f(n) \ge c\,g(n)$ for all $n\ge n_0$ --- an asymptotic lower bound.
+\item $f \in \Theta(g)$: both hold --- $f$ and $g$ have the same growth rate.
+\end{itemize}
+Writing $f = O(g)$ is common shorthand for $f \in O(g)$.
+\end{definition}
+
+\begin{theorem}\label{thm:thetapoly}
+$3n^2 + 10n + 7 \in \Theta(n^2)$.
+\end{theorem}
+
+\begin{proof}
+Upper bound: for $n \ge 1$, $10n \le 10n^2$ and $7 \le 7n^2$, so
+$3n^2+10n+7 \le 20n^2$; take $c=20$, $n_0=1$ and $f \in O(n^2)$.
+Lower bound: for $n \ge 1$, $3n^2+10n+7 \ge 3n^2$; take $c=3$, $n_0=1$
+and $f \in \Omega(n^2)$. Both directions hold, so $f \in \Theta(n^2)$.
+\end{proof}
+
+The same squeeze works for any polynomial: the leading term is the whole
+story. Inside $O(\cdot)$ the base of a logarithm never matters either, since
+$\log_a n = \log_b n / \log_b a$ differs only by a constant; in this book
+complexity uses $\log_2$ to keep the concrete meaning --- the number of
+halvings --- and every other $\log$ is natural.
+
+The classes that matter, from cheapest to most expensive:
+
+\begin{center}
+\begin{tabularx}{\linewidth}{@{}lYY@{}}
+\toprule
+\thead{Class} & \thead{Name} & \thead{Produced by}\\
+\midrule
+$O(1)$ & constant & a formula, one array lookup\\
+$O(\log_2 n)$ & logarithmic & halving the input each step (binary search)\\
+$O(\sqrt{n})$ & square root & per-block passes in sqrt decomposition\\
+$O(n)$ & linear & one pass over the input\\
+$O(n\log_2 n)$ & log-linear & sorting; divide and conquer without blowup\\
+$O(n^2)$ & quadratic & all pairs; doubly nested loops\\
+$O(n^3)$ & cubic & all triples; some DP on small $n$\\
+$O(2^n)$ & exponential & enumerating all subsets\\
+$O(n!)$ & factorial & enumerating all permutations\\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+\begin{figure}[ht]\centering
+\input{figures/fig03-growth}
+\caption{Operation counts on log--log axes against the one-second budget of
+$10^8$ simple operations. Notice where each curve crosses the amber line:
+$\log_2 n$ never gets there, $n\log_2 n$ crosses near $n \approx 4\cdot10^6$,
+$n^2$ near $10^4$, and $2^n$ already fails before $n=30$. This single picture
+is the whole point of Section~\ref{sec:constraints}.}
+\label{fig:growth}
+\end{figure}
+
+\begin{definition}[The $10^8$ heuristic]\index{10^8 heuristic@$10^8$ heuristic}
+As a budgeting rule of thumb, one second of judge time buys roughly $10^8$
+\emph{simple} operations --- integer adds, compares, array touches. It is a
+heuristic, not a law: memory-bound passes can be slower, vectorised inner
+loops can be several times faster, and the number says nothing about a
+two-second or ten-second limit. Use it to compare candidate algorithms, not
+to certify one.
+\end{definition}
+
+\begin{exercise}[medium]\label{exr:countops}
+Count the operations in this fragment exactly, then give its $\Theta$-class:
+\begin{lstlisting}
+for (int i = 1; i <= n; ++i)
+    for (int j = 1; j <= i; j += 2)
+        work();
+\end{lstlisting}
+Hint: the inner trip count is $\lceil i/2 \rceil$.
+\end{exercise}
+
+\section{From constraints to a plan}\label{sec:constraints}
+\index{constraints}
+
+Statements hand you the input size $n$ on a plate. The contest skill is
+converting $n$ into the \emph{largest} complexity class that survives the
+budget --- Figure~\ref{fig:constraints} is the table every experienced
+contestant has internalised --- and then picking the simplest algorithm in
+that class.
+
+\begin{figure}[ht]\centering
+\input{figures/fig04-constraints}
+\caption{The constraint-to-complexity table. Notice it is a ceiling chart:
+$n\le 2\cdot10^5$ does not demand $O(n\log_2 n)$, it \emph{forbids} anything
+slower. Rows are rules of thumb under the $10^8$ heuristic; a
+$5\cdot10^7$-constant quadratic can still lose to a linear pass.}
+\label{fig:constraints}
+\end{figure}
+
+Two refinements before the table gets used. First, judge tests are built to
+stress the \emph{worst case}\index{worst case}: average-case reasoning is how
+quicksort dies on sorted input. Plan for the worst row in Figure's table,
+not the typical one. Second, \emph{constant factors}\index{constant factor}
+are real --- an $O(n\log_2 n)$ algorithm whose inner step rebuilds a
+\texttt{set} can lose to a well-written $O(n)$ pass at the same $n$ --- but
+constants lose to growth: no constant rescues $n^2$ when $n=10^6$.
+
+\begin{rulebox}[Choosing the algorithm]
+Let $C$ be the largest class that fits the constraint table for the given
+$n$. Among algorithms in $C$, implement the \emph{simplest correct one you
+can explain} --- the one with the fewest moving parts. If it TLEs, only then
+reach for the cleverer algorithm in the same class. Never climb the table
+first: a fancy $O(n\log_2 n)$ where $O(n^2)$ would have passed is wasted
+minutes.
+\end{rulebox}
+
+\begin{example}[WE 1.2 --- CSES \emph{Maximum Subarray Sum}, four ways]
+\label{ex:mss}
+Given an array of $n$ integers (with negatives), find the largest sum of a
+contiguous subarray. On CSES, $n \le 2\cdot10^5$: the table says
+$O(n\log_2 n)$ or better.
+\par\smallskip
+\textbf{Strategy.} Same problem, four honest attempts, each removing one
+structural waste: (i) try every interval and resum --- correct but cubic;
+(ii) keep the sum running while the right end moves --- quadratic;
+(iii) split the array and combine --- $O(n\log_2 n)$;
+(iv) notice that only the \emph{best ending} matters at each step ---
+linear.
+\par\smallskip
+\begin{solution}
+The cubic version checks all $n(n+1)/2$ intervals and resums each:
+\begin{lstlisting}
+for (int l = 0; l < n; ++l)
+    for (int r = l; r < n; ++r) {
+        ll s = 0;
+        for (int k = l; k <= r; ++k) s += a[k];
+        best = max(best, s);
+    }
+\end{lstlisting}
+It is correct --- it inspects every candidate --- and it is the first
+submission most beginners write. The quadratic version keeps $s$ running as
+$r$ advances, deleting the inner loop. The divide-and-conquer version splits
+at the middle: the answer is the best of left half, right half, or an
+interval crossing the middle (extend left and right greedily from the
+split). The linear version is Kadane's\index{Kadane's algorithm}:
+\begin{lstlisting}
+ll best = a[0], cur = a[0];
+for (int i = 1; i < n; ++i) {
+    cur = max(a[i], cur + a[i]);   // extend or restart
+    best = max(best, cur);
+}
+\end{lstlisting}
+Correctness, in one line: \texttt{cur} is the largest sum of any subarray
+\emph{ending at} $i$ --- you either continue the previous best suffix or
+abandon it --- and \texttt{best} remembers the largest of those. All four
+are in \texttt{code/mss\_timing.cpp}; Listing~\ref{lst:msstiming} is the
+driver. Measured on this machine:
+\begin{lstlisting}[numbers=none]
+O(n^3)    n=3000    ans=24382 time_ms=254.9
+O(n^2)    n=50000   ans=109297 time_ms=602.2
+O(nlogn)  n=200000  ans=218662 time_ms=1.8
+O(n)      n=200000  ans=218662 time_ms=0.1
+O(n)      n=5000000 ans=1565779 time_ms=3.4
+\end{lstlisting}
+Read the table backwards: the linear pass handles $n=5\cdot10^6$ in less
+time than the cubic one needs for $n=3000$ --- and note the \texttt{ans}
+column is identical wherever both finished, which is the definition of a
+correct optimisation.
+\end{solution}
+\end{example}
+
+\lstinputlisting[caption={Listing 1.4: the benchmark driver
+(\texttt{code/mss\_timing.cpp}, excerpt). Each algorithm is timed at the
+largest $n$ it survives in about a second; the linear one is pushed to
+$n=5\cdot10^6$ to show headroom.},
+label={lst:msstiming},firstline=63,lastline=85]{code/mss_timing.cpp}
+
+We did not run the cubic version at $n=2\cdot10^5$; extrapolating the
+measured scaling, it would take about a day. The quadratic at that $n$ is
+roughly ten seconds. Both lose the contest to algorithm choice, not to
+coding skill --- which is the lesson.
+
+\begin{exercise}[medium]\label{exr:pickclass}
+For each problem, name the largest complexity class the constraint allows
+under the $10^8$ heuristic and the shape of an algorithm that fits:
+(a) $n \le 15$: count the subsets with a given property;
+(b) $n \le 3\cdot10^5$: find the maximum of a sliding window;
+(c) $n \le 2000$: longest common subsequence of two strings.
+\end{exercise}
+
+\section{The submit loop}\label{sec:submit}
+\index{submit loop}
+\index{sample test}
+\index{Wrong Answer|see{verdict}}
+
+Acceptance is a loop, not an event. Figure~\ref{fig:minute} shows how a
+working five minutes splits on one problem; the dashed arrow is the part
+beginners get wrong --- a WA sends you back to \emph{thinking}, not to
+resubmitting.
+
+\begin{figure}[ht]\centering
+\input{figures/fig05-minute}
+\caption{One problem, five minutes. Notice the blocks are small and the
+feedback edge goes to ``think'': a wrong answer is new information about
+your assumptions, not an invitation to submit again.}
+\label{fig:minute}
+\end{figure}
+
+The loop, expanded. \emph{Compile like the judge}: the book's flags are
+\texttt{-std=c++17 -O2 -Wall -Wextra}; warnings are unheeded verdicts.
+\emph{Test locally first}: run the samples, then one edge case you invented
+($n=1$, all-equal input, the largest legal $n$ if generation is cheap).
+\emph{Read a WA as a clue}, in this order:
+
+\begin{checklist}
+\item Did I handle the constraints' endpoints ($n=1$, $n=0$, maximum $n$)?
+\item Are all accumulators and products 64-bit? (The overflow tripwire.)
+\item Does my output match the format byte-for-byte --- no extra words,
+spaces, or missing newline?
+\item Did I test anything the statement did not give me, or did I trust
+the sample?
+\end{checklist}
+
+And keep one thing straight: \textbf{Accepted means passed these tests, not
+correct}. Judges write strong test sets, but ``AC'' certifies nothing about
+inputs nobody tried. The deep fix --- proving your candidate against a brute
+force on random small tests --- is \emph{stress testing}\index{stress test},
+and Chapter~18 makes it a habit; \texttt{code/test\_ch01.sh} already runs
+200 random rounds of the linear MSS code against the cubic one.
+
+\begin{example}[WE 1.3 --- CSES \emph{Missing Number}: two ways to be right]
+\label{ex:missing}
+Numbers $1$ to $n$ appear once each except one, which is missing. Given
+$n \le 2\cdot10^5$ and the $n-1$ present numbers, find the missing one.
+\par\smallskip
+\textbf{Strategy.} Two routes present themselves: a \emph{formula} ---
+the total should be $n(n+1)/2$, so subtract the given sum --- and a
+\emph{marking} pass --- record which values appear and find the gap. Both
+are $O(n)$, both fit easily. Under time pressure choose the one with fewer
+ways to be wrong: the formula's product can overflow if types slip, while
+marking has no arithmetic at all beyond indexing. Marking is the safer
+submission; the formula is the faster insight. Knowing both lets you pick.
+\par\smallskip
+\begin{solution}
+Formula (\texttt{code/missing\_math.cpp}) and marking
+(\texttt{code/missing\_set.cpp}); on the test of Section~1.5 both print
+\texttt{200000} for the crafted $n=2\cdot10^5$ case. The point is not the
+answer --- it is that two correct algorithms existed and the choice was a
+risk decision, not a knowledge gap.
+\end{solution}
+\end{example}
+
+\begin{example}[WE 1.4 --- the first bug hunt]
+\label{ex:bughunt}
+Here is a real Wrong Answer. The sum formula for \emph{Missing Number}
+written with \texttt{int} throughout (\texttt{code/missing\_int.cpp}) passes
+the sample happily --- and prints this on the crafted large test:
+\begin{lstlisting}[numbers=none]
+$ ./missing_int < missing_big.txt
+-2147283648
+\end{lstlisting}
+Negative two billion is not a number between $1$ and $n$.
+\par\smallskip
+\textbf{Strategy.} Apply the checklist in order. Endpoints: $n$ legal, fine.
+Types: \texttt{int total = n*(n+1)/2} overflows once
+the intermediate product $n(n+1) > 2^{31}$, i.e.\ already at
+$n \approx 46\,341$ --- the judge's tests go to $2\cdot10^5$.
+That is the bug, found in one checklist step.
+\par\smallskip
+\begin{solution}
+Change three \texttt{int}s to \texttt{ll} (\texttt{code/missing\_math.cpp});
+the same test now prints \texttt{200000}. The sample never had a chance to
+catch this: with $n=4$, $n(n+1)/2 = 10$ fits in 16 bits, let alone 32.
+``Samples pass'' and ``types are right'' are independent facts --- only the
+checklist connects them.
+\end{solution}
+\end{example}
+
+\begin{exercise}[medium]\label{exr:fixwa}
+This program prints a million lines and gets TLE although it does almost no
+work per line. Find the one-token fix and say why it matters:
+\begin{lstlisting}
+for (int i = 0; i < 1000000; ++i)
+    cout << i << endl;
+\end{lstlisting}
+\end{exercise}
+
+\section{Common mistakes}
+\index{common mistakes}
+
+\begin{itemize}
+\item \textbf{\texttt{endl} in a loop.} \texttt{endl} writes a newline
+\emph{and flushes} the stream; a flush per line turns microseconds into
+seconds. Use \texttt{'\textbackslash n'}, and let \texttt{cin.tie(nullptr)}
+handle the rest.
+\item \textbf{\texttt{int} where the math needs 64 bits.}
+\texttt{n*(n+1)/2} overflows at $n \approx 46\,000$; products of two
+$10^5$-scale inputs overflow always. When an accumulator can reach $10^9$,
+it is \texttt{ll}. See WE~1.4.
+\item \textbf{Reading before understanding the format.} A common failure is
+slurping tokens before noticing the input is a grid, or that the first
+number is a \emph{test count} and the loop is per-case. Sketch the parse on
+paper before coding.
+\item \textbf{Believing the sample proves the program.} A sample is a
+handshake test, not a proof: WE~1.4's bug was invisible at $n=4$. The
+checklist exists precisely because samples cannot see overflows, edge
+cases, or the second half of a compound condition.
+\end{itemize}
+
+\section{Chapter summary}
+\begin{table}[ht]\centering
+\begin{tabularx}{\linewidth}{@{}lYY@{}}
+\toprule
+\tablehead\thead{Item} & \thead{Rule of thumb} & \thead{First check when wrong}\\
+\midrule
+Verdicts & AC = all tests; WA = wrong bytes; TLE = too slow; RE = crash & Read verdict before rereading code\\
+Types & $\texttt{int} < 2.1\cdot10^9$; \texttt{ll} $< 9.2\cdot10^{18}$ & Products and accumulators first\\
+I/O & sync off + \texttt{tie(nullptr)} always; raw scanner past $10^6$ tokens & \texttt{endl} $\to$ \texttt{'\textbackslash n'}\\
+Complexity & $10^8$ simple ops $\approx$ 1 s & count the innermost loop\\
+Planning & $n$ $\to$ largest class in Fig.~\ref{fig:constraints} $\to$ simplest algorithm in it & worst case, never average\\
+Submit loop & sample $\to$ edge case $\to$ submit $\to$ checklist & WA goes back to ``think''\\
+\bottomrule
+\end{tabularx}
+\caption{Chapter 1 in one page. Keep this open during your first ten
+submissions; afterwards it is muscle memory.}
+\label{tab:ch1summary}
+\end{table}
+
+\section{Additional exercises}
+\index{exercises}
+Named archive problems are cited by name only; look them up on
+\texttt{cses.fi} and \texttt{usaco.org}.
+
+\begin{exercise}[easy] CSES \emph{Repetitions}: longest run of equal
+characters. Trains a single linear pass. [implement]
+\end{exercise}
+\begin{exercise}[easy] CSES \emph{Increasing Array}: minimum increments to
+make the array non-decreasing. Trains a one-pass greedy.
+\end{exercise}
+\begin{exercise}[easy] CSES \emph{Bit Strings}: count binary strings of
+length $n$, answer mod $10^9+7$. First taste of modular arithmetic.
+\end{exercise}
+\begin{exercise}[easy] CSES \emph{Number Spiral}: value at $(y,x)$ in the
+spiral. [derive a closed form --- no loops needed]
+\end{exercise}
+\begin{exercise}[easy] CSES \emph{Palindrome Reorder}: reorder into a
+palindrome or report impossible. Trains parity counting and a decision.
+\end{exercise}
+\begin{exercise}[easy] USACO Bronze \emph{The Cow-Signal}: scale a grid by a
+factor. Trains I/O loops and indexing.
+\end{exercise}
+\begin{exercise}[easy] USACO Bronze \emph{Speeding Ticket}: compare two
+piecewise-constant speeds over a road. Trains interval bookkeeping.
+\end{exercise}
+\begin{exercise}[medium] CSES \emph{Trailing Zeros}: trailing zeros of
+$n!$. [derive the formula --- then prove it]
+\end{exercise}
+\begin{exercise}[medium] CSES \emph{Coin Piles}: can two piles be emptied
+by moves $(-2a,-a)$? [derive the test on paper first]
+\end{exercise}
+\begin{exercise}[medium] USACO Bronze \emph{The Bucket List}: max cows
+milking at once from interval schedules. Trains sweep-line counting
+(preview of Chapter~5).
+\end{exercise}
+\begin{exercise}[medium] USACO Bronze \emph{The Bovine Shuffle}: undo a
+position permutation. Trains array-as-function thinking.
+\end{exercise}
+\begin{exercise}[hard] CSES \emph{Two Sets}: partition $1..n$ into two
+equal-sum sets or report impossible. [construct the split --- constructive
+proof required]
+\end{exercise}
+
+\chapternotes
+The judge model and the submit-loop discipline follow the contest-craft
+chapters of Sannemo~\cite{sannemo2025} and Laaksonen~\cite{laaksonen2024};
+both books open with the same machine-first framing. The complexity
+treatment --- RAM model, the squeeze proof for $\Theta$, and the
+constraint table --- parallels Laaksonen ch.~2~\cite{laaksonen2024} and the
+USACO Guide's Bronze modules on time complexity and
+simulation~\cite{usacoguide}. The starter-file and fast-I/O conventions are
+the archive's de facto standard, documented at~\cite{cppreference} and in
+the CSES problem set's own submission rules~\cite{cses}; the
+\texttt{fastscan} routine is the standard contest idiom also catalogued at
+cp-algorithms~\cite{cpalgorithms}. Halim's text~\cite{halimcp4} covers the
+same ground with a different exercise mix --- cited here, not consulted for
+content. All archive problems named in this chapter come from the CSES
+introductory set and the USACO Bronze archive; the rating-band mapping used
+throughout the book was computed from the public Codeforces problemset and
+is documented in \texttt{docs/sources.md}.

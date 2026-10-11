@@ -1,0 +1,25 @@
+\begin{tikzpicture}[font=\tiny]
+\begin{scope}
+  \node[anchor=west] at (0,0) {0\quad 4\quad $\infty$\quad 2};
+  \node[anchor=west] at (0,-0.35) {5\quad 0\quad 7\quad 3};
+  \node[anchor=west] at (0,-0.7) {$\infty$\quad $\infty$\quad 0\quad 1};
+  \node[anchor=west] at (0,-1.05) {6\quad 1\quad 8\quad 0};
+  \node at (0.8,-1.7) {before};
+\end{scope}
+\begin{scope}[xshift=2.9cm]
+  \node[anchor=west] at (0,0) {0\quad 4\quad $\infty$\quad 2};
+  \node[anchor=west] at (0,-0.35) {5\quad 0\quad 7\quad 3};
+  \node[anchor=west] at (0,-0.7) {$\infty$\quad $\infty$\quad 0\quad 1};
+  \node[anchor=west] at (0,-1.05) {6\quad 1\quad 8\quad 0};
+  \node at (0.8,-1.7) {after $k=1$};
+\end{scope}
+\begin{scope}[xshift=5.8cm]
+  \node[anchor=west] at (0,0) {0\quad 4\quad 11\quad 2};
+  \node[anchor=west] at (0,-0.35) {5\quad 0\quad 7\quad 3};
+  \node[anchor=west] at (0,-0.7) {$\infty$\quad $\infty$\quad 0\quad 1};
+  \node[anchor=west] at (0,-1.05) {6\quad 1\quad 8\quad 0};
+  \node at (0.8,-1.7) {after $k=2$};
+\end{scope}
+\node[anchor=west] at (0,-2.4) {each stage lets routes detour through
+one more vertex};
+\end{tikzpicture}

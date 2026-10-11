@@ -1,0 +1,9 @@
+\begin{tikzpicture}[font=\footnotesize]
+\node[circle,draw=slate,font=\tiny] (v) at (0,0.9) {v};
+\node[circle,draw=slate,font=\tiny] (a) at (-0.7,0) {a};
+\node[circle,draw=slate,font=\tiny] (b) at (0.7,0) {b};
+\draw[slate] (v)--(a) (v)--(b);
+\node[font=\tiny,anchor=west] at (1.4,0.9) {in[v]: v matched below};
+\node[font=\tiny,anchor=west] at (1.4,0.3) {out[v]: v free upward};
+\node[font=\tiny] at (0.7,-0.8) {two states per vertex};
+\end{tikzpicture}

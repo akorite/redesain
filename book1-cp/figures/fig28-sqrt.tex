@@ -1,0 +1,13 @@
+\begin{tikzpicture}[font=\footnotesize,x=0.5cm]
+% F6.5 sqrt buckets: [3,1,4|1,5,9|2,6,5|3] sums 8/15/13/3.
+\foreach \i/\v in {0/3,1/1,2/4,3/1,4/5,5/9,6/2,7/6,8/5,9/3}
+  \node[draw=slate,minimum width=0.42cm,minimum height=0.4cm,font=\tiny]
+    at (\i*0.48,0) {\v};
+\foreach \b/\s in {0/8,1/15,2/13,3/3}
+  \node[draw=accent,fill=accentsoft,font=\tiny] at (\b*1.44+0.55,0.75) {\s};
+\draw[decorate,decoration={brace,raise=2pt}] (0,0.95) -- (1.44,0.95);
+\draw[decorate,decoration={brace,raise=2pt}] (1.5,0.95) -- (2.94,0.95);
+\draw[decorate,decoration={brace,raise=2pt}] (3.0,0.95) -- (4.4,0.95);
+\node[font=\tiny] at (2.4,-0.7) {fringe cells scanned; whole blocks
+summed in one read};
+\end{tikzpicture}

@@ -1,0 +1,11 @@
+\begin{tikzpicture}[font=\footnotesize,x=0.5cm,y=0.22cm]
+% F6.2 histogram {2,1,5,6,2,3}: bar2's rays to first-smaller bounds.
+\foreach \i/\h in {0/2,1/1,2/5,3/6,4/2,5/3}
+  \draw[fill=graybg,draw=slate] (\i,0) rectangle (\i+0.9,\h);
+\draw[fill=accentsoft,draw=slate] (2,0) rectangle (3.8,5);
+\draw[-{stealth},amber,thick] (2.45,5.4) -- (1.4,5.4);
+\draw[-{stealth},amber,thick] (2.45,5.4) -- (4.0,5.4);
+\node[font=\tiny] at (1.0,6.1) {first smaller left};
+\node[font=\tiny] at (4.6,6.1) {first smaller right};
+\node[font=\tiny] at (3,-1.6) {bar 2 (height 5): spans $[2,3]$, area $5\cdot2=10$};
+\end{tikzpicture}

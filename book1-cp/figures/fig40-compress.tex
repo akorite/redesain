@@ -1,0 +1,16 @@
+\begin{tikzpicture}[font=\footnotesize]
+\begin{scope}
+\node[circle,draw=slate,font=\tiny] (r) at (1,1.4) {r};
+\node[circle,draw=slate,font=\tiny] (a) at (1,0.7) {a};
+\node[circle,draw=slate,font=\tiny] (b) at (1,0) {b};
+\draw[-{stealth},slate] (b)--(a) (a)--(r);
+\node[font=\tiny] at (1,-0.7) {before find(b)};
+\end{scope}
+\begin{scope}[xshift=3.4cm]
+\node[circle,draw=slate,font=\tiny] (r) at (1,1.4) {r};
+\node[circle,draw=slate,font=\tiny] (a) at (0.6,0.7) {a};
+\node[circle,draw=slate,font=\tiny] (b) at (1.4,0.7) {b};
+\draw[-{stealth},slate] (a)--(r) (b)--(r);
+\node[font=\tiny] at (1,-0.7) {after: b points at root};
+\end{scope}
+\end{tikzpicture}

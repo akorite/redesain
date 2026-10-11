@@ -1,0 +1,10 @@
+\begin{tikzpicture}[font=\footnotesize]
+\node[circle,draw=slate,font=\tiny] (a0) at (0,0.8) {A};
+\node[circle,draw=slate,font=\tiny] (b0) at (1.6,0.8) {B};
+\node[circle,draw=slate,fill=graybg,font=\tiny] (a1) at (0,-0.8) {A$'$};
+\node[circle,draw=slate,fill=graybg,font=\tiny] (b1) at (1.6,-0.8) {B$'$};
+\draw[-{stealth},slate] (a0)--(b0) node[midway,above,font=\tiny] {w};
+\draw[-{stealth},amber,thick] (a0)--(b1) node[midway,right,font=\tiny] {w/2};
+\draw[-{stealth},slate] (a1)--(b1) node[midway,below,font=\tiny] {w};
+\node[font=\tiny,align=center] at (0.8,-1.7) {upper layer: coupon unused\\ lower: spent};
+\end{tikzpicture}

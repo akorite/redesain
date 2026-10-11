@@ -1,0 +1,12 @@
+\begin{tikzpicture}[font=\tiny]
+\foreach \p in {0,...,4}
+  \node[draw=slate,font=\tiny,minimum size=0.42cm] at (\p*0.55,0) {};
+\foreach \p in {1,...,4}
+  \node[draw=slate,font=\tiny,minimum size=0.42cm] at (\p*0.55,-0.55) {};
+\foreach \p in {2,...,4}
+  \node[draw=slate,font=\tiny,minimum size=0.42cm] at (\p*0.55,-1.1) {};
+\foreach \p in {3,...,4}
+  \node[draw=slate,font=\tiny,minimum size=0.42cm] at (\p*0.55,-1.65) {};
+\node[draw=slate,font=\tiny,minimum size=0.42cm] at (4*0.55,-2.2) {};
+\node[font=\tiny] at (1.4,-3) {fill by length: diagonal first};
+\end{tikzpicture}

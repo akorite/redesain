@@ -1,0 +1,276 @@
+\chapter{Graphs: traversal and order}\label{ch:graphs}
+\index{graph traversal}\index{DFS}\index{BFS}\index{topological sort}
+
+Every graph problem in this book reduces to one question first: what
+order do I visit the vertices? Depth-first search dives until stuck
+and unrolls the answer on the way back; breadth-first search expands
+in layers and thereby measures unweighted distance for free. Built on
+them: flood fill for grids, two-colouring for bipartite checks,
+Kahn's algorithm for ordering a DAG, and the tail-plus-cycle anatomy
+of functional graphs. After this chapter you will choose the
+traversal that makes the needed invariant fall out, write the
+adjacency-list idiom without thinking, and reconstruct answers ---
+paths, components, orders --- from the arrays the search leaves
+behind.
+
+\section{Vocabulary}\label{sec:vocab}\index{graph!vocabulary}
+A graph $G = (V,E)$ is vertices plus edges: undirected pairs
+$\{u,v\}$, or directed arcs $(u,v)$, possibly weighted. Degree counts
+incident edges. A \emph{path} revisits nothing; a \emph{cycle}
+returns; connected pieces are \emph{components}. Directed graphs get
+their own adjectives: a DAG is acyclic; functional graphs have
+out-degree exactly 1.
+
+\section{Representations: adjacency lists only}\label{sec:repr}
+\index{adjacency list}
+The contest representation is \texttt{vector<vector<int>> g(n+1)}:
+memory $O(V{+}E)$, iteration $O(\deg v)$. Adjacency \emph{matrices}
+cost $O(V^2)$ and are only for dense tiny graphs. Three traps:
+self-loops and multi-edges are legal input (your code must not assume
+otherwise); CSES vertices are 1-indexed (size the array $n{+}1$); and
+undirected edges are added \emph{both} ways.
+\begin{figure}[ht]\centering
+\input{figures/fig29-adjlist}
+\caption{The same triangle two ways. Notice the lists store each edge
+twice --- that's the price of $O(\deg v)$ iteration.}
+\label{fig:adjlist}
+\end{figure}
+
+\section{Depth-first search}\label{sec:dfs}
+DFS recurses into the first unseen neighbour; the visited set makes
+each vertex processed once, so a full pass is $O(V{+}E)$. Free
+applications: component counting (one outer call per component),
+reachability, cycle detection by back-edge, and --- on grids ---
+flood fill.
+\begin{lstlisting}[language=C++,caption={\texttt{dfs.h}: the five-line
+idiom.},label={lst:dfs}]
+\end{lstlisting}
+\lstinputlisting{code/dfs.h}
+\begin{figure}[ht]\centering
+\input{figures/fig30-dfsstack}
+\caption{The recursion stack growing and unwinding. Notice vertices
+\emph{stay} on the stack while their subtree is explored --- that
+resident set is what makes back-edge detection work.}
+\label{fig:dfsstack}
+\end{figure}
+
+\section{Breadth-first search}\label{sec:bfs}
+BFS dequeues in arrival order, so vertices surface in nondecreasing
+distance: \texttt{dist[]} is the true unweighted shortest path, and
+\texttt{parent[]} reconstructs it backwards.
+\begin{lstlisting}[language=C++,caption={\texttt{bfs.h}: dist +
+parent, the reconstruction pair.},label={lst:bfs}]
+\end{lstlisting}
+\lstinputlisting{code/bfs.h}
+\begin{figure}[ht]\centering
+\input{figures/fig31-bfslayers}
+\caption{BFS as expanding waves. Notice every vertex in wave $k$ is
+exactly distance $k$ --- the queue order \emph{is} the distance
+order.}
+\label{fig:bfslayers}
+\end{figure}
+\begin{example}[CSES \emph{Labyrinth}]\label{ex:labyrinth}
+Shortest path through a grid with walls; output the path itself.
+\par\smallskip
+\textbf{Strategy.} ``Shortest'' and ``unweighted'' together name BFS.
+The path is recovered by walking \texttt{parent} from the goal ---
+search forward, reconstruct backward.
+\par\smallskip
+\begin{solution}
+\lstinputlisting{code/labyrinth.cpp}
+Real output (CSES sample):
+\begin{lstlisting}[numbers=none]
+YES
+9
+LDDRRRRRU
+\end{lstlisting}
+\end{solution}
+\end{example}
+
+\section{Flood fill}\label{sec:flood}\index{flood fill}
+A grid is an implicit graph: cells are vertices, the four directions
+are edges. Flood fill counts components --- and uses an
+\emph{explicit} stack, because a 1000$\times$1000 room is a million
+frames deep.
+\begin{lstlisting}[language=C++,caption={\texttt{floodfill.h}:
+iterative, 4-direction, marks by rewriting the grid.},label={lst:flood}]
+\end{lstlisting}
+\lstinputlisting{code/floodfill.h}
+\begin{example}[CSES \emph{Counting Rooms}]\label{ex:rooms}
+Count floor-connected regions.
+\par\smallskip
+\textbf{Strategy.} Every unvisited floor cell starts a new room; fill
+it completely before moving on. Component counting is the outer loop
+--- the fill is just DFS wearing grid clothes.
+\par\smallskip
+\begin{solution}
+\lstinputlisting{code/counting_rooms.cpp}
+Real output (CSES sample):
+\begin{lstlisting}[numbers=none]
+3
+\end{lstlisting}
+\end{solution}
+\end{example}
+\begin{figure}[ht]\centering
+\input{figures/fig32-gridgraph}
+\caption{One cell, four edges. Notice there is no graph object ---
+the neighbours are computed, never stored.}
+\label{fig:gridgraph}
+\end{figure}
+
+\section{Bipartite checks}\label{sec:bip}\index{bipartite}
+Colour as you traverse: every neighbour gets the opposite colour, and
+the first conflict certifies an odd cycle. If a pass completes, the
+colouring itself is the proof.
+\begin{example}[CSES \emph{Building Teams}]\label{ex:teams}
+Split pupils so friends land on different teams.
+\par\smallskip
+\textbf{Strategy.} ``Two groups, no inside edges'' is bipartiteness
+rephrased; BFS two-colouring either emits the split or meets its own
+edge and prints IMPOSSIBLE.
+\par\smallskip
+\begin{solution}
+\lstinputlisting{code/building_teams.cpp}
+Real output (CSES sample):
+\begin{lstlisting}[numbers=none]
+1 2 2 1 2
+\end{lstlisting}
+\end{solution}
+\end{example}
+
+\section{Directed order: Kahn and the DAG}\label{sec:topo}\index{Kahn's algorithm}\index{topological order}
+A DAG admits an order where every edge points forward. Kahn's
+algorithm: emit in-degree-0 vertices, decrement their out-neighbours,
+repeat. If the queue empties with vertices left, they are exactly the
+cycle-entangled ones --- the algorithm detects cycles for free.
+\begin{lstlisting}[language=C++,caption={\texttt{toposort.h}: Kahn;
+short order $=$ cycle.},label={lst:kahn}]
+\end{lstlisting}
+\lstinputlisting{code/toposort.h}
+\begin{example}[CSES \emph{Course Schedule}]\label{ex:course}
+Order $n$ courses satisfying prerequisites.
+\par\smallskip
+\textbf{Strategy.} Prerequisite edges are a DAG exactly when the task
+is possible; Kahn emits the order or exposes the cycle.
+\par\smallskip
+\begin{solution}
+\lstinputlisting{code/course_schedule.cpp}
+Real output (CSES sample, one valid order):
+\begin{lstlisting}[numbers=none]
+3 4 1 5 2
+\end{lstlisting}
+\end{solution}
+\end{example}
+\begin{figure}[ht]\centering
+\input{figures/fig33-kahn}
+\caption{Kahn's queue evolution. Notice the emitted sequence is a
+\emph{proof}: at print time each vertex's remaining in-degree is 0.}
+\label{fig:kahn}
+\end{figure}
+
+\section{Functional graphs: tail plus cycle}\label{sec:func}\index{functional graph}
+Out-degree 1 means every walk is a tail into a cycle --- the $\rho$
+shape of Figure~\ref{fig:rho}. Walks are deterministic, so answers
+decompose: distance-to-cycle, then cycle length.
+\begin{example}[CSES \emph{Planets Cycles}]\label{ex:planets}
+Teleportations until a planet is revisited, per start.
+\par\smallskip
+\textbf{Strategy.} From any start the trajectory is tail + cycle: the
+answer is tail-length + cycle-length. One pass per start, marking as
+we go, gives each vertex's answer in $O(n)$ total.
+\par\smallskip
+\begin{solution}
+\lstinputlisting{code/planets_cycles.cpp}
+Real output (CSES sample $t=\{2,4,3,1,4\}$):
+\begin{lstlisting}[numbers=none]
+3 3 1 3 4
+\end{lstlisting}
+\end{solution}
+\end{example}
+\begin{figure}[ht]\centering
+\input{figures/fig34-rho}
+\caption{The $\rho$ anatomy. Notice the tail can be empty --- pure
+cycles and self-loops are the same shape with zero stem.}
+\label{fig:rho}
+\end{figure}
+
+\begin{exercise}[easy]\label{exr:edgecase}
+The input may contain a self-loop $(v,v)$ and the parallel edge
+$(u,v),(u,v)$. What does each do to your degree counts, BFS layering,
+and Kahn's in-degree array?
+\end{exercise}
+\begin{exercise}[medium]\label{exr:bfsdfs}
+On a path graph $1{-}2{-}\cdots{-}n$, state the visit orders of DFS
+and BFS from vertex 1. Where do they differ first on a 4-cycle?
+\end{exercise}
+\begin{exercise}[medium]\label{exr:kahnstop}
+Kahn stops early exactly when the leftover subgraph has a directed
+cycle. Why can a nonempty acyclic leftover never happen?
+\end{exercise}
+\begin{exercise}[medium]\label{exr:funcentry}
+In a functional graph, show that following successors from any vertex
+eventually repeats --- and that the first repeated vertex is always
+on the cycle, never mid-tail.
+\end{exercise}
+
+\section{Chapter summary}
+\begin{table}[ht]\centering
+{\small
+\begin{tabularx}{\linewidth}{@{}lYYY@{}}
+\toprule
+\tablehead\thead{Need} & \thead{Tool} & \thead{Cost} & \thead{Leaves behind}\\
+\midrule
+reach a vertex & DFS & $O(V{+}E)$ & components, order\\
+shortest unweighted path & BFS & $O(V{+}E)$ & dist, parent\\
+count grid regions & flood fill & $O(nm)$ & painted cells\\
+two groups / odd cycle & 2-colour BFS & $O(V{+}E)$ & team array\\
+order a DAG & Kahn & $O(V{+}E)$ & topo order or cycle\\
+successor structure & walk + stamp & $O(n)$ & tail/cycle split\\
+\bottomrule
+\end{tabularx}}
+\caption{Pick by the invariant you need: layers mean distance, the
+stack means depth, the queue's leftovers mean cycles.}
+\label{tab:traverse}
+\end{table}
+
+\section{Common mistakes}
+\index{common mistakes}
+\begin{itemize}
+\item \textbf{Recursive flood fill on big grids.} $10^6$ cells is a
+million-deep call stack --- iterative or explicit-stack only.
+\item \textbf{BFS on weighted edges.} Layers are edge \emph{counts};
+weights need Dijkstra (Ch~11), and BFS's first visit is no longer
+shortest.
+\item \textbf{Marking on enqueue vs dequeue.} Mark \texttt{seen} when
+\emph{enqueuing}; marking on dequeue lets the same vertex enter the
+queue many times --- still correct but quadratic on dense graphs.
+\item \textbf{1-indexed off-by-one.} CSES vertices are $1..n$; an
+$n$-sized vector drops vertex $n$ silently.
+\item \textbf{Forgetting the second direction.} Undirected edges need
+two adjacency entries; a one-way insert makes the graph half-directed
+and every later claim quietly wrong.
+\end{itemize}
+
+\section{Additional exercises}
+\begin{exercise}[easy] CSES \emph{Building Roads} --- components + links. \end{exercise}
+\begin{exercise}[easy] CSES \emph{Message Route} --- BFS reconstruction. \end{exercise}
+\begin{exercise}[easy] USACO-S \emph{Closing the Farm} --- component queries. \end{exercise}
+\begin{exercise}[easy] USACO-B \emph{Family Tree} --- ancestor DFS. \end{exercise}
+\begin{exercise}[medium] CSES \emph{Round Trip} --- undirected cycle extraction. \end{exercise}
+\begin{exercise}[medium] CSES \emph{Game Routes} --- DP on topological order. \end{exercise}
+\begin{exercise}[medium] USACO-S \emph{Icy Perimeter} --- flood-fill perimeter. \end{exercise}
+\begin{exercise}[medium] USACO-S \emph{Build Gates} --- scaled-cell fill. \end{exercise}
+\begin{exercise}[medium] USACO-S \emph{Mooyo Mooyo} --- gravity + fill. \end{exercise}
+\begin{exercise}[medium] USACO-S \emph{Visits} --- functional-graph simulation. \end{exercise}
+\begin{exercise}[hard] CSES \emph{Monsters} --- multi-source BFS + escape BFS. \end{exercise}
+\begin{exercise}[hard] USACO-B \emph{The Great Revegetation} --- signed 2-colouring. \end{exercise}
+\begin{exercise}[hard] USACO-S \emph{Snow Boots} --- BFS on (position, boot) state. \end{exercise}
+
+\chapternotes
+Traversal order, the adjacency-list idiom and Kahn follow
+Laaksonen's graph chapters~\cite{laaksonen2024} and
+Sannemo~\cite{sannemo2025}; the USACO Guide's Silver graph modules
+carry the same drills~\cite{usacoguide}; the rho-shape framing and
+Monsters-style multi-source tricks are in
+cp-algorithms~\cite{cpalgorithms} and Halim~\cite{halimcp4}; archive
+problems are official CSES/USACO~\cite{cses}.

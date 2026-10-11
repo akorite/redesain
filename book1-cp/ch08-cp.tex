@@ -1,0 +1,258 @@
+\chapter{Shortest paths}\label{ch:sp}
+\index{shortest path}\index{Dijkstra}\index{Bellman--Ford}\index{Floyd--Warshall}
+
+Four algorithms cover every shortest-path problem you will meet:
+BFS when edges are unweighted, Dijkstra when weights are
+non-negative, Bellman--Ford when weights can go negative, and
+Floyd--Warshall when you need every pair at once. Each is built from
+one operation --- relaxation --- and each is right exactly when its
+invariant holds; Dijkstra even fails in a specific, drawable way when
+the invariant breaks. After this chapter you will pick the algorithm
+by the weights and the question, write all four from memory, detect
+and reconstruct negative cycles, and fold conditions like ``one
+coupon'' into the graph itself.
+
+\section{Relaxation}\label{sec:relax}\index{relaxation}
+The atomic move: $d[v] \leftarrow \min(d[v],\, d[u] + w(u,v))$. Every
+algorithm here is a different strategy for \emph{ordering} and
+\emph{counting} relaxations.
+\begin{figure}[ht]\centering
+\input{figures/fig35-relax}
+\caption{One relaxation step. Notice the check is strict inequality
+--- an equal-length alternative changes nothing.}
+\label{fig:relax}
+\end{figure}
+
+\section{BFS, revisited}\label{sec:bfs2}
+With every weight 1, the BFS layers of Chapter~\ref{ch:graphs}
+\emph{are} shortest paths: the queue is a degenerate priority queue.
+Keep BFS for unweighted problems --- it is $O(V{+}E)$ and Dijkstra on
+unit weights buys nothing.
+
+\section{Bellman--Ford}\label{sec:bf}\index{Bellman--Ford}
+Relax \emph{every} edge, $n{-}1$ times. Correctness: after round $k$
+every shortest walk of at most $k$ edges is final, and any shortest
+path has $\le n{-}1$ edges. A further improvement in round $n$
+certifies a negative cycle --- reachable or not, if you seed every
+distance with 0 (an implicit super-source).
+\begin{lstlisting}[language=C++,caption={\texttt{bellmanford.h}:
+rounds, parent pointers, one-cycle rebuild.},label={lst:bf}]
+\end{lstlisting}
+\lstinputlisting{code/bellmanford.h}
+\begin{example}[CSES \emph{Cycle Finding}]\label{ex:cycfind}
+Report any negative cycle.
+\par\smallskip
+\textbf{Strategy.} Run the rounds; a vertex still improving in round
+$n$ is downstream of a cycle. Walking parents $n$ steps lands on the
+cycle itself; collect until repeat.
+\par\smallskip
+\begin{solution}
+\lstinputlisting{code/cycle_finding.cpp}
+Real output (one valid cycle):
+\begin{lstlisting}[numbers=none]
+YES
+4 1 2 4
+\end{lstlisting}
+\end{solution}
+\end{example}
+
+\section{Dijkstra}\label{sec:dij}\index{Dijkstra}
+Greedy frontier: pop the unsettled vertex with smallest tentative
+distance; that value is final. Correctness is a cut argument ---
+settled vertices sit on one side, and the cheapest unsettled vertex
+cannot improve through any path that leaves the settled set, because
+all such detours cost at least as much (weights $\ge 0$ is the
+load-bearing clause). Drop that clause and the argument dies:
+\begin{figure}[ht]\centering
+\input{figures/fig37-negfail}
+\caption{Where Dijkstra dies, drawn. Notice $s$ settles $a$ at 2
+before $b$ is ever examined --- no negative-edge signal can pull it
+back.}
+\label{fig:negfail}
+\end{figure}
+\begin{figure}[ht]\centering
+\input{figures/fig36-dijkstra}
+\caption{The settled set growing. Notice each frame fixes one vertex
+permanently --- that permanence is both the speed and the
+vulnerability.}
+\label{fig:dijset}
+\end{figure}
+\begin{lstlisting}[language=C++,caption={\texttt{dijkstra.h}: lazy
+deletion via the stale-entry skip.},label={lst:dij}]
+\end{lstlisting}
+\lstinputlisting{code/dijkstra.h}
+\begin{example}[CSES \emph{Shortest Routes I}]\label{ex:routes1}
+Distances from city 1.
+\par\smallskip
+\textbf{Strategy.} Non-negative weights name Dijkstra; skip stale
+queue entries instead of deleting them.
+\par\smallskip
+\begin{solution}
+\lstinputlisting{code/shortest_routes1.cpp}
+Real output (CSES sample):
+\begin{lstlisting}[numbers=none]
+0 5 2
+\end{lstlisting}
+\end{solution}
+\end{example}
+
+\section{Floyd--Warshall}\label{sec:fw}\index{Floyd--Warshall}
+All pairs at once: $d[i][j] \leftarrow \min(d[i][j],\, d[i][k]{+}d[k][j])$
+with $k$ the \emph{outermost} loop --- the invariant is ``only
+vertices $1..k$ may appear internally.'' $O(n^3)$ is right when
+$n \le 500$.
+\begin{lstlisting}[language=C++,caption={\texttt{floyd.h}: the
+15-line core + \texttt{next} table.},label={lst:fw}]
+\end{lstlisting}
+\lstinputlisting{code/floyd.h}
+\begin{example}[CSES \emph{Shortest Routes II}]\label{ex:routes2}
+$q$ distance queries.
+\par\smallskip
+\textbf{Strategy.} Queries make it all-pairs; $n\le500$ makes the
+cube free.
+\par\smallskip
+\begin{solution}
+\lstinputlisting{code/routes2.cpp}
+Real output (CSES sample):
+\begin{lstlisting}[numbers=none]
+5
+5
+8
+-1
+3
+\end{lstlisting}
+\end{solution}
+\end{example}
+\begin{figure}[ht]\centering
+\input{figures/fig38-floyd}
+\caption{The $k$-expansion. Notice each stage only \emph{permits}
+detours through one more vertex --- nothing is forced.}
+\label{fig:floyd}
+\end{figure}
+
+\section{State expansion}\label{sec:state}\index{state expansion}
+When the question carries a condition --- a coupon, a ticket, a mode
+--- the graph is too small: run shortest paths on
+\emph{position $\times$ state}. Vertex $(v, \text{used})$ is a
+different vertex from $(v, \text{unused})$.
+\begin{example}[CSES \emph{Flight Discount}]\label{ex:discount}
+One ticket may be halved.
+\par\smallskip
+\textbf{Strategy.} Double the graph: coupon-unused layer and spent
+layer, with a half-price edge between them. Ordinary Dijkstra on the
+expanded graph.
+\par\smallskip
+\begin{solution}
+\lstinputlisting{code/flight_discount.cpp}
+Real output (CSES sample):
+\begin{lstlisting}[numbers=none]
+2
+\end{lstlisting}
+\end{solution}
+\end{example}
+\begin{figure}[ht]\centering
+\input{figures/fig39-layers}
+\caption{The two-layer expansion. Notice the discount edge only
+descends --- the coupon can't be unspent.}
+\label{fig:layers}
+\end{figure}
+\begin{example}[USACO-G \emph{Why Did the Cow Cross the Road}]\label{ex:cow}
+Crossing into a different label consumes a ticket; each ticket covers
+three crossings.
+\par\smallskip
+\textbf{Strategy.} The budget is a state: $(r,c,k)$ with $k$ the
+crossings used on the current ticket. Same-label moves keep $k$;
+boundary moves increment it; the third crossing pays the toll.
+\par\smallskip
+\begin{solution}
+\lstinputlisting{code/cowroad.cpp}
+Real output (3$\times$3 demo, $T{=}3$):
+\begin{lstlisting}[numbers=none]
+4
+\end{lstlisting}
+\end{solution}
+\end{example}
+A final named variant: \emph{0-1 BFS}\index{0-1 BFS} --- weights in
+$\{0,1\}$ only --- replaces the heap with a deque pushing weight-0
+edges to the front.
+
+\begin{exercise}[easy]\label{exr:order}
+Does relaxation order matter for Dijkstra's correctness? For
+Bellman--Ford's round count?
+\end{exercise}
+\begin{exercise}[medium]\label{exr:earlyexit}
+Bellman--Ford may exit early when a round improves nothing. Show the
+early exit can never fire while a reachable negative cycle still has
+improvable vertices.
+\end{exercise}
+\begin{exercise}[medium]\label{exr:whypq}
+Why a priority queue and not repeated scans for the minimum?
+Estimate both costs on $V{=}10^5$, $E{=}2\cdot10^5$.
+\end{exercise}
+\begin{exercise}[medium]\label{exr:spotstate}
+Name the state for: ``shortest route with at most $k$ road changes''
+and ``arriving by exactly time $T$ counts differently than late.''
+\end{exercise}
+
+\section{Chapter summary}
+\begin{table}[ht]\centering
+{\small
+\begin{tabularx}{\linewidth}{@{}lYYY@{}}
+\toprule
+\tablehead\thead{Weights} & \thead{Algorithm} & \thead{Cost} & \thead{Also gives}\\
+\midrule
+unweighted & BFS & $O(V{+}E)$ & layers\\
+non-negative & Dijkstra & $O(E\log V)$ & settled order\\
+any (incl.\ neg.) & Bellman--Ford & $O(VE)$ & negative cycles\\
+all pairs & Floyd--Warshall & $O(V^3)$ & \texttt{next} paths\\
+0/1 only & 0-1 BFS & $O(V{+}E)$ & deque order\\
+with a condition & expanded graph & $\times$ states & coupon semantics\\
+\bottomrule
+\end{tabularx}}
+\caption{Pick by the weight law and the shape of the question ---
+one source, all pairs, or a condition to fold in.}
+\label{tab:sp}
+\end{table}
+
+\section{Common mistakes}
+\index{common mistakes}
+\begin{itemize}
+\item \textbf{Dijkstra on negative edges.} The settled set is final
+--- one negative edge invalidates the permanence and the algorithm
+has no repair path.
+\item \textbf{Seeding Bellman--Ford from one source when any cycle
+counts.} Only reachable-from-$s$ cycles surface; seed 0 everywhere to
+catch all.
+\item \textbf{Floyd with $k$ inside.} Loop order \emph{is} the
+invariant: $k$ outermost, or intermediate vertices may be reused
+illegally.
+\item \textbf{Deleting queue entries.} Decrease-key is awkward ---
+push a better entry and skip stale pops instead.
+\item \textbf{Forgetting \texttt{dist[u]}+w can overflow.} Guard
+$\texttt{dist[u]} < \texttt{INF}/2$ before adding to avoid wrapping
+past unreachable vertices.
+\end{itemize}
+
+\section{Additional exercises}
+\begin{exercise}[easy] CSES \emph{Shortest Routes I}. \end{exercise}
+\begin{exercise}[easy] CSES \emph{Shortest Routes II}. \end{exercise}
+\begin{exercise}[easy] USACO-S \emph{Milk Pails} --- BFS on (x,y) fill states. \end{exercise}
+\begin{exercise}[medium] CSES \emph{Flight Discount}. \end{exercise}
+\begin{exercise}[medium] CSES \emph{Flight Routes} --- $k$ shortest. \end{exercise}
+\begin{exercise}[medium] CSES \emph{Investigation} --- count min paths. \end{exercise}
+\begin{exercise}[medium] USACO-G \emph{Milk Pumping} --- Dijkstra + max-flow constraint. \end{exercise}
+\begin{exercise}[medium] USACO-G \emph{Shortcut} --- tree + shortcut edges. \end{exercise}
+\begin{exercise}[hard] CSES \emph{High Score} --- negative cycle on positive edge. \end{exercise}
+\begin{exercise}[hard] CSES \emph{Cycle Finding} --- the reconstruction, coded. \end{exercise}
+\begin{exercise}[hard] USACO-G \emph{Lasers and Mirrors} --- direction-state BFS. \end{exercise}
+\begin{exercise}[hard] USACO-G \emph{A Pie for a Pie} --- two-shelf trade graph. \end{exercise}
+\begin{exercise}[hard] USACO-G \emph{Telephone} --- breed-count state Dijkstra. \end{exercise}
+
+\chapternotes
+Relaxation-first framing and the cut argument follow
+Laaksonen~\cite{laaksonen2024} and Sannemo~\cite{sannemo2025};
+state expansion and the coupon/layer trick are standard in the USACO
+Guide's Gold modules~\cite{usacoguide} and
+cp-algorithms~\cite{cpalgorithms}; 0-1 BFS and the negative-edge
+autopsy appear in Halim~\cite{halimcp4}; archive problems are
+official CSES/USACO~\cite{cses}.

@@ -1,0 +1,5 @@
+\begin{tikzpicture}[font=\tiny,x=0.4cm,y=0.3cm]
+\foreach \i/\h in {1/1,2/2,3/1,4/4,5/1,6/2,7/1,8/8}{
+  \draw[slate,fill=accentsoft!40] (\i-1,0) rectangle (\i,\h);}
+\node[font=\tiny] at (4,-1) {height = lowbit: $t[i]$ covers $i-\mathrm{lowbit}(i)+1..i$};
+\end{tikzpicture}

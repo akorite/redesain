@@ -1,0 +1,16 @@
+# Review log
+| Chapter | Author | Reviewer | Findings | Resolution |
+|---|---|---|---|---|
+| ch01 contest machine | book1 session | book2 session (devin-136b...) | ACCEPT — all outputs byte-exact, Collatz peak + 200-round stress verified; 1 real nit (n(n+1)/2>2^31 mislabeled trigger) | nit FIXED by coordinator 2026-10-10: trigger corrected to intermediate product n(n+1)>2^31, n≈46,341 |
+| ch02 complete search/backtracking | book1 session | book2 session | ACCEPT 2026-10-10 — all outputs byte-exact (queens 2057/13664/92, CSES 65 verified live); nits fixed by coordinator: stray test_ch02.sh (cross-landed elec file→correct cp script), 'seven reserved squares'→four, 'thousand pairs'→few hundred thousand — 0 overfull>3pt/0 undef 2026-10-10 | |
+| ch03 sorting/greedy | book1 session | book2 session | RESOLVED 2026-10-10 — REVISE fixed by author, verified by coordinator (coins sorts denoms, test asserts unmasked, compress.h in code/lib; ALL PASS) | coins.cpp now sorts rbegin; compress_demo includes via code/lib/ |
+| ch04 binary search | book1 session | book2 session | RESOLVED 2026-10-10 — REVISE: missing code/lib/bsearch.h (systemic convention bug); coord added header, test_ch04 ALL PASS byte-exact; nits relayed to author | 300/300 factory, 200/200 arrdiv, 200/200 social, 7/7 mult stress all real asserts |
+| ch05 prefix/diff/twoptr | book1 session | book2 session | PENDING — 0 overfull>3pt/0 undef, 65pp 2026-10-10 | |
+| ch06 amortized structures | book1 session | book2 session | PENDING — 0 overfull>3pt/0 undef, 75pp 2026-10-10 | |
+| ch07 graphs traversal | book1 session | book2 session | ACCEPTED 2026-10-10 (book2) — 7/7 fixed + 350 stress repro, nits: labyrinth path-line/course_schedule DAG-order/building_teams official-sample assertions| |
+| ch08 shortest paths | book1 session | ACCEPTED 2026-10-10 — PASS; nits: cowroad demo-only (unverified-vs-official), cycle YES/NO not vertex list, ~8pp thin| PENDING — 0 overfull>3pt/0 undef, 96pp 2026-10-10 | |
+| ch09 DSU + spanning trees | book1 session | RESOLVED 2026-10-10 — closing_farm: ans[i] evaluated before re-insert (verified in landed code), demo output re-derived, +200 fwd-sim stress in test_ch09.sh| PENDING — 0 overfull>3pt/0 undef, 106pp 2026-10-10 | |
+| ch10 tree algorithms | book1 session | ACCEPTED 2026-10-10 — PASS (cleanest packet; nits logged)| PENDING — 0 overfull>3pt/0 undef, 114pp 2026-10-10 | |
+| ch11 DP I | book1 session | ACCEPTED 2026-10-10 — PASS (8-vs-3 verified by hand; nits: take-table not in fixed checks)| PENDING — 0 overfull>3pt/0 undef, 121pp 2026-10-10 | |
+| ch12 DP II | book1 session | ACCEPTED 2026-10-10 — PASS; ch09 fix independently re-verified 400/400 trees; nit: counting_numbers sample not byte-verifiable (brute mirror covers)| PENDING — 0 overfull>3pt/0 undef, 129pp 2026-10-10 | |
+| ch13 Fenwick/seg trees | book1 session | book2 session | PENDING — 0/0, 137pp 2026-10-10 | |

@@ -1,0 +1,21 @@
+% fig04-constraints.tex -- Figure 1.4: the constraint-to-complexity table,
+% drawn as a boxed chart (a figure, not body text).
+\renewcommand{\arraystretch}{1.25}%
+\begin{tabular}{@{}r l l@{}}
+\toprule
+\thead{largest $n$} & \thead{needs at most} & \thead{typical shapes}\\
+\midrule
+$n \le 12$      & $O(n!)$                 & permutations, brute force\\
+$n \le 25$      & $O(2^n)$                & subsets, meet-in-the-middle\\
+$n \le 500$     & $O(n^3)$                & all triples, $n\times n$ DP\\
+$n \le 5\,000$  & $O(n^2)$                & all pairs, quadratic DP\\
+$n \le 2\cdot 10^5$ & $O(n\log_2 n)$    & sorting, sets, Fenwick\\
+$n \le 10^7$    & $O(n)$                  & single linear pass\\
+any $n$         & $O(\log_2 n)$ or $O(1)$ & binary search, closed formula\\
+\bottomrule
+\end{tabular}%
+\\[4pt]
+\begin{minipage}{0.9\linewidth}\footnotesize\color{slate}
+Assumes the $10^8$-ops-per-second budget. Rows are rules of thumb, not laws:
+a $5\cdot 10^7$-constant quadratic can still lose to a linear algorithm.
+\end{minipage}

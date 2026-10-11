@@ -1,0 +1,37 @@
+\begin{tikzpicture}[font=\footnotesize]
+% F7.2 DFS stack frames on path A-B-D: explicit cells, accent = on stack.
+\begin{scope}
+  \foreach \i/\v in {0/A,1/B,2/D}
+    \node[draw=slate,fill=graybg,minimum width=0.4cm,
+          minimum height=0.3cm,font=\tiny] at (\i*0.5,0) {\v};
+  \node[draw=slate,fill=accentsoft,minimum width=0.4cm,
+        minimum height=0.3cm,font=\tiny] at (0,0) {A};
+  \node[font=\tiny] at (0.5,-0.5) {depth 0};
+\end{scope}
+\begin{scope}[xshift=2.6cm]
+  \foreach \i/\v in {0/A,1/B,2/D}
+    \node[draw=slate,fill=graybg,minimum width=0.4cm,
+          minimum height=0.3cm,font=\tiny] at (\i*0.5,0) {\v};
+  \node[draw=slate,fill=accentsoft,minimum width=0.4cm,
+        minimum height=0.3cm,font=\tiny] at (0,0) {A};
+  \node[draw=slate,fill=accentsoft,minimum width=0.4cm,
+        minimum height=0.3cm,font=\tiny] at (0.5,0) {B};
+  \node[font=\tiny] at (0.5,-0.5) {depth 1};
+\end{scope}
+\begin{scope}[xshift=5.2cm]
+  \foreach \i/\v in {0/A,1/B,2/D}
+    \node[draw=slate,fill=accentsoft,minimum width=0.4cm,
+          minimum height=0.3cm,font=\tiny] at (\i*0.5,0) {\v};
+  \node[font=\tiny] at (0.5,-0.5) {depth 2};
+\end{scope}
+\begin{scope}[xshift=7.8cm]
+  \foreach \i/\v in {0/A,1/B,2/D}
+    \node[draw=slate,fill=graybg,minimum width=0.4cm,
+          minimum height=0.3cm,font=\tiny] at (\i*0.5,0) {\v};
+  \node[draw=slate,fill=accentsoft,minimum width=0.4cm,
+        minimum height=0.3cm,font=\tiny] at (0,0) {A};
+  \node[draw=slate,fill=accentsoft,minimum width=0.4cm,
+        minimum height=0.3cm,font=\tiny] at (0.5,0) {B};
+  \node[font=\tiny] at (0.5,-0.5) {D returns};
+\end{scope}
+\end{tikzpicture}

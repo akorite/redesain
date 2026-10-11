@@ -1,0 +1,11 @@
+\begin{tikzpicture}[font=\footnotesize]
+\node[circle,draw=slate,font=\tiny] (r) at (2,1.6) {1};
+\node[circle,draw=slate,font=\tiny] (a) at (1,0.8) {2};
+\node[circle,draw=slate,font=\tiny] (b) at (3,0.8) {3};
+\node[circle,draw=slate,font=\tiny] (c) at (1,0) {4};
+\draw[slate] (r)--(a) (r)--(b) (a)--(c);
+\node[font=\tiny,anchor=west] at (4.2,1.2) {tin: 1=0, 2=1, 4=2, 3=3};
+\node[font=\tiny,anchor=west] at (4.2,0.7) {tout: 1=4, 2=3, 4=3, 3=4};
+\node[font=\tiny,anchor=west] at (4.2,0.2) {subtree(2) = $[1,3)$: $\{2,4\}$};
+\node[font=\tiny] at (2,-0.8) {every subtree is one interval};
+\end{tikzpicture}

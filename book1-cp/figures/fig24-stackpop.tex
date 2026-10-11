@@ -1,0 +1,26 @@
+\begin{tikzpicture}[font=\footnotesize]
+% F6.1 NSV pop trace on {2,5,1,4}: 3 frames.
+% frame1: after 2,5 pushed; frame2: 1 pops both; frame3: 4 pushes on 1.
+\begin{scope}
+  \node[draw=slate,minimum width=0.6cm,font=\tiny] at (0,0) {2};
+  \node[draw=slate,minimum width=0.6cm,font=\tiny] at (0,0.5) {5};
+  \node[font=\tiny,right] at (0.5,0.25) {stack: 2,5};
+  \node[font=\tiny] at (0.3,-0.5) {seen 2,5};
+\end{scope}
+\begin{scope}[xshift=3.2cm]
+  \node[draw=slate,draw=gray,minimum width=0.6cm,font=\tiny] (p1) at (0,0) {2};
+  \node[draw=slate,draw=gray,minimum width=0.6cm,font=\tiny] (p2) at (0,0.5) {5};
+  \draw[red,thick] (p1.south west)--(p1.north east) (p1.north west)--(p1.south east)
+    (p2.south west)--(p2.north east) (p2.north west)--(p2.south east);
+  \node[font=\tiny,right] at (0.5,0.25) {1 pops both};
+  \node[font=\tiny] at (0.3,-0.5) {next: 1};
+\end{scope}
+\begin{scope}[xshift=6.4cm]
+  \node[draw=slate,fill=accentsoft,minimum width=0.6cm,font=\tiny] at (0,0) {1};
+  \node[draw=slate,minimum width=0.6cm,font=\tiny] at (0,0.5) {4};
+  \node[font=\tiny,right] at (0.5,0.25) {4's answer = 1's idx};
+  \node[font=\tiny] at (0.3,-0.5) {stack: 1,4};
+\end{scope}
+\node[align=left,text width=3.6cm,font=\tiny] at (10.6,0)
+  {each index enters once,\\ leaves once: the pops\\ are pre-paid};
+\end{tikzpicture}

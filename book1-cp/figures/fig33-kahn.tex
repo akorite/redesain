@@ -1,0 +1,8 @@
+\begin{tikzpicture}[font=\footnotesize]
+\foreach \i/\q/\e in {0/{3,4}/{ },1/{4,1}/{3},2/{1,5}/{3,4},3/{5,2}/{3,4,1}}{
+  \begin{scope}[xshift=\i*3.2cm]
+    \node[font=\tiny,anchor=west] at (0,0.6) {queue: \q};
+    \node[font=\tiny,anchor=west] at (0,0.2) {emitted: \e};
+  \end{scope}}
+\node[font=\tiny] at (4.5,-0.5) {in-degree 0 enters; emission deletes its edges};
+\end{tikzpicture}

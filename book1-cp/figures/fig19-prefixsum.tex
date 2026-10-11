@@ -1,0 +1,17 @@
+\begin{tikzpicture}[font=\footnotesize,x=0.66cm,y=0.66cm]
+% F5.1 prefix cells -> range sum as subtraction.
+\foreach \i/\v in {0/3,1/2,2/4,3/5,4/1,5/1}
+  \node[draw=slate,minimum width=0.55cm,minimum height=0.55cm]
+    (a\i) at (\i*0.62,0) {\v};
+\node[below,font=\tiny] at (a0) {$a_1$};
+\node[below,font=\tiny] at (a5) {$a_6$};
+\foreach \i/\v in {0/0,1/3,2/5,3/9,4/14,5/15,6/16}
+  \node[draw=accent,fill=accentsoft,minimum width=0.55cm,
+        minimum height=0.4cm,font=\tiny] (p\i) at (\i*0.62-0.31,1.1) {\v};
+\node[anchor=east,font=\tiny] at (-0.6,1.1) {$P$:};
+\draw[decorate,decoration={brace,raise=3pt},amber,thick]
+  (a1.north west) -- (a4.north east)
+  node[midway,above=4pt]{query $[2,5]$};
+\node[amber,align=center] at (2.4,-1.2)
+  {$P_5 - P_1 = 15 - 3 = 12$:\\ one subtraction, not four reads};
+\end{tikzpicture}

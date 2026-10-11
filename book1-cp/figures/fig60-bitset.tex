@@ -1,0 +1,6 @@
+\begin{tikzpicture}[font=\tiny]
+\foreach \i/\b in {0/{1,0,0,0,0,0},1/{1,0,1,0,0,0},2/{1,0,1,0,1,0}}{
+  \node[anchor=west] at (\i*1.6,0) {\b};
+  \node at (\i*1.6+0.5,-0.5) {\i};}
+\node[anchor=west] at (0,-1) {$\texttt{dp} \mathrel{|}= \texttt{dp} \ll w$: every coin doubles coverage};
+\end{tikzpicture}

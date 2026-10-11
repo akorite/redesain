@@ -1,0 +1,11 @@
+\begin{tikzpicture}[font=\footnotesize]
+\node[font=\tiny] at (0,0.5) {delete 4, 3, 1, 2};
+\draw[-{stealth},slate] (0,0.2)--(2.6,0.2);
+\node[font=\tiny] at (3.4,0.2) {time};
+\begin{scope}[yshift=-0.7cm]
+\node[font=\tiny] at (0,0.3) {add 2, 1, 3, 4};
+\draw[-{stealth},amber,thick] (2.6,-0.1)--(0,-0.1);
+\node[font=\tiny] at (3.4,0) {replay};
+\end{scope}
+\node[font=\tiny,align=center] at (1.3,-1.4) {offline: answer each prefix\\after re-adding in reverse};
+\end{tikzpicture}

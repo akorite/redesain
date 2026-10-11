@@ -1,0 +1,318 @@
+\chapter{Amortised structures: stacks, deques, sparse tables}\label{ch:amort}
+\index{amortised analysis}\index{monotonic stack}\index{monotonic deque}
+\index{sparse table}\index{square-root decomposition}
+
+Chapter~5's prefix tables answer questions about an array that never
+changes. This chapter is about structures whose cost is invisible
+per-operation but bounded per-\emph{element}: a monotonic stack that
+finds every position's nearest smaller neighbour in one pass, a deque
+that answers sliding-window minima in $O(n)$, a sparse table that
+answers static range minimums in $O(1)$ after an $O(n \log n)$ build,
+and a square-root split that trades theory for simplicity. The shared
+idea is amortisation --- charge each index once for all the work it
+will ever cause, and the total is linear no matter how expensive a
+single step looks. After this chapter you will recognise the
+pop-everything-until pattern, argue its bound by counting pushes, and
+pick the right static-range structure for the operation's algebra.
+
+\section{Amortised analysis: each element pays once}\label{sec:amort}
+\index{amortised analysis!accounting}
+
+A worst-case bound per operation can be badly pessimistic for a whole
+sequence: if each array index is pushed onto a stack at most once and
+popped at most once, then $n$ operations cost at most $2n$ stack
+touches --- a single push can trigger many pops, but those pops were
+\emph{pre-paid} by earlier pushes. This accounting view (charge the
+element, not the call) is the licence for every structure in this
+chapter: where a per-call bound would say $O(n^2)$, the per-element
+bound says $O(n)$.
+
+\section{The monotonic stack: nearest smaller everywhere}\label{sec:monostack}
+\index{monotonic stack!nearest smaller}
+
+Keep a stack of indices whose values are strictly increasing. When
+position $i$ arrives, pop every index whose value is $\ge a_i$ ---
+they can never again be the \emph{nearest} smaller answer, because
+$a_i$ is both smaller and closer. The surviving top is $i$'s answer;
+push $i$. Every index enters once and leaves once, so the whole pass
+is $O(n)$ amortised (Figure~\ref{fig:stackpop}).
+
+\begin{lstlisting}[language=C++,caption={\texttt{monostack.h}: nearest
+smaller to the left, and mirrored right.},label={lst:monostack}]
+\end{lstlisting}
+\lstinputlisting{code/monostack.h}
+
+\begin{example}[CSES \emph{Nearest Smaller Values}]\label{ex:nsv}
+For each position, the nearest earlier position with a smaller value
+--- $n \le 2\cdot10^5$.
+\par\smallskip
+\textbf{Strategy.} Per-position search is $O(n^2)$. The amortised
+insight: once $a_i$ undercuts an earlier entry, that entry is dead for
+every later query --- delete it on sight. What remains is exactly the
+monotone stack.
+\par\smallskip
+\begin{solution}
+\lstinputlisting{code/nsv.cpp}
+Real output (CSES sample $\{2,5,1,4,8,3,2,5\}$):
+\begin{lstlisting}[numbers=none]
+0 1 0 3 4 3 3 7
+\end{lstlisting}
+\end{solution}
+\end{example}
+
+\begin{figure}[ht]\centering
+\input{figures/fig24-stackpop}
+\caption{The stack pop trace on $\{2,5,1,4\}$. Notice the popped
+entries are \emph{gone}, not skipped: $1$ is closer and smaller than
+either, so both can never answer again.}
+\label{fig:stackpop}
+\end{figure}
+
+\begin{example}[Largest rectangle in a histogram]\label{ex:histogram}
+\index{histogram!largest rectangle}
+Heights $h_0,\dots,h_{n-1}$; find the largest rectangle that fits
+under the skyline.
+\par\smallskip
+\textbf{Strategy.} Every candidate rectangle has a \emph{limiting
+bar} --- its shortest bar --- so try each bar as the limiter: how far
+can bar $i$ extend? Exactly until the first smaller bar on each side.
+Nearest-smaller to left and right is two monotonic-stack passes.
+\par\smallskip
+\begin{solution}
+\lstinputlisting{code/histogram.cpp}
+Real output (heights $\{2,1,5,6,2,3\}$ --- bar~2's rays reach the
+first smaller bars, Figure~\ref{fig:histogram}):
+\begin{lstlisting}[numbers=none]
+best area 10 from bar 2 (height 5, spans [2,3])
+\end{lstlisting}
+\end{solution}
+\end{example}
+
+\begin{figure}[ht]\centering
+\input{figures/fig25-histogram}
+\caption{Bar 2's horizontal reach ends at the first smaller bar on
+each side. Notice the optimal rectangle is pinned by \emph{one}
+limiting bar --- which is why trying every bar suffices.}
+\label{fig:histogram}
+\end{figure}
+
+\begin{exercise}[easy]\label{exr:amort}
+The pop loop inside the push is not $O(1)$ --- one push may pop $k$
+entries. Argue in one sentence why the total over $n$ pushes is still
+$O(n)$.
+\end{exercise}
+
+\section{The monotonic deque: sliding-window minimum}\label{sec:monodeque}
+\index{monotonic deque!sliding window}
+
+The same pop-until pattern slides a window: the deque keeps candidate
+indices in increasing value order, front = current minimum. New index
+$i$ pops every back entry with $a_{\text{back}} \ge a_i$ (same
+dead-on-arrival argument), then the front drops when it leaves the
+window. Each index enters and exits once: $O(n)$ for all windows.
+
+\begin{lstlisting}[language=C++,caption={\texttt{monodeque.h}: window
+minimums in $O(n)$.},label={lst:monodeque}]
+\end{lstlisting}
+\lstinputlisting{code/monodeque.h}
+
+\begin{example}[CSES \emph{Sliding Window Minimum}]\label{ex:slide}
+Window size $k$ over a generated array up to $n=10^7$; report the xor
+of all window minimums.
+\par\smallskip
+\textbf{Strategy.} $O(nk)$ is impossible at $10^7$. The deque is the
+only structure that retires entries \emph{both} by value (a newer,
+smaller element wins) and by age (the window forgets) --- and it is
+linear.
+\par\smallskip
+\begin{solution}
+\lstinputlisting{code/sliding_min.cpp}
+Real output (CSES sample, generator $x{=}3,a{=}7,b{=}1,c{=}11$,
+array $\{3,0,1,8,2,4,7,6\}$, $k{=}5$, minimums $0,0,1,2$):
+\begin{lstlisting}[numbers=none]
+3
+\end{lstlisting}
+\end{solution}
+\end{example}
+
+\begin{figure}[ht]\centering
+\input{figures/fig26-deque}
+\caption{The deque's index march on the CSES sample. Notice expired
+indices leave through the front while dominated ones leave through the
+back --- two retirements, one structure.}
+\label{fig:deque}
+\end{figure}
+
+\begin{exercise}[medium]\label{exr:dequestack}
+Why does the sliding window need a \emph{deque} rather than the
+monotonic stack of Section~\ref{sec:monostack}? Which operation does
+the window force that the stack never needed?
+\end{exercise}
+
+\section{Sparse tables: idempotent queries in \texorpdfstring{$O(1)$}{O(1)}}\label{sec:sparse}
+\index{sparse table}\index{idempotent}
+
+For a \emph{static} array, a sparse table precomputes the answer on
+every interval of length $2^j$: level $j$ holds $n - 2^j + 1$ entries,
+each built from two level-$(j{-}1)$ halves, $O(n \log n)$ total. Any
+range $[l,r]$ is the union of two overlapping power-of-two pieces
+anchored at $l$ and $r$ --- correct precisely when the operation is
+\emph{idempotent} ($f(x,x) = x$: $\min$, $\max$, $\gcd$, bitwise
+\textsc{and}), because the overlap is then double-counted harmlessly.
+A sum double-counts: sparse tables are the wrong tool for range sums.
+
+\begin{lstlisting}[language=C++,caption={\texttt{sparse.h}: $O(n\log n)$
+build, $O(1)$ query.},label={lst:sparse}]
+\end{lstlisting}
+\lstinputlisting{code/sparse.h}
+
+\begin{example}[CSES \emph{Static Range Minimum Queries}]\label{ex:rmq}
+Same shape as Chapter~5's sum queries, but minimum: $n,q \le
+2\cdot10^5$.
+\par\smallskip
+\textbf{Strategy.} Prefix tricks fail --- $\min$ has no inverse to
+subtract with. But $\min$ \emph{is} idempotent, so two overlapping
+precomputed halves cover any range exactly: sparse table.
+\par\smallskip
+\begin{solution}
+\lstinputlisting{code/rmq.cpp}
+Real output (CSES sample):
+\begin{lstlisting}[numbers=none]
+2
+1
+1
+4
+\end{lstlisting}
+\end{solution}
+\end{example}
+
+\begin{figure}[ht]\centering
+\input{figures/fig27-sparse}
+\caption{Sparse-table levels over $\{3,2,4,5,1,1,5,3\}$. Notice level
+$j$'s $i$-th cell already contains the answer for the whole
+$2^j$-block starting at $i$ --- a query is two reads, never more.}
+\label{fig:sparse}
+\end{figure}
+
+\begin{exercise}[medium]\label{exr:idem}
+Which of $\{\min, \max, \gcd, \mathrm{sum}, \mathrm{xor},
+\mathrm{lcm}\}$ are idempotent --- i.e., safe for the sparse table's
+two-piece query? For each unsafe one, name the query where overlap
+double-counts.
+\end{exercise}
+
+\section{Square roots: the good-enough structure}\label{sec:sqrt}
+\index{square-root decomposition}
+
+When the array \emph{does} change, split it into $B \approx \sqrt n$
+blocks with a stored sum per block. A range sum reads whole blocks in
+$O(1)$ each and scans at most two partial fringes: $O(\sqrt n)$ per
+query, $O(1)$ per point update. That is worse than a segment tree's
+$O(\log n)$ --- and often the right trade anyway: the code is a page
+of loops with no recursion, no trees, and no subtle bugs at 2\,a.m.
+
+\begin{lstlisting}[language=C++,caption={\texttt{sqrtdec.h}: block sums
+plus point updates.},label={lst:sqrtdec}]
+\end{lstlisting}
+\lstinputlisting{code/sqrtdec.h}
+
+\begin{lstlisting}[numbers=none,caption={\texttt{sqrt\_sum.cpp} real
+output.},label={lst:sqrtout}]
+sum[2..6] = 21
+after set(4,0): sum[2..6] = 16
+sum[0..9] = 34
+\end{lstlisting}
+
+\begin{figure}[ht]\centering
+\input{figures/fig28-sqrt}
+\caption{Block sums over 3-blocks. Notice a query touches at most two
+scanned fringes; everything in between is one table read per block.}
+\label{fig:sqrt}
+\end{figure}
+
+\section{Chapter summary}
+\begin{table}[ht]\centering
+{\small
+\begin{tabularx}{\linewidth}{@{}lYYY@{}}
+\toprule
+\tablehead\thead{Structure} & \thead{Answers} & \thead{Cost} & \thead{Needs}\\
+\midrule
+monotonic stack & nearest smaller/greater & $O(n)$ total & one pass\\
+monotonic deque & sliding-window min/max & $O(n)$ & window slides\\
+sparse table & static range min/max/gcd & $O(1)$ query & idempotent op\\
+sqrt blocks & range sum + updates & $O(\sqrt n)$ & simplicity\\
+\bottomrule
+\end{tabularx}}
+\caption{All four are the same accounting: charge the element, not the
+call --- and read the operation's algebra before choosing.}
+\label{tab:amort}
+\end{table}
+
+\section{Common mistakes}
+\index{common mistakes}
+\begin{itemize}
+\item \textbf{Sparse table on a non-idempotent op.} Two overlapping
+pieces are only safe when $f(x,x)=x$; a sparse table for range sum
+double-counts the overlap and silently returns wrong answers.
+\item \textbf{Forgetting the expiry check.} The deque's front must be
+evicted when it leaves the window --- separate from the domination
+pop; skipping it returns the minimum of a window that no longer
+exists.
+\item \textbf{Counting pops per call.} Amortised bounds are proven on
+the \emph{sequence}, not the operation: ``one push can pop $k$'' is
+fine because each index is popped at most once ever.
+\item \textbf{Strictness flips.} $\ge$ vs $>$ in the pop condition
+decides whether equal values count as ``smaller-or-equal neighbours'';
+pick per the statement and test on duplicates.
+\item \textbf{Block-size blind spots.} The fringe scan is $O(B)$ ---
+queries shorter than $B$ inside one block must take the scalar path
+(handled by the $bl = br$ branch); skipping it sums whole blocks for a
+two-cell query.
+\end{itemize}
+
+\section{Additional exercises}
+\begin{exercise}[easy]
+CSES \emph{Towers} --- longest non-increasing run per cube
+(\texttt{upper\_bound} or monotonic multiset).
+\end{exercise}
+\begin{exercise}[easy]
+CSES \emph{Concert Tickets} --- ordered multiset, one predecessor
+query per ticket.
+\end{exercise}
+\begin{exercise}[easy]
+USACO-S \emph{Convention II} --- sorted queue mechanics.
+\end{exercise}
+\begin{exercise}[easy]
+LC \emph{IPO} --- two heaps as amortised selection.
+\end{exercise}
+\begin{exercise}[medium]
+CSES \emph{Traffic Lights} --- ordered set of segments.
+\end{exercise}
+\begin{exercise}[medium]
+CSES \emph{Josephus Problem II} --- order-statistics elimination.
+\end{exercise}
+\begin{exercise}[medium]
+USACO-S \emph{Milk Measurement} --- ordered leaderboard updates.
+\end{exercise}
+\begin{exercise}[medium]
+CF \emph{William and Robot} --- greedy selection structure.
+\end{exercise}
+\begin{exercise}[hard]
+CSES \emph{Stick Division} --- heap-of-two-smallest merges (Huffman).
+\end{exercise}
+\begin{exercise}[hard]
+USACO-S \emph{Deforestation} --- range constraints + structure choice.
+\end{exercise}
+\begin{exercise}[hard]
+USACO-G \emph{Job Completion} --- multi-structure scheduling.
+\end{exercise}
+
+\chapternotes
+The amortised-accounting framing follows Sannemo's structures
+sections~\cite{sannemo2025} and Laaksonen's data-structures
+chapter~\cite{laaksonen2024}; the USACO Guide's Silver/Gold modules
+carry the monotonic-stack and deque drills~\cite{usacoguide}, and
+cp-algorithms documents the sparse table's idempotency
+requirement~\cite{cpalgorithms}. Halim~\cite{halimcp4} covers the
+same set with contest IDs; the archive problems are official
+CSES/USACO tasks~\cite{cses}.

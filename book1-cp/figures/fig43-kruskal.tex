@@ -1,0 +1,8 @@
+\begin{tikzpicture}[font=\footnotesize]
+\begin{scope}\node[circle,draw=slate,font=\tiny] at (0,0) {1};\node[circle,draw=slate,font=\tiny] at (1,0) {2};
+\draw[-,amber,thick] (0,0)--(1,0);\node[font=\tiny] at (0.5,-0.6) {accept 2};\end{scope}
+\begin{scope}[xshift=2.6cm]\node[circle,draw=slate,font=\tiny] at (0,0) {1};\node[circle,draw=slate,font=\tiny] at (1,0) {2};
+\draw[-,slate,dashed] (0,0)--(1,0);\node[font=\tiny] at (0.5,-0.6) {skip: same set};\end{scope}
+\begin{scope}[xshift=5.6cm]\node[circle,draw=slate,font=\tiny] at (0,0) {1};\node[circle,draw=slate,font=\tiny] at (1,0) {3};
+\draw[-,amber,thick] (0,0)--(1,0);\node[font=\tiny] at (0.5,-0.6) {accept 4};\end{scope}
+\end{tikzpicture}

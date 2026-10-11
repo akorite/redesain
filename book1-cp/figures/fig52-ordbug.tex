@@ -1,0 +1,13 @@
+\begin{tikzpicture}[font=\footnotesize]
+\begin{scope}
+\node[font=\tiny] at (0.9,0.9) {sum-outer (ordered)};
+\node[font=\tiny] at (0.9,0.4) {$\{2,3\}$ and $\{3,2\}$ both counted};
+\node[font=\tiny,draw=slate] at (0.9,-0.2) {answer 8};
+\end{scope}
+\begin{scope}[xshift=5cm]
+\node[font=\tiny] at (0.9,0.9) {coin-outer (unordered)};
+\node[font=\tiny] at (0.9,0.4) {$\{2,3\}$ counted once};
+\node[font=\tiny,draw=slate] at (0.9,-0.2) {answer 3};
+\end{scope}
+\node[font=\tiny,align=center] at (2.5,-1.3) {same recurrence, different loop order};
+\end{tikzpicture}

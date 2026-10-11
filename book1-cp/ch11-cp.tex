@@ -1,0 +1,235 @@
+\chapter{Dynamic programming I: the method and the classics}\label{ch:dp1}
+\index{dynamic programming}\index{memoization}\index{knapsack}\index{LIS}
+
+Dynamic programming is not an algorithm --- it is a bookkeeping
+promise: never solve the same subproblem twice. The craft is five
+choices in order (state, transition, base case, fill order, answer
+location), plus one trap that wrong-answers more submissions than
+every other combined: ordered versus unordered counting. After this
+chapter you will run the recipe end to end on coins, knapsack, LIS
+and grids, and know the two loop orders by heart.
+
+\section{The same problem twice}\label{sec:memo}
+Memoization recurses and caches; tabulation fills a table in
+dependency order. They compute the \emph{same set} --- memoization
+visits only reachable states (safer when the state space is sparse),
+tabulation visits all states in order (safer on recursion depth).
+
+\section{The DP recipe}\label{sec:recipe}
+Five lines: (1) \emph{state} --- what identifies a subproblem;
+(2) \emph{transition} --- how it reduces; (3) \emph{base case};
+(4) \emph{order} --- dependencies before dependents (this is DP on
+the subproblem DAG, Figure~\ref{fig:subdag}); (5) \emph{answer} ---
+which state(s) to read.
+\begin{figure}[ht]\centering
+\input{figures/fig50-subdag}
+\caption{The subproblem DAG for coin DP. Notice ``topological order''
+is literally a fill order --- that is what DP is.}
+\label{fig:subdag}
+\end{figure}
+
+\section{Coin problems}\label{sec:coins}\index{coin DP}
+Minimising coins is minimisation (min over last coin); counting ways
+is summation --- and the summation splits into two different
+problems by loop order.
+\begin{example}[CSES \emph{Minimizing Coins}]\label{ex:coins}
+Fewest coins to make $x$.
+\par\smallskip
+\textbf{Strategy.} State = amount; transition = min over last coin
+used. Top-down and bottom-up compute the same states.
+\par\smallskip
+\begin{solution}
+\lstinputlisting{code/minimizing_coins.cpp}
+Real output (CSES sample):
+\begin{lstlisting}[numbers=none]
+3
+\end{lstlisting}
+\end{solution}
+\end{example}
+\begin{example}[CSES \emph{Dice Combinations} \textrightarrow\
+\emph{Coin Combinations I vs II}]\label{ex:combos}
+Ways to sum to $x$: I counts ordered sequences, II unordered
+multisets.
+\par\smallskip
+\textbf{Strategy.} Same table, different nesting: sum-outer counts
+permutations separately (ordered); coin-outer fixes each coin's
+count before the next (unordered). Swap the loops, swap the answer.
+\par\smallskip
+\begin{solution}
+\lstinputlisting{code/coin_combos.cpp}
+Real output (CSES sample, I then II):
+\begin{lstlisting}[numbers=none]
+8 3
+\end{lstlisting}
+\end{solution}
+\end{example}
+\begin{figure}[ht]\centering
+\input{figures/fig52-ordbug}
+\caption{The ordered/unordered split. Notice both use the identical
+recurrence --- the loop order \emph{is} the difference.}
+\label{fig:ordbug}
+\end{figure}
+
+\section{Knapsack}\label{sec:knap}\index{knapsack}
+0/1 knapsack: each item at most once --- the inner capacity loop must
+run \emph{descending}, or item $i$ reuses itself and you have solved
+the unbounded problem. Unbounded is the ascending twin.
+Reconstruction walks the table backwards.
+\begin{example}[CSES \emph{Book Shop}]\label{ex:shop}
+Max pages within budget.
+\par\smallskip
+\textbf{Strategy.} $\texttt{dp}[i][x]$ = best using items $1..i$;
+descend capacity so item $i$ appears at most once.
+\par\smallskip
+\begin{solution}
+\lstinputlisting{code/book_shop.cpp}
+Real output (CSES sample):
+\begin{lstlisting}[numbers=none]
+13
+\end{lstlisting}
+\end{solution}
+\end{example}
+\begin{figure}[ht]\centering
+\input{figures/fig51-dpfill}
+\caption{Book Shop's table filling. Notice each frame only reads the
+previous row --- that dependency shape is what licenses the
+one-array version.}
+\label{fig:dpfill}
+\end{figure}
+
+\section{LIS in \texorpdfstring{$O(n\log n)$}{O(n log n)}}\label{sec:lis}\index{LIS}
+Keep $L[i]$ = smallest possible tail of an increasing subsequence of
+length $i{+}1$. Three lemmas (USACO-Guide style): $L$ is always
+sorted; each read $x$ replaces $\texttt{lower\_bound}(x)$, never
+lengthening unless it appends; the answer is $|L|$.
+\begin{lstlisting}[language=C++,caption={\texttt{lis.h}: the
+7-line core.},label={lst:lis}]
+\end{lstlisting}
+\lstinputlisting{code/lis.h}
+\begin{example}[CSES \emph{Increasing Subsequence}]\label{ex:lis}
+Longest strictly increasing subsequence.
+\par\smallskip
+\textbf{Strategy.} The $O(n^2)$ is obvious; the tableau version is
+the same answers in $O(n\log n)$.
+\par\smallskip
+\begin{solution}
+\lstinputlisting{code/increasing_subseq.cpp}
+Real output (CSES sample):
+\begin{lstlisting}[numbers=none]
+4
+\end{lstlisting}
+\end{solution}
+\end{example}
+\begin{figure}[ht]\centering
+\input{figures/fig53-patience}
+\caption{The patience array evolving. Notice $L$'s length is the
+answer --- its entries are only potential tails.}
+\label{fig:patience}
+\end{figure}
+
+\section{Grid DP}\label{sec:griddp}\index{grid DP}
+Paths through a grid pull from left and above; obstacles are just
+zeros. In-place filling works because each cell only reads already-
+computed cells.
+\begin{example}[CSES \emph{Grid Paths I}]\label{ex:grid}
+Paths through a grid with traps.
+\par\smallskip
+\textbf{Strategy.} dp[r][c] = left + below; trap cells contribute 0.
+\par\smallskip
+\begin{solution}
+\lstinputlisting{code/grid_paths.cpp}
+Real output (CSES sample):
+\begin{lstlisting}[numbers=none]
+3
+\end{lstlisting}
+\end{solution}
+\end{example}
+\begin{figure}[ht]\centering
+\input{figures/fig54-griddep}
+\caption{Grid dependencies. Notice the two-source pull is why a
+single pass suffices --- every cell's inputs are computed earlier.}
+\label{fig:griddep}
+\end{figure}
+
+\section{Push vs pull}\label{sec:pushpull}
+Pull: each state reads its predecessors. Push: each state updates its
+successors. Same recurrence, different direction --- pull is usually
+clearer; push wins when the frontier is sparse.
+
+\begin{exercise}[easy]\label{exr:state}
+State for ``largest sum ending exactly at index $i$'' vs ``largest
+sum anywhere in $1..i$'' --- which is which, and why can't they swap?
+\end{exercise}
+\begin{exercise}[medium]\label{exr:ord}
+Coins $\{1,2\}$, $x=3$: enumerate the ordered and unordered counts
+and explain the missing summands.
+\end{exercise}
+\begin{exercise}[medium]\label{exr:dir}
+An ascending inner loop in 0/1 knapsack is a \emph{different}
+problem. Name it and explain the single direction change.
+\end{exercise}
+\begin{exercise}[medium]\label{exr:predbug}
+Predict the output of coin-outer counting if the answer table
+printed is not the final cell but a sum over all cells --- what goes
+wrong?
+\end{exercise}
+
+\section{Chapter summary}
+\begin{table}[ht]\centering
+{\small
+\begin{tabularx}{\linewidth}{@{}lYYY@{}}
+\toprule
+\tablehead\thead{Problem} & \thead{State} & \thead{Transition} & \thead{Trap}\\
+\midrule
+min coins & amount & min over last coin & INF guard\\
+count ways (ord) & amount & sum-outer loops & order counted\\
+count ways (unord) & amount & coin-outer loops & order collapsed\\
+0/1 knapsack & (item, cap) & descending cap & self-reuse\\
+LIS & tail min & lower\_bound & strict vs non\\
+grid paths & (r,c) & left + below & obstacles = 0\\
+\bottomrule
+\end{tabularx}}
+\caption{Five states, five transitions --- and the loop order that
+changes the answer, not the code.}
+\label{tab:dp}
+\end{table}
+
+\section{Common mistakes}
+\index{common mistakes}
+\begin{itemize}
+\item \textbf{Ordered-vs-unordered swap.} The single most common
+wrong answer: fix the loop nesting to the semantics asked.
+\item \textbf{Ascending capacity on 0/1 knapsack.} Item reuse slips
+in silently --- descend, or use two rows.
+\item \textbf{INF arithmetic.} \texttt{min + 1} on an unreachable
+state overflows --- guard with a sentinel comparison.
+\item \textbf{Iterating coins inside on unbounded with reuse across
+calls.} Recompute per case; shared tables bleed answers.
+\item \textbf{LIS strictness.} \texttt{lower\_bound} for strict,
+\texttt{upper\_bound} for non-decreasing --- swapping them silently
+changes the problem.
+\end{itemize}
+
+\section{Additional exercises}
+\begin{exercise}[easy] CSES \emph{Coin Combinations I/II}. \end{exercise}
+\begin{exercise}[easy] CSES \emph{Removing Digits} --- greedy-ish DP. \end{exercise}
+\begin{exercise}[easy] CSES \emph{Money Sums} --- reachable sums. \end{exercise}
+\begin{exercise}[easy] USACO-G \emph{Fruit Feast} --- knapsack variant. \end{exercise}
+\begin{exercise}[medium] CSES \emph{Array Description} --- bounded DP. \end{exercise}
+\begin{exercise}[medium] CSES \emph{Two Sets II} --- subset-sum DP. \end{exercise}
+\begin{exercise}[medium] CSES \emph{Rectangle Cutting} --- cuts DP. \end{exercise}
+\begin{exercise}[medium] USACO-G \emph{Hoof, Paper, Scissors} --- prefix-state DP. \end{exercise}
+\begin{exercise}[medium] USACO-G \emph{Time is Mooney} --- time-expanded DP. \end{exercise}
+\begin{exercise}[medium] USACO-G \emph{Teamwork} --- group-sum DP. \end{exercise}
+\begin{exercise}[hard] CSES \emph{Projects} --- weighted intervals DP. \end{exercise}
+\begin{exercise}[hard] USACO-G \emph{Snakes} --- herds DP. \end{exercise}
+\begin{exercise}[hard] USACO-G \emph{Talent Show} --- ratio DP. \end{exercise}
+
+\chapternotes
+The memo/tabulation framing and the ordered-unordered centerpiece
+follow Laaksonen~\cite{laaksonen2024} and Sannemo~\cite{sannemo2025};
+the patience-tableau three-lemma LIS is the USACO Guide's
+presentation~\cite{usacoguide}; knapsack loop-direction and grid DP
+are standard in cp-algorithms~\cite{cpalgorithms} and
+Halim~\cite{halimcp4}; archive problems are official
+CSES/USACO~\cite{cses}.

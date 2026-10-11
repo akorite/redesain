@@ -1,0 +1,368 @@
+\chapter{Binary search}\label{ch:bsearch}
+\index{binary search}
+
+Chapter~3 spent effort rearranging an input until it looked the way a
+greedy needed it. This chapter rearranges nothing at all: it takes a
+question whose answer is \emph{one number}, notices that the number's
+candidates split cleanly into ``too small'' and ``big enough'', and finds
+the boundary in about sixty probes --- whatever the range. Most of the
+problems a Silver contestant calls hard are this idea wearing a costume:
+the answer to \emph{what is the smallest makespan} or \emph{what is the
+largest safe gap} is easier to \emph{verify} than to construct, and
+verification is enough. After this chapter you will be able to write the
+one template that never loops, spot a monotone predicate inside a word
+problem, and turn ``minimise the maximum'' into a routine search over the
+answer.
+
+\section{The one correct template}\label{sec:bs-template}
+\index{binary search!template}
+
+Binary search has a terrible reputation for off-by-one bugs, and every
+version of it deserves the reputation except this one. The trick is to
+search \emph{predicates}, not elements: pick a question $P(x)$ that is
+false for a while and then true forever, and find the first true.
+On a sorted array the question ``$a[i] \ge t$'' is exactly that shape.
+
+\begin{lstlisting}[language=C++,caption={\texttt{lib/bsearch.h}: first
+true in ${[lo,hi]}$, given a predicate monotone on the whole
+interval.},label={lst:bsearch}]
+template <class F> ll first_true(ll lo, ll hi, F pred) {
+    while (lo < hi) {
+        ll mid = lo + (hi - lo) / 2;
+        if (pred(mid)) hi = mid; else lo = mid + 1;
+    }
+    return lo;
+}
+\end{lstlisting}
+
+Three invariants carry the whole proof of correctness, and you should be
+able to recite them. \textbf{(a)} Every position in $[lo,hi)$ is still a
+candidate for the answer. \textbf{(b)} Everything left of $lo$ is known
+false, everything at or right of $hi$ is known true.
+\textbf{(c)} $hi - lo$ strictly shrinks, so the loop ends with
+$lo = hi$: one candidate, the first true.
+Two details do the real work: $\texttt{mid}$ rounds \emph{down}
+(\texttt{lo + (hi - lo)/2}, which also dodges overflow), and the update
+is \texttt{hi = mid} on true versus \texttt{lo = mid + 1} on false ---
+the false side can skip \texttt{mid} entirely, the true side cannot.
+\index{binary search!invariants}
+
+The standard library sells the same idea as \texttt{lower\_bound}, which
+returns an iterator to the first element $\ge t$; upper\_bound returns
+the first $> t$. Both are the first-true shape.
+
+\begin{lstlisting}[language=C++,caption={\texttt{bsearch\_template.cpp}:
+the template and \texttt{lower\_bound} agree.},label={lst:bstemp}]
+\end{lstlisting}
+\lstinputlisting{code/bsearch_template.cpp}
+
+Real output on $a = \{2,4,7,7,11\}$, $t = 7$:
+\begin{lstlisting}[numbers=none]
+first >= 7 at index 2 (a[2]=7)
+first >  7 at index 4 (a[4]=11)
+lower_bound agrees: 2
+\end{lstlisting}
+
+\begin{figure}[ht]\centering
+\input{figures/fig15-frontier}
+\caption{The predicate frontier for $P(T)=$ ``can we finish by time
+$T$'' on the Factory Machines instance. Everything the search does is
+walk the boundary between amber and blue --- and it commits to the
+\emph{first} T, never any T to its right.}
+\label{fig:frontier}
+\end{figure}
+
+\begin{figure}[ht]\centering
+\input{figures/fig17-answerspace}
+\caption{Two different spaces. The input array is data you must read;
+the answer space is a line you get to choose the probing on ---
+and $\log_2$ of $10^{18}$ is only about 60.}
+\label{fig:answerspace}
+\end{figure}
+
+\section{Monotone predicates: searching the answer}\label{sec:bs-answer}
+\index{binary search!on the answer}\index{monotone predicate}
+
+Figure~\ref{fig:frontier} is the whole idea. When the predicate is
+monotone --- false up to some boundary, true ever after (or the reverse)
+--- the search runs on the \emph{answer space}, the interval of every
+value the answer could take, not on the input array. Three questions
+design the search and nothing else matters:
+
+\begin{enumerate}
+\item \textbf{What is the answer's range?} $[lo, hi]$ must provably
+contain it --- the fastest machine's time times $t$ is a safe top.
+\item \textbf{What is the check?} $P(x)$ must be computable in far less
+time than constructing the answer.
+\item \textbf{Is it monotone?} If $P$ is a sawtooth, the search finds
+\emph{a} boundary, not \emph{the} answer (Section~\ref{sec:bs-limits}).
+\end{enumerate}
+
+\begin{example}[CSES \emph{Factory Machines}, min makespan]\label{ex:factory}
+\index{Factory Machines}
+$n$ machines make products, machine $i$ taking $k_i$ seconds each.
+Shortest time for $t$ products total ($n \le 2\cdot10^5$, $t,k_i \le
+10^9$)?
+\par\smallskip
+\textbf{Strategy.} The answer is a time $T$; the answer space is
+$[1, 10^{18}]$. The predicate ``can we finish by $T$'' is monotone ---
+more time never hurts --- and cheap: machine $i$ produces
+$\lfloor T/k_i \rfloor$ units, so $\sum_i \lfloor T/k_i \rfloor \ge t$
+decides it in $O(n)$. Search over ~60 probes $\times$ one sum each.
+\par\smallskip
+\begin{solution}
+\begin{lstlisting}[language=C++,caption={\texttt{factory\_machines.cpp}:
+the check plus the driver.},label={lst:factory}]
+\end{lstlisting}
+\lstinputlisting{code/factory_machines.cpp}
+\end{solution}
+Real output (CSES sample: $3$ machines $\{3,2,5\}$, $t=7$):
+\begin{lstlisting}[numbers=none]
+check(7)=0 check(8)=1
+8
+\end{lstlisting}
+The check itself shows the frontier: 7 fails, 8 passes, and 8 is the
+answer. One overflow habit to steal: the accumulator stops at $t$
+instead of summing $10^9$ terms it does not need.
+\end{example}
+
+\begin{figure}[ht]\centering
+\input{figures/fig18-timeline}
+\caption{The check for Example~\ref{ex:factory} as a completion
+timeline at $T=8$: machine $k_1{=}3$ finishes at $3,6$ (two products),
+$k_2{=}2$ at $2,4,6,8$ (four), $k_3{=}5$ at $5$ (one). Counting ticks
+left of the dashed line \emph{is} the predicate --- nothing was
+scheduled.}
+\label{fig:timeline}
+\end{figure}
+
+\begin{example}[CSES \emph{Array Division}, minimise the maximum
+sum]\label{ex:arrdiv}\index{Array Division}
+Split an array of $n$ positive values into $k$ contiguous groups
+minimising the largest group sum ($n \le 2\cdot10^5$).
+\par\smallskip
+\textbf{Strategy.} Answer space: $[\max a_i,\ \sum a_i]$. Predicate
+``does cap $x$ per group suffice'' is monotone --- a bigger cap can only
+help --- and checkable greedily: accumulate until the next element would
+overflow the cap, cut, count groups.
+\par\smallskip
+\begin{solution}
+\lstinputlisting{code/array_division.cpp}
+Real output ($n{=}5$, $k{=}3$, $\{2,4,7,3,5\}$):
+\begin{lstlisting}[numbers=none]
+check(7)=0 check(8)=1
+8
+\end{lstlisting}
+The optimal split is $[2,4],[7],[3,5]$ --- but notice the program never
+built it. The greedy's correctness rests on a minimality claim: each
+greedy group extends as far right as the cap allows, so no feasible
+division uses fewer groups. If the greedy count $g$ is at most $k$,
+merging adjacent groups --- always legal, each merge just concatenates
+two pieces --- reduces the count to exactly $k$; if $g$ exceeds $k$, no
+division exists at all. Asking only ``$g \le k$'' is therefore sound.
+\end{solution}
+\end{example}
+
+\begin{example}[USACO Silver \emph{Social Distancing}, maximise the
+minimum]\label{ex:social}\index{Social Distancing}
+Free stalls at sorted positions $p_1 < \dots < p_n$; place $k$ cows to
+maximise the smallest gap between neighbours.
+\par\smallskip
+\textbf{Strategy.} The min-max pattern inverted: now the answer is the
+\emph{largest} feasible gap $d$. Predicate ``can $k$ cows sit with gaps
+$\ge d$'' is monotone the other way --- feasible for small $d$, infeasible
+past the frontier. The check is the same greedy as ever: place the next
+cow at the first stall at least $d$ past the last.
+\par\smallskip
+\begin{solution}
+\lstinputlisting{code/social_distancing.cpp}
+Real output (stalls $\{1,2,5,8,9\}$, $k=3$):
+\begin{lstlisting}[numbers=none]
+fits(4)=1 fits(5)=0
+4
+\end{lstlisting}
+Two habits worth copying: maximisation becomes first-true on the
+\emph{negated} predicate (search for the first $d$ that fails, answer is
+one less), and the candidate range runs to the span of the stalls ---
+answers beyond it are impossible by construction.
+\end{solution}
+\end{example}
+
+\begin{example}[CSES \emph{Multiplication Table}, a counting
+predicate]\label{ex:multtable}\index{Multiplication Table}
+The $n \times n$ multiplication table ($n$ odd, $n < 10^6$): find the
+median of its $n^2$ products without building them.
+\par\smallskip
+\textbf{Strategy.} Nothing is sorted and nothing can be --- $n^2$ is too
+many elements to hold. The answer space is the product range
+$[1, n^2]$, and the predicate is a \emph{count}: ``at least
+$\lceil n^2/2 \rceil$ products are $\le x$''. Row $i$ contributes
+$\min(n, \lfloor x/i \rfloor)$, so counting is $O(n)$ and monotone ---
+larger $x$ can only add products.
+\par\smallskip
+\begin{solution}
+\lstinputlisting{code/mult_table.cpp}
+Real output:
+\begin{lstlisting}[numbers=none]
+3
+\end{lstlisting}
+$n{=}3$: the sorted products are $\{1,2,2,3,3,4,6,6,9\}$ and the middle
+is $3$. The pattern to keep: \emph{rank queries} (``how many are $\le
+x$'') are monotone almost by definition, so any ``find the $k$-th''
+question is candidate answer-space search.
+\end{solution}
+\end{example}
+
+\begin{exercise}[easy]\label{exr:boundary}
+The template keeps ``left of \texttt{lo} known false, at-or-right-of
+\texttt{hi} known true''. For each of these predicate answers at
+\texttt{mid}, state the correct update: (a) $P(\texttt{mid})$ false,
+(b) $P(\texttt{mid})$ true, (c) the invariant when the loop exits.
+\end{exercise}
+
+\begin{exercise}[medium]\label{exr:monotone}
+Which of these predicates is monotone, and on what range?
+(a) ``$x$ machines can finish by time $T$'' as a function of $x$;
+(b) ``$x^2$ is prime''; (c) ``the greedy's group count is $\le k$'';
+(d) ``$a[i] \ge t$'' on an \emph{unsorted} array.
+\end{exercise}
+
+\section{Real-valued search}\label{sec:bs-real}
+\index{binary search!real-valued}
+
+Over a continuous interval the ``first true'' trick never terminates ---
+there is no first true real number. The fix is to stop after a fixed
+number of iterations: each probe halves the bracket, so 60 rounds shrink
+$[0,2]$ by $2^{-60} \approx 10^{-18}$, well past double precision.
+Never write \texttt{while (hi - lo > eps)}: it compares the bracket to a
+tolerance that ignores the function's steepness, and \texttt{mid*mid}
+near 1e20 can overflow silently. Fixed iterations are cheaper to reason
+about and just as accurate.
+
+\begin{lstlisting}[language=C++,caption={\texttt{real\_bsearch.cpp}:
+60 iterations to $\sqrt 2$ --- the bracket, not the midpoint, is the
+deliverable.},label={lst:real}]
+\end{lstlisting}
+\lstinputlisting{code/real_bsearch.cpp}
+Real output:
+\begin{lstlisting}[numbers=none]
+it=10 bracket=[1.4140625, 1.416015625]
+it=20 bracket=[1.4142131805419922, 1.414215087890625]
+it=60 bracket=[1.4142135623730949, 1.4142135623730951]
+\end{lstlisting}
+
+Note which side moved: the predicate is $x^2 < 2$, true below the root
+--- so \texttt{lo} chases the boundary from below and \texttt{hi} from
+above. Reading off which endpoint is safe to report is the whole
+correctness story.
+
+\section{Where the pattern ends}\label{sec:bs-limits}
+\index{binary search!limitations}
+
+The template never fails; the \emph{predicate} fails. A non-monotone
+$P$ still returns a boundary, but it is the boundary of wherever
+\texttt{mid} happened to land --- the answer space may hold several
+frontiers, and you find whichever the search path crossed first. Two
+honest warnings: (a) monotonicity is a \emph{proof obligation}, not a
+property you get for free from writing \texttt{check()}; convince
+yourself the frontier is unique before you search it.
+(b) A monotone-sounding English description can still hide a sawtooth:
+``$x$ workers finish in time'' is monotone; ``configuration $x$ is
+valid'' need not be. If the predicate wiggles, you need structure ---
+convexity, a transform --- not optimism.
+
+\section{Chapter summary}
+\begin{table}[ht]\centering
+{\small
+\begin{tabularx}{\linewidth}{@{}lYYYY@{}}
+\toprule
+\tablehead\thead{Problem} & \thead{Answer space} & \thead{Predicate} &
+\thead{Check cost} & \thead{WE}\\
+\midrule
+Factory Machines & $[1,\,10^{18}]$ time & $\sum \lfloor T/k_i\rfloor\ge t$ &
+$O(n)$ & \ref{ex:factory}\\
+Array Division & $[\max,\sum]$ cap & greedy groups $\le k$ & $O(n)$ &
+\ref{ex:arrdiv}\\
+Social Distancing & $[0,\text{span}]$ gap & greedy placing $\ge k$ &
+$O(n)$ & \ref{ex:social}\\
+Multiplication Table & $[1,n^2]$ value & count $\le x \ge$ median &
+$O(n)$ & \ref{ex:multtable}\\
+$\sqrt 2$ on $\mathbb R$ & $[0,2]$ real & $x^2 < 2$ & $O(1)$ &
+\S\ref{sec:bs-real}\\
+\bottomrule
+\end{tabularx}}
+\caption{One template, five costumes. In every row the hard work was
+\emph{writing the check} --- the search was already solved.}
+\label{tab:bsearch}
+\end{table}
+
+\section{Common mistakes}
+\index{common mistakes}
+\begin{itemize}
+\item \textbf{Mixing the updates.} \texttt{hi = mid - 1} on true throws
+away the only candidate you know is true; \texttt{lo = mid} on false
+leaves \texttt{mid} in play and loops forever. Memorise the pair:
+\texttt{true} keeps \texttt{mid}, \texttt{false} skips it.
+\item \textbf{Searching the wrong direction.} The template finds the
+first \emph{true}. For a last-true or first-false problem, negate the
+predicate or subtract one --- do not improvise a mirrored loop.
+\item \textbf{Predicate that is not monotone.} The search still returns
+something; it is just not the answer you wanted. Prove the frontier is
+unique first.
+\item \textbf{Overflow inside the check.} $\sum T/k_i$ with
+$T = 10^{18}$ and $n = 2\cdot10^5$ overflows a 64-bit sum several times
+over; cap the accumulator at the target, as Listing~\ref{lst:factory}
+does.
+\item \textbf{\texttt{while (hi-lo > eps)} on reals.} Epsilons couple
+the stop rule to the function's slope and invite infinite loops; fix
+the iteration count instead.
+\end{itemize}
+
+\section{Additional exercises}
+\begin{exercise}[easy]
+CSES \emph{Sum of Three Values} --- reduce to two-sum via sorting.
+\end{exercise}
+\begin{exercise}[easy]
+USACO-S \emph{Cow Dance Show} --- feasibility as a simulation per
+candidate size.
+\end{exercise}
+\begin{exercise}[easy]
+USACO-S \emph{Convention} --- monotone coverage check.
+\end{exercise}
+\begin{exercise}[medium]
+CSES \emph{Reading Books} --- the answer space is a waiting time.
+\end{exercise}
+\begin{exercise}[medium]
+CSES \emph{Movie Festival II} --- multiset membership per step; where
+does the monotonicity live?
+\end{exercise}
+\begin{exercise}[medium]
+USACO-S \emph{Loan Repayment} --- search the repayment term.
+\end{exercise}
+\begin{exercise}[medium]
+USACO-S \emph{Bakery} --- feasibility linear program per cost bound.
+\end{exercise}
+\begin{exercise}[medium]
+USACO-S \emph{Angry Cows} --- the classic blast-radius search.
+\end{exercise}
+\begin{exercise}[medium]
+CF \emph{Guess the K-th Zero} --- an \emph{interactive} first-true.
+\end{exercise}
+\begin{exercise}[hard]
+CSES \emph{Maximum Subarray Sum II} --- combine with a sliding window.
+\end{exercise}
+\begin{exercise}[hard]
+CF \emph{The Meeting Place Cannot Be Changed} --- real-valued answer.
+\end{exercise}
+\begin{exercise}[hard]
+Baltic OI 2012 \emph{Mobile} --- heavy feasibility per candidate weight.
+\end{exercise}
+
+\chapternotes
+Binary search on the answer is the flagship technique of
+Sannemo's chapter on it~\cite{sannemo2025} and Halim's greedy/search
+sections~\cite{halimcp4}; Laaksonen's guide covers the template's
+pitfalls~\cite{laaksonen2024}. The four archive problems are official
+CSES/USACO tasks~\cite{cses,usacoguide}; standard references on the
+idiom are the C++ reference's \texttt{lower\_bound}
+page~\cite{cppreference} and the cp-algorithms binary-search note.

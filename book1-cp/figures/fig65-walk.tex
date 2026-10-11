@@ -1,0 +1,11 @@
+\begin{tikzpicture}[font=\tiny]
+\node[draw=slate] (r) at (0,0) {max 9};
+\node[draw=slate,fill=accentsoft!40] (a) at (-1.6,-0.9) {max 7};
+\node[draw=slate] (b) at (1.6,-0.9) {max 9};
+\node[draw=slate,fill=accentsoft!40] (a1) at (-2.4,-1.8) {max 6};
+\node[draw=slate] (a2) at (-0.9,-1.8) {max 7};
+\draw[-{stealth},amber] (r)--(a);
+\draw[-{stealth},amber] (a)--(a1);
+\draw[slate] (r)--(b) (a)--(a2);
+\node[font=\tiny] at (0,-2.6) {descend left while left-max $\ge r$};
+\end{tikzpicture}

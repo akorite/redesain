@@ -1,0 +1,14 @@
+\begin{tikzpicture}[font=\footnotesize]
+\begin{scope}
+\node[circle,draw=slate,fill=accentsoft,font=\tiny] at (0,1) {big};
+\node[circle,draw=slate,font=\tiny] at (0.8,1) {small};
+\draw[-{stealth},amber,thick] (0.8,1) to[out=45,in=45] (0,1);
+\node[font=\tiny] at (0.4,0.4) {small $\to$ big: stays shallow};
+\end{scope}
+\begin{scope}[xshift=4.4cm]
+\node[circle,draw=slate,font=\tiny] at (0,1) {big};
+\node[circle,draw=slate,fill=accentsoft,font=\tiny] at (0.8,1) {small};
+\draw[-{stealth},amber,thick,dashed] (0,1) to[out=135,in=135] (0.8,1);
+\node[font=\tiny] at (0.4,0.4) {big $\to$ small: deepens};
+\end{scope}
+\end{tikzpicture}

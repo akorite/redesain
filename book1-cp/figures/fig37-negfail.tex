@@ -1,0 +1,9 @@
+\begin{tikzpicture}[font=\footnotesize]
+\node[circle,draw=slate,font=\tiny] (s) at (0,0) {s};
+\node[circle,draw=slate,font=\tiny] (a) at (1.8,0.9) {a};
+\node[circle,draw=slate,font=\tiny] (b) at (1.8,-0.9) {b};
+\draw[-{stealth},slate] (s)--(a) node[midway,above,font=\tiny] {2};
+\draw[-{stealth},slate] (s)--(b) node[midway,below,font=\tiny] {5};
+\draw[-{stealth},amber,thick] (b)--(a) node[midway,right,font=\tiny] {$-4$};
+\node[font=\tiny,align=center] at (0.9,-1.7) {Dijkstra settles a at 2;\\ truth: $5-4=1$ via b};
+\end{tikzpicture}

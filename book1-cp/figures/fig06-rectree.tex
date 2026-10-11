@@ -1,0 +1,31 @@
+% fig06-rectree.tex -- Figure 2.1: recursion tree for subsets of {1,2,3}.
+% Each level decides take/leave for one element; leaves are the 2^3 subsets.
+\begin{tikzpicture}[
+  font=\footnotesize,
+  level distance=8.5mm,
+  level 1/.style={sibling distance=48mm},
+  level 2/.style={sibling distance=24mm},
+  level 3/.style={sibling distance=12mm},
+  nd/.style={draw, rounded corners=1pt, inner sep=2pt, fill=graybg},
+  lf/.style={draw, rounded corners=1pt, inner sep=2pt, fill=goodbg},
+  el/.style={font=\scriptsize, text=slate, midway, above=-1pt},
+  every edge/.style={draw, -, thin}
+]
+\node[nd] {search(1)}
+  child { node[nd] {take 1}
+    child { node[nd] {take 2}
+      child { node[lf] {$\{1,2,3\}$} edge from parent node[el] {3} }
+      child { node[lf] {$\{1,2\}$} edge from parent node[el] {} } }
+    child { node[nd] {skip 2}
+      child { node[lf] {$\{1,3\}$} edge from parent node[el] {3} }
+      child { node[lf] {$\{1\}$} edge from parent node[el] {} } }
+    edge from parent node[el] {1} }
+  child { node[nd] {skip 1}
+    child { node[nd] {take 2}
+      child { node[lf] {$\{2,3\}$} edge from parent node[el] {3} }
+      child { node[lf] {$\{2\}$} edge from parent node[el] {} } }
+    child { node[nd] {skip 2}
+      child { node[lf] {$\{3\}$} edge from parent node[el] {3} }
+      child { node[lf] {$\{\}$} edge from parent node[el] {} } }
+    edge from parent node[el] {} };
+\end{tikzpicture}

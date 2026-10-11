@@ -1,0 +1,8 @@
+\begin{tikzpicture}[font=\footnotesize,x=0.5cm,y=0.5cm]
+\foreach \x in {0,...,3} \foreach \y in {0,...,3}
+  \draw[slate!60] (\x,\y) rectangle +(1,1);
+\fill[accentsoft] (2,2) rectangle +(1,1);
+\draw[-{stealth},amber,thick] (1.5,2.5)--(2.5,2.5);
+\draw[-{stealth},amber,thick] (2.5,1.5)--(2.5,2.5);
+\node[font=\tiny] at (2,-0.7) {cell (i,j) pulls from left and below};
+\end{tikzpicture}

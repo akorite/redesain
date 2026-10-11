@@ -1,0 +1,8 @@
+\begin{tikzpicture}[font=\tiny]
+\foreach \i/\c in {0/{0,0,0,0},1/{0,0,8,8},2/{0,5,8,13},3/{0,5,8,13}}{
+  \begin{scope}[xshift=\i*2.4cm]
+    \foreach \r/\row in {0/\c}
+      \node[anchor=west] at (0,0) {\row};
+    \node at (0.8,-0.6) {frame \i};
+  \end{scope}}
+\end{tikzpicture}

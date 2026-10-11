@@ -1,0 +1,241 @@
+\chapter{Disjoint sets and spanning trees}\label{ch:dsu}
+\index{disjoint set union}\index{DSU}\index{minimum spanning tree}
+
+Two questions dominate this chapter: are these vertices connected,
+and which edges are worth keeping? The disjoint-set union answers the
+first in nearly constant time per operation; the minimum spanning
+tree answers the second, and the cut property is the single theorem
+that makes every MST algorithm correct. After this chapter you will
+write a DSU blindfolded, argue Kruskal and Prim from the same
+exchange proof, and spot when an offline replay turns ``delete''
+into ``insert'' --- the trick that makes deletion queries solvable at
+all.
+
+\section{The connectivity problem}\label{sec:conn}\index{connectivity}
+Maintain ``are $a$ and $b$ in the same component?'' under edge
+insertions. Online algorithms must answer as each query arrives;
+offline algorithms see the whole sequence first --- and offline is
+where hard problems soften: deleting an edge sequence replayed
+backwards is insertion, and DSU handles insertion natively.
+
+\section{The forest representation}\label{sec:forest}
+Each set is a rooted tree; \texttt{p[v]} points up. \texttt{find}
+walks to the root, \emph{path compression} re-roots the walk's
+vertices at the root; \texttt{unite} hangs the smaller root under the
+larger (\emph{union by size}). Each half is optional; together they
+are nearly free.
+\begin{figure}[ht]\centering
+\input{figures/fig40-compress}
+\caption{The same find, before and after. Notice compression only
+re-parents vertices on the walked path --- others keep their depth
+until their turn.}
+\label{fig:compress}
+\end{figure}
+\begin{figure}[ht]\centering
+\input{figures/fig41-unionsize}
+\caption{Union by size. Notice the asymmetry: only hanging the larger
+under the smaller deepens anything; the other direction never adds
+depth.}
+\label{fig:unionsize}
+\end{figure}
+\begin{lstlisting}[language=C++,caption={\texttt{dsu.h}: path
+halving + union by size + component sizes.},label={lst:dsu}]
+\end{lstlisting}
+\lstinputlisting{code/dsu.h}
+
+\section{The amortized bound}\label{sec:ack}
+With both optimizations, $m$ operations cost $O(m\,\alpha(n))$ where
+$\alpha$ is the inverse Ackermann function --- bounded by 4 for any
+$n$ in this universe. The proof charges each pointer hop to a rank
+increase budget; sketch only: ranks are potential, compression spends
+it. In contest terms: treat each operation as $O(1)$.
+
+\section{The cut property}\label{sec:cut}\index{cut property}
+For any cut $(S, V\setminus S)$, the lightest crossing edge belongs
+to \emph{some} MST. Proof by exchange: take an MST using a heavier
+crossing edge $f$; swapping in the light edge $e$ keeps a spanning
+tree and only lowers the cost. Every MST algorithm is this theorem in
+a different costume.
+\begin{figure}[ht]\centering
+\input{figures/fig42-cutprop}
+\caption{The cut property. Notice nothing depends on which MST you
+started from --- exchange against \emph{any} of them.}
+\label{fig:cutprop}
+\end{figure}
+
+\section{Kruskal}\label{sec:kruskal}\index{Kruskal}
+Sort edges, accept those joining different components. Each accepted
+edge is the lightest crossing of the cut between the two components
+--- the cut property again, applied greedily. Cost: sorting
+dominates, $O(E\log E)$.
+\begin{lstlisting}[language=C++,caption={\texttt{kruskal.h} on top of
+\texttt{DSU}.},label={lst:kruskal}]
+\end{lstlisting}
+\lstinputlisting{code/kruskal.h}
+\begin{example}[CSES \emph{Road Reparation}]\label{ex:reparation}
+Cheapest way to reconnect the cities.
+\par\smallskip
+\textbf{Strategy.} ``Cheapest connection covering all'' is an MST;
+a leftover of fewer than $n{-}1$ accepted edges means the graph was
+never connected.
+\par\smallskip
+\begin{solution}
+\lstinputlisting{code/road_reparation.cpp}
+Real output (CSES sample):
+\begin{lstlisting}[numbers=none]
+14
+\end{lstlisting}
+\end{solution}
+\end{example}
+\begin{figure}[ht]\centering
+\input{figures/fig43-kruskal}
+\caption{Kruskal's accept/skip rhythm. Notice the skipped edge is
+rejected \emph{because} its endpoints already merged --- the DSU is
+the algorithm's memory.}
+\label{fig:kruskal}
+\end{figure}
+
+\section{Prim}\label{sec:prim}\index{Prim}
+Grow one tree: a priority queue holds frontier edges; pop the
+lightest, settle its far vertex, push its edges. It is Dijkstra's
+skeleton with edge weight instead of distance --- and wins when the
+graph is dense enough that sorting all edges is the bottleneck.
+\begin{lstlisting}[language=C++,caption={\texttt{prim.h}: the pq
+frontier.},label={lst:prim}]
+\end{lstlisting}
+\lstinputlisting{code/prim.h}
+
+\section{Worked examples}
+\begin{example}[CSES \emph{Road Construction}]\label{ex:constr}
+After each new road: component count, largest component.
+\par\smallskip
+\textbf{Strategy.} Both answers live in the DSU's size array:
+merges decrement the count and grow one component.
+\par\smallskip
+\begin{solution}
+\lstinputlisting{code/road_construction.cpp}
+Real output (CSES sample):
+\begin{lstlisting}[numbers=none]
+4 2
+3 3
+2 3
+\end{lstlisting}
+\end{solution}
+\end{example}
+\begin{example}[CSES \emph{Building Roads}]\label{ex:roads}
+Minimum roads to connect all cities, then print them.
+\par\smallskip
+\textbf{Strategy.} Components minus one is the count; linking
+component roots in a chain realizes it.
+\par\smallskip
+\begin{solution}
+\lstinputlisting{code/building_roads.cpp}
+Real output (CSES sample):
+\begin{lstlisting}[numbers=none]
+1
+1 3
+\end{lstlisting}
+\end{solution}
+\end{example}
+\begin{example}[USACO-S \emph{Closing the Farm}]\label{ex:farm}
+After each barn closes, is the farm still fully connected?
+\par\smallskip
+\textbf{Strategy.} DSU cannot delete --- so run time backwards:
+start from the last surviving barn and \emph{insert} barns in reverse
+order, recording the connectivity of each state \emph{before}
+the closed barn is re-inserted (the answer asks for the state
+\emph{after} that closing; an empty remainder is vacuously
+connected)
+(Figure~\ref{fig:farmtime}).
+\par\smallskip
+\begin{solution}
+\lstinputlisting{code/closing_farm.cpp}
+Real output (4-barn star, all states connected):
+\begin{lstlisting}[numbers=none]
+YES
+YES
+YES
+YES
+\end{lstlisting}
+\end{solution}
+\end{example}
+\begin{figure}[ht]\centering
+\input{figures/fig44-farmtimeline}
+\caption{The timeline reversal. Notice the forward question and the
+backward algorithm share \emph{the same states} --- replaying
+backwards visits every intermediate farm the original run did.}
+\label{fig:farmtime}
+\end{figure}
+
+\begin{exercise}[easy]\label{exr:fu}
+In \texttt{unite(a,b)}, which order runs \texttt{find} first --- and
+why does union-by-size need the \emph{root} sizes, not arbitrary
+sizes?
+\end{exercise}
+\begin{exercise}[medium]\label{exr:whichcut}
+Kruskal's next accepted edge $e$ between components $A,B$: exhibit
+the cut whose light edge $e$ is, and conclude its membership.
+\end{exercise}
+\begin{exercise}[medium]\label{exr:reverse}
+Give a query sequence where offline reversal is essential (not just
+convenient): name one operation DSU fundamentally cannot undo.
+\end{exercise}
+
+\section{Chapter summary}
+\begin{table}[ht]\centering
+{\small
+\begin{tabularx}{\linewidth}{@{}lYYY@{}}
+\toprule
+\tablehead\thead{Task} & \thead{Tool} & \thead{Cost} & \thead{Watch for}\\
+\midrule
+connected? + merge & DSU & $\sim O(1)$/op & no deletes\\
+all-pairs min tree & Kruskal & $O(E\log E)$ & sort dominates\\
+dense-graph MST & Prim & $O(E\log V)$ & pq frontier\\
+deletion queries & offline reverse & same ops & replay order\\
+\bottomrule
+\end{tabularx}}
+\caption{One theorem (cut property) under both MST algorithms; one
+trick (offline reversal) under every deletion problem.}
+\label{tab:dsu}
+\end{table}
+
+\section{Common mistakes}
+\index{common mistakes}
+\begin{itemize}
+\item \textbf{Union without \texttt{find}.} \texttt{p[a]=p[b]} links
+arbitrary members, not roots --- always unite
+\texttt{find(a)},\,\texttt{find(b)}.
+\item \textbf{Skipping compression \emph{and} size.} One alone helps;
+neither degenerates to $O(n)$ per find --- keep both.
+\item \textbf{Trying to delete with DSU.} There is no
+\texttt{un-unite}; offline reversal or a different structure is the
+answer.
+\item \textbf{Assuming MST is unique.} Equal weights admit several;
+the cut property promises \emph{some} MST, not \emph{the} MST ---
+handle ties deliberately when the problem counts trees.
+\item \textbf{Forgetting the disconnected case.} A forest is legal
+input --- \texttt{mst.size() < n-1} is the IMPOSSIBLE check.
+\end{itemize}
+
+\section{Additional exercises}
+\begin{exercise}[easy] CSES \emph{Road Reparation}. \end{exercise}
+\begin{exercise}[easy] USACO-S \emph{Closing the Farm}. \end{exercise}
+\begin{exercise}[easy] USACO-G \emph{MooTube} --- threshold components. \end{exercise}
+\begin{exercise}[medium] USACO-S \emph{Wormhole Sort} --- DSU + binary search. \end{exercise}
+\begin{exercise}[medium] USACO-G \emph{Moocast} --- MST-style radii. \end{exercise}
+\begin{exercise}[medium] USACO-G \emph{I Would Walk 500 Miles} --- implicit-edge Kruskal. \end{exercise}
+\begin{exercise}[medium] CF \emph{Design Tutorial: Inverse the Problem} --- reconstruct from MST. \end{exercise}
+\begin{exercise}[hard] CSES \emph{New Roads Queries} --- online MST edge questions. \end{exercise}
+\begin{exercise}[hard] USACO-G \emph{Portals} --- MST on portal+cost edges. \end{exercise}
+\begin{exercise}[hard] USACO-G \emph{Fenced In} --- boundary-strip Kruskal. \end{exercise}
+\begin{exercise}[hard] USACO-OS \emph{Ski Course Rating} --- MST + queries. \end{exercise}
+\begin{exercise}[hard] Baltic OI 2016 \emph{Park} --- MST + LCA path max. \end{exercise}
+
+\chapternotes
+DSU amortization and the cut-property-first MST treatment follow
+Laaksonen~\cite{laaksonen2024} and Sannemo~\cite{sannemo2025}; the
+offline-reversal pattern and threshold-component problems are the
+USACO Guide's DSU module~\cite{usacoguide}; cp-algorithms carries the
+charged-ranks proof sketch and MST variants~\cite{cpalgorithms};
+Halim supplies the named variants~\cite{halimcp4}; archive problems
+are official CSES/USACO~\cite{cses}.

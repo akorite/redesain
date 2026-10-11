@@ -1,0 +1,240 @@
+\chapter{Dynamic programming II: masks, digits, ranges, and trees}\label{ch:dp2}
+\index{bitmask DP}\index{digit DP}\index{range DP}\index{tree DP}
+
+Chapter~11's recipe generalizes: states stop being positions and
+become \emph{structured objects} --- subsets, automaton flags,
+intervals, and tree-shape state pairs. Each generalization opens a
+new problem class: bitmask DP for exponential-set problems, digit DP
+for counting over enormous ranges, range DP for interval games, and
+tree DP for hierarchical matching. After this chapter you will pick
+the state shape, write the canonical template for each, and know
+which optimizations wait at the horizon.
+
+\section{Subsets as states}\label{sec:masks}\index{bitmask}
+A subset of $\{1..n\}$ is an integer: mask DP stores one value per
+subset, $O(2^n \cdot \text{poly})$ --- viable to $n \approx 20$.
+Enumerating submasks uses \texttt{s = (s-1) \& mask}.
+\begin{example}[CSES \emph{Elevator Rides}]\label{ex:elev}
+Fewest rides given per-person weights and a lift capacity.
+\par\smallskip
+\textbf{Strategy.} State = the set already placed. dp[mask] tracks
+\emph{two} things --- rides used and weight on the current ride ---
+minimized lexicographically.
+\par\smallskip
+\begin{solution}
+\lstinputlisting{code/elevator_rides.cpp}
+Real output (CSES sample):
+\begin{lstlisting}[numbers=none]
+2
+\end{lstlisting}
+\end{solution}
+\end{example}
+\begin{figure}[ht]\centering
+\input{figures/fig55-masklattice}
+\caption{The subset lattice. Notice a mask DP always walks
+upward --- each transition adds exactly one element.}
+\label{fig:mask}
+\end{figure}
+
+\section{Digit DP}\label{sec:digit}\index{digit DP}
+Counting integers $\le N$ with a digit property: walk the digits
+most-significant-first carrying a \emph{tight} flag (still matching
+$N$'s prefix?) and a \emph{leading-zero} flag (the number hasn't
+started). Tight bounds the next digit; loose reads from memo.
+\begin{example}[CSES \emph{Counting Numbers}]\label{ex:num}
+Count distinct-digit numbers in $[a,b]$.
+\par\smallskip
+\textbf{Strategy.} The automaton is (pos, tight, leading,
+used-digits-mask); count(b) $-$ count(a$-$1).
+\par\smallskip
+\begin{solution}
+\lstinputlisting{code/counting_numbers.cpp}
+Real output (CSES sample):
+\begin{lstlisting}[numbers=none]
+199
+\end{lstlisting}
+\end{solution}
+\end{example}
+\begin{figure}[ht]\centering
+\input{figures/fig56-digitauto}
+\caption{The tight/loose automaton. Notice tight never comes back ---
+one undercut frees the whole suffix.}
+\label{fig:digitauto}
+\end{figure}
+
+\section{Range DP}\label{sec:range}\index{range DP}
+Cost over every subarray: dp[l][r] built \emph{by length}, since a
+range needs its strictly-smaller subranges first. Splits and
+endpoint choices both fit the shape.
+\begin{example}[CSES \emph{Removal Game}]\label{ex:removal}
+Two players pick ends; maximize the first player's sum.
+\par\smallskip
+\textbf{Strategy.} dp[l][r] = best score difference from this range:
+$\max(a_l - dp[l{+}1][r], a_r - dp[l][r{-}1])$ --- opponent-optimal
+play subtracts.
+\par\smallskip
+\begin{solution}
+\lstinputlisting{code/removal_game.cpp}
+Real output (CSES sample):
+\begin{lstlisting}[numbers=none]
+8
+\end{lstlisting}
+\end{solution}
+\end{example}
+\begin{figure}[ht]\centering
+\input{figures/fig57-rangetri}
+\caption{By-length filling on the triangle. Notice the diagonal is
+free --- every other cell reads smaller ranges already computed.}
+\label{fig:rangetri}
+\end{figure}
+\begin{example}[CSES \emph{Edit Distance}]\label{ex:edit}
+Minimum edits between two strings.
+\par\smallskip
+\textbf{Strategy.} dp[i][j] aligns prefixes: diagonal for
+match/substitute, left and up for insert/delete. LCS is the same
+grid with only diagonal-or-skip moves.
+\par\smallskip
+\begin{solution}
+\lstinputlisting{code/edit_distance.cpp}
+Real output (CSES sample):
+\begin{lstlisting}[numbers=none]
+2
+\end{lstlisting}
+\end{solution}
+\end{example}
+\begin{figure}[ht]\centering
+\input{figures/fig58-editpath}
+\caption{The alignment grid with its optimal path. Notice every
+path is an alignment --- the DP is just shortest path on this DAG.}
+\label{fig:editpath}
+\end{figure}
+
+\section{DP on trees}\label{sec:treedp}\index{tree DP}
+Rooted trees carry state pairs: \emph{in}[v] = best when $v$ is
+matched downward, \emph{out}[v] = best when $v$ is free to match
+upward. Chapter~10's reroot machinery then upgrades per-root answers
+to all-roots.
+\begin{example}[CSES \emph{Tree Matching}]\label{ex:tmatch}
+Maximum edges with no shared endpoint.
+\par\smallskip
+\textbf{Strategy.} in/out states: \texttt{out[v]} sums children's
+max; \texttt{in[v]} picks the child offering the best edge gain.
+\par\smallskip
+\begin{solution}
+\lstinputlisting{code/tree_matching.cpp}
+Real output (5-vertex demo):
+\begin{lstlisting}[numbers=none]
+2
+\end{lstlisting}
+\end{solution}
+\end{example}
+\begin{figure}[ht]\centering
+\input{figures/fig59-treestate}
+\caption{The in/out pair. Notice a vertex's ``free upward'' is what
+the parent's in-state needs --- the pair is the interface.}
+\label{fig:treestate}
+\end{figure}
+
+\section{The optimisation horizon}\label{sec:horizon}\index{bitset}
+One optimization worth teaching now: \emph{bitset knapsack} ---
+reachable sums as a bitmask, \texttt{dp |= dp << w} --- $O(nC/64)$.
+\begin{example}[CSES \emph{Money Sums}]\label{ex:money}
+All reachable coin sums.
+\par\smallskip
+\textbf{Strategy.} A sum is a set member: shift the bitset by each
+coin and OR. One machine word covers 64 reachable positions.
+\par\smallskip
+\begin{solution}
+\lstinputlisting{code/money_sums.cpp}
+Real output (CSES sample):
+\begin{lstlisting}[numbers=none]
+6
+2 3 5 7 8 10
+\end{lstlisting}
+\end{solution}
+\end{example}
+\begin{figure}[ht]\centering
+\input{figures/fig60-bitset}
+\caption{The shift-and-or trick. Notice each coin copies every
+set bit $w$ positions up --- parallelism for free.}
+\label{fig:bitset}
+\end{figure}
+Further up the band: convex-hull trick, divide-and-conquer DP,
+Knuth optimization, SOS DP, profile DP --- each has its own
+structural precondition; treat them as named routes (see Notes).
+
+\begin{exercise}[easy]\label{exr:mask}
+Iterate the nonempty submasks of mask $m$ in $O(2^{|m|})$ ---
+write the loop and argue each visited value is a submask.
+\end{exercise}
+\begin{exercise}[medium]\label{exr:tight}
+Why can't the digit-DP memo be shared across tight=1 states?
+What invariant does the flag preserve?
+\end{exercise}
+\begin{exercise}[medium]\label{exr:bylen}
+Argue by-length is the \emph{only} correct fill order for
+dp[l][r] = f(dp[l+1][r], dp[l][r-1]).
+\end{exercise}
+\begin{exercise}[medium]\label{exr:rerootcarries}
+In the all-roots matching problem, what exactly does the second
+pass carry from parent to child?
+\end{exercise}
+
+\section{Chapter summary}
+\begin{table}[ht]\centering
+{\small
+\begin{tabularx}{\linewidth}{@{}lYYY@{}}
+\toprule
+\tablehead\thead{State} & \thead{Template} & \thead{Size} & \thead{Watch}\\
+\midrule
+subset & mask DP & $O(2^n n)$ & $n\le20$\\
+(position, flags) & digit DP & $O(\log n)$ & tight not memoizable\\
+interval & range DP & $O(n^3)$ worst & by-length only\\
+(vertex, in/out) & tree DP & $O(n)$ & state pair = interface\\
+sum-set & bitset & $O(nC/64)$ & word width\\
+\bottomrule
+\end{tabularx}}
+\caption{Pick the state shape, then the order that respects its
+dependency lattice.}
+\label{tab:dp2}
+\end{table}
+
+\section{Common mistakes}
+\index{common mistakes}
+\begin{itemize}
+\item \textbf{Memoizing tight.} The tight state depends on $N$'s
+prefix --- caching it leaks between queries; memoize only loose.
+\item \textbf{Wrong mask order.} Adding elements needs masks in any
+order that adds bits; removing needs the reverse --- mixing
+directions double-counts.
+\item \textbf{Range filled by $l$.} dp[l][r] must see smaller
+ranges first; any order not sorted by $r-l$ reads stale cells.
+\item \textbf{Forgetting leading-zero.} ``Number not started'' is a
+distinct state --- counting without it counts padded numbers.
+\item \textbf{Bitmask index off-by-one.} Bit $i$ means element $i$,
+not $i{+}1$ --- the bug shows only at $n$ small enough to enumerate.
+\end{itemize}
+
+\section{Additional exercises}
+\begin{exercise}[easy] AC \emph{Matching} --- assignment mask DP. \end{exercise}
+\begin{exercise}[easy] AC \emph{Grouping} --- partition mask DP. \end{exercise}
+\begin{exercise}[easy] CSES \emph{Edit Distance}. \end{exercise}
+\begin{exercise}[easy] USACO-G \emph{Barn Painting} --- tree counting DP. \end{exercise}
+\begin{exercise}[medium] CSES \emph{Elevator Rides}. \end{exercise}
+\begin{exercise}[medium] CSES \emph{Rectangle Cutting}. \end{exercise}
+\begin{exercise}[medium] CSES \emph{Minimal Grid Path} --- lexicographic DP. \end{exercise}
+\begin{exercise}[medium] USACO-G \emph{Uddered but not Herd} --- bitmask ordering. \end{exercise}
+\begin{exercise}[medium] AC \emph{Independent Set} --- tree in/out. \end{exercise}
+\begin{exercise}[medium] CF \emph{Team Building} --- mask + DP. \end{exercise}
+\begin{exercise}[hard] CSES \emph{Counting Tilings} --- profile DP preview. \end{exercise}
+\begin{exercise}[hard] CSES \emph{Counting Numbers}. \end{exercise}
+\begin{exercise}[hard] CSES \emph{Longest Common Subsequence}. \end{exercise}
+\begin{exercise}[hard] USACO-G \emph{Lights Off} --- mask + range DP. \end{exercise}
+
+\chapternotes
+The mask/digit/range templates follow Laaksonen's DP
+chapters~\cite{laaksonen2024} and Sannemo~\cite{sannemo2025}; digit
+DP's tight automaton and the bitset trick are cp-algorithms and the
+USACO Guide's treatment~\cite{usacoguide,cpalgorithms}; the
+optimization horizon is signposted in Halim~\cite{halimcp4}; archive
+problems are official CSES/USACO~\cite{cses}.

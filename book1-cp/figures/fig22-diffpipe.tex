@@ -1,0 +1,14 @@
+\begin{tikzpicture}[font=\footnotesize,x=0.6cm]
+% F5.4 diff pipeline: [2,4]+3 -> writes -> restore.
+\node[anchor=east] at (-0.3,0) {writes:};
+\foreach \i/\v in {0/0,1/0,2/+3,3/0,4/0,5/$-3$,6/0,7/0}
+  \node[draw=slate,minimum width=0.6cm,minimum height=0.45cm,font=\tiny]
+    at (\i*0.68,0) {\v};
+\node[font=\tiny] at (1.36,0.42) {$d[2]$};
+\node[font=\tiny] at (3.4,0.42) {$d[5]$};
+\node[anchor=east] at (-0.3,-0.9) {prefix:};
+\foreach \i/\v in {0/0,1/0,2/3,3/3,4/3,5/0,6/0,7/0}
+  \node[draw=accent,fill=accentsoft,minimum width=0.6cm,
+        minimum height=0.45cm,font=\tiny] at (\i*0.68,-0.9) {\v};
+\draw[-{stealth},thick,ink] (2.4,-0.15) -- (2.4,-0.6);
+\end{tikzpicture}

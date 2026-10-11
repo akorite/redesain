@@ -1,0 +1,231 @@
+\chapter{Fenwick and segment trees}\label{ch:fenseg}
+\index{Fenwick tree}\index{segment tree}\index{lazy propagation}
+
+Prefix sums (Chapter~5) answer range queries once; this chapter
+answers them \emph{under mutation}. Two structures cover the whole
+family: the Fenwick tree for prefix-shaped questions, the segment
+tree for everything else --- arbitrary monoids, range updates with
+lazy tags, and order statistics by descent. After this chapter you
+will pick the right structure off the update/query shape, write
+each template, and know the two subtle failure modes that corrupt
+silent answers.
+
+\section{The range-query family}\label{sec:family}\index{range query}
+Four shapes appear: point-update/range-query (the classic),
+range-update/point-query (the difference trick), and
+range-update/range-query (lazy). A decision table: prefix-ordered
+aggregate and tight memory $\to$ Fenwick; arbitrary monoid or
+descent queries $\to$ segment tree.
+
+\section{The Fenwick tree}\label{sec:fenwick}\index{Fenwick tree!lowbit}
+$t[i]$ stores the sum of the range $[i-\mathrm{lowbit}(i)+1,\ i]$ ---
+a staircase of power-of-two lengths. Prefix sum walks down by
+$i \mathrel{-}= \mathrm{lowbit}(i)$, update walks up by
+$i \mathrel{+}= \mathrm{lowbit}(i)$: $O(\log n)$ each, $n$ cells.
+\begin{example}[CSES \emph{Dynamic Range Sum Queries}]\label{ex:rsq}
+Point updates, sum queries.
+\par\smallskip
+\textbf{Strategy.} The problem is exactly Fenwick's shape; we
+show the segtree solution too for the trade-off table.
+\par\smallskip
+\begin{solution}
+\lstinputlisting{code/dynamic_rsq.cpp}
+Real output (CSES sample, segtree version):
+\begin{lstlisting}[numbers=none]
+14
+2
+11
+2
+\end{lstlisting}
+\end{solution}
+\end{example}
+\begin{figure}[ht]\centering
+\input{figures/fig61-fenwick}
+\caption{The lowbit staircase. Notice every index's covered length
+is its lowest set bit --- the whole structure is index arithmetic.}
+\label{fig:fenwick}
+\end{figure}
+
+\section{The segment tree}\label{sec:segtree}\index{segment tree}
+A $2n$ array: leaves at $n{+}i$, node $v$ combines children
+$2v,2v{+}1$. Any associative monoid works --- sum, min, gcd ---
+because a query only ever reads $O(\log n)$ whole nodes.
+\begin{example}[CSES \emph{Dynamic Range Minimum Queries}]\label{ex:rmq}
+Point updates, \emph{minimum} queries.
+\par\smallskip
+\textbf{Strategy.} Swap the monoid: same tree, \texttt{min} combine.
+A Fenwick can't do this --- min has no inverse, so prefixes don't
+subtract.
+\par\smallskip
+\begin{solution}
+\lstinputlisting{code/dynamic_rmq.cpp}
+Real output (CSES sample):
+\begin{lstlisting}[numbers=none]
+2
+1
+3
+\end{lstlisting}
+\end{solution}
+\end{example}
+\begin{figure}[ht]\centering
+\input{figures/fig62-segtree}
+\caption{Node $\leftrightarrow$ segment. Notice the query reads
+\emph{nodes}, not elements --- each node is a whole covered range.}
+\label{fig:segtree}
+\end{figure}
+\begin{figure}[ht]\centering
+\input{figures/fig63-decomp}
+\caption{Range decomposition. Notice a query peels at most two
+nodes per level --- $\le 2\log n$ nodes total.}
+\label{fig:decomp}
+\end{figure}
+
+\section{Lazy propagation}\label{sec:lazy}\index{lazy propagation}
+A range update stops at covered nodes, tagging them; the tag
+travels down only when a later query needs through. The canonical
+pair: add-tag with sum-query.
+\begin{example}[CSES \emph{Range Update Queries}]\label{ex:ruq}
+Range updates, point queries.
+\par\smallskip
+\textbf{Strategy.} The \emph{difference trick} turns range-add into
+two point-adds on a prefix array --- a Fenwick of differences. The
+lazy segtree generalizes to range-range.
+\par\smallskip
+\begin{solution}
+\lstinputlisting{code/range_update_queries.cpp}
+Real output (CSES sample):
+\begin{lstlisting}[numbers=none]
+5
+\end{lstlisting}
+\end{solution}
+\end{example}
+\begin{figure}[ht]\centering
+\input{figures/fig64-lazy}
+\caption{Tag deferral. Notice the invariant: a node's aggregate is
+always correct; its descendants are behind by the tag.}
+\label{fig:lazy}
+\end{figure}
+
+\section{Walking the tree}\label{sec:walk}\index{order statistic}
+Descent queries need no new code: at node $v$, if the left child's
+value decides, go left, else right. ``First room with enough
+capacity'' and ``the $k$-th remaining element'' are the same walk.
+\begin{example}[CSES \emph{Hotel Queries}]\label{ex:hotel}
+Each group wants the first room holding them.
+\par\smallskip
+\textbf{Strategy.} Store subtree max; descend left whenever
+left-max $\ge r$. One trap: the walk needs leaves on a
+power-of-two grid --- pad the array up.
+\par\smallskip
+\begin{solution}
+\lstinputlisting{code/hotel_queries.cpp}
+Real output (CSES sample):
+\begin{lstlisting}[numbers=none]
+3 8 1 0 0 
+\end{lstlisting}
+\end{solution}
+\end{example}
+\begin{figure}[ht]\centering
+\input{figures/fig65-walk}
+\caption{The descent. Notice the search is guided by the same
+aggregate the query would read --- no separate index needed.}
+\label{fig:walk}
+\end{figure}
+
+\section{Order statistics}\label{sec:orderstat}\index{k-th element}
+The Fenwick of \emph{counts} supports $k$-th-element descent and
+erases --- ``which position is the $k$-th survivor''.
+\begin{example}[CSES \emph{List Removals}]\label{ex:removals}
+Repeatedly remove the $k$-th remaining element.
+\par\smallskip
+\textbf{Strategy.} Fenwick over 1s; \texttt{lower\_bound(k)} finds
+the position whose count-prefix hits $k$; erase with
+\texttt{add(p,-1)}.
+\par\smallskip
+\begin{solution}
+\lstinputlisting{code/list_removals.cpp}
+Real output (CSES sample):
+\begin{lstlisting}[numbers=none]
+1 2 2 6 4
+\end{lstlisting}
+\end{solution}
+\end{example}
+
+\begin{exercise}[easy]\label{exr:four}
+Which of the four update/query shapes is \emph{not} solvable by
+a plain Fenwick + difference array?
+\end{exercise}
+\begin{exercise}[medium]\label{exr:minbit}
+Explain exactly why a Fenwick can't answer range-min ---
+what property of sum is being used?
+\end{exercise}
+\begin{exercise}[medium]\label{exr:pushorder}
+In lazy propagation, why must the tag be pushed \emph{before}
+reading the children's aggregates?
+\end{exercise}
+\begin{exercise}[medium]\label{exr:descinv}
+State the loop invariant of the tree descent and use it to
+argue the walk ends at the leftmost qualifying leaf.
+\end{exercise}
+
+\section{Chapter summary}
+\begin{table}[ht]\centering
+{\small
+\begin{tabularx}{\linewidth}{@{}lYYY@{}}
+\toprule
+\tablehead\thead{Shape} & \thead{Structure} & \thead{Cost} & \thead{Limit}\\
+\midrule
+point-upd, prefix-q & Fenwick & $\log n$, $n$ cells & invertible only\\
+point-upd, range-q & segtree & $\log n$, $2n$ & any monoid\\
+range-upd, point-q & diff + Fenwick & $\log n$ & no range query\\
+range-upd, range-q & lazy segtree & $\log n$, $4n$ & tag design\\
+descent queries & walk on tree & $\log n$ & pow-2 grid\\
+\bottomrule
+\end{tabularx}}
+\caption{Pick by the update/query pair, then by the monoid.}
+\label{tab:fenseg}
+\end{table}
+
+\section{Common mistakes}
+\index{common mistakes}
+\begin{itemize}
+\item \textbf{Fenwick on non-invertible ops.} Min/max have no
+inverse --- prefix differences don't exist; use a segtree.
+\item \textbf{Descent on a non-power-2 layout.} Iterative segtrees
+interleave leaf ranges when $n$ isn't a power of two; the walk
+silently lands on the wrong leaf --- pad to a power of two.
+\item \textbf{Forgetting the push.} Reading a child under an
+unpushed tag returns stale data --- always push on the way down.
+\item \textbf{Off-by-one leaves.} $t[n+i]$ indexes position $i$,
+not $i{+}1$ --- mixing conventions shifts every update.
+\item \textbf{Tag/aggregate mismatch.} The lazy tag must compose
+with \emph{itself} in the update's order; add-then-assign is a
+different monoid than assign-then-add.
+\end{itemize}
+
+\section{Additional exercises}
+\begin{exercise}[easy] CSES \emph{Static Range Sum Queries}. \end{exercise}
+\begin{exercise}[easy] CSES \emph{Static Range Minimum Queries}. \end{exercise}
+\begin{exercise}[easy] CSES \emph{Range Xor Queries}. \end{exercise}
+\begin{exercise}[easy] USACO-G \emph{Haircut} --- inversions on BIT. \end{exercise}
+\begin{exercise}[easy] USACO-G \emph{Balanced Photo}. \end{exercise}
+\begin{exercise}[medium] CSES \emph{Dynamic Range Sum Queries}. \end{exercise}
+\begin{exercise}[medium] CSES \emph{Dynamic Range Minimum Queries}. \end{exercise}
+\begin{exercise}[medium] CSES \emph{Salary Queries} --- compress + descent. \end{exercise}
+\begin{exercise}[medium] USACO-G \emph{Sleepy Cow Sorting} --- BIT of counts. \end{exercise}
+\begin{exercise}[medium] USACO-G \emph{Why Did the Cow Cross the Road III}. \end{exercise}
+\begin{exercise}[medium] Kattis \emph{Mega Inversions}. \end{exercise}
+\begin{exercise}[hard] CSES \emph{Prefix Sum Queries}. \end{exercise}
+\begin{exercise}[hard] CSES \emph{Range Updates and Sums} --- two-tag lazy. \end{exercise}
+\begin{exercise}[hard] CSES \emph{Distinct Values Queries}. \end{exercise}
+\begin{exercise}[hard] CF \emph{Irrigation}. \end{exercise}
+
+\chapternotes
+Fenwick's lowbit staircase and the iterative segtree layout follow
+Laaksonen~\cite{laaksonen2024} and Sannemo~\cite{sannemo2025}; the
+Al.Cash iterative segtree and descent patterns are the
+cp-algorithms treatment~\cite{cpalgorithms} (with the
+USACO-Guide lazy-propagation walkthrough~\cite{usacoguide}); Halim's
+structure-selection advice shaped the decision
+table~\cite{halimcp4}; archive problems are official
+CSES/USACO~\cite{cses}.
