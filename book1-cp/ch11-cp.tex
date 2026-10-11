@@ -223,6 +223,8 @@ changes the problem.
 \begin{exercise}[medium] USACO-G \emph{Hoof, Paper, Scissors} --- prefix-state DP. \end{exercise}
 \begin{exercise}[medium] USACO-G \emph{Time is Mooney} --- time-expanded DP. \end{exercise}
 \begin{exercise}[medium] USACO-G \emph{Teamwork} --- group-sum DP. \end{exercise}
+\begin{exercise}[medium] CSES \emph{Grid Paths} (DP set) --- grid DP over reachable cells. \end{exercise}
+\begin{exercise}[medium] CSES \emph{Counting Towers} --- state-pair recurrence; find the two states yourself. \end{exercise}
 \begin{exercise}[hard] CSES \emph{Projects} --- weighted intervals DP. \end{exercise}
 \begin{exercise}[hard] USACO-G \emph{Snakes} --- herds DP. \end{exercise}
 \begin{exercise}[hard] USACO-G \emph{Talent Show} --- ratio DP. \end{exercise}
@@ -235,3 +237,38 @@ presentation~\cite{usacoguide}; knapsack loop-direction and grid DP
 are standard in cp-algorithms~\cite{cpalgorithms} and
 Halim~\cite{halimcp4}; archive problems are official
 CSES/USACO~\cite{cses}.
+
+\section*{Further reading}
+\begin{itemize}
+\item USACO Guide, ``Introduction to DP'' (intermediate) --- the state/transition
+method of \S\ref{sec:recipe} with Gold-level problems. \newline\url{https://usaco.guide/gold/intro-dp}
+\item USACO Guide, ``Knapsack DP'' (intermediate) --- \S\ref{sec:knap} extended
+to its classic variants. \newline\url{https://usaco.guide/gold/knapsack}
+\item USACO Guide, ``Longest Increasing Subsequence'' (intermediate) --- \S\ref{sec:lis} including the
+$O(n\log n)$ patience form. \newline\url{https://usaco.guide/gold/lis}
+\item cp-algorithms, ``Introduction to Dynamic Programming''
+(reference).
+--- memoization-vs-tabulation of \S\ref{sec:memo}. \newline\url{https://cp-algorithms.com/dynamic_programming/intro-to-dp.html}
+\item CSES 1633 \emph{Dice Combinations} and 1634 \emph{Minimizing
+Coins} (practice) ---
+\ref{ex:combos}/\ref{ex:coins} verbatim. \newline\url{https://cses.fi/problemset/task/1633}
+\item CSES 1158 \emph{Book Shop} and 1145 \emph{Increasing
+Subsequence} (practice).
+--- the chapter's two flagship submissions. \newline\url{https://cses.fi/problemset/task/1158}\end{itemize}
+
+\begin{rulebox}[Watch instead]
+\smallskip\noindent\textbf{Best first.}
+``15. Dynamic Programming, Part 1: SRTBOT, Fib, DAGs, Bowling'' ---
+MIT OpenCourseWare, 57 min ---
+\url{https://youtu.be/r4-cftqTcdI}. The
+subproblem/recurrence/topological/bottom-up recipe of
+\S\ref{sec:recipe}---\S\ref{sec:memo}; OCW names it ``SRTBOT'', the
+book names the same five questions without the acronym.
+\smallskip\noindent
+``16. Dynamic Programming, Part 2: LCS, LIS, Coins'' --- MIT
+OpenCourseWare, 59 min ---
+\url{https://youtu.be/KLBCUx1is2c}. The coin and LIS
+recurrences of \S\ref{sec:coins} and \S\ref{sec:lis} derived on the
+board; same formulation, same memo/table duality. Access date
+2026-10-10.
+\end{rulebox}

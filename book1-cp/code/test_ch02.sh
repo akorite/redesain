@@ -4,7 +4,7 @@ set -e
 cd "$(dirname "$0")"
 CXX=${CXX:-clang++}; FLAGS="-std=c++17 -O2 -Wall -Wextra"
 mkdir -p .build
-for f in subsets_rec subsets_mask apple_division apple_bench creating_strings perms_demo queens milk_pails size_ladder; do
+for f in subsets_rec subsets_mask apple_division apple_bench creating_strings perms_demo queens milk_pails size_ladder gray_code; do
     $CXX $FLAGS -o .build/$f $f.cpp
 done
 B=.build
@@ -56,3 +56,7 @@ PY
 echo "----"
 [ $fail -eq 0 ] && echo "ALL CHECKS PASSED" || echo "SOME CHECKS FAILED"
 exit $fail
+check gray_code "00
+01
+11
+10" "$(echo 2 | $B/gray_code)"
