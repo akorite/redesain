@@ -1,0 +1,13 @@
+* ch17_rc_fade_measured.cir -- RC fade at measured values:
+* R=985ohm, C=1.08uF (electrolytic +8%), supply 5.03 V.
+* tau = 985*1.08u = 1.064 ms. Watch the LED-side voltage charge.
+V1 1 0 PULSE(0 5.03 0 1n 1n 10m 20m)
+R1 1 2 985
+C1 2 0 1.08u
+.control
+tran 5u 6m
+let vout = v(2)
+set filetype=ascii
+wrdata ch17_rc_fade.dat vout
+.endc
+.end

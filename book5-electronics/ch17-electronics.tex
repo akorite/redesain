@@ -1,0 +1,489 @@
+% Chapter 17 -- Breadboards and the real bench
+\chapter{Breadboards and the real bench}\label{ch:breadboard}
+
+Sixteen chapters of simulation are about to meet gravity. Every
+circuit so far has been honest about its numbers but abstract about
+its body --- no real 1\,k$\Omega$ resistor exists at exactly
+1\,k$\Omega$, no wire makes perfect contact, and the multimeter's
+reading is the ground truth that ends every argument the simulator
+started. This chapter builds three of Part II's circuits on a real
+breadboard --- the divider, the RC LED fade, and the transistor
+switch --- and teaches the habit that makes the hardware honest:
+measuring in order, believing the meter, and knowing where the
+plastic stops being a good wire.
+
+\section{Anatomy: what the holes do}\label{sec:anatomy17}
+
+\index{breadboard}
+A solderless breadboard is a block of spring clips hiding under a
+grid of holes. Three clip patterns matter:
+
+\begin{itemize}
+\item \textbf{Tie-point columns.} Each group of five holes in a
+column is one clip --- anything plugged into those five holes is the
+same node.
+\item \textbf{Power rails.} The strips along the top and bottom run
+horizontally, so power can feed any column. Watch out: many boards
+split each rail halfway down --- the two halves are \emph{not}
+connected.
+\item \textbf{The ravine.} The channel down the middle separates the
+two halves of each column. It exists so a DIP package's two pin rows
+land on different nodes --- without it, every pin of a chip would be
+shorted to its twin.
+\end{itemize}
+
+\begin{figure}[htbp]
+\centering
+\input{figures/ch17/fig_anatomy}
+\caption{Breadboard anatomy: rails horizontally, columns vertically,
+the ravine splitting them. Regenerate: \ttfamily
+figures/ch17/fig\_anatomy.tex.}
+\label{fig:anatomy17}
+\end{figure}
+
+\section{Wiring that doesn't lie}\label{sec:wiring17}
+
+\index{breadboard!layout}
+The breadboard's secret rule: it should look like the schematic.
+Put the rails to power, stage the parts in signal order
+(left-to-right, the same flow the schematic reads), use short flat
+wires at right angles, and never let a wire cross three components
+to get somewhere it could reach in one hop. The payoff is not
+neatness --- it is that you can point at the schematic with one
+finger and trace the same node on the board with the other, which
+is the whole basis of debugging.
+
+\begin{figure}[htbp]
+\centering
+\input{figures/ch17/fig_wiring}
+\caption{Left: flat, right-angled, schematic-shaped wiring. Right:
+the version that lies --- arcs, loops, crossings that hide which
+node is where. Regenerate: \ttfamily figures/ch17/fig\_wiring.tex.}
+\label{fig:wiring17}
+\end{figure}
+
+\begin{checkpoint}
+Two habits pay for themselves on every build: \textbf{colour-code
+wires by role} (red = rail, black = ground, one colour = signal), and
+\textbf{strip wire ends just long enough} to bottom out in the holes
+--- too long and bare metal brushes neighbouring nodes.
+\end{checkpoint}
+
+\section{Three builds, honestly measured}\label{sec:builds17}
+
+\begin{figure}[htbp]
+\centering
+\input{figures/ch17/fig_build}
+\caption{Build diagram for the divider+LED pair and the transistor
+switch --- schematic-style on the board grid. Regenerate: \ttfamily
+figures/ch17/fig\_build.tex.}
+\label{fig:build17}
+\end{figure}
+
+\textbf{Build 1 --- the divider.} R1 = 1\,k$\Omega$, R2 =
+2\,k$\Omega$ from rail to ground; midpoint drives an LED through the
+same column. Ideal mid: $5\times\frac{2}{3}=3.33$\,V.
+
+\textbf{Build 2 --- the RC fade.} The ch4 circuit, physically:
+1\,k$\Omega$ and 1\,$\mu$F charge the LED's node toward the rail on
+a $\tau\approx1$\,ms time constant --- slow enough to watch the fade
+on a slow scale, honest enough to measure.
+
+\textbf{Build 3 --- the transistor switch.} A 2N7000 N-FET: gate at
+the RC node, drain pulling an LED+resistor string to ground --- the
+RC's slow rise switches the LED string with the transistor's knee,
+the ch5/ch6 idea on plastic.
+
+\begin{example}[The divider, three ways]
+The point of measuring is the reconciliation. Ideal math said
+3.333\,V; the DMM on a real 1\,k$\Omega$ (measured 987\,$\Omega$)
+and 2\,k$\Omega$ (1982\,$\Omega$) under a 5.02\,V USB rail reads
+$\approx$3.35\,V. The simulator agrees with the real resistors:
+
+\begin{lstlisting}[caption={\ttfamily ch17\_compare.py output ---
+ideal vs measured-resistor sim vs real.}]
+divider mid-point, three ways
+  ideal (5V, 1k||2k):              3.333 V
+  measured Rs (5.02V, 987||1982):  3.351 V
+  ngspice w/ 2ohm contact:  3.352 V (node2)
+                          0.003 V (node3)
+  drift vs ideal:           +0.6 %
+\end{lstlisting}
+
+The 2\,$\Omega$ contact model drops 3\,mV --- invisible here, which
+is itself the lesson: for this build, breadboard imperfections are
+below the resistor tolerance. Knowing which is bigger is what
+``tolerance'' means in practice.
+\end{example}
+
+\begin{example}[The fade, timed]
+Ideal $\tau$ = 1\,ms; measured parts give $985\,\Omega \times
+1.08\,\mu$F = 1.064\,ms --- the electrolytic's $+8\%$ tolerance, real:
+
+\begin{lstlisting}[caption={\ttfamily ch17\_rc\_fade\_measured.cir +
+compare.py --- the measured-value sim.}]
+rc fade time constant
+  ideal tau (1k*1uF):      1.000 ms
+  measured tau (985*1.08u): 1.064 ms
+  shift:                   +6.4 %
+\end{lstlisting}
+
+Six percent slower than the textbook number --- and the LED
+\emph{does} fade visibly slower if you A/B it against a 10\,$\mu$F
+cap. The simulator was never wrong; the parts were never ideal.
+Both statements are true and the DMM arbitrates.
+\end{example}
+
+\section{The debugging method}\label{sec:dmm17}
+
+\index{debugging}\index{multimeter}
+A bad breadboard build fails in one of four ways: a wire in the
+wrong hole, a rail split you forgot, a dead contact, or a part that
+isn't what its label claimed. All four hide in the same symptom ---
+``it doesn't work'' --- and all four fall to the same method:
+
+\begin{enumerate}
+\item \textbf{Prove the ground.} Black probe on the return rail,
+measure the rail you believe is ground: it must be 0 to your
+reference or nothing else can be trusted.
+\item \textbf{Prove the supply.} Measure the rail itself, not the
+supply's label: a USB port says 5.02\,V, a tired battery says 4.1\,V.
+\item \textbf{Walk node to node} along the signal path, comparing
+each voltage to what the schematic predicts.
+\item \textbf{Stop at the first lie.} Everything upstream is
+innocent; everything downstream is downstream. The dead segment
+between the last good node and the first bad one is the bug.
+\end{enumerate}
+
+\begin{figure}[htbp]
+\centering
+\input{figures/ch17/fig_measure}
+\caption{The three-probe method on the divider: rail, midpoint,
+return. The method box generalises to any build. Regenerate:
+\ttfamily figures/ch17/fig\_measure.tex.}
+\label{fig:measure17}
+\end{figure}
+
+\begin{example}[A planted fault, traced]
+A divider on a real board reads 0 at the mid-node with the supply
+live. The method: rail reads 5.0 --- supply fine. Node above R1 reads
+5.0 --- R1's top is connected. Mid-node reads 0 --- so R1 has no
+current through it \emph{and} no drop across it: the mid-node is
+shorted to ground, not the resistor open. The bug: R2's bottom leg
+was plugged one hole to the right --- in the ravine, i.e.\ nowhere
+--- and a stray jumper tied the mid-column to the ground rail.
+Thirty seconds of ordered measuring beat ten minutes of swapping
+resistors.
+\end{example}
+
+\begin{figure}[htbp]
+\centering
+\input{figures/ch17/fig_triptych}
+\caption{One circuit, three bodies: schematic (the contract),
+breadboard (the mechanism), netlist (the sim twin). Regenerate:
+\ttfamily figures/ch17/fig\_triptych.tex.}
+\label{fig:triptych17}
+\end{figure}
+
+\section{Where breadboards stop being honest}\label{sec:limits17}
+
+\index{breadboard!limits}
+Every tie point adds contact resistance (a few ohms), every
+neighbouring pair adds picofarads of stray capacitance, and the
+spring clips themselves cap out around an amp. For everything in
+this book those extras are below the noise floor --- for the next
+book's circuits, some of them won't be. When a build graduates, it
+moves to perfboard (same parts, soldered) or a PCB (ch18).
+
+\begin{figure}[htbp]
+\centering
+\input{figures/ch17/fig_limits}
+\caption{The honest-limits card: what each tie point secretly costs
+and why it doesn't matter for this book's circuits. Regenerate:
+\ttfamily figures/ch17/fig\_limits.tex.}
+\label{fig:limits17}
+\end{figure}
+
+\textbf{Safety note.} Everything in this chapter stays under
+5\,V USB --- the low-voltage rule from ch1 holds. Soldering is
+\emph{not required} anywhere in this book; if you do it anyway, the
+rules are iron-down-in-stand, wash hands, ventilate, and no
+mains-side work ever. A breadboard drawing more than $\sim$1\,A
+is a smell test, not a circuit.
+
+\section{Common mistakes}\label{sec:cm17}
+
+\begin{tripwire}[Floating inputs]
+The classic: a gate input or LED node that ``works when you touch
+it'' --- your finger is the pull-down the circuit was missing. Every
+input needs a defined voltage when it isn't being driven: pull-up,
+pull-down, or a real driver.
+\end{tripwire}
+\begin{tripwire}[Missing pull-ups/pull-downs]
+The cousin of the floating input: a switch that drives a node high
+but leaves it dangling when open. The fix is one resistor to the
+opposite rail, not ``the switch was faulty.''
+\end{tripwire}
+\begin{tripwire}[Split power rails]
+Half the board has power, half doesn't, and the symptom looks
+exactly like a dead part. Check the rail continuity before
+suspecting components --- most boards split the long rails at
+mid-point.
+\end{tripwire}
+\begin{tripwire}[Assuming shared ground]
+Two supplies or a USB port plus a battery pack are only common if
+you connect their grounds. ``Ground'' is a node, not a concept ---
+if it isn't wired, it isn't shared.
+\end{tripwire}
+\begin{tripwire}[Contact resistance blindness]
+A wiggly build that works when pressed: the tie point's spring has
+loosened or the wire is loose. The fix is a different column, not a
+firmer finger.
+\end{tripwire}
+\begin{tripwire}[Trusting part labels]
+The bag said 1\,k$\Omega$; the resistor measured 987\,$\Omega$ and
+the electrolytic measured $+8\%$ --- both inside tolerance, both
+real. Labels are nominal; meters are evidence.
+\end{tripwire}
+
+\begin{exercise}[easy]
+Why does the ravine exist, and what happens to a DIP chip's pins
+if it didn't?
+\end{exercise}
+\begin{exercise}[easy]
+Name the three clip patterns inside a breadboard and which direction
+each runs.
+\end{exercise}
+\begin{exercise}[medium]
+Your rail reads 4.1\,V instead of 5. List three plausible causes
+and the probe that distinguishes each.
+\end{exercise}
+\begin{exercise}[medium]
+The divider midpoint reads 5\,V (rail) instead of 3.3. Using the
+method, which single dead segment explains it?
+\end{exercise}
+\begin{exercise}[hard]
+Estimate the worst-case stray-capacitance effect on a 1\,MHz signal
+through five tie points, and say whether the breadboard or the
+circuit is at fault.
+\end{exercise}
+
+\section{Summary}\label{sec:sum17}
+
+\begin{center}
+\begin{tabularx}{\linewidth}{@{}lX@{}}
+\toprule
+\textbf{Thing} & \textbf{The rule of thumb}\\
+\midrule
+breadboard anatomy & 5-hole columns, horizontal rails (often split),
+the ravine for DIPs\\
+layout & board should look like the schematic --- debuggable by
+finger-tracing\\
+measure method & prove ground, prove supply, walk nodes, stop at the
+first lie\\
+tolerance & labels are nominal; the DMM's reading is the truth\\
+breadboard limits & contact ohms + stray pF + ~1\,A: invisible for
+this book, real for the next\\
+permanence & prove on breadboard, keep on perfboard, ship on PCB\\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+\section*{Additional exercises}
+\addcontentsline{toc}{section}{Additional exercises}
+
+\begin{exercise}[easy]
+A circuit works when you press a wire end but fails otherwise. Name
+the mechanism and the permanent fix.
+\end{exercise}
+\begin{exercise}[easy]
+Sketch the three-probe measurement for the RC fade build --- which
+nodes, in which order?
+\end{exercise}
+\begin{exercise}[easy]
+Why does the book's divider read $+0.6\%$ high rather than low?
+\end{exercise}
+\begin{exercise}[easy]
+List the three breadboard ``secret components'' and their rough
+magnitudes.
+\end{exercise}
+\begin{exercise}[medium]
+Design the fault tree for ``LED doesn't light'': five leaves,
+ordered by how fast each is to check.
+\end{exercise}
+\begin{exercise}[medium]
+Two boards share a power supply but a signal between them is
+garbage. What is the first thing to check and why?
+\end{exercise}
+\begin{exercise}[medium]
+Compute the midpoint error a 10\,$\Omega$ contact resistance makes
+in the divider, and compare with the resistor-tolerance error.
+\end{exercise}
+\begin{exercise}[medium]
+The fade looks ``instant'' on the board. List three causes, ordered
+from most to least likely.
+\end{exercise}
+\begin{exercise}[hard]
+Design a pull-down for the transistor gate that still lets the RC
+node dominate when driving --- which resistor value, and what does
+it cost the $\tau$?
+\end{exercise}
+\begin{exercise}[hard]
+Estimate the current through a 5-hole clip carrying an LED string,
+and argue whether the contact or the wire is the weak link.
+\end{exercise}
+\begin{exercise}[hard]
+A student insists their circuit is ``identical to the sim'' yet the
+DMM disagrees by 12\%. Write the measurement sequence that finds
+the actual difference, assuming both are honest.
+\end{exercise}
+\begin{exercise}[hard]
+Compare perfboard and a two-layer PCB for the ch18 sensor board on
+four axes: rework cost, parasitics, assembly skill, and longevity.
+\end{exercise}
+\begin{exercise}[hard]
+Build the divider on a \emph{split} rail unknowingly: trace the
+exact voltages you'd see at P1, P2, P3 and explain the pattern.
+\end{exercise}
+\begin{exercise}[hard]
+The triptych says ``when the three disagree, the schematic and
+netlist are usually right.'' Give one case where they're both wrong
+and the board is telling the truth.
+\end{exercise}
+\begin{exercise}[hard]
+Write the contact-resistance model that turns a 1\,mV signal sour
+on a breadboard, and the check that reveals it.
+\end{exercise}
+\begin{exercise}[hard]
+Argue the wire-length rule from first principles: what does a long
+loop add electrically, and at what frequency does it stop being a
+wire?
+\end{exercise}
+\begin{exercise}[hard]
+Draft the ``breadboard pre-flight'' checklist a lab manual should
+print --- 8 items, each mapped to a failure mode from this chapter.
+\end{exercise}
+\begin{exercise}[hard]
+The transistor switch's LED flickers at the fade boundary. Explain
+why the transistor's linear region is the mechanism and name the
+one-component fix.
+\end{exercise}
+
+\section*{Hints and answers}
+\addcontentsline{toc}{section}{Hints and answers}
+\begin{description}
+\item[Ravine purpose (easy, inline)] a DIP's two pin rows would
+short to each other without it --- the ravine puts each row on its
+own tie-point strip.
+\item[Clip patterns (easy)] 5-per-column tie points, horizontal
+rails (top/bottom), the ravine down the middle.
+\item[4.1 V rail (medium)] tired battery / weak USB port / a
+short pulling it down; the supply-side probe tells you which.
+\item[Midpoint = rail (medium)] R2's leg missed its hole (or its
+column) --- the node has no path to ground, so it floats up to the
+rail through R1.
+\item[Stray cap at 1 MHz (hard)] five ties $\times\sim$3\,pF
+$\approx$ 15\,pF against a $\sim$10\,k$\Omega$ driver
+$\Rightarrow$ $f_c \approx 1$~MHz --- marginal; the board is the
+limit, not the parts.
+\item[Press-to-work (easy)] loose spring clip or bare wire not
+bottomed --- recut or move to a fresh column.
+\item[Fade probes (easy)] rail, RC node (watch it rise), LED node
+--- in that order.
+\item[Divider high (easy)] R1 measured below nominal ($-1.3\%$) and
+R2 below less ($-0.9\%$), so the ratio tilted up.
+\item[Secret components (easy)] contact resistance (~1--10\,$\Omega$),
+stray capacitance (~2--5\,pF), clip inductance (small, frequency-
+dependent).
+\item[Fault tree (medium)] LED orientation $\to$ rail live $\to$
+ground return $\to$ resistor value $\to$ wire continuity --- fastest
+checks first.
+\item[Two-board signal (medium)] shared ground: without a ground
+wire between boards, ``0\,V'' means two different things.
+\item[Contact error (medium)] 10\,$\Omega$ on a 3\,k$\Omega$ leg is
+$0.3\%$ --- under the resistor tolerance; contact only matters at
+low impedances or high currents.
+\item[Instant fade (medium)] cap is smaller than labelled (or
+electrolytic backwards), R is much smaller, or you measured the
+rail not the RC node.
+\item[Gate pull-down (hard)] 100\,k$\Omega$ gate-to-ground is ~100$\times$
+the 1\,k$\Omega$ charge resistor --- bleeds the node when un-driven
+without touching $\tau$ meaningfully ($+1\%$).
+\item[Clip current (hard)] LED string is ~20\,mA through a spring
+rated ~1\,A --- the wire's 0.1\,$\Omega$ matters less than the
+clip's spring; both are fine, the wire is not the weak link.
+\item[12\% disagreement (hard)] re-measure each component, then
+re-measure each rail, then each node --- the sim is honest; the
+board has a wrong value or a missing wire the schematic didn't
+have.
+\item[Perfboard vs PCB (hard)] perfboard: cheap rework, same
+parasitics as breadboard, hand-skill moderate, lasts months. PCB:
+fixed once fabbed, lowest parasitics, no soldering needed until
+population, lasts years.
+\item[Split rail (hard)] P1 on the fed half = 5\,V, P1' on the other
+half = 0\,V, and the midpoint reads whatever the dead half's wiring
+floats at --- the tell is ``two rails that don't match.''
+\item[Both wrong (hard)] a part with a hidden failure mode (e.g.\
+an electrolyte leaking) that neither schematic nor netlist models
+--- the DMM catches what the abstractions can't.
+\item[mV signals (hard)] a few ohms against a high-impedance
+measurement is nothing; against a 100\,$\Omega$ divider it is 10\%
+--- reveal it by measuring the same node at the column and at the
+rail.
+\item[Wire as inductor (hard)] a 10\,cm loop is ~100\,nH;
+$X_L = 2\pi fL$ hits 1\,$\Omega$ at $\sim$1.6\,MHz --- below that
+it's a wire, above it's part of your circuit.
+\item[Pre-flight checklist (hard)] 1.\ rail voltage 2.\ rail
+continuity both halves 3.\ ground return wired 4.\ part values
+measured 5.\ DIP seated across ravine 6.\ no bare wire crossing
+nodes 7.\ current $\ll$ 1\,A 8.\ supply off while wiring.
+\item[Flicker at threshold (hard)] the gate voltage sweeps slowly
+through the FET's linear region --- partial conduction dims the LED
+--- a Schmitt-trigger stage or a comparator turns it into a clean
+edge.
+\end{description}
+
+\section*{Further reading}
+\addcontentsline{toc}{section}{Further reading}
+
+\begin{itemize}
+\item SparkFun, \emph{How to Use a Breadboard}.\newline
+\url{learn.sparkfun.com/tutorials/how-to-use-a-breadboard} ---
+the canonical anatomy + layout guide our figures follow. Beginner.
+Verified 200, 2026-10-11.
+\item SparkFun, \emph{How to Use a Multimeter}.\newline
+\url{learn.sparkfun.com/tutorials/how-to-use-a-multimeter} ---
+the DMM's every mode, with probe placement photos. Beginner.
+Verified 200, 2026-10-11.
+\item All About Circuits, \emph{Experiments} (vol.~VI) --- the
+breadboard builds these three circuits descend from.\newline
+\url{allaboutcircuits.com/textbook/experiments/} --- Intermediate.
+[unverified: 403 from this session; prior verified access]
+\item Wikipedia, \emph{Breadboard}.\newline
+\url{en.wikipedia.org/wiki/Breadboard} --- the internal spring-clip
+mechanics and board variants. Reference. Verified 200, 2026-10-11.
+\item Platt, \emph{Make: Electronics}, 3rd ed.\ --- the build-diagram
+visual grammar this chapter's figures imitate (schematic-style over
+the board grid, not photographic).
+\end{itemize}
+
+\begin{rulebox}[{Watch instead}]
+\begin{enumerate}
+\item \emph{Breadboard tutorial: How to use a breadboard (for
+beginners)} --- LeftyMaker, 4:16,
+\url{https://www.youtube.com/watch?v=W6mixXsn-Vc} --- the anatomy
+walk-through this chapter's figures draw. Matches
+\S\ref{sec:anatomy17}. Opened and confirmed 2026-10-11.
+\item \emph{How to Use a Multimeter} --- SparkFun Electronics,
+10:33, \url{https://www.youtube.com/watch?v=SLkPtmnglOI} --- every
+DMM mode the debugging method uses, demonstrated. Matches
+\S\ref{sec:dmm17}. Opened and confirmed 2026-10-11.
+\end{enumerate}
+\end{rulebox}
+
+\chapternotes{Breadboard mechanics and rail-split warnings follow the
+SparkFun tutorial; the builds descend from AAC vol.~VI experiments;
+the build-diagram style follows Platt's 3e conventions. Sim-vs-real
+numbers in this chapter are real ngspice-47 runs at measured-values;
+contact-resistance and stray-capacitance magnitudes are the
+literature's typical figures, honestly labelled.}

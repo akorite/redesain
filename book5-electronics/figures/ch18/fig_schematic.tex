@@ -1,0 +1,40 @@
+\begin{tikzpicture}[font=\scriptsize, >=latex]
+% sensor board schematic (deliverable figure)
+% power in + LDO
+\node[left] at (0,4.6) {+5\,V (J1)};
+\draw[thick] (0.3,4.6) -- (1.6,4.6);
+\draw[fill=white] (1.6,4.1) rectangle (3.6,5.1);
+\node[align=center] at (2.6,4.6) {U1\\AMS1117-3.3};
+\draw[thick] (3.6,4.6) -- (5.2,4.6) node[right]{+3.3\,V};
+\fill[accent] (4.4,4.6) circle (0.07);
+\draw[thick] (4.4,4.6) -- (4.4,5.4) -- (2.0,5.4);
+\draw[fill=white] (1.6,5.4) rectangle (2.4,5.8); \node at (2.0,5.6){C4};
+\draw[thick] (2.0,5.4) -- (2.0,5.0);
+\draw[thick] (4.4,5.4) -- (6.0,5.4);
+\draw[fill=white] (5.6,5.4) rectangle (6.4,5.8); \node at (6.0,5.6){C2};
+\draw[thick] (6.0,5.4) -- (6.0,4.6);
+% sensor
+\draw[fill=white] (7.2,3.6) rectangle (8.8,4.6);
+\node[align=center] at (8.0,4.1) {U2\\TMP36};
+\draw[thick] (7.2,4.3) -- (6.4,4.3) -- (6.4,4.6) -- (6.4,4.6);
+\draw[thick] (7.2,3.9) -- (6.8,3.9) -- (6.8,3.4) -- (6.8,3.0);
+\node[below] at (6.8,3.0) {GND};
+% RC filter
+\draw[thick] (8.8,4.1) -- (9.4,4.1);
+\draw[fill=white] (9.4,3.9) rectangle (10.6,4.3); \node at (10.0,4.1){R1 1k};
+\draw[thick] (10.6,4.1) -- (11.4,4.1) node[right]{FILT $\to$ J1.4};
+\fill[accent] (11.0,4.1) circle (0.07);
+\draw[thick] (11.0,4.1) -- (11.0,3.2);
+\draw[fill=white] (10.7,2.8) rectangle (11.3,3.2); \node[right, font=\tiny] at (11.3,3.0){C1 100n};
+\draw[thick] (11.0,2.8) -- (11.0,2.4) node[below]{GND};
+\draw[thick] (9.4,4.1) -- (9.4,3.2) -- (10.0,3.2);
+\draw[fill=white] (9.7,2.8) rectangle (10.3,3.2); \node[left, font=\tiny] at (9.7,3.0){R2 10k};
+\draw[thick] (10.0,2.8) -- (10.0,2.4) node[below]{GND};
+% labels
+\node[align=left, text=slate, text width=11.5cm] at (5.8,1.6)
+{The board's whole schematic: 5\,V in, regulated to 3.3\,V with
+decoupling both sides, the TMP36's 750\,mV at 50\textdegree C
+through a 1\,k$\Omega$/100\,nF lowpass ($f_c$ = 1.6\,kHz --- the real
+sims) to a header pin the FPGA can threshold. R2 bleeds the filter
+node so it isn't floating when the sensor is absent.};
+\end{tikzpicture}

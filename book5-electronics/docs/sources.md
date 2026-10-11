@@ -68,6 +68,27 @@ Nothing is copied; entries say what was taken (idea / topic order / exercise typ
 | https://en.wikipedia.org/wiki/Central_processing_unit | 2026-10-11 | 200 | CPU terminology — ch16 FR. |
 | https://en.wikipedia.org/wiki/Instruction_cycle | 2026-10-11 | 200 | fetch-decode-execute vocabulary — ch16 FR. |
 
+| https://www.youtube.com/watch?v=W6mixXsn-Vc | 2026-10-11 | oembed 200 | LeftyMaker breadboard tutorial (4:16) — ch17 watch-instead. |
+| https://www.youtube.com/watch?v=SLkPtmnglOI | 2026-10-11 | oembed 200 | SparkFun multimeter howto (10:33) — ch17 watch-instead. |
+| https://learn.sparkfun.com/tutorials/how-to-use-a-breadboard | 2026-10-11 | 200 | Breadboard anatomy + layout — ch17 FR. |
+| https://learn.sparkfun.com/tutorials/how-to-use-a-multimeter | 2026-10-11 | 200 | DMM modes + probe method — ch17 FR. |
+| https://en.wikipedia.org/wiki/Breadboard | 2026-10-11 | 200 | Spring-clip mechanics — ch17 FR. |
+
+| https://www.youtube.com/watch?v=d9_-lQq8ShE | 2026-10-11 | oembed 200 | DIY Hideout KiCad beginner tutorial (23:37) — ch18 watch-instead. |
+| https://www.youtube.com/watch?v=aVUqaB0IMh4 | 2026-10-11 | oembed 200 | Phil's Lab #65 KiCad STM32 PCB tutorial (1:40:05) — ch18 watch-instead. |
+| https://docs.kicad.org/10.0/en/getting_started_in_kicad/getting_started_in_kicad.html | 2026-10-11 | 200 | Official KiCad 10 getting-started — ch18 FR. |
+| https://learn.sparkfun.com/tutorials/beginners-guide-to-kicad | 2026-10-11 | 200 | SparkFun KiCad guide — ch18 FR. |
+| https://jlcpcb.com | 2026-10-11 | 200 | Budget fab for Gerber bundle — ch18 FR. |
+| https://en.wikipedia.org/wiki/KiCad | 2026-10-11 | 200 | KiCad project scope — ch18 FR. |
+
+| https://www.ibm.com/think/topics/fpga-vs-microcontroller | 2026-10-11 | 200 | IBM Think FPGA-vs-MCU explainer — ch19 FR. |
+| https://docs.arduino.cc/built-in-examples/basics/Blink/ | 2026-10-11 | 200 | Arduino Blink canonical sketch — ch19 FR. |
+| https://github.com/YosysHQ/picorv32 | 2026-10-11 | 200 | PicoRV32 RV32I soft core — ch19 FR. |
+| https://hdlbits.01xz.net | 2026-10-11 | 200 | HDLBits Verilog drills — ch19 FR. |
+| https://en.wikipedia.org/wiki/Microcontroller | 2026-10-11 | 200 | MCU definition — ch19 FR. |
+| https://www.youtube.com/watch?v=i1ObzbkVfSA | 2026-10-11 | oembed 200 | Uplatz FPGA-vs-MCU (7:48) — ch19 watch-instead. |
+| https://www.youtube.com/watch?v=iHg0mmIg0UU | 2026-10-11 | oembed 200 | Charles Clayton "What's an FPGA?" (1:25) — ch19 watch-instead. |
+
 ## Decisions the research drove
 
 1. **Target board: Sipeed Tang Nano 9K** (Gowin GW1NR-9). ~US$20, USB-C programmable, fully supported by open-source flow (yosys `synth_gowin` + nextpnr-himbaechel + gowin_pack + openFPGALoader — all in oss-cad-suite), 8640 LUTs is enough for the 8-bit CPU capstone, HDMI/LEDs/buttons onboard for visible output. iCE40 alternative is 2–5× price in-region for less logic; Altera/DE boards ~10×. Indonesian availability: Ubuy-ID listing live + routine marketplace imports; exact IDR street price left **unverified** (flag for the outline).

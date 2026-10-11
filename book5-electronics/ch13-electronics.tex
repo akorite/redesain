@@ -74,7 +74,7 @@ in the synthesis report are). Exercise: a 32-bit equality comparator is a
 \caption{The FPGA build pipeline. Each stage eats the previous stage's output
 and produces something closer to silicon: text $\to$ generic cells $\to$
 specific tiles $\to$ routed wires $\to$ a bitstream the chip loads at boot.}
-\label{fig:flow}
+\label{fig:flow13}
 \end{figure}
 
 \begin{description}
@@ -143,7 +143,7 @@ same logic at bit~23 is a $\sim$3\,s square wave.
 \caption{Blinky in simulation (scaled twin): \texttt{led} follows counter
 bit~3, high for 8 clocks out of every 16. On hardware it is bit~23, high for
 $2^{23}$ clocks out of every $2^{24}$ --- same shape, 3-million-times slower.}
-\label{fig:wave}
+\label{fig:wave13}
 \end{figure}
 
 \begin{example}[Blinky through synthesis --- reading the stat report]
@@ -336,7 +336,7 @@ not to hope.
 logic must settle before the setup window opens and stay stable through the
 hold window. \texttt{create\_clock} tells the tools the value of $T$; the
 timing report is their verdict on whether your logic fits inside it.}
-\label{fig:timing}
+\label{fig:timing13}
 \end{figure}
 
 \section{On real hardware --- and what we could not do here}

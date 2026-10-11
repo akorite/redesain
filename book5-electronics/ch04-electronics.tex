@@ -37,7 +37,7 @@ and at DC a charged capacitor is an open circuit — zero $dv/dt$, zero current.
 the flow rate, capacitance is the bucket's width. A wide bucket ($C$ big)
 fills slowly for the same flow — that is why big capacitors make slow
 circuits.}
-\label{fig:charge}
+\label{fig:charge04}
 \end{figure}
 
 The stored energy is $E=\tfrac12 CV^2$ — real energy, returned later, which
@@ -121,7 +121,7 @@ reaches $\tfrac23 V_{CC}$. So the delay question is: for $v(t)=5(1-e^{-t/\tau})$
 solve $v(t^*)=\qty{3.33}{\volt}$.
 
 \textbf{Solution.} $1-e^{-t/\tau}=2/3 \Rightarrow e^{-t/\tau}=1/3
-\Rightarrow t^*=\tau\log 3=1.0986\,\tau$. With $\tau=\qty{1}{\milli\second}$:
+\Rightarrow t^*=\tau\ln 3=1.0986\,\tau$. With $\tau=\qty{1}{\milli\second}$:
 $t^*=\qty{1.099}{\milli\second}$.
 
 \textbf{Check.} The \texttt{.tran} data of Listing~\ref{lst:rcstep} crosses
@@ -143,7 +143,7 @@ wrdata ch04_rc_step.dat vout
 .end
 \end{lstlisting}
 
-\begin{lstlisting}[language={},caption={Actual rows of \texttt{ch04\_rc\_step\_ms.dat} (the ms-rescaled file of Figure~\ref{fig:tau}; ngspice's adaptive steps land on these timestamps, not round numbers) — \qty{3.158}{\volt} at \qty{0.999}{\milli\second} is the 63\% mark, and \qty{3.334}{\volt} at \qty{1.099}{\milli\second} is the $\tau\log 3$ crossing of Example~\ref{ex:delay555}.},label=lst:rcdata]
+\begin{lstlisting}[language={},caption={Actual rows of \texttt{ch04\_rc\_step\_ms.dat} (the ms-rescaled file of Figure~\ref{fig:tau}; ngspice's adaptive steps land on these timestamps, not round numbers) — \qty{3.158}{\volt} at \qty{0.999}{\milli\second} is the 63\% mark, and \qty{3.334}{\volt} at \qty{1.099}{\milli\second} is the $\tau\ln 3$ crossing of Example~\ref{ex:delay555}.},label=lst:rcdata]
 t(ms)           v(2)
 8.988090e-01    2.964732e+00
 9.988090e-01    3.158414e+00
@@ -483,12 +483,12 @@ $9(1-e^{-2})=\qty{7.78}{\volt}$; $9(1-e^{-5})=\qty{8.94}{\volt}$.
 \qty{5}{\micro\farad} — opposite of resistors. For a bigger reservoir pick
 parallel (it also halves the effective series resistance, which is the real
 reason arrays appear on boards).
-\item[2.5 V threshold.] $v/V=0.278 \Rightarrow t/\tau=-\log(1-0.278)=0.325$.
+\item[2.5 V threshold.] $v/V=0.278 \Rightarrow t/\tau=-\ln(1-0.278)=0.325$.
 \item[Derivation.] $\int\frac{dv}{V-v}=\int\frac{dt}{RC}$ gives
-$-\log(V-v)+\log V=t/RC$, i.e.\ $V-v=Ve^{-t/\tau}$. Then
+$-\ln(V-v)+\ln V=t/RC$, i.e.\ $V-v=Ve^{-t/\tau}$. Then
 $i=C\,dv/dt=(V/R)e^{-t/\tau}$ — largest at $t=0$ because the gap (and hence
 the resistor voltage) is largest then.
-\item[50 ms design.] Need $\tau=50\,\mathrm{ms}/\log 3=45.5$ ms; with
+\item[50 ms design.] Need $\tau=50\,\mathrm{ms}/\ln 3=45.5$ ms; with
 $C=\qty{10}{\micro\farad}$, $R=4.55\,\mathrm{k}\Omega\to\qty{4.7}{\kilo\ohm}$
 E24 gives $\tau=47$ ms, delay $\approx\qty{51.7}{\milli\second}$
 (\qty{+3}{\percent} — fine for reset).

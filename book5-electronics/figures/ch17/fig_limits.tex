@@ -1,0 +1,26 @@
+\begin{tikzpicture}[font=\scriptsize, >=latex]
+% honest limits cartoon: contact + stray cap + current
+\node[font=\small\bfseries] at (4.5,4.9) {where breadboards stop being honest};
+% contact resistance
+\draw[thick, fill=graybg] (0,2.6) rectangle (2.9,4.4);
+\node[align=center] at (1.45,3.9) {contact\\resistance};
+\node[align=center, font=\tiny, text=slate] at (1.45,3.2) {1--10 $\Omega$ per tie\\(matters at 100 mA+\\or microvolt signals)};
+% stray capacitance
+\draw[thick, fill=graybg] (3.2,2.6) rectangle (6.1,4.4);
+\node[align=center] at (4.65,3.9) {stray\\capacitance};
+\node[align=center, font=\tiny, text=slate] at (4.65,3.2) {2--5 pF tie-to-tie\\(kills high-speed,\\fine for LEDs)};
+% current limit
+\draw[thick, fill=graybg] (6.4,2.6) rectangle (9.3,4.4);
+\node[align=center] at (7.85,3.9) {current\\limit};
+\node[align=center, font=\tiny, text=slate] at (7.85,3.2) {clips + thin springs\\$\approx$ 1 A max\\(USB still safer)};
+\node[align=left, text=slate, text width=9.5cm] at (4.7,1.9)
+{The breadboard is not free: every tie point is a small resistor and
+a small capacitor glued to your circuit. For everything in this book
+--- LEDs, RC fades, sensor filters, logic at a few MHz --- the
+extras are below the noise floor. For RF, fast logic, or precision
+analog they are the lesson of another book.};
+\node[align=left, text=slate, text width=9.5cm] at (4.7,0.5)
+{Bridge ahead: when a build earns permanence it graduates to
+perfboard (same through-hole parts, soldered) or a PCB (ch18).
+Breadboard is for proving, perfboard for keeping.};
+\end{tikzpicture}

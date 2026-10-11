@@ -1,0 +1,14 @@
+* ch18_sensor_filter.cir -- the sensor board's signal chain, real
+* BOM values: TMP36 output (0.5V@25C, 10mV/C) -> RC lowpass
+* (R=1k, C=100nF, fc=1591Hz) -> threshold node the FPGA reads.
+* .ac measures the filter corner; .op shows the DC operating point.
+V1 1 0 DC 0.75 AC 1
+* (50 degC -> 750mV sensor output)
+R1 1 2 1000
+C1 2 0 100n
+.control
+op
+ac dec 20 1 1e5
+meas ac fc when vm(2)=0.707
+.endc
+.end
