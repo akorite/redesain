@@ -112,6 +112,34 @@ for n in [512, 1024]:
 For $A=\begin{bmatrix}1&2\\0&1\end{bmatrix}$ and $B=\begin{bmatrix}1&0\\1&1\end{bmatrix}$, compute $AB$ and $BA$ by hand. Are they equal? Then explain in one sentence what each does to the vector $\mathbf{e}_1$.
 \end{exercise}
 
+\begin{example}\label{ex:adjacency}
+The small graph of figure~\ref{fig:graph} has edges
+$1{-}2$, $1{-}3$, $2{-}3$, $3{-}4$. How many two-step walks go from
+vertex $1$ to vertex $3$?
+\par\smallskip
+\textbf{Strategy.} Write the adjacency matrix $A$ with $a_{ij}=1$ when
+$i{-}j$ is an edge. Then $(A^2)_{ij}=\sum_k a_{ik}a_{kj}$ counts walks
+$i\to k\to j$ --- a matrix product that is literally a path counter.
+\begin{solution}
+$A=\begin{bmatrix}0&1&1&0\\1&0&1&0\\1&1&0&1\\0&0&1&0\end{bmatrix}$,
+and
+$(A^2)_{13}=a_{11}a_{13}+a_{12}a_{23}+a_{13}a_{33}+a_{14}a_{43}
+ =0+1\cdot1+0+0=1$. The single two-step walk is $1\to2\to3$ ---
+$1\to3\to3$ is not a walk because there is no loop edge $3{-}3$.
+The same square gives $(A^2)_{33}=3$ (three two-step loops back to 3).
+\checkmark
+\end{solution}
+\end{example}
+
+\begin{figure}[htbp]\centering
+\input{figures/ch02_graph}
+\caption{The adjacency matrix squared counts two-step walks. Notice
+why matrix multiplication is the right tool: entry $(i,j)$ of $A^2$
+sums over \emph{every possible middle stop} $k$ --- the dot-product
+grid of figure~\ref{fig:abgrid} is a walk counter.}
+\label{fig:graph}
+\end{figure}
+
 \section{Transpose, inverses, and when they exist}\label{sec:transposeinv}
 
 The \emph{transpose}\index{transpose} $A^{T}$ flips a matrix across its diagonal: $(A^{T})_{ij}=a_{ji}$ — rows become columns. Two rules carry the whole algebra of the transpose:
@@ -255,6 +283,36 @@ P.T @ P = I: True
 undo with P.T: True
 \end{lstlisting}
 
+\begin{example}\label{ex:perm}
+Shuffle a three-row dataset $A$ so that row 3 comes first, then rows 1
+and 2 in order. Write the matrix that does it --- and check it really is
+a \emph{permutation matrix}.
+\par\smallskip
+\textbf{Strategy.} A row shuffle is a left multiplication (row
+operations live on the left). Build $P$ row by row: row $i$ of $PA$
+should be the picked row of $A$ --- put a single $1$ in the right
+column.
+\begin{solution}
+We want $(PA)_1=A_3$, $(PA)_2=A_1$, $(PA)_3=A_2$:
+\[
+  P=\begin{bmatrix}0&0&1\\1&0&0\\0&1&0\end{bmatrix},\qquad
+  PA=\begin{bmatrix}a_{31}&a_{32}\\a_{11}&a_{12}\\a_{21}&a_{22}\end{bmatrix}.
+\]
+Each row of $P$ is a standard basis row $\mathbf{e}_j^{T}$, which
+\emph{picks} row $j$ of $A$ (figure~\ref{fig:perm}). Every row shuffle
+of a training set is exactly this: one left multiplication, no data
+touched twice, invertible by $P^{T}$. \checkmark
+\end{solution}
+\end{example}
+
+\begin{figure}[htbp]\centering
+\input{figures/ch02_perm}
+\caption{A permutation matrix is a shuffle. Notice the mechanism: each
+row of $P$ is one $\mathbf{e}_j^{T}$, and $\mathbf{e}_j^{T}A$ is row
+$j$ of $A$ --- a product of picks.}
+\label{fig:perm}
+\end{figure}
+
 \section{Hand derivation}\label{sec:handderiv2}
 
 Two proofs, both short, both worth doing with the interpreter closed.
@@ -305,6 +363,49 @@ You can now multiply matrices both ways — as dot-product grids and as composed
 
 \chapternotes{%
 The composition-first treatment of matrix multiplication follows MIT 18.06SC Unit I \cite{ocw1806sc}; the column-combination mantra for $A\mathbf{x}$ is Strang's, restated. VMLS chapters 6 and 10 \cite{vmls} supply the data-first framing (the permutation-as-shuffle example is theirs in spirit) and the gallery treatment of special matrices. MML \S2.2 \cite{mml} is the compact reference for the same algebra. The Immersive Linear Algebra chapter on the matrix \cite{ila} has the interactive versions of figures~\ref{fig:axcol} and \ref{fig:abgrid}. The never-invert-to-solve rule is standard numerical practice \cite{strangILA}.}
+\begin{rulebox}[{Watch instead}]
+\begin{enumerate}
+\item \emph{Matrix multiplication as composition} --- 3Blue1Brown,
+Essence of Linear Algebra ch.~4, 10:03,
+\url{https://youtu.be/XkY2DOUCWMU} --- the recipe-composition view of
+\S\ref{sec:matmul} (accessed 2026-10-11).
+\item \emph{Multiplication and Inverse Matrices} --- MIT OpenCourseWare,
+18.06 Lecture 3, 46:49, \url{https://youtu.be/hMmXCdVym3A} --- the
+five-product viewpoints plus Gauss--Jordan inversion of
+\S\ref{sec:matmul}--\S\ref{sec:transposeinv} (accessed 2026-10-11).
+\end{enumerate}
+\end{rulebox}
+
+\section*{Further reading}
+\addcontentsline{toc}{section}{Further reading}
+
+\begin{itemize}
+\item G.~Strang, \emph{Introduction to Linear Algebra}, 6th ed., ch.~2
+(textbook level) --- the matrix-multiplication and inverse material at
+full length.
+\item MIT OpenCourseWare, \emph{18.06SC Linear Algebra} --- the OCW
+course pages behind the watch picks; worked recitations on products
+and inverses. \newline
+OCW (course ``18.06SC''), at \url{https://ocw.mit.edu}
+Verified 2026-10-11.
+\item S.~Boyd and L.~Vandenberghe, \emph{VMLS}, chs.~6, 10 (free PDF) ---
+matrix algebra and inverses with data-first examples (the row-shuffle
+view is theirs). \newline
+\url{https://web.stanford.edu/~boyd/vmls/vmls.pdf}
+Verified 2026-10-11.
+\item Margalit and Rabinoff, \emph{Interactive Linear Algebra} (Georgia
+Tech), ``Matrix Algebra'' --- the same algebra hyperlinked.\newline
+\url{https://textbooks.math.gatech.edu/ila/}
+Verified 2026-10-11.
+\item M.~Deisenroth et al., \emph{Mathematics for Machine Learning},
+\S2.2 (free PDF) --- the compact ML-register reference.\newline
+\url{https://mml-book.github.io/book/mml-book.pdf}
+Verified 2026-10-11.
+\item Str\"om, \AA str\"om, and Akenine-M\"oller, \emph{Immersive Linear
+Algebra}, chapter ``The matrix'' --- interactive versions of our
+figures~\ref{fig:axcol} and \ref{fig:abgrid}. Free at
+\url{https://immersivemath.com}. Verified 2026-10-11.
+\end{itemize}
 
 \section*{Additional exercises}
 \addcontentsline{toc}{section}{Additional exercises}
@@ -341,4 +442,23 @@ Show that a square triangular matrix is invertible iff every diagonal entry is n
 \end{exercise}
 \begin{exercise}[hard]
 Implement blocked matrix multiplication in Python: cut two $n\times n$ matrices into $b\times b$ blocks, multiply block-wise (one \texttt{np.matmul} per block pair), and reassemble. Verify against \texttt{np.matmul} for $n=512$, $b=64$. File: \texttt{code/ch02\_blocked\_matmul.py}.
+\end{exercise}
+\begin{exercise}[easy]
+For the graph of example~\ref{ex:adjacency}, compute $(A^2)_{44}$ and
+$(A^2)_{14}$ and name the walks each counts. What does $(A^3)_{14}$
+count? Compute it.
+\end{exercise}
+\begin{exercise}[medium]
+Invert $\begin{bmatrix}2&1\\1&1\end{bmatrix}$ by Gauss--Jordan on
+$[\,A\mid I\,]$. Verify by multiplying back in both orders.
+\end{exercise}
+\begin{exercise}[medium]
+Let $P$ be the $3\times3$ shift permutation of example~\ref{ex:perm}.
+Compute $P^{T}$, then $PP^{T}$ --- and conclude why $P^{-1}=P^{T}$ for
+every permutation matrix.
+\end{exercise}
+\begin{exercise}[hard]
+Show $(A^2)_{ii}=\deg(i)$ for a graph with no loops, and that
+$\operatorname{tr}(A^2)$ equals twice the edge count. What does
+$\operatorname{tr}(A^3)$ count on a triangle-rich graph?
 \end{exercise}

@@ -33,6 +33,25 @@ spread wider. Regenerate: \ttfamily figures/ch13\_sampling\_dist.tex.}
 \label{fig:samplingdist}
 \end{figure}
 
+\begin{example}[The sampling distribution of the mean]\label{ex:sampdist}
+Roll one fair die $n=4$ times and take the sample mean $\bar X$.
+Compute $E[\bar X]$, $\operatorname{Var}(\bar X)$, and
+$P(\bar X\geq5)$ exactly.
+\par\smallskip
+\textbf{Strategy.} A statistic is itself a random variable --- it has
+its own distribution (figure~\ref{fig:samplingdist}). Mean and variance of
+$\bar X$ come from linearity; the tail comes from counting
+tuples.
+\begin{solution}
+$E[X]=3.5$, $\operatorname{Var}(X)=35/12$. Then $E[\bar X]=3.5$ and
+$\operatorname{Var}(\bar X)=\frac{35}{12\cdot4}=\frac{35}{48}\approx
+0.73$ --- same centre, four times tighter. For the tail:
+$\bar X\geq5$ needs a sum $\geq20$; a quick count gives
+$P(S\geq20)=35/1296\approx0.027$. \checkmark\ The statistic's own
+distribution --- not the die's --- is what inference actually uses.
+\end{solution}
+\end{example}
+
 \section{Bias, variance, and the trade-off}\label{sec:stats-bv}
 
 $\mathrm{bias}(\hat\theta)=\mathbb E[\hat\theta]-\theta$;
@@ -404,6 +423,47 @@ $=\sum_{i=1}^{n}[\log(1+e^{z_i})-y_iz_i]$ \\
 \bottomrule
 \end{tabularx}
 \end{center}
+\begin{rulebox}[{Watch instead}]
+\begin{enumerate}
+\item \emph{Maximum Likelihood, clearly explained!!!} --- StatQuest
+with Josh Starmer, 6:12, \url{https://youtu.be/XepXtl9YKwc} ---
+\S\ref{sec:stats-mle} in its shortest honest form
+(accessed 2026-10-11).
+\item \emph{Machine Learning Fundamentals: Bias and Variance} ---
+StatQuest, 6:36, \url{https://youtu.be/EuBBz3bI-aA} ---
+\S\ref{sec:stats-bv} (accessed 2026-10-11).
+\item \emph{Logistic Regression Details Pt 2: Maximum Likelihood} ---
+StatQuest, 10:23, \url{https://youtu.be/BfKanl1aSG0} ---
+\S\ref{sec:stats-ls} the MLE-as-loss story (accessed 2026-10-11).
+\end{enumerate}
+\end{rulebox}
+
+\section*{Further reading}
+\addcontentsline{toc}{section}{Further reading}
+
+\begin{itemize}
+\item MIT OpenCourseWare, \emph{18.05 Introduction to Probability and
+Statistics} --- the statistics half of this book's foundations, at OCW
+(course ``18.05''), \url{https://ocw.mit.edu}. Verified 2026-10-11.
+\item D.~Bertsekas and J.~Tsitsiklis, \emph{Introduction to
+Probability}, 2nd ed., ch.~9 --- classical statistics from the
+probabilist's side. ISBN 978-1886529236.
+\item L.~Wasserman, \emph{All of Statistics}, chs.~6, 9 --- the
+frequentist machinery (sampling distributions, MLE) in one
+graduate-level reference. ISBN 978-0387402727.
+\item M.~Deisenroth et al., \emph{Mathematics for Machine Learning},
+\S8--9 (free PDF) --- parameter estimation and regression as
+inference.\newline
+\url{https://mml-book.github.io/book/mml-book.pdf}
+Verified 2026-10-11.
+\item C.~M.~Bishop, \emph{Pattern Recognition and Machine Learning},
+\S1.2, \S4.3 --- Bayesian inference and the logistic-regression NLL.
+ISBN 978-0387310732.
+\item StatQuest channel playlists on estimation and classification ---
+the video versions of this chapter's WEs.\newline
+\url{https://www.youtube.com/@statquest/playlists}
+Verified 2026-10-11.
+\end{itemize}
 
 \section*{Additional exercises}
 \addcontentsline{toc}{section}{Additional exercises}
@@ -475,6 +535,18 @@ its reciprocal to the Cram\'er--Rao bound for $\hat\theta$.
 Implement rejection sampling for the Beta$(720,394)$ posterior of
 Example~\ref{ex:betacoin}; verify the sampled mean/variance against the
 analytic Beta moments.
+\end{exercise}
+\begin{exercise}[medium]
+For the die of example~\ref{ex:sampdist}, find
+$\operatorname{Var}(\bar X)$ with $n=16$ rolls, then use Chebyshev to
+bound $P(|\bar X-3.5|\geq0.5)$. What sample size makes the bound
+below $0.05$?
+\end{exercise}
+\begin{exercise}[hard]
+Show $\hat\sigma^{2}=\frac1n\sum(X_i-\bar X)^{2}$ is biased: compute
+$E[\hat\sigma^{2}]=\frac{n-1}{n}\sigma^{2}$ directly. Then find the
+unbiased correction (Bessel's correction) and explain the $n-1$
+geometrically (the residuals live in an $(n-1)$-dimensional subspace).
 \end{exercise}
 
 \chapternotes{%

@@ -392,6 +392,24 @@ n=32: mean -0.001  var 1.000  skew +0.352
 n=32 histogram density per bin: [0.013 0.146 0.368 0.319 0.126 0.028]
 \end{lstlisting}
 
+\begin{example}[A CLT computation]\label{ex:cltcalc}
+An exam has $n=100$ independent questions each scored as a Bernoulli
+random variable with $p=0.6$ (worth 1 point). Estimate
+$P(\text{total}\geq 65)$ using the CLT.
+\par\smallskip
+\textbf{Strategy.} The total $S$ is Binomial$(100,0.6)$ with mean
+$np=60$ and variance $np(1-p)=24$. The CLT says $S$ is approximately
+$N(60,24)$ --- standardize and read off the Gaussian tail.
+\begin{solution}
+$Z=(S-60)/\sqrt{24}\approx(S-60)/4.9$. Then
+$P(S\geq65)=P(Z\geq5/4.9)\approx P(Z\geq1.02)=1-\Phi(1.02)\approx
+0.154$. (Exact binomial: $\approx0.179$ --- the CLT estimate is close;
+the continuity correction $P(S\geq64.5)$ tightens it to
+$\approx0.18$.) \checkmark\ The CLT buys a one-line answer where the
+exact sum needs 35 binomial terms.
+\end{solution}
+\end{example}
+
 \section{Hand derivation}\label{sec:handderiv12}
 
 Two derivations. (1) Bernoulli and binomial moments: Bernoulli
@@ -468,6 +486,41 @@ finite variance is the only door \\
 \bottomrule
 \end{tabularx}
 \end{center}
+\begin{rulebox}[{Watch instead}]
+\begin{enumerate}
+\item \emph{Probability Models and Axioms} --- MIT OpenCourseWare,
+6.041 Lecture 1, 51:10, \url{https://youtu.be/j9WZyLZCBzs} ---
+\S\ref{sec:prob-axioms} at full length (accessed 2026-10-11).
+\item \emph{Bayes' Theorem, Clearly Explained!!!!} --- StatQuest with
+Josh Starmer, 13:59, \url{https://youtu.be/9wCnvr7Xw4E} ---
+\S\ref{sec:prob-bayes} as worked arithmetic (accessed 2026-10-11).
+\end{enumerate}
+\end{rulebox}
+
+\section*{Further reading}
+\addcontentsline{toc}{section}{Further reading}
+
+\begin{itemize}
+\item MIT OpenCourseWare, \emph{6.041 Probabilistic Systems Analysis}
+--- the full probability course this chapter compresses. Free at OCW
+(course ``6.041''), \url{https://ocw.mit.edu}. Verified 2026-10-11.
+\item D.~Bertsekas and J.~Tsitsiklis, \emph{Introduction to
+Probability}, 2nd ed. --- the OCW companion text; axioms through
+Bayes at full length. ISBN 978-1886529236.
+\item S.~Boyd and L.~Vandenberghe, \emph{VMLS} appendix (free PDF) ---
+the probability pieces our notation shares.\newline
+\url{https://web.stanford.edu/~boyd/vmls/vmls.pdf}
+Verified 2026-10-11.
+\item M.~Deisenroth et al., \emph{Mathematics for Machine Learning},
+ch.~6 (free PDF) --- probability and distributions for ML, same
+register.\newline
+\url{https://mml-book.github.io/book/mml-book.pdf}
+Verified 2026-10-11.
+\item Khan Academy, \emph{Statistics and probability} course --- free
+drill exercises for every section of this chapter, at
+\url{https://www.khanacademy.org} (math, ``Statistics and
+probability''). Verified 2026-10-11.
+\end{itemize}
 
 \section*{Additional exercises}
 \addcontentsline{toc}{section}{Additional exercises}
@@ -541,6 +594,11 @@ regression to the mean is a theorem, not a slur.
 Implement the Box--Muller transform: turn two uniforms into a standard
 Gaussian, verify moments and the histogram shape against
 \texttt{rng.standard\_normal} output.
+\end{exercise}
+\begin{exercise}[medium]
+A fair coin is flipped 400 times. Use the CLT (with continuity
+correction) to estimate $P(190\leq S\leq210)$, where $S$ is the number
+of heads. Compare with the normal approximation without correction.
 \end{exercise}
 
 \chapternotes{%

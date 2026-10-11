@@ -548,6 +548,47 @@ $A^{T}\mathbf b$ \\
 \bottomrule
 \end{tabularx}
 \end{center}
+\begin{rulebox}[{Watch instead}]
+\begin{enumerate}
+\item \emph{Projection Matrices and Least Squares} --- MIT
+OpenCourseWare, 18.06 Lecture 16, 48:05,
+\url{https://youtu.be/osh80YCg_GM} --- the normal-equations route of
+\S\ref{sec:lstsq-normal} at full length (accessed 2026-10-11).
+\item \emph{Linear Regression, Clearly Explained!!!} --- StatQuest
+with Josh Starmer, 27:26, \url{https://youtu.be/7ArmBVF2dCs} ---
+\S\ref{sec:lstsq-reg} in data form (accessed 2026-10-11).
+\end{enumerate}
+\end{rulebox}
+
+\section*{Further reading}
+\addcontentsline{toc}{section}{Further reading}
+
+\begin{itemize}
+\item G.~Strang, \emph{Introduction to Linear Algebra}, 6th ed., \S4.3
+(textbook level) --- least squares from the projection side.
+\item MIT OpenCourseWare, \emph{18.06SC Linear Algebra} --- the least-
+squares recitations, at OCW (course ``18.06SC'', Unit II), at
+\url{https://ocw.mit.edu}. Verified 2026-10-11.
+\item S.~Boyd and L.~Vandenberghe, \emph{VMLS}, chs.~12--13 (free PDF)
+--- least squares and least-squares data fitting, our chapter's exact
+ancestors. \newline
+\url{https://web.stanford.edu/~boyd/vmls/vmls.pdf}
+Verified 2026-10-11.
+\item Margalit and Rabinoff, \emph{Interactive Linear Algebra},
+``Least-Squares Solutions'' --- normal equations with more worked
+residuals. \newline
+\url{https://textbooks.math.gatech.edu/ila/}
+Verified 2026-10-11.
+\item M.~Deisenroth et al., \emph{Mathematics for Machine Learning},
+ch.~9 (free PDF) --- linear regression from the ML side, including
+noise models. \newline
+\url{https://mml-book.github.io/book/mml-book.pdf}
+Verified 2026-10-11.
+\item scikit-learn documentation, \emph{LinearRegression} and
+\emph{Cross-Validation} user guide --- the practical side of our
+capstone. Free at \url{https://scikit-learn.org} (user guide,
+``Linear Models''). Verified 2026-10-11.
+\end{itemize}
 
 \section*{Additional exercises}
 \addcontentsline{toc}{section}{Additional exercises}
@@ -624,6 +665,18 @@ is present --- and give a counterexample when it is not.
 Implement leave-one-out cross-validation for the capstone data in code:
 fit on $n-1$ rows, score the held-out row, average. Compare LOO $R^{2}$
 to train $R^{2}$ and explain any gap in the language of this chapter.
+\end{exercise}
+\begin{exercise}[easy]
+Fit a constant $y=c$ to the data points $\{(0,1),(1,2),(2,2)\}$ by
+least squares --- write the one-column design and solve the normal
+equation. Where does $c$ land relative to the mean of the $y$'s?
+\end{exercise}
+\begin{exercise}[hard]
+Show that the fitted vector $\hat{\mathbf y}=A\hat{\mathbf x}$ is the
+projection of $\mathbf y$ onto $\operatorname{col}(A)$, then prove the
+residual $\mathbf r=\mathbf y-\hat{\mathbf y}$ satisfies
+$A^{T}\mathbf r=\mathbf 0$. Interpret the second equation
+geometrically.
 \end{exercise}
 
 \chapternotes{%
