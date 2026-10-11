@@ -1,0 +1,7 @@
+# ch13_synth.ys -- run blinky and counter6 through the real Gowin synthesis path
+read_verilog ch13_blinky.v
+synth_gowin -top blinky
+stat
+read_verilog ch13_counter.v
+synth_gowin -top counter6
+stat

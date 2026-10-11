@@ -1,0 +1,11 @@
+// ch13_tangnano.cst -- Gowin physical constraints, Tang Nano 9K (GW1NR-9C).
+// The board's 27 MHz crystal lands on pin 52; onboard LEDs on 10,11,13,14,15,16.
+// (Pin map per the Sipeed Tang Nano 9K schematic -- verify against your rev.)
+IO_LOC "clk"  52;
+IO_LOC "led"  10;          // LED1 (lowest counter bit in counter6)
+IO_LOC "leds[0]" 11;
+IO_LOC "leds[1]" 13;
+IO_LOC "leds[2]" 14;
+IO_LOC "leds[3]" 15;
+IO_LOC "leds[4]" 16;
+IO_LOC "tx"   18;          // serial header TX pin (bank-dependent -- check docs)

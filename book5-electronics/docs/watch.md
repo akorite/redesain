@@ -9,3 +9,7 @@
 | ch11 | Introduction to Verilog HDL using Icarus, GTKWave, VS Code | boyfriendnibluefairy | 42:03 | whole chapter | 2026-10-11 |
 | ch12 | DDCA Ch4 - Part 9: Testbenches | Sarah Harris | 20:47 | bench anatomy, classic bugs | 2026-10-11 |
 | ch12 | 17 - Developing Simple Verilog Testbenches | Anas Salah Eddin | 22:48 | bench organs, wave reading | 2026-10-11 |
+
+### ch13 — The FPGA flow
+- “Get Started With FPGAs and Verilog in 13 Minutes!” — Doctor Volt — 15:19 — board/toolchain sections — verified opened 2026-10-10 — https://www.youtube.com/watch?v=aWm9pJ2KobA
+- “What's an FPGA?” — Charles Clayton — 17:22 — LUT/fabric section — verified opened 2026-10-10 — https://www.youtube.com/watch?v=iHg0mmIg0UU
