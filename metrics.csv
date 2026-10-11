@@ -17,3 +17,6 @@ book2-discrete,15,"Olympiad geometry",143,6,0,14,2,1,0,0,0,~65,2
 book2-discrete,16,"Invariants monovariants",147,5,1,14,1,0,0,0,3,~50,2
 book2-discrete,17,"Exam craft and portfolio",151,5,3,15,1,0,0,0,3,~55,2
 book2-discrete,bm,"Back matter (hints/solutions/index)",151,0,0,0,0,0,0,0,0,~40,1
+book1-cp,14,"number theory & combinatorics",147,6,8,21,0,0,0,0,0,~240,book1(devin-0873)
+book3-linalg-ml,14,"optimisation & gradient descent",167,6,4,18,0,0,0,0,0,~240,book3(devin-33ac)
+book5-electronics,10,"sequential logic & FSMs",115,6,10,36,0,0,1,0,0,~240,book5(devin-360c)
