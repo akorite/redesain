@@ -1,0 +1,320 @@
+\chapter{Number theory and combinatorics}\label{ch:ntcomb}
+\index{gcd}\index{sieve of Eratosthenes}\index{modular arithmetic}\index{binary exponentiation}\index{combinatorics}
+
+Contests count on these two toolkits constantly: number theory for
+divisibility, primes, and modular machinery; combinatorics for the
+counting models every probability, DP, or hashing problem eventually
+reduces to. After this chapter you can factorize at sieve speed,
+move safely inside a modulus, choose between stars-and-bars and
+inclusion--exclusion by the shape of the constraint, and spot the
+linear recurrences that exponentiate.
+
+\section{Divisibility and gcd}\label{sec:gcd}\index{Euclidean algorithm}
+The Euclidean algorithm is an invariant machine: $\gcd(a,b)$ equals
+$\gcd(b, a \bmod b)$ because common divisors of the pair are
+unchanged by the reduction. The \emph{extended} version returns
+B\'ezout coefficients --- $x,y$ with $ax+by=\gcd(a,b)$ --- which is
+what makes modular division well-defined.
+\lstinputlisting{code/gcdext.h}
+
+\section{Primes}\label{sec:primes}\index{smallest prime factor}
+The sieve marks every composite by its smallest factor; storing that
+factor per cell gives factorization in $O(\log n)$ per query.
+Trial division to $\sqrt{n}$ suffices for single values.
+\begin{example}[CSES \emph{Counting Divisors}]\label{ex:cdiv}
+Count the divisors of each queried $x$.
+\par\smallskip
+\textbf{Strategy.} SPF table once, then
+$\prod(e_i+1)$ per factorization --- no $\sqrt{x}$ loop per query.
+\par\smallskip
+\begin{solution}
+\lstinputlisting{code/counting_divisors.cpp}
+Real output (CSES sample):
+\begin{lstlisting}[numbers=none]
+5
+2
+6
+\end{lstlisting}
+\end{solution}
+\end{example}
+\begin{figure}[ht]\centering
+\input{figures/fig66-sieve}
+\caption{Sieve marking on $n=30$. Notice each prime marks only its
+own multiples --- the survivors were never touched.}
+\label{fig:sieve}
+\end{figure}
+
+\section{Modular arithmetic}\label{sec:mod}\index{modular inverse}
+Addition, subtraction, multiplication and (with an inverse)
+division all commute with reduction --- so reduce at every step.
+The inverse exists iff $\gcd(a,m)=1$: for prime $m$,
+$a^{-1}=a^{m-2}$ (Fermat); generally, extended gcd returns it.
+\begin{example}[CSES \emph{Exponentiation II}]\label{ex:exp2}
+$a^{b^c} \bmod 10^9{+}7$ for triples.
+\par\smallskip
+\textbf{Strategy.} The exponent itself is huge; Fermat reduces it
+mod $m{-}1$ first (when $\gcd(a,m)=1$), then ordinary binpow.
+\par\smallskip
+\begin{solution}
+\lstinputlisting{code/exponentiation2.cpp}
+Real output (CSES sample):
+\begin{lstlisting}[numbers=none]
+2187
+279632277
+91039580
+\end{lstlisting}
+\end{solution}
+\end{example}
+
+\section{Binary exponentiation}\label{sec:binpow}\index{binpow}
+$a^b$ by squaring: write $b$'s bits, square per position, multiply
+into the answer on set bits --- $O(\log b)$ for exponents that would
+take centuries linearly.
+\begin{figure}[ht]\centering
+\input{figures/fig67-binpow}
+\caption{Squaring tree for $a^{13}$. Notice only $O(\log b)$
+nodes exist --- the exponent halves each level.}
+\label{fig:binpow}
+\end{figure}
+
+\section{The \texttt{modint} struct}\label{sec:modint}\index{modint}
+The class you write once: operators that reduce internally so
+client code reads like ordinary arithmetic. Two silent failures
+live inside: $(a-b)$ without $+m$ goes negative; $a*b$ in
+\texttt{int} overflows 32-bit before the reduction.
+\lstinputlisting{code/modint.h}
+
+\section{Counting}\label{sec:counting}\index{stars and bars}\index{inclusion--exclusion}\index{derangement}\index{Catalan numbers}
+Factorials plus inverse factorials give $\binom{n}{k} \bmod p$ in
+$O(1)$ after $O(n)$ precompute. Stars and bars counts weak
+compositions; inclusion--exclusion counts with forbidden events;
+derangements and Catalan each reduce to named formulas.
+\begin{example}[CSES \emph{Binomial Coefficients}]\label{ex:bincoef}
+$\binom{a}{b} \bmod 10^9{+}7$ for up to $10^5$ queries.
+\par\smallskip
+\textbf{Strategy.} Precompute $f[n]=n!$ and $fi[n]=(n!)^{-1}$ once;
+each query is three multiplications.
+\par\smallskip
+\begin{solution}
+\lstinputlisting{code/binomial_coefficients.cpp}
+Real output (CSES sample):
+\begin{lstlisting}[numbers=none]
+10
+846527861
+31465
+\end{lstlisting}
+\end{solution}
+\end{example}
+\begin{example}[CSES \emph{Distributing Apples}]\label{ex:apples}
+Distribute $n$ identical apples among $m$ children.
+\par\smallskip
+\textbf{Strategy.} Lay the apples in a row and insert $m{-}1$
+walls: each string of $n{+}m{-}1$ symbols is a distribution ---
+$\binom{n+m-1}{m-1}$.
+\par\smallskip
+\begin{solution}
+\lstinputlisting{code/distributing_apples.cpp}
+Real output (CSES sample):
+\begin{lstlisting}[numbers=none]
+15
+\end{lstlisting}
+\end{solution}
+\end{example}
+\begin{figure}[ht]\centering
+\input{figures/fig68-starsbars}
+\caption{The walls/children mapping. Notice the model works because
+child-$i$'s count is just the run between walls --- no arithmetic
+needed at all.}
+\label{fig:starsbars}
+\end{figure}
+\begin{example}[CSES \emph{Christmas Party}]\label{ex:christmas}
+Derangements of $n$ guests.
+\par\smallskip
+\textbf{Strategy.} Inclusion--exclusion over the ``fixed'' events,
+or the equivalent recurrence
+$D_n=(n-1)(D_{n-1}+D_{n-2})$ --- guest 1 picks a seat, and whether
+that seat's owner lands in seat 1 splits the cases.
+\par\smallskip
+\begin{solution}
+\lstinputlisting{code/christmas_party.cpp}
+Real output (CSES sample):
+\begin{lstlisting}[numbers=none]
+9
+\end{lstlisting}
+\end{solution}
+\end{example}
+\begin{figure}[ht]\centering
+\input{figures/fig69-venn}
+\caption{Inclusion--exclusion for three ``fixed'' events. Notice
+the alternating signs repair the double and triple counting in
+stages.}
+\label{fig:venn}
+\end{figure}
+\begin{figure}[ht]\centering
+\input{figures/fig70-ballot}
+\caption{The ballot/reflection picture for Catalan counting.
+Notice the diagonal is the legality boundary --- crossing it
+identifies the bad paths that get reflected out.}
+\label{fig:ballot}
+\end{figure}
+
+\section{Linear recurrences}\label{sec:matpow}\index{matrix exponentiation}
+A linear recurrence is a matrix: $v_{n+1}=Mv_n$. Then $v_n=M^n v_0$
+and binpow-on-matrices gives the $n$-th term in $O(\log n)$ ---
+Fibonacci is the worked pattern, the same shape carries any
+constant-coefficient recurrence.
+\begin{example}[CSES \emph{Fibonacci Numbers}]\label{ex:fib}
+$F_n \bmod 10^9{+}7$ for $n$ up to $10^{18}$.
+\par\smallskip
+\textbf{Strategy.} $M=\begin{pmatrix}1&1\\1&0\end{pmatrix}$ maps
+$(F_k,F_{k-1})$ to $(F_{k+1},F_k)$; $F_n$ is the off-diagonal of
+$M^n$.
+\par\smallskip
+\begin{solution}
+\lstinputlisting{code/fibonacci.cpp}
+Real output (CSES sample):
+\begin{lstlisting}[numbers=none]
+55
+\end{lstlisting}
+\end{solution}
+\end{example}
+\begin{figure}[ht]\centering
+\input{figures/fig71-matpow}
+\caption{Matrix power. Notice we exponentiate the \emph{transition}
+--- the state vector rides along for free.}
+\label{fig:matpow}
+\end{figure}
+
+\begin{exercise}[medium]\label{exr:ext}
+Given $ax+by=\gcd(a,b)$, express Bézout coefficients for $(b, a\bmod b)$
+in terms of those for $(a,b)$ --- derive the two-line update.
+\end{exercise}
+\begin{exercise}[easy]\label{exr:primeinv}
+Why does $a^{-1}\bmod m$ need $\gcd(a,m)=1$? Show what breaks
+for $m$ composite and $a\mid m$.
+\end{exercise}
+\begin{exercise}[medium]\label{exr:model}
+A problem asks for ordered $m$-tuples of nonnegative integers
+summing to $n$. Which counting model applies, and what would
+``at least one'' do to it?
+\end{exercise}
+\begin{exercise}[medium]\label{exr:matdim}
+For $v_{n+1}=pv_{n}+qv_{n-1}+r$, write the transition matrix and
+argue its dimension must be $3\times3$ --- what rides in the third slot?
+\end{exercise}
+
+\section{Chapter summary}
+\begin{table}[ht]\centering
+{\small
+\begin{tabularx}{\linewidth}{@{}lYYY@{}}
+\toprule
+\tablehead\thead{Need} & \thead{Tool} & \thead{Cost} & \thead{Trap}\\
+\midrule
+gcd, inverse & ext.\ Euclid & $\log$ & sign on $(x,y)$\\
+factorize & SPF sieve & $\log n$ & sieve bound\\
+$a^b$ huge & binpow & $\log b$ & Fermat for exp-exp\\
+all mod work & modint & native & neg.\ values, overflow\\
+$n \choose k$ & fact$+$inv & $O(1)$ q & $p$ prime\\
+weak comps.\ & stars-bars & formula & distinct $\ne$ identical\\
+forbidden set & incl.--excl. & $2^k$ terms & signs alternate\\
+linear recur.\ & matpow & $\log n$ & carry constants\\
+\bottomrule
+\end{tabularx}}
+\caption{The problem's constraint names the model; the model names
+the formula.}
+\label{tab:ntcomb}
+\end{table}
+
+\section{Common mistakes}
+\index{common mistakes}
+\begin{itemize}
+\item \textbf{Reducing the wrong exponent.} $a^{b^c}$ needs the
+exponent reduced mod $m{-}1$, not mod $m$ --- the classic Exp-II
+WA.
+\item \textbf{Negative residues.} $(a-b)\,\%\,m$ can be negative in
+C++; always add $m$ back before the final reduction.
+\item \textbf{Inverse without coprimality.} Division $\bmod\ m$
+silently fails when $\gcd(a,m)>1$ --- check before Fermat.
+\item \textbf{Distinct vs identical objects.} Stars-and-bars counts
+\emph{identical} objects; applying it to distinct objects misses the
+permutations.
+\item \textbf{Matrix dimension too small.} A recurrence with a
+constant term needs the constant carried as an extra slot ---
+$M^n v_0$ can't manufacture it.
+\end{itemize}
+
+\section{Additional exercises}
+\begin{exercise}[easy] CSES \emph{Exponentiation}. \end{exercise}
+\begin{exercise}[easy] CSES \emph{Counting Divisors}. \end{exercise}
+\begin{exercise}[easy] CSES \emph{Common Divisors}. \end{exercise}
+\begin{exercise}[easy] CSES \emph{Throwing Dice}. \end{exercise}
+\begin{exercise}[medium] CSES \emph{Exponentiation II}. \end{exercise}
+\begin{exercise}[medium] CSES \emph{Sum of Divisors}. \end{exercise}
+\begin{exercise}[medium] CSES \emph{Binomial Coefficients}. \end{exercise}
+\begin{exercise}[medium] CSES \emph{Distributing Apples}. \end{exercise}
+\begin{exercise}[medium] CSES \emph{Creating Strings II}. \end{exercise}
+\begin{exercise}[medium] CSES \emph{Permutation Rounds}. \end{exercise}
+\begin{exercise}[medium] CSES \emph{Fibonacci Numbers}. \end{exercise}
+\begin{exercise}[hard] CSES \emph{Prime Multiples} --- inclusion--exclusion. \end{exercise}
+\begin{exercise}[hard] CSES \emph{Counting Coprime Pairs} --- M\"obius. \end{exercise}
+\begin{exercise}[hard] CSES \emph{Christmas Party}. \end{exercise}
+\begin{exercise}[hard] CSES \emph{Bracket Sequences I} --- Catalan. \end{exercise}
+\begin{exercise}[hard] CSES \emph{Divisor Analysis}. \end{exercise}
+\begin{exercise}[hard] CSES \emph{Graph Paths I/II} --- matpow on graphs. \end{exercise}
+
+\chapternotes
+
+\section*{Further reading}
+\begin{itemize}
+\item A.~Laaksonen, \emph{Competitive Programmer's Handbook}
+(2017--2024), \url{https://cses.fi/book/book.pdf} --- free PDF;
+the number-theory chapters this chapter is pitched from.
+\item J.~Sannemo, \emph{Principles of Algorithmic Problem Solving}
+(2025), \url{https://usaco.guide/PAPS1.pdf} --- free PDF; deeper
+proofs for sieve bounds and modular machinery.
+\item cp-algorithms, \emph{Algebra} and \emph{Combinatorics}
+sections, \url{https://cp-algorithms.com/} --- the reference for
+SPF variants, M"obius, and every named counting formula.
+\item The USACO Guide, \emph{modular}, \emph{divisibility}, and
+\emph{combo} modules, \url{https://usaco.guide/} --- the problem
+lists this chapter's exercises were drawn from.
+\item S.~Halim, F.~Halim, S.~Effendy, \emph{Competitive
+Programming 4} (2020), \url{https://cpbook.net/} --- the widest
+taxonomy of contest number theory and counting problems.
+\item MIT OpenCourseWare, \emph{6.042J Mathematics for Computer
+Science} (Fall 2010) --- the undergraduate course behind the
+Watch picks below: \url{https://ocw.mit.edu/} (course 6.042J).
+\item E.~W.~Weisstein (ed.), \emph{MathWorld},
+\url{https://mathworld.wolfram.com/} --- formula lookup:
+derangements, Catalan numbers, stars and bars, all with references.
+\end{itemize}
+
+\begin{rulebox}[Watch instead]
+\begin{itemize}
+\item \textbf{MIT OpenCourseWare --- ``Lec 4: Number Theory I''
+(6.042J, Fall 2010)}, Marten van Dijk, 1h20m,
+\url{https://www.youtube.com/watch?v=NuY7szYSXSw} --- covers
+\S14.1--14.3: Euclid, gcd invariants, modular arithmetic.
+(Verified 2026-10-11.)
+\item \textbf{MIT OpenCourseWare --- ``Lec 16: Counting Rules I''
+(6.042J, Fall 2010)}, Marten van Dijk, 1h20m,
+\url{https://www.youtube.com/watch?v=pNt5Ll6hGqo} --- covers
+\S14.6: bijection, product and sum rules behind stars-and-bars.
+(Verified 2026-10-11.)
+\item \textbf{Khan Academy --- ``Journey into Cryptography''
+playlist}, Brit Cruise, short-clip playlist (segments
+$\sim$10 min each),
+\url{https://www.youtube.com/playlist?list=PLSQl0a2vh4HA50QhFIirlEZRXG4yjcoGM}
+--- covers \S14.3: modular arithmetic through Fermat's little
+theorem, the friendliest first pass. (Verified 2026-10-11.)
+\end{itemize}
+\emph{Notation note:} OCW writes $a \mid b$ and $\gcd$ as the
+book does; Khan uses ``mod'' infix notation --- same semantics.
+\end{rulebox}
+The Euclidean and extended algorithms, sieve + SPF factorization,
+and binary exponentiation follow Laaksonen~\cite{laaksonen2024} and
+Sannemo~\cite{sannemo2025}; modular inverse, stars-and-bars,
+derangement and Catalan treatments track cp-algorithms and the
+USACO Guide~\cite{cpalgorithms,usacoguide}; counting-model choice
+and the problem-band split follow Halim~\cite{halimcp4}; archive
+problems are official CSES~\cite{cses}.
