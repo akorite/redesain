@@ -57,3 +57,8 @@ Pending a GitHub PAT: issue creation (pinned "Status" issue + `needs-user` label
 - Coordinator fixes: align=center on 29 figure nodes with \\ labels (LR-mode); ch03-tromino literal # in \foreach (restricted-mode). Verified in clean rebuild.
 - cp review-log from book2 committed to book1-cp/docs (ch16/17 rows STILL absent — re-requested with dedicated pkg).
 - Page ledger: cp 200, disc 179, linalg 190, elec 153, ml writing, quant/systems/physics pending slots.
+
+## 2026-10-11 — PR#6 merged; book1-cp TAGGED v0.1
+- book2 delivered cp ch16/17 reviews: ch17 ACCEPTED outright; ch16 REVISE→one verbatim URL fix (nearest-points→nearest_points, curl 200)→RESOLVED→ACCEPTED. All 18 cp chapters now have logged independent reviews.
+- book1-cp v0.1 tagged (18ch, 200pp, 0 err/undef). Tag `book1-cp-v0.1` pushed to origin.
+- Still owed: cp depth-passed ch01-13 re-review (book2 queue), disc depth re-review ch01-17 (reviewer TBD), linalg depth retrofit (book1 working ch01-04), elec ch14-19 (elec-0006 working), ml writing (ml-f668 working), physics/quant/systems awaiting slots.
