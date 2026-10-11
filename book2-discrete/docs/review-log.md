@@ -24,3 +24,21 @@
 | ch15 depth-pass re-review | book2 session | book1 session | RESOLVED 2026-10-11 — REVISE: 2 overfulls (Hammack 21.9pt, AoPS 29.1pt) → verbatim fixes applied, rebuild-verified. Content clean: in/excenter lemma, power-of-point CD=10, Ceva/Menelaus signs, nine-point homothety re-derived; 5WE/8fig/21ex/6FR/2Watch | |
 | ch16 depth-pass re-review | book2 session | book1 session | REVISE 2026-10-11 — 1 MATH BLOCKER OPEN: "Closest pair as a proof device" WE false (R,P,Q collinear order R,P,Q with PR>PQ gives no contradiction; all-collinear sets break the claim). Fix routed to author: restate as Sylvester–Gallai (n≥3 not-all-collinear ⇒ some line through exactly two), prove via minimal point-line distance argument; weaker fallback = closest-pair segment contains no other point. nit OPEN: exr iv2 garbled "knight move's complement story" → clarify/drop. Other WEs (chocolate-bar, difference-reduction, domino, pairing) re-derived correct | |
 | ch17 depth-pass re-review | book2 session | book1 session | RESOLVED 2026-10-11 — REVISE: (i) Hammack overfull verbatim-fixed; (ii) test_17_portfolio.sh cwd bug (cd code/ broke glob) → fixed to repo-root invocation, now PASS. triage/budget/autopsy/check-loop WEs correct; 5WE/6fig/18ex/6FR/2Watch; portfolio_check pasted output byte-matches root-cwd run | |
+| ch01 Logic and quantifiers | book2 | elec session | PASS 2026-10-11 — links 8/8 live, math sampled clean | |
+| ch02 How to write a proof | book2 | elec session | PASS 2026-10-11 — links 7/7 live (1 playlist), math sampled clean | |
+| ch03 Induction | book2 | elec session | PASS 2026-10-11 — links live, math sampled clean | |
+| ch04 Sets, relations and functions | book2 | elec session | PASS 2026-10-11 — links live, math sampled clean | |
+| ch05 Divisibility and primes | book2 | elec session | PASS 2026-10-11 — links live, σ(945) verified | |
+| ch06 Modular arithmetic | book2 | elec session | PASS 2026-10-11 — links live, mod-24 roots verified | |
+| ch07 CRT and Fermat–Euler | book2 | elec session | PASS 2026-10-11 — links live, ord|φ verified | |
+| ch08 Counting principles | book2 | elec session | PASS 2026-10-11 — links live, group-count + binomial sums verified | |
+| ch09 Inclusion–exclusion and GFs | book2 | elec session | PASS 2026-10-11 — links live, GF + derangement limit verified | |
+| ch10 Recurrences | book2 | elec session | PASS 2026-10-11 — links live, recursion-tree result verified | |
+| ch11 Graphs, trees and planarity | book2 | elec session | PASS 2026-10-11 — links live, Euler-formula claim verified | |
+| ch12 Probability on finite spaces | book2 | elec session | PASS 2026-10-11 — links live, linearity expectation verified | |
+| ch13 Inequalities | book2 | elec session | PASS 2026-10-11 — links live, AM–GM trap exercise verified | |
+| ch14 Functional equations | book2 | elec session | PASS 2026-10-11 — links live, f∘f=−id verified | |
+| ch15 Olympiad geometry | book2 | elec session | PASS 2026-10-11 — links live, power-of-point computation verified | |
+| ch16 Invariants and extremal arguments | book2 | elec session | PASS 2026-10-11 — links live, open-ended invariant exercise sound | |
+| ch17 Four-hour exam and portfolio | book2 | elec session | PASS 2026-10-11 — links live, protocol exercise sound | |
+# Depth-pass re-review (independent, elec session) — 2026-10-11: all 17 chapters PASS. Scope: new depth content only (FR links curl-checked 89/89 live, watch oembed-verified, 34 new exercises/WEs math-verified). Cosmetic notes: 8 chapters cite a playlist as 2nd watch item; FR counts 4-8 vs progress-table uniform 6. Full findings: PR attachments / disc-findings-2026-10-11.md.
