@@ -1,0 +1,12 @@
+components to reach:
+  50% of variance:  5 of 64
+  80% of variance: 13 of 64
+  90% of variance: 21 of 64
+  95% of variance: 29 of 64
+  99% of variance: 41 of 64
+k=10: squared-error share 0.079
+k=30: squared-error share 0.009
+k=60: squared-error share 0.000
+
+(each extra component is the SVD's next singular vector --
+ no gradients, no k-means, just linear algebra you already have.)

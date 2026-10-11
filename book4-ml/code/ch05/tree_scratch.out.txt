@@ -1,0 +1,18 @@
+if color_intensity <= 3.800   (gain 0.2554)
+  if od280/od315_of_diluted_wines <= 3.640   (gain 0.0750)
+    if proline <= 985.000   (gain 0.0416)
+      predict class 1 (n=46)
+    else
+      predict class 0 (n=1)
+  else
+    predict class 0 (n=2)
+else
+  if flavanoids <= 1.570   (gain 0.4288)
+    predict class 2 (n=36)
+  else
+    if proline <= 714.000   (gain 0.2127)
+      predict class 1 (n=8)
+    else
+      predict class 0 (n=40)
+
+depth-3 scratch tree: train acc 0.992  test acc 0.956

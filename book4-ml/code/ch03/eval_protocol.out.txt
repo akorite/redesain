@@ -1,0 +1,10 @@
+split: 455 train / 114 test (positive rate 0.626 both folds)
+[[ 41   1]
+ [  4  68]]
+accuracy  0.956
+precision 0.986   (of predicted-positive, how many truly are)
+recall    0.944   (of truly-positive, how many we caught)
+F1        0.965
+
+lazy 'all benign' baseline accuracy: 0.632
+F1 is the honest metric here -- a cancer missed is not a tie.

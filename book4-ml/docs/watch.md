@@ -1,0 +1,39 @@
+# Watch list — Book 4 (textbook-ml)
+
+Videos verified by actually opening each page (title, channel, duration, section match).
+Access dates are UTC. Re-check all links at release (link-rot pass, decision 4).
+
+| Ch | Video | Channel | Duration | Sections | Accessed | Best first? |
+|---|---|---|---|---|---|---|
+| 1 | Vectors \| Chapter 1, Essence of linear algebra — https://www.youtube.com/watch?v=fNk_zzaMoSs | 3Blue1Brown | 9:51 | 1.1–1.2 (vector as ordered list of numbers = our x_i) | 2026-10-11 | yes |
+| 1 | Machine Learning Fundamentals: Cross Validation — https://www.youtube.com/watch?v=fSytzGwwBVw | StatQuest with Josh Starmer | 6:04 | 1.5–1.6 (why split; previews ch3 protocol) | 2026-10-11 | |
+| 1 | Lecture 2 \| Image Classification — https://www.youtube.com/watch?v=OoUX-nOEjG0 | Stanford University School of Engineering (CS231n) | 59:31 | 1.3–1.6 (data-driven pipeline, distance classifier, train/val/test) | 2026-10-11 | |
+| ML | Ch 2 | Lea Gaslowitz / TED-Ed — "How to spot a misleading graph" (4:09) | https://www.youtube.com/watch?v=E91bGT9BjYk | oEmbed title+channel verified; approxDurationMs 249624 (4:09) | §2.4 honest axes, §2.7 common mistakes | axis-crime catalogue, animated |
+| ML | Ch 2 | Corey Schafer — "Python Pandas Tutorial (Part 1): Getting Started with Data Analysis" (23:01) | https://www.youtube.com/watch?v=ZyhVh-qRZPA | oEmbed title+channel verified; approxDurationMs 1380466 (23:01) | §2.1 DataFrame, §2.2 groupby | Jupyter-flavoured; pandas identical |
+| ML | Ch 2 | Corey Schafer — "Matplotlib Tutorial (Part 1): Creating and Customizing Our First Plots" (35:01) | https://www.youtube.com/watch?v=UO98lJQ3QGI | oEmbed title+channel verified; approxDurationMs 2100633 (35:01) | §2.4 matplotlib mechanics | uses plt.* implicit API; book translates to ax.* |
+| ML | Ch 3 | StatQuest (Josh Starmer) — "Machine Learning Fundamentals: The Confusion Matrix" (7:12) | https://www.youtube.com/watch?v=Kdsp6soqA7o | oEmbed title+channel verified; approxDurationMs 432198 (7:12) | §3.7 confusion quartet | same row/col convention as the chapter figure |
+| ML | Ch 3 | StatQuest (Josh Starmer) — "Machine Learning Fundamentals: Cross Validation" (6:04) | https://www.youtube.com/watch?v=fSytzGwwBVw | oEmbed title+channel verified; approxDurationMs 364063 (6:04) | §3.5 k-fold CV | fold diagrams match the protocol taught |
+| ML | Ch 3 | StatQuest (Josh Starmer) — "ROC and AUC, Clearly Explained!" (16:17) | https://www.youtube.com/watch?v=4jRBRDbJemM | oEmbed title+channel verified; approxDurationMs 976743 (16:17) | §3.7 ROC construction | threshold-sweep matches the chapter figure pair |
+| ML | Ch 4 | StatQuest (Josh Starmer) — "Regularization Part 1: Ridge (L2) Regression" (20:26) | https://www.youtube.com/watch?v=Q81RR3yKn30 | oEmbed title+channel verified; approxDurationMs 1226224 (20:26) | §4.2 ridge | desensitisation story matches WE 4.1 |
+| ML | Ch 4 | StatQuest (Josh Starmer) — "Regularization Part 2: Lasso (L1) Regression" (8:19) | https://www.youtube.com/watch?v=NGf0voTMlcs | oEmbed title+channel verified; approxDurationMs 498765 (8:19) | §4.3 lasso | contrast half of the ridge/lasso pair |
+| ML | Ch 4 | StatQuest (Josh Starmer) — "StatQuest: Logistic Regression" (8:47) | https://www.youtube.com/watch?v=yIYKR4sgzI8 | oEmbed title+channel verified; approxDurationMs 527193 (8:47) | §4.4 sigmoid + NLL | likelihood framing matches the derivation |
+| ML | Ch 5 | StatQuest (Josh Starmer) — "Decision and Classification Trees, Clearly Explained!!!" (18:08) | https://www.youtube.com/watch?v=_L39rN6gz7Y | oEmbed title+channel verified; approxDurationMs 1087920 (18:08) | §5.2 Gini/IG | walkthrough matches WE 5.1 arithmetic |
+| ML | Ch 5 | StatQuest (Josh Starmer) — "Random Forests Part 1: Building, Using and Evaluating" (9:54) | https://www.youtube.com/watch?v=J4Wdy0Wc_xQ | oEmbed title+channel verified; approxDurationMs 593626 (9:54) | §5.4 bagging | bootstrap/OOB intuition |
+| ML | Ch 5 | StatQuest (Josh Starmer) — "Gradient Boost Part 1: Regression Main Ideas" (15:52) | https://www.youtube.com/watch?v=3CC4N4z3GJc | oEmbed title+channel verified; approxDurationMs 951909 (15:52) | §5.5 residual fitting | stage-by-stage matches boost_seq figure |
+| ML | Ch 6 | StatQuest (Josh Starmer) — "Principal Component Analysis (PCA), Step-by-Step" (21:57) | https://www.youtube.com/watch?v=FgakZw6K1QQ | oEmbed title+channel verified; approxDurationMs 1317349 (21:57) | §6.4 SVD/variance | same derivation as listing |
+| ML | Ch 6 | StatQuest (Josh Starmer) — "StatQuest: t-SNE, Clearly Explained" (11:47) | https://www.youtube.com/watch?v=NEaUSP4YerM | oEmbed title+channel verified; approxDurationMs 707273 (11:47) | §6.5 embeddings | perplexity discussion matches |
+| ML | Ch 6 | StatQuest (Josh Starmer) — "StatQuest: K-means clustering" (8:30) | https://www.youtube.com/watch?v=4b5d3muPQmA | oEmbed title+channel verified; approxDurationMs 509942 (8:30) | §6.2 Lloyd | assignment/update loop matches |
+| ML | Ch 7 | 3Blue1Brown — "But what is a neural network? | Deep learning chapter 1" (18:39) | https://www.youtube.com/watch?v=aircAruvnKk | oEmbed title+channel verified; approxDurationMs 1119000 (18:39) | §7.1–7.2 stacked maps/activations | visual intro |
+| ML | Ch 7 | 3Blue1Brown — "Backpropagation, intuitively | Deep Learning Chapter 3" (12:46) | https://www.youtube.com/watch?v=Ilg3gGewQ5U | oEmbed title+channel verified; approxDurationMs 766000 (12:46) | §7.3 computation graph | matches fig |
+| ML | Ch 7 | 3Blue1Brown — "Backpropagation calculus | Deep Learning Chapter 4" (10:17) | https://www.youtube.com/watch?v=tIeHLnjs5U8 | oEmbed title+channel verified; approxDurationMs 617000 (10:17) | §7.4 by-hand pass | same algebra |
+| ML | Ch 8 | StatQuest (Josh Starmer) — "Gradient Descent, Step-by-Step" (23:54) | https://www.youtube.com/watch?v=sDv4f4s2SB8 | oEmbed title+channel verified; approxDurationMs 1434000 (23:54) | §8.1–8.2 GD/SGD | full derivation |
+| ML | Ch 8 | StatQuest (Josh Starmer) — "Stochastic Gradient Descent, Clearly Explained!!!" (10:53) | https://www.youtube.com/watch?v=vMh0zPT0tLI | oEmbed title+channel verified; approxDurationMs 653000 (10:53) | §8.1 minibatch | noise-as-feature |
+| ML | Ch 8 | 3Blue1Brown — "Gradient descent, how neural networks learn | Deep Learning Chapter 2" (20:33) | https://www.youtube.com/watch?v=IHZwWFHWa-w | oEmbed title+channel verified; approxDurationMs 1233000 (20:33) | whole chapter | visual framing |
+| ML | Ch 9 | 3Blue1Brown — "But what is a convolution?" (23:00) | https://www.youtube.com/watch?v=KuXjwB4LzSA | oEmbed title+channel verified; approxDurationMs 1380933 (23:00) | §9.2 conv | dice-to-images same op |
+| ML | Ch 9 | Stanford School of Engineering — "Lecture 5 | Convolutional Neural Networks" (68:56) | https://www.youtube.com/watch?v=bNb2fEVKeEo | oEmbed title+channel verified; approxDurationMs 4136000 (68:56) | §9.1–9.5 | official CS231n |
+| ch10 | Long Short-Term Memory (LSTM), Clearly Explained | StatQuest | 20:45 | https://www.youtube.com/watch?v=YCzL96nL7j0 | LSTM gates section | 2026-10-11 |
+| ch10 | CS231n Lecture 10: Recurrent Neural Networks | Andrej Karpathy (Stanford) | 69:54 | https://www.youtube.com/watch?v=yCC09vCHzF8 | RNN/BPTT/char-LM | 2026-10-11 |
+| ch10 | The spelled-out intro to neural networks and backpropagation | Andrej Karpathy | 145:52 | https://www.youtube.com/watch?v=VMj-3S1tku0 | BPTT from scratch | 2026-10-11 |
+| ch11 | Attention in transformers, step-by-step | 3Blue1Brown | 26:09 | https://www.youtube.com/watch?v=eMlx5fFNoYc | SDPA + positional sections | 2026-10-11 |
+| ch11 | Transformer Neural Networks, ChatGPT's foundation, Clearly Explained | StatQuest | 36:15 | https://www.youtube.com/watch?v=zxQyTK8quyY | full block | 2026-10-11 |
+| ch11 | Let's build GPT: from scratch, in code, spelled out | Andrej Karpathy | 116:20 | https://www.youtube.com/watch?v=kCc8FmEb1nY | mini-GPT section | 2026-10-11 |

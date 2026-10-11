@@ -1,0 +1,6 @@
+X: 10000 x 4 float64   (pairwise row uses first 2000 rows; median of warm runs)
+operation                        python loop np call/row  vectorised  slowest/vec
+row scores X @ w                      0.0029      0.0037     0.00002         165x
+row distances to mean                 0.0054          --     0.00009          62x
+pairwise 2000x2000                    1.6407          --     0.05148          32x
+same answer: True True True True

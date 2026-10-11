@@ -1,22 +1,34 @@
 \documentclass[11pt,a4paper,twoside,openany]{book}
 \usepackage{lifeos}
 \usepackage{pgfplots}\pgfplotsset{compat=1.17}
+\usetikzlibrary{positioning}
 \usepackage{circuitikz}
 \usepackage{graphicx}
+\usepackage{xurl}
 \usepackage[font=small,labelfont=bf]{caption}
 \usepackage{subcaption}
 \usepackage{makeidx}\makeindex
-\setlifeostitle{BOOK TITLE}
+\setlifeostitle{Machine learning}
 \setcounter{tocdepth}{1}
 
 \begin{document}
 \frontmatter
 \pagestyle{empty}
-\makecover{BOOK TITLE}{Subtitle}{Study textbook}
+\makecover{Machine learning}{From data matrices to deployed models}{Study textbook}
 \newpage\pagestyle{fancy}
 \tableofcontents
 \mainmatter
-\input{ch01-smoke}
+\input{ch01-ml}
+\input{ch02-ml}
+\input{ch03-ml}
+\input{ch04-ml}
+\input{ch05-ml}
+\input{ch06-ml}
+\input{ch07-ml}
+\input{ch08-ml}
+\input{ch09-ml}
+\input{ch10-ml}
+\input{ch11-ml}
 \backmatter
 \input{bib}
 \printindex
