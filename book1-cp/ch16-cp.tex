@@ -1,0 +1,394 @@
+\chapter{Geometry basics}\label{ch:geom}
+\index{geometry}\index{cross product}\index{convex hull}\index{Pick's theorem}\index{orientation test}\index{shoelace formula}
+
+Contest geometry earns its reputation for fragility almost entirely
+through one avoidable choice: writing \texttt{double} where an
+integer would do. This chapter is the disciplined alternative.
+After it you can run every standard test --- orientation, segment
+intersection, point-in-polygon, convex hull, polygon area, lattice
+points, closest pair --- on exact integer arithmetic, and you will
+know which two or three degenerate cases actually decide whether
+your code gets accepted.
+
+\emph{This chapter is optional for the core route; it is the
+foundation for USACO Gold geometry and a handful of CF
+1600--2100 problems.}
+
+\section{The integer-only rule}\label{sec:intonly}
+\index{integer geometry}\index{floating point!avoiding}
+Input coordinates are integers, and nearly every geometric
+predicate you need is a polynomial in them: orientation is a
+quadratic form, containment a parity count, area a sum of
+products. Doubles enter only if the \emph{answer} is real-valued
+--- and even then, ``squared distance'' usually compares just as
+well. The rule: \textbf{never compare two doubles for equality;
+prefer an exact integer test and reach for \texttt{double} only
+when printing a real number}. An \texttt{eps} band fixes nothing
+--- it merely moves the failure to coordinates one order of
+magnitude larger.
+
+\begin{principle}\label{prin:geom}
+Every primitive in \texttt{code/geom.h} returns an exact integer
+or a fraction pair. If a comparison feels like it wants
+\texttt{abs(a-b)<eps}, it almost always wants a cross product
+instead.
+\end{principle}
+
+\section{Points, vectors, orientation}\label{sec:orient}
+\index{orientation test}\index{cross product}
+The workhorse is the 2D \emph{cross product}: for vectors
+$\vec u=(u_x,u_y)$, $\vec v=(v_x,v_y)$,
+\[
+\vec u\times\vec v \;=\; u_x v_y-u_y v_x,
+\]
+the signed area of the parallelogram they span
+(Figure~\ref{fig:orient}). Its sign is the \emph{orientation
+test}: anchored at a common tail $o$,
+$\texttt{orient}(o,a,b)=\texttt{cross}(a-o,\,b-o)$ is positive
+when $b$ lies to the left of ray $o\to a$, negative to the right,
+zero collinear. One determinant answers ``left, right, or on the
+line'' --- the three-way predicate every later primitive builds
+on.
+\begin{figure}[ht]\centering
+\input{figures/fig78-orient}
+\caption{The cross product as signed parallelogram area. Notice
+the sign is the orientation test itself: swapping operands flips
+it, which is why anchor order matters.}
+\label{fig:orient}
+\end{figure}
+\lstinputlisting[linerange={11-25}]{code/geom.h}
+
+\begin{example}[CSES \emph{Point Location Test}]\label{ex:loc}
+For $t$ queries of three points $p,q,r$, print whether $r$ is
+LEFT of, RIGHT of, or TOUCHing line $p\to q$.
+\par\smallskip
+\textbf{Strategy.} One orientation call per query; the sign of
+$\texttt{orient}(p,q,r)$ \emph{is} the answer.
+\par\smallskip
+\begin{solution}
+\lstinputlisting{code/point_location.cpp}
+Real output (CSES sample):
+\begin{lstlisting}[numbers=none]
+LEFT
+RIGHT
+TOUCH
+\end{lstlisting}
+\end{solution}
+\end{example}
+\begin{exercise}[easy]\label{exr:signflip}
+Show $\texttt{orient}(o,a,b)=-\texttt{orient}(o,b,a)$ from the
+determinant. Which order does your library use, and where would
+a flipped sign hide in a hull?
+\end{exercise}
+
+\section{Segment intersection}\label{sec:segint}
+\index{segment intersection}
+Two segments $ab$, $cd$ intersect exactly when $c$ and $d$ lie on
+\emph{opposite sides} of line $ab$ \emph{and} $a,b$ lie on
+opposite sides of line $cd$ --- two orientation tests each way.
+But four touching cases matter just as much: endpoint touching,
+collinear overlap, an endpoint \emph{on} the other segment, and
+the collinear-but-disjoint miss. Handle every zero-orientation
+case \emph{before} the strict sign test
+(Figure~\ref{fig:segint}).
+\begin{figure}[ht]\centering
+\input{figures/fig79-segint}
+\caption{The four verdicts. Notice ``touch'' and ``overlap'' are
+both YES for CSES --- the sign test alone sees neither, because
+a zero kills the strict comparison.}
+\label{fig:segint}
+\end{figure}
+\lstinputlisting[linerange={27-38}]{code/geom.h}
+\begin{example}[CSES \emph{Line Segment Intersection}]\label{ex:seg}
+$t$ queries of two segments; print YES iff they intersect
+(touching counts).
+\par\smallskip
+\textbf{Strategy.} Four orientation calls; test the
+endpoint-on-segment cases first, bail on any remaining zero,
+then compare signs both ways.
+\par\smallskip
+\begin{solution}
+\lstinputlisting{code/line_seg_int.cpp}
+Real output (CSES sample):
+\begin{lstlisting}[numbers=none]
+NO
+YES
+YES
+YES
+YES
+\end{lstlisting}
+\end{solution}
+\end{example}
+\begin{exercise}[easy]\label{exr:cases}
+The sample contains an endpoint touch and a collinear overlap.
+Identify which lines they are, and argue why the strict sign
+test alone returns NO for each.
+\end{exercise}
+
+\section{Convex hull}\label{sec:hull}
+\index{convex hull}\index{monotone chain}
+The \emph{convex hull} of a point set is the smallest convex
+polygon containing it --- the rubber band around pegs. Andrew's
+\emph{monotone chain} builds it in $O(n\log n)$ with no angle
+sort: sort by $(x,y)$, sweep left-to-right for the lower chain
+and right-to-left for the upper, popping the last vertex
+whenever the new point makes a non-left turn
+(Figure~\ref{fig:hull}).
+\begin{figure}[ht]\centering
+\input{figures/fig80-hullbuild}
+\caption{Monotone chain on the CSES sample. Notice the dashed
+chord: $(3,3)$ and $(4,3)$ never reach the hull --- every pop is
+one orientation test.}
+\label{fig:hull}
+\end{figure}
+The pop condition is the one design decision: pop on
+\texttt{orient < 0} keeps collinear boundary points on the hull
+(CSES wants them); pop on \texttt{orient <= 0} keeps only extreme
+vertices. Read the problem for which hull it defines.
+\lstinputlisting[linerange={76-96}]{code/geom.h}
+\begin{example}[CSES \emph{Convex Hull}]\label{ex:hull}
+Print the hull's vertex count, then its vertices (boundary
+points included).
+\par\smallskip
+\textbf{Strategy.} Sort, two monotone passes with strict
+\texttt{<0} pops so collinear boundary points survive. Any
+cyclic order of the same vertices is accepted.
+\par\smallskip
+\begin{solution}
+\lstinputlisting{code/convex_hull.cpp}
+Real output (CSES sample):
+\begin{lstlisting}[numbers=none]
+4
+2 1
+6 3
+4 4
+2 5
+\end{lstlisting}
+\end{solution}
+\end{example}
+
+\section{Polygon measures: area, lattice points, containment}\label{sec:poly}
+\index{shoelace formula}\index{Pick's theorem}\index{point in polygon}
+The \emph{shoelace} sums cross products of consecutive vertices:
+$\texttt{area2}=\sum_i x_i y_{i+1}-x_{i+1}y_i$, exactly twice the
+signed area --- keep it doubled and integer. \emph{Pick's
+theorem} ties area to the lattice:
+$A = I + B/2 - 1$, where $I$ counts interior lattice points and
+$B$ the boundary ones, and each edge $(d_x,d_y)$ contributes
+$\gcd(|d_x|,|d_y|)$ to $B$ (Figure~\ref{fig:pick}).
+\begin{figure}[ht]\centering
+\input{figures/fig81-pick}
+\caption{Pick's theorem on the CSES sample. Notice $B$ counts
+edge \emph{segments'} interior lattice points too --- the gcd
+adds every lattice step along an edge.}
+\label{fig:pick}
+\end{figure}
+\begin{example}[CSES \emph{Polygon Area}]\label{ex:area}
+Print twice the area of a simple polygon.
+\par\smallskip
+\textbf{Strategy.} Shoelace, take the absolute value.
+\par\smallskip
+\begin{solution}
+\lstinputlisting{code/poly_area.cpp}
+Real output (CSES sample):
+\begin{lstlisting}[numbers=none]
+16
+\end{lstlisting}
+\end{solution}
+\end{example}
+\begin{example}[CSES \emph{Polygon Lattice Points}]\label{ex:pick}
+Print interior then boundary lattice-point counts.
+\par\smallskip
+\textbf{Strategy.} $B$ from the gcd sum; invert Pick:
+$I=(\texttt{area2}-B+2)/2$.
+\par\smallskip
+\begin{solution}
+\lstinputlisting{code/poly_lattice.cpp}
+Real output (CSES sample):
+\begin{lstlisting}[numbers=none]
+6 8
+\end{lstlisting}
+\end{solution}
+\end{example}
+Containment is the \emph{ray-casting parity} test: shoot a
+horizontal ray, count polygon edges it crosses --- odd means
+inside. The half-open rule (count an edge only when exactly one
+endpoint is strictly above the ray) is what stops vertex touches
+from double-counting (Figure~\ref{fig:raycast}); boundary points
+are caught by an explicit on-segment check first.
+\begin{figure}[ht]\centering
+\input{figures/fig82-raycast}
+\caption{Parity ray cast. Notice which edges count: the rule is
+``one endpoint strictly above the ray,'' never both or neither.}
+\label{fig:raycast}
+\end{figure}
+\lstinputlisting[linerange={62-73}]{code/geom.h}
+\begin{example}[CSES \emph{Point in Polygon}]\label{ex:pip}
+$m$ queries against an $n$-gon: INSIDE, OUTSIDE, or BOUNDARY.
+\par\smallskip
+\textbf{Strategy.} On-segment check first, then the parity flip
+per crossing edge.
+\par\smallskip
+\begin{solution}
+\lstinputlisting{code/point_in_poly.cpp}
+Real output (CSES sample):
+\begin{lstlisting}[numbers=none]
+INSIDE
+OUTSIDE
+BOUNDARY
+\end{lstlisting}
+\end{solution}
+\end{example}
+\begin{exercise}[medium]\label{exr:pickinv}
+A lattice polygon has $I=6$, $B=8$. Find $A$ --- then exhibit a
+\emph{different} polygon with the same $(I,B)$ and convince
+yourself Pick still applies.
+\end{exercise}
+
+\section{Distances}\label{sec:dist}
+\index{distance!squared}
+Distances stay squared. $\texttt{dist2}(a,b)$ is exact, ordering
+preserved, and the closest-pair problem wants it anyway.
+Minimum pairwise distance among $n$ points: sort by $x$, divide
+at the middle, recurse, then examine only the strip of width
+$d=\min(d_L,d_R)$ around the cut --- scanning the strip in
+$y$-order touches a constant number of candidates per point, for
+$O(n\log n)$ overall (Figure~\ref{fig:strip}).
+\begin{figure}[ht]\centering
+\input{figures/fig83-strip}
+\caption{Closest pair's merge strip. Notice why $y$-order
+suffices: past a gap of $d$ in $y$ no later point can improve
+$d$.}
+\label{fig:strip}
+\end{figure}
+\begin{example}[CSES \emph{Minimum Euclidean Distance}]\label{ex:mindist}
+Print the smallest squared distance between two of $n$ points,
+$n\le 2\cdot10^5$.
+\par\smallskip
+\textbf{Strategy.} Divide and conquer; never a square root ---
+the output is $d^2$.
+\par\smallskip
+\begin{solution}
+\lstinputlisting{code/min_dist.cpp}
+Real output (CSES sample):
+\begin{lstlisting}[numbers=none]
+2
+\end{lstlisting}
+\end{solution}
+\end{example}
+\begin{exercise}[medium]\label{exr:strip}
+Why is a constant-size inner scan correct? Bound the number of
+strip points inside a $d\times d$ box when every pair in a half
+is at least $d$ apart.
+\end{exercise}
+
+\section{Common mistakes}
+\index{common mistakes}
+\begin{itemize}
+\item \textbf{Epsilon equality.} \texttt{abs(a-b)<eps} is not an
+integer test; it fails silently one magnitude up. Use cross
+products.
+\item \textbf{Sign-first segment intersection.} The strict
+double-orientation test misses every touching case --- endpoint
+touch, collinear overlap --- which CSES counts as YES. Check
+zero orientations first.
+\item \textbf{Popping collinear vertices.} \texttt{orient<=0}
+pops strip the boundary points CSES \emph{Convex Hull} asks
+for; \texttt{<0} keeps them. Match the problem's definition.
+\item \textbf{Vertex-touching ray casts.} Counting every edge
+the ray touches double-counts polygon vertices on the ray; the
+half-open $y$ rule fixes parity.
+\item \textbf{Overflowing \texttt{int}.} Coordinates up to
+$10^9$ make cross products reach $10^{18}$ --- \texttt{long
+long} or nothing, and keep squared distance out of
+\texttt{sqrt} until the answer truly needs decimals.
+\end{itemize}
+
+\section*{Summary}
+\begin{tabularx}{\linewidth}{@{}lXl@{}}
+\textbf{Need} & \textbf{Primitive} & \textbf{Cost}\\
+\midrule
+left/right/collinear & \texttt{orient(o,a,b)} sign & $O(1)$\\
+segments meet & \texttt{seg\_int}: zeros first, then both sign tests & $O(1)$\\
+twice signed area & shoelace \texttt{area2} & $O(n)$\\
+inside/outside/boundary & on-seg check + ray parity & $O(n)$/$q$\\
+lattice $I,B$ & gcd boundary sum, invert Pick & $O(n)$\\
+hull (with boundary) & monotone chain, pop on $<0$ & $O(n\log n)$\\
+closest pair & divide \& conquer + $y$-strip & $O(n\log n)$\\
+\end{tabularx}
+
+\section*{Exercises}
+\begin{exercise}[easy] CSES \emph{Point Location Test} --- re-implement \texttt{orient} unaided. \end{exercise}
+\begin{exercise}[easy] USACO Bronze \emph{Square Pasture} --- axis-aligned bounding square, pure integers. \end{exercise}
+\begin{exercise}[easy] USACO Bronze \emph{White Sheet} --- rectangle overlap area. \end{exercise}
+\begin{exercise}[easy] Kattis \emph{Segment Distance} --- your \texttt{seg\_dist2} fraction, printed as a real at the end. \end{exercise}
+\begin{exercise}[easy] Codeforces \emph{Beru-taxi} --- nearest point; compare squared distances only. \end{exercise}
+\begin{exercise}[medium] CSES \emph{Line Segment Intersection} --- full edge-case drill. \end{exercise}
+\begin{exercise}[medium] CSES \emph{Polygon Lattice Points} --- gcd sum + Pick. \end{exercise}
+\begin{exercise}[medium] Kattis \emph{Convex Hull} --- monotone chain; compare against the collinear-keeping variant. \end{exercise}
+\begin{exercise}[medium] Kattis \emph{Robot Protection} --- hull then shoelace area. \end{exercise}
+\begin{exercise}[medium] Codeforces \emph{Water Lily} --- one right triangle, one equation. \end{exercise}
+\begin{exercise}[medium] CSES \emph{Point in Polygon} --- parity + boundary handling together. \end{exercise}
+\begin{exercise}[hard] USACO Silver \emph{Cow Steeplechase II} --- all-pairs segment intersection with a twist. \end{exercise}
+\begin{exercise}[hard] USACO Platinum \emph{Cow Curling} --- hull maintenance inside a DP. \end{exercise}
+\begin{exercise}[hard] Kattis \emph{Closest Pair} --- your strip, pushed to adversarial inputs. \end{exercise}
+\begin{exercise}[hard] Derive the \emph{rotating calipers} diameter of a convex polygon from \texttt{orient}, then implement it. \end{exercise}
+
+\chapternotes
+
+\section*{Further reading}
+\begin{itemize}
+\item A.~Laaksonen, \emph{Competitive Programmer's Handbook},
+ch.~29 ``Geometry'', \url{https://cses.fi/book/book.pdf} ---
+free PDF; the cross-product-first presentation this chapter
+tracks.
+\item cp-algorithms, \emph{Basic Geometry} --- the same
+integer-first discipline with more primitives.
+\newline\url{https://cp-algorithms.com/geometry/basic-geometry.html}
+\item cp-algorithms, \emph{Convex hull construction} ---
+monotone chain plus the Graham-scan alternative.
+\newline\url{https://cp-algorithms.com/geometry/convex-hull.html}
+\item cp-algorithms, \emph{Lattice points inside non-lattice
+polygon} --- Pick's theorem's generalisation.
+\newline\url{https://cp-algorithms.com/geometry/lattice-points.html}
+\item cp-algorithms, \emph{Finding the nearest pair of
+points} --- the strip argument written out.
+\newline\url{https://cp-algorithms.com/geometry/nearest-points.html}
+\item The USACO Guide, \emph{Geometry Primitives},
+\url{https://usaco.guide/plat/geo-pri} --- where these
+primitives get consumed at Gold/Platinum.
+\item UNSW COMP4128, \emph{Computational Geometry} lecture
+notes --- contest-grade slides covering this chapter plus
+half-planes (file \texttt{11-comp-geom.pdf} under:)
+\newline\url{https://cgi.cse.unsw.edu.au/~cs4128/25t2/lectures/}
+\item M.~de Berg et al., \emph{Computational Geometry:
+Algorithms and Applications} (3rd ed.), ISBN 978-3540779735
+--- the textbook reference when you need the proofs.
+\end{itemize}
+
+\begin{rulebox}[Watch instead]
+\begin{itemize}
+\item \textbf{nptelhrd --- ``Mod-04 Lec-07 Convex Hull''},
+52m35s, \url{https://www.youtube.com/watch?v=QnL0LmOO4rc} ---
+covers \S16.4: hull definitions and the Graham family the
+monotone chain simplifies. (Verified 2026-10-11.)
+\item \textbf{Coderisland --- ``Geometric Algorithms: Graham \&
+Jarvis --- Lecture 10''} (E.~Demaine, MIT 6.851),
+79m37s, \url{https://www.youtube.com/watch?v=J5aJEcOr6Eo} ---
+covers \S16.4 and the turn-test analysis; notation: he writes
+$\texttt{ccw}$ for our \texttt{orient}. (Verified 2026-10-11.)
+\item \textbf{Aaron Becker --- ``Graham Scan Tutorial: Convex
+Hull of a Set of 2D Points''}, 3m06s,
+\url{https://www.youtube.com/watch?v=9rQMLpQn5xQ} --- covers
+\S16.4: a 3-minute animated pass over the same algorithm; watch
+this first. (Verified 2026-10-11.)
+\end{itemize}
+\emph{Notation note:} all three use angle-sort (Graham) where we
+use $(x,y)$-sort (monotone chain); the pop condition and hull
+are identical.
+\end{rulebox}
+The orientation-first style follows cp-algorithms and
+Laaksonen's geometry chapter~\cite{cpalgorithms,laaksonen2024};
+hull/sweep treatments track Sannemo and the UNSW
+slides~\cite{sannemo2025,usacoguide}; problem selection follows
+the official CSES geometry set~\cite{cses}.

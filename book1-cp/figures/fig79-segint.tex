@@ -1,0 +1,20 @@
+\begin{tikzpicture}[scale=0.62,font=\tiny]
+\foreach \x/\y/\t in {0/0/{proper}, 5.2/0/{touch}, 10.4/0/{overlap}, 15.6/0/{miss}}{
+  \begin{scope}[shift={(\x,\y)}]
+    \node at (1.6,-0.9) {\t};
+  \end{scope}}
+% proper crossing
+\draw[thick,ink] (0,0)--(3.2,2.2); \draw[thick,accent] (0.4,2)--(2.8,0.4);
+% endpoint touch
+\begin{scope}[shift={(5.2,0)}]
+  \draw[thick,ink] (0,0)--(3.2,1.4); \draw[thick,accent] (3.2,1.4)--(2,2.6);
+\end{scope}
+% collinear overlap
+\begin{scope}[shift={(10.4,0)}]
+  \draw[thick,ink] (0,0.4)--(3,1.2); \draw[thick,accent] (1.6,0.9)--(3.4,1.35);
+\end{scope}
+% near miss
+\begin{scope}[shift={(15.6,0)}]
+  \draw[thick,ink] (0,0)--(3.2,2.2); \draw[thick,accent] (0.6,2.3)--(2.6,0.7);
+\end{scope}
+\end{tikzpicture}

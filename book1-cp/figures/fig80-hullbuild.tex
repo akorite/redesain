@@ -1,0 +1,10 @@
+\begin{tikzpicture}[scale=0.8,font=\tiny]
+\foreach \p/\n in {(2,1)/{(2,1)},(2,5)/{(2,5)},(3,3)/{},(4,3)/{},(4,4)/{(4,4)},(6,3)/{(6,3)}}{
+  \fill[ink] \p circle (1.6pt);
+  \node[above right] at \p {\n};}
+\draw[thick,accent] (2,1)--(6,3);            % lower chain
+\draw[thick,good] (6,3)--(4,4)--(2,5);       % upper chain
+\draw[thick,good] (2,5)--(2,1);              % closing edge
+\draw[dashed,slate] (3,3)--(4,3);            % interior chord
+\node[align=left] at (4.2,0) {lower: leftmost $\to$ rightmost\\upper: rightmost $\to$ leftmost};
+\end{tikzpicture}

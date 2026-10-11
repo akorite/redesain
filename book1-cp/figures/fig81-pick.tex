@@ -1,0 +1,7 @@
+\begin{tikzpicture}[scale=0.85,font=\tiny]
+\draw[slate,step=1] (0,0) grid (6,6);
+\draw[thick,ink] (1,1)--(5,3)--(3,5)--(1,4)--cycle;
+\foreach \p in {(2,2),(2,3),(3,2),(3,3),(3,4),(4,3)} \fill[accent] \p circle (2pt);
+\foreach \p in {(1,1),(3,2),(5,3),(4,4),(3,5),(2,4),(1,4),(1,3)} \fill[good] \p circle (1.6pt);
+\node[align=left] at (7.2,3) {$A=9$ (area2 $=18$)\\$B=8$ \textcolor{good}{$\bullet$}\\$I=6$ \textcolor{accent}{$\bullet$}\\$I=A-\frac B2+1$};
+\end{tikzpicture}
