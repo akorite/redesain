@@ -36,3 +36,4 @@ Pending a GitHub PAT: issue creation (pinned "Status" issue + `needs-user` label
 - Pages: cp 147, discrete 151 (v0.1), linalg 167, elec 115 = 580pp. Wave-2 (4/6/7/8) outlines approved; starts when an agent frees.
 - Fixes landed: fresh-clone make verified on all 4 books (figure PDFs now synced into monorepo); KKT CS wording corrected to λ(g−c)=0; PRs #1-3 merged pending logged reviews (queued).
 - needs-user: none. Pending PAT for issues/releases (not blocking).
+- 2026-10-11T13Z: book5 ch11 landed (127pp clean); linalg ch14 REVISE resolved (~4→~5); linalg ch13 review ACCEPTED. Book 3 ch14 review-log ✓ (order 6b partial). Open: book1-ch14 + book5-ch10 reviews (queued book2/book3); elec-ch11 post-merge review queued.
