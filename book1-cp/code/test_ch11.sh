@@ -5,6 +5,7 @@ expect() { echo "$3" | grep -qF "$2" || { echo "FAIL $1: wanted '$2' in: $3" >&2
 expect coins "3" "$(printf "3 11\n1 5 7\n" | ./.build/minimizing_coins)"
 expect combos "8 3" "$(printf "3 9\n2 3 5\n" | ./.build/coin_combos)"
 expect shop "13" "$(printf "4 10\n4 8 5 3\n5 12 8 1\n" | ./.build/book_shop)"
+expect shoptake "1 3" "$(printf "4 10\n4 8 5 3\n5 12 8 1\n" | ./.build/book_shop | tail -1)"
 expect lis "4" "$(printf "8\n7 3 5 3 6 2 9 8\n" | ./.build/increasing_subseq)"
 expect grid "3" "$(printf "4\n....\n.*..\n...*\n*...\n" | ./.build/grid_paths)"
 python3 - <<'PY'
@@ -44,9 +45,13 @@ for _ in range(150):
         for x in range(X,-1,-1):
             dp[i][x]=dp[i-1][x]
             if x>=w[i-1]:dp[i][x]=max(dp[i][x],dp[i-1][x-w[i-1]]+v[i-1])
-    got=subprocess.run(['./.build/book_shop'],input=inp,capture_output=True,text=True).stdout.strip()
-    assert int(got)==dp[n][X],(inp,got,dp[n][X])
-print("knapsack stress: 150/150 PASS")
+    got=subprocess.run(['./.build/book_shop'],input=inp,capture_output=True,text=True).stdout.strip().split('\n')
+    assert int(got[0])==dp[n][X],(inp,got,dp[n][X])
+    take=[int(t) for t in got[1].split()] if len(got)>1 and got[1].strip() else []
+    assert sum(w[i-1] for i in take)<=X,(inp,got)          # take fits
+    assert sum(v[i-1] for i in take)==dp[n][X],(inp,got)  # take achieves max
+    assert len(set(take))==len(take) and all(1<=i<=n for i in take),(inp,got)
+print("knapsack stress: 150/150 PASS (value + take-table validity)")
 for _ in range(120):
     n=random.randint(1,7)
     g=[['.' if random.random()<0.75 else '*' for _ in range(n)] for _ in range(n)]

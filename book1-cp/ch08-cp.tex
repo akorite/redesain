@@ -55,6 +55,25 @@ YES
 \end{lstlisting}
 \end{solution}
 \end{example}
+\begin{example}[CSES \emph{High Score}]\label{ex:highscore}
+Maximise the score on a path $1\to n$; a positive cycle on the way
+makes it unbounded --- report $-1$ then.
+\par\smallskip
+\textbf{Strategy.} Negate every weight and longest becomes
+shortest: Bellman--Ford over the negated edges. The catch is
+\emph{both} reachabilities: the cycle must be reachable from $1$
+\emph{and} must be able to reach $n$. Vertices still relaxing in
+round $n$ are downstream of a reachable cycle; propagate forward
+from them and ask whether $n$ is touched.
+\par\smallskip
+\begin{solution}
+\lstinputlisting{code/high_score.cpp}
+Real output (CSES sample):
+\begin{lstlisting}[numbers=none]
+5
+\end{lstlisting}
+\end{solution}
+\end{example}
 
 \section{Dijkstra}\label{sec:dij}\index{Dijkstra}
 Greedy frontier: pop the unsettled vertex with smallest tentative
@@ -157,18 +176,20 @@ descends --- the coupon can't be unspent.}
 \label{fig:layers}
 \end{figure}
 \begin{example}[USACO-G \emph{Why Did the Cow Cross the Road}]\label{ex:cow}
-Crossing into a different label consumes a ticket; each ticket covers
-three crossings.
+Each road crossing costs $T$; Bessie stops to eat on every third
+field she lands on --- and the eating times differ per field.
 \par\smallskip
-\textbf{Strategy.} The budget is a state: $(r,c,k)$ with $k$ the
-crossings used on the current ticket. Same-label moves keep $k$;
-boundary moves increment it; the third crossing pays the toll.
+\textbf{Strategy.} The move counter is a state: $(r,c,k)$ with
+$k$ the moves taken $\bmod\,3$. Every crossing costs $T$; landing
+when $k$ rolls $2\to0$ also pays that field's eating time ---
+``eat on every third visited field'' becomes ``pay on the
+transition into $k{=}0$''.
 \par\smallskip
 \begin{solution}
 \lstinputlisting{code/cowroad.cpp}
-Real output (3$\times$3 demo, $T{=}3$):
+Real output (USACO official sample, $N{=}4$, $T{=}2$):
 \begin{lstlisting}[numbers=none]
-4
+31
 \end{lstlisting}
 \end{solution}
 \end{example}
@@ -223,6 +244,10 @@ has no repair path.
 \item \textbf{Seeding Bellman--Ford from one source when any cycle
 counts.} Only reachable-from-$s$ cycles surface; seed 0 everywhere to
 catch all.
+\item \textbf{One-sided reachability in \emph{High Score}.} A
+negative cycle reachable from $1$ is harmless when it cannot reach
+$n$ --- marking every downstream vertex without the forward
+propagation prints $-1$ on a finite answer.
 \item \textbf{Floyd with $k$ inside.} Loop order \emph{is} the
 invariant: $k$ outermost, or intermediate vertices may be reused
 illegally.
