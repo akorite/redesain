@@ -1,0 +1,17 @@
+\begin{tikzpicture}[font=\tiny,scale=0.72]
+\draw[rulegray] (0,0) rectangle (10.6,3.4);
+\foreach \y in {0.6,1.2,1.8,2.4,3.0} \draw[rulegray] (0,\y)--(10.6,\y);
+\foreach \x/\t in {0.0/Rank,1.4/Team,4.0/A,5.0/B,6.0/C,7.0/D,8.0/E,9.0/Pen.}
+  \node[anchor=west,font=\tiny\bfseries] at (\x+0.12,3.1) {\t};
+\foreach \y/\rk/\tm/\a/\b/\c/\d/\e/\p in {
+  2.7/1/byte girls/+2/+/{}/{}/+1/89:52,
+  2.1/2/night owls/+/+1/{}/{}/-2/143:20,
+  1.5/3/you/{}/{}/-3/{}/{}/---,
+  0.9/4/segfaults/-1/{}/{}/{}/{}/---,
+  0.3/5/newbies/{}/{}/{}/{}/{}/---}
+  {\node[anchor=west] at (0.12,\y) {\rk};
+   \node[anchor=west] at (1.52,\y) {\tm};
+   \node at (4.5,\y) {\a}; \node at (5.5,\y) {\b}; \node at (6.5,\y) {\c};
+   \node at (7.5,\y) {\d}; \node at (8.5,\y) {\e}; \node[anchor=east] at (10.5,\y) {\p};}
+\node[align=left,anchor=west] at (10.9,1.7) {Read it as:\\$\bullet$ +: solved, --: failed tries\\$\bullet$ +2 = solved on 3rd try\\$\bullet$ penalty = time + 20m/try\\$\bullet$ unsolved problems with\\most tries = where effort goes};
+\end{tikzpicture}

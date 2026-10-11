@@ -1,0 +1,8 @@
+\begin{tikzpicture}[scale=0.62,font=\tiny]
+\draw[slate,step=1] (0,0) grid (8,8);
+\node at (3.5,3.5) {$\frac1d$};
+\node at (3.5,2.5) {$d$};
+\foreach \p in {(3.5,3.5),(3.5,4.5),(4.5,3.5),(2.5,3.5),(3.5,2.5)}
+  \fill[accentsoft] \p circle (6pt);
+\node[align=left,anchor=west] at (8.4,4) {each square sends\\$\frac1{\deg}$ of its mass\\to each neighbour\\--- 64 independent\\sources tracked};
+\end{tikzpicture}
