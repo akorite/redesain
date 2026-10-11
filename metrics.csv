@@ -64,3 +64,5 @@ book7-systems,review-ch01-04,84,,,,,"PASS×3, ch04 REVISE (9ex<10, watch rows)",
 book6-quant,depth-pass,180,,,,floor met,"ch17/18 + csv unscramble, all tests PASS",book2
 book4-ml,review-ch12-18,246,,,,,"7 REVISE shared defect, fixes landed",book2
 book8-physics,depth-pass,180,,,,floor met,"E&M block deepened",physics-session
+book6-quant,ch16-review,180,,,,,book1-PASS-after-fixes,book1-agent
+book8-physics,depth-merge,180,,,,,pending-depth-review,
