@@ -93,3 +93,9 @@ Pending a GitHub PAT: issue creation (pinned "Status" issue + `needs-user` label
 - elec ch18+19 landed locally (KiCad + MCUs) + full consistency/link-rot pass (58 URLs re-curled, 16 dup labels fixed, ISA chain verified). ch17 source missing from delivery — requested.
 - elec-0006 now running linalg depth re-review; then picks up book7-systems.
 - Needs reviewer assignment: elec ch14-19.
+
+## 2026-10-11 — elec COMPLETE 224pp; linalg re-review resolved; systems dispatched
+- elec ch17-19 landed: book5 fully written at 224pp (consistency pass + link-rot done by author). Merged.
+- linalg depth re-review (elec session): 12 PASS + ch03 REVISE→RESOLVED (Beezer URL→Wayback). All review rows logged.
+- elec-0006 now authoring textbook-systems ch01+; ml-f668 got elec ch14-19 independent review queued behind ml + cp re-review.
+- Tags: book1-cp-v0.1 (200pp), book2-discrete-v0.2 (182pp). Next candidates: linalg (re-review done → v0.1), elec (needs ch14-19 review → v0.1).
