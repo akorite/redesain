@@ -3,7 +3,7 @@ set -e; cd "$(dirname "$0")"; CXX=${CXX:-clang++}; F="-std=c++17 -O2 -Wall -Wext
 for p in elevator_rides counting_numbers removal_game edit_distance money_sums tree_matching; do $CXX $F -o .build/$p $p.cpp; done
 expect() { echo "$3" | grep -qF "$2" || { echo "FAIL $1: wanted '$2' in: $3" >&2; exit 1; }; echo "$1 PASS"; }
 expect elev "2" "$(printf "4 10\n4 8 6 1\n" | ./.build/elevator_rides)"
-expect num "199" "$(printf "123 321\n" | ./.build/counting_numbers)"
+expect num "171" "$(printf "123 321\n" | ./.build/counting_numbers)"
 expect rem "8" "$(printf "4\n4 5 1 3\n" | ./.build/removal_game)"
 expect edit "2" "$(printf "LOVE\nMOVIE\n" | ./.build/edit_distance)"
 expect money "6" "$(printf "3\n2 3 5\n" | ./.build/money_sums | head -1)"
@@ -27,11 +27,15 @@ for _ in range(150):
     assert int(got)==dp[N-1][0],(inp,got,dp[N-1])
 print("elevator stress: 150/150 PASS")
 for _ in range(120):
-    a,b=sorted([random.randint(0,10**6) for _ in range(2)])
+    a=random.randint(0,10**5); b=a+random.randint(0,4000)
     inp=f"{a} {b}\n"
+    def ok(x):
+        s=str(x)
+        return all(s[i]!=s[i+1] for i in range(len(s)-1))
+    want=sum(ok(i) for i in range(a,b+1))
     got=subprocess.run(['./.build/counting_numbers'],input=inp,capture_output=True,text=True).stdout.strip()
-    assert int(got)==b-a+1,(inp,got)
-print("numbers stress (no-constraint count): 120/120 PASS")
+    assert int(got)==want,(inp,got,want)
+print("numbers stress (adjacent-digit brute): 120/120 PASS")
 for _ in range(120):
     n=random.randint(1,9)
     a=[random.randint(1,20) for _ in range(n)]

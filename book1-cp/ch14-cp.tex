@@ -106,17 +106,17 @@ Real output (CSES sample):
 \end{solution}
 \end{example}
 \begin{example}[CSES \emph{Distributing Apples}]\label{ex:apples}
-Distribute $n$ identical apples among $m$ children.
+Distribute $m$ identical apples among $n$ children.
 \par\smallskip
-\textbf{Strategy.} Lay the apples in a row and insert $m{-}1$
+\textbf{Strategy.} Lay the apples in a row and insert $n{-}1$
 walls: each string of $n{+}m{-}1$ symbols is a distribution ---
-$\binom{n+m-1}{m-1}$.
+$\binom{n+m-1}{n-1}$.
 \par\smallskip
 \begin{solution}
 \lstinputlisting{code/distributing_apples.cpp}
 Real output (CSES sample):
 \begin{lstlisting}[numbers=none]
-15
+20
 \end{lstlisting}
 \end{solution}
 \end{example}

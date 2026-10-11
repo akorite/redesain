@@ -42,16 +42,16 @@ most-significant-first carrying a \emph{tight} flag (still matching
 $N$'s prefix?) and a \emph{leading-zero} flag (the number hasn't
 started). Tight bounds the next digit; loose reads from memo.
 \begin{example}[CSES \emph{Counting Numbers}]\label{ex:num}
-Count distinct-digit numbers in $[a,b]$.
+Count integers in $[a,b]$ with no two adjacent digits equal.
 \par\smallskip
 \textbf{Strategy.} The automaton is (pos, tight, leading,
-used-digits-mask); count(b) $-$ count(a$-$1).
+previous-digit); count(b) $-$ count(a$-$1).
 \par\smallskip
 \begin{solution}
 \lstinputlisting{code/counting_numbers.cpp}
-Real output (CSES sample):
+Real output (CSES sample, $a{=}123$, $b{=}321$):
 \begin{lstlisting}[numbers=none]
-199
+171
 \end{lstlisting}
 \end{solution}
 \end{example}

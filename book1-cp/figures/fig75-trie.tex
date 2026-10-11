@@ -1,0 +1,21 @@
+\begin{tikzpicture}[font=\tiny,level distance=0.9cm,
+  level 1/.style={sibling distance=2.6cm},
+  level 2/.style={sibling distance=1.5cm},
+  level 3/.style={sibling distance=1.1cm}]
+\node[draw,circle,minimum size=0.4cm] {}
+  child {node[draw,circle,minimum size=0.4cm] {a}
+    child {node[draw,circle,minimum size=0.4cm] {b}
+      child {node[draw,circle,minimum size=0.4cm] {a}
+        child {node[draw,circle,minimum size=0.4cm] {b}
+          child {node[draw,circle,double,minimum size=0.4cm] {c}}
+        }
+      }
+    }
+  }
+  child {node[draw,circle,minimum size=0.4cm] {c}
+    child {node[draw,circle,double,minimum size=0.4cm] {b}}
+  };
+\node[anchor=west] at (2.6,-0.4) {double circle $=$ terminal (count $>0$)};
+\node[anchor=west] at (2.6,-0.9) {dict $=$ \texttt{a, ab, abab, ababc, c, cb}};
+\node[anchor=west] at (2.6,-1.4) {``ab'': terminals at a, ab $\Rightarrow$ +2 matches};
+\end{tikzpicture}

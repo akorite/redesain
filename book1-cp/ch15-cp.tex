@@ -1,0 +1,360 @@
+\chapter{Strings: hashing, KMP, Z}\label{ch:strings}
+\index{strings}\index{rolling hash}\index{prefix function}\index{KMP}\index{Z-function}\index{trie}\index{border}\index{period}
+
+String problems in contests reduce to a handful of linear-time
+machines. After this chapter you can compare two substrings in
+$O(1)$ --- and know exactly when a hash deserves trust --- match a
+pattern in $O(n+m)$ two different ways, mine borders and periods
+out of the prefix function, and walk a trie for anything that is
+``a dictionary of prefixes'' in disguise.
+
+\section{Terminology}\label{sec:strterm}
+\index{substring}\index{subsequence}\index{prefix}\index{suffix}
+A \emph{substring} is a contiguous block; a \emph{subsequence}
+keeps order but may skip characters. Prefixes and suffixes anchor
+the two ends. A \emph{border} of $s$ is a proper prefix that is
+also a suffix: \texttt{abcababcab} has borders \texttt{ab} and
+\texttt{abcab}. A \emph{period} is a distance $p$ with
+$s_i = s_{i+p}$ for every $i < n-p$: \texttt{abcabca} has period
+$3$ (and, vacuously, $7$). These four definitions --- border,
+period, prefix function, Z-box --- are the whole vocabulary of
+this chapter.
+
+\section{Polynomial rolling hash}\label{sec:rhash}
+\index{rolling hash}\index{hash collision}
+Treat $s$ as a base-$B$ number: $H(s) = \sum_i s_i B^{\,n-1-i}
+\bmod p$. Prefix hashes $h_i = H(s_0\dots s_{i-1})$ satisfy
+$h_{i+1} = h_i B + s_i$, so any substring is recovered in $O(1)$:
+$H(s_l\dots s_{r-1}) = h_r - h_l B^{\,r-l}$. Figure~\ref{fig:rhash}
+shows the equivalent sliding-window view.
+\begin{figure}[ht]\centering
+\input{figures/fig74-rhash}
+\caption{Rolling one window right. Notice the dropped term carries
+the full weight $B^{k-1}$ --- that is the term the update must
+subtract first.}
+\label{fig:rhash}
+\end{figure}
+\lstinputlisting{code/rhash.h}
+
+A hash is a \emph{fingerprint}, not a proof: unequal strings can
+share one. With $q$ queries the birthday bound kicks in --- among
+$q$ hashes you should expect a collision once
+$q \approx \sqrt{2p}$, so a single $10^9$ modulus is already
+shaky at $q \sim 5{\cdot}10^4$, well inside contest range.
+Doubling to two independent moduli moves the failure point to
+$\sim\sqrt{2 p_1 p_2}$; the demo below makes the numbers concrete.
+
+\begin{example}[Where collisions live]\label{ex:collide}
+How much does modulus size matter, and does a second modulus fix it?
+\par\smallskip
+\textbf{Strategy.} Brute-force small alphabets under a toy modulus
+to exhibit a \emph{real} colliding pair, then count collisions on
+random strings under a mid-size modulus --- and under the
+two-modulus pair used by \texttt{RH}.
+\par\smallskip
+\begin{solution}
+\lstinputlisting{code/hash_demo.cpp}
+Real output:
+\begin{lstlisting}[numbers=none]
+mod 97, base 26: "aaa" and "adt" both hash to 24
+same pair, mod 1e9+7:   703 vs 800
+same pair, mod 998244353: 703 vs 800
+8192 8-letter strings: 5 extra hashes collide mod 9726647 (birthday), 0 under the RH pair
+\end{lstlisting}
+\end{solution}
+\end{example}
+\begin{exercise}[medium]\label{exr:birthday}
+$q$ substrings are hashed mod $10^9{+}7$. Using
+$1 - e^{-q^2/2p}$, at what $q$ does a collision become more likely
+than not? Why does a second modulus change the exponent's
+denominator?
+\end{exercise}
+
+\section{The prefix function (KMP)}\label{sec:kmp}
+\index{prefix function}\index{failure link}
+$\pi_i$ is the longest proper border of $s_0\dots s_i$. Compute
+left to right: to extend $s_i$, start at the current border
+candidate $j = \pi_{i-1}$ and keep falling along failure links
+($j \leftarrow \pi_{j-1}$) until $s_i = s_j$; that character either
+extends the border or leaves $\pi_i = 0$. The scan is $O(n)$
+because $j$ only decreases inside the while-loop and can decrease
+at most as many times as it ever increased.
+\lstinputlisting{code/kmp.h}
+The failure links make $\pi$ a deterministic automaton on the
+pattern: state $=$ characters matched so far, transitions $=$
+extend or fall. Figure~\ref{fig:kmpauto} draws the machine.
+\begin{figure}[ht]\centering
+\input{figures/fig72-kmpauto}
+\caption{KMP automaton for \texttt{ABABAC} ($\pi =
+0,0,1,2,3,0$). Notice a failure is not a restart --- state 5 on
+input B falls to 3 and immediately re-matches to 4.}
+\label{fig:kmpauto}
+\end{figure}
+\begin{exercise}[easy]\label{exr:pihand}
+Compute $\pi$ by hand for \texttt{ababac}, then for
+\texttt{aaaaaa}. What does the second tell you about worst-case
+border structure?
+\end{exercise}
+
+\section{The Z-function}\label{sec:z}
+\index{Z-function}\index{Z-box}
+$z_i$ is the longest common prefix of $s$ and $s_i\dots s_{n-1}$
+($z_0$ unused). The algorithm keeps a \emph{Z-box} $[l,r]$: the
+rightmost window already proved to match a prefix. Inside the box,
+$z_i \ge \min(r-i+1,\; z_{i-l})$ for free; outside, or when the
+copy might run past $r$, extend by direct comparison and grow the
+box. Each extension moves $r$ right, so the total work is $O(n)$.
+\lstinputlisting{code/zfunc.h}
+\begin{figure}[ht]\centering
+\input{figures/fig73-zbox}
+\caption{Z-box on \texttt{aabaabaabaab}. Notice $z_6 = 6$ costs no
+comparisons --- it is copied from $z_3$ inside the box $[3,11]$.}
+\label{fig:zbox}
+\end{figure}
+
+\section{Tries}\label{sec:trie}
+\index{trie}
+A trie stores a dictionary so that each node \emph{is} a prefix:
+walking an edge appends a character; terminal markers record which
+prefixes are real words. Insert and walk are $O(\text{length})$,
+and a walk from position $i$ enumerates every dictionary word that
+starts at $i$ --- exactly what word-splitting DP needs.
+\lstinputlisting{code/trie.h}
+\begin{figure}[ht]\centering
+\input{figures/fig75-trie}
+\caption{Trie over $\{\texttt{a, ab, abab, ababc, c, cb}\}$.
+Notice terminals can sit mid-path: \texttt{ab} ends inside the
+edge to \texttt{abab}, which is what makes a walk report all
+matches, not just the longest.}
+\label{fig:trie}
+\end{figure}
+\begin{example}[CSES \emph{Word Combinations}]\label{ex:words}
+Count the ways to write $s$ as a sequence of dictionary words,
+$\bmod\ 10^9{+}7$.
+\par\smallskip
+\textbf{Strategy.} $\mathrm{dp}_i$ = ways to split $s_{i\dots n}$.
+From each $i$, walk the trie on $s_i, s_{i+1}, \dots$; every
+terminal at depth $d$ contributes $\mathrm{dp}_{i+d}$. Store
+\emph{counts} at terminals (the dictionary may repeat words).
+\par\smallskip
+\begin{solution}
+\lstinputlisting{code/word_combinations.cpp}
+Real output (CSES sample):
+\begin{lstlisting}[numbers=none]
+2
+\end{lstlisting}
+\end{solution}
+\end{example}
+The same structure on bits --- the \emph{xor-trie} --- answers
+``max $a_i \oplus x$'' queries and is named for the 1900 route.
+
+\section{Applications}\label{sec:strapp}
+\textbf{Matching.} KMP and Z solve the same problem on the same
+concatenation $p\#s$: an occurrence ends wherever $\pi_i = m$
+(KMP) or starts wherever $z_i = m$ (Z).
+\begin{example}[CSES \emph{String Matching}, twice]\label{ex:match}
+Count occurrences of $p$ in $s$.
+\par\smallskip
+\textbf{Strategy.} Build both machines on $p\#s$ and print both
+counts --- for the official problem, print either.
+\par\smallskip
+\begin{solution}
+\lstinputlisting{code/string_matching.cpp}
+Real output (CSES sample: both methods, one line):
+\begin{lstlisting}[numbers=none]
+2 2
+\end{lstlisting}
+\end{solution}
+\end{example}
+
+\textbf{Borders.} $\pi_{n-1}$ is the longest border; iterating
+$j \leftarrow \pi_{j-1}$ enumerates them all, longest first.
+\begin{example}[CSES \emph{Finding Borders}]\label{ex:borders}
+List all border lengths of $s$.
+\par\smallskip
+\textbf{Strategy.} Walk the $\pi$-chain from $\pi_{n-1}$, collect,
+sort ascending.
+\par\smallskip
+\begin{solution}
+\lstinputlisting{code/borders.cpp}
+Real output (CSES sample):
+\begin{lstlisting}[numbers=none]
+2 5
+\end{lstlisting}
+\end{solution}
+\end{example}
+\begin{figure}[ht]\centering
+\input{figures/fig76-borders}
+\caption{Border chain on \texttt{abcababcab}. Notice each border
+is itself a string whose own longest border is the next link ---
+that is exactly the $\pi$-chain recursion.}
+\label{fig:borders}
+\end{figure}
+
+\textbf{Periods.} $p$ is a period iff $n-p$ is a border
+(Figure~\ref{fig:period}): the constraint $s_i = s_{i+p}$ for all
+$i$ is precisely ``prefix of length $n-p$ equals suffix''. So the
+same $\pi$-chain answers \emph{Finding Periods}, including
+$p = n$ at the end.
+\begin{figure}[ht]\centering
+\input{figures/fig77-period}
+\caption{Border $\Leftrightarrow$ period duality. Notice the
+overlap: a period $p$ forces the prefix and suffix of length
+$n-p$ to coincide.}
+\label{fig:period}
+\end{figure}
+\begin{example}[CSES \emph{Finding Periods}]\label{ex:periods}
+List all period lengths of $s$.
+\par\smallskip
+\textbf{Strategy.} Same $\pi$-chain as Finding Borders, printing
+$n-j$ instead of $j$; append $n$.
+\par\smallskip
+\begin{solution}
+\lstinputlisting{code/periods.cpp}
+Real output (CSES sample):
+\begin{lstlisting}[numbers=none]
+3 6 7
+\end{lstlisting}
+\end{solution}
+\end{example}
+\begin{exercise}[medium]\label{exr:periodid}
+Prove the identity used above: $p$ is a period of $s$ iff $n-p$
+is a border. Conclude the smallest period is $n - \pi_{n-1}$.
+\end{exercise}
+
+\textbf{Substring comparison.} With prefix hashes, the LCP of any
+two suffixes is one binary search away (compare $\ge$-mid
+hashes), giving lexicographic comparison of any two substrings in
+$O(\log n)$ --- no suffix array needed.
+\begin{example}[CSES \emph{Minimal Rotation}]\label{ex:rotation}
+Print the lexicographically smallest rotation of $s$.
+\par\smallskip
+\textbf{Strategy.} Rotations are length-$n$ windows of $s{+}s$.
+Compare candidates with \texttt{RH::lcp} on $s{+}s$: jump past the
+common prefix and decide on the first differing character ---
+$O(\log n)$ per comparison.
+\par\smallskip
+\begin{solution}
+\lstinputlisting{code/minimal_rotation.cpp}
+Real output (CSES sample):
+\begin{lstlisting}[numbers=none]
+abac
+\end{lstlisting}
+\end{solution}
+\end{example}
+
+\begin{table}[ht]\centering\small
+\begin{tabularx}{\linewidth}{l l l X}
+\toprule
+task & tool & cost & gotcha\\
+\midrule
+substring equality & prefix hashes, two moduli & $O(1)$/q after $O(n)$ & birthday bound at $\sqrt{2p}$\\
+pattern matching & KMP or Z on $p\#s$ & $O(n+m)$ & sentinel must not appear in alphabet\\
+all borders & $\pi$-chain from $\pi_{n-1}$ & $O(n)$ & iterate $j\leftarrow\pi_{j-1}$, not $\pi_j$\\
+all periods & same chain, print $n-j$ & $O(n)$ & append $p=n$ manually\\
+dict word splits & trie walk per position & $O(n\cdot L)$ & terminals mid-path count too\\
+substring compare & hash $+$ binary-search LCP & $O(\log n)$/cmp & half-open $[l,r)$ in \texttt{get}\\
+\bottomrule
+\end{tabularx}
+\caption{The task names the machine; the machine names the cost.}
+\label{tab:strings}
+\end{table}
+
+\section{Common mistakes}
+\index{common mistakes}
+\begin{itemize}
+\item \textbf{Skipping the sentinel.} Matching on $p+s$ (no
+\texttt{\#}) lets a ``match'' straddle the boundary --- a
+separator outside the alphabet is required.
+\item \textbf{Wrong index in the $\pi$-chain.} The next candidate
+border is $\pi_{j-1}$, not $\pi_j$; the off-by-one yields either
+an infinite loop or the trivial answer.
+\item \textbf{Negative residues in \texttt{get}.} $h_r - h_l
+B^{r-l} \bmod p$ needs the $+p$ before returning --- C++ \texttt{\%}
+keeps the sign of the dividend.
+\item \textbf{One modulus, many queries.} Birthday collisions
+arrive at $\sqrt{2p}$; on $q \gtrsim 10^5$ a single $10^9$ prime
+is a gamble, not a proof.
+\item \textbf{Assuming terminals only at leaves.} In word-splitting
+tries, \texttt{cnt} must be read at \emph{every} node on the walk,
+or the short matches vanish.
+\end{itemize}
+
+\section{Additional exercises}
+\begin{exercise}[easy] CSES \emph{Finding Borders}. \end{exercise}
+\begin{exercise}[easy] CSES \emph{Finding Periods}. \end{exercise}
+\begin{exercise}[easy] USACO Bronze \emph{Censoring}. \end{exercise}
+\begin{exercise}[easy] Codeforces \emph{Check Transcription}. \end{exercise}
+\begin{exercise}[easy] CSES \emph{Counting Patterns} --- $k$ independent KMP runs. \end{exercise}
+\begin{exercise}[medium] CSES \emph{String Matching}. \end{exercise}
+\begin{exercise}[medium] CSES \emph{Minimal Rotation}. \end{exercise}
+\begin{exercise}[medium] CSES \emph{Longest Palindrome}. \end{exercise}
+\begin{exercise}[medium] CSES \emph{Repeating Substring}. \end{exercise}
+\begin{exercise}[medium] USACO Gold \emph{Lights Out}. \end{exercise}
+\begin{exercise}[medium] USACO Silver \emph{Censoring (Silver)} --- stack + KMP. \end{exercise}
+\begin{exercise}[hard] CSES \emph{Required Substring}. \end{exercise}
+\begin{exercise}[hard] CSES \emph{Distinct Substrings} --- suffix structures or hashing + sort. \end{exercise}
+\begin{exercise}[hard] CSES \emph{String Functions} --- compute both $\pi$ and $z$ sums. \end{exercise}
+\begin{exercise}[hard] CSES \emph{Palindrome Queries} --- hashing both directions. \end{exercise}
+
+\chapternotes
+
+\section*{Further reading}
+\begin{itemize}
+\item A.~Laaksonen, \emph{Competitive Programmer's Handbook},
+\url{https://cses.fi/book/book.pdf} --- free PDF; the
+trie/hashing/Z treatment this chapter extends.
+\item J.~Sannemo, \emph{Principles of Algorithmic Problem Solving}
+(2025), \url{https://usaco.guide/PAPS1.pdf} --- free PDF; the
+string chapter behind our proof style.
+\item cp-algorithms, \emph{String hashing} --- collision bounds
+and double-hash practice.
+\newline\url{https://cp-algorithms.com/string/string-hashing.html}
+\item cp-algorithms, \emph{Prefix function} --- the automaton
+view and its applications catalogue.
+\newline\url{https://cp-algorithms.com/string/prefix-function.html}
+\item cp-algorithms, \emph{Z-function} --- the Z-box invariant
+proved cleanly.
+\newline\url{https://cp-algorithms.com/string/z-function.html}
+\item The USACO Guide, \emph{Hashing} module,
+\url{https://usaco.guide/gold/hashing} --- the contest settings
+where hashing is the intended weapon.
+\item D.~Gusfield, \emph{Algorithms on Strings, Trees, and
+Sequences} (1997), ISBN 978-0521585194 --- the reference for
+everything past this chapter: suffix trees, automata, and why
+Z-values work.
+\item S.~Halim, F.~Halim, S.~Effendy, \emph{Competitive
+Programming 4} (2020), \url{https://cpbook.net/} --- the string
+problem taxonomy.
+\end{itemize}
+
+\begin{rulebox}[Watch instead]
+\begin{itemize}
+\item \textbf{Abdul Bari --- ``9.1 Knuth-Morris-Pratt KMP String
+Matching Algorithm''}, 18m55s,
+\url{https://www.youtube.com/watch?v=V5-7GzOfADQ} --- covers
+\S15.1, \S15.3: borders (he calls $\pi$ the ``LPS table'') and
+the failure-link walk. (Verified 2026-10-11.)
+\item \textbf{Abdul Bari --- ``9.2 Rabin-Karp String Matching
+Algorithm''}, 23m50s,
+\url{https://www.youtube.com/watch?v=qQ8vS2btsxI} --- covers
+\S15.2: rolling hash as a sliding base-$B$ number; he uses
+base-10 codes for pedagogy --- same idea, our modulus is prime.
+(Verified 2026-10-11.)
+\item \textbf{UC Davis --- ``Linear-time pattern matching:
+Z-values and Z-algorithm''} (Dan Gusfield), 51m46s,
+\url{https://www.youtube.com/watch?v=MFK0WYeVEag} --- covers
+\S15.4: the Z-box invariant from the algorithm's original
+expositor. (Verified 2026-10-11.)
+\end{itemize}
+\emph{Notation note:} Bari writes \texttt{lps} for our $\pi$ and
+indexes strings from 1 in slides; Gusfield's $Z_k$, $l$, $r$
+match the book exactly.
+\end{rulebox}
+Rolling-hash construction and collision practice follow
+cp-algorithms and the USACO Guide~\cite{cpalgorithms,usacoguide};
+the prefix-function, Z-function and trie treatments track
+Laaksonen~\cite{laaksonen2024} and Sannemo~\cite{sannemo2025};
+the Z-box proof shape follows Gusfield (see Further reading);
+problem band and selection follow Halim~\cite{halimcp4} and the
+official CSES set~\cite{cses}.

@@ -1,0 +1,7 @@
+\begin{tikzpicture}[font=\tiny]
+% s = abcabca, period 3: s[i]=s[i+3]; period = n - border
+\foreach \i/\c in {0/a,1/b,2/c,3/a,4/b,5/c,6/a}{\node[draw=slate!50,minimum size=0.32cm] at (\i*0.36,0) {\c};}
+\foreach \i/\j in {0/3,1/4,2/5,3/6}{\draw[<->,amber] (\i*0.36,0.32) -- (\j*0.36,0.32);}
+\node[anchor=west] at (0,-0.6) {period $p{=}3$: $s_i = s_{i+p}$; suffix ``abca'' repeats prefix ``abca''};
+\node[anchor=west] at (0,-1.0) {$\Leftarrow$ border of length $n-p = 4$; every border gives a period};
+\end{tikzpicture}

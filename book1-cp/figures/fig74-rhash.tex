@@ -1,0 +1,7 @@
+\begin{tikzpicture}[font=\tiny]
+\foreach \i/\c in {0/b,1/a,2/n,3/a,4/n,5/a,6/x}{\node[draw=slate!50,minimum size=0.32cm] at (\i*0.36,0) {\c};}
+\draw[decorate,decoration={brace,amplitude=4pt}] (0.9*0.36,0.28) -- (4.1*0.36,0.28) node[midway,above=4pt] {$h(\texttt{ana})$};
+\node[anchor=west] at (0,-0.7) {$h(\texttt{ana}) = \texttt{a}B^2 + \texttt{n}B + \texttt{a}$};
+\node[anchor=west] at (0,-1.1) {slide right one: subtract $\texttt{a}B^2$, multiply by $B$, add \texttt{n}};
+\node[anchor=west] at (0,-1.6) {$h(\texttt{nan}) = \bigl(h(\texttt{ana}) - \texttt{a}B^2\bigr)B + \texttt{n}$ \quad (all mod $p$)};
+\end{tikzpicture}
