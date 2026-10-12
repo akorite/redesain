@@ -59,7 +59,7 @@ that \emph{the OS has already hidden the disk from you}, and only
 
 Buffered writes run at 6.7\,GB/s because the kernel only copies
 into RAM. Add \texttt{fsync} per megabyte and throughput drops
-$3.5\times$; per 4\,KB it drops $\sim$$60\times$ --- the flush
+$3.5\times$; per 4\,KB it drops $\sim$$115\times$ (4\,KB every 0.07\,ms is $\approx$58\,MB/s against 6\,722) --- the flush
 itself becomes the workload. Databases batch commits for exactly
 this reason; the cost isn't the write, it's the durability
 boundary.
@@ -97,7 +97,7 @@ when the device's minimum operation exceeds yours.
       Our own first run read 17\,GB/s --- of RAM. A valid storage
       benchmark must outsize RAM or bypass the cache.
 \item \textbf{fsync-per-write by default.} 0.07\,ms each is fine
-      for 100 writes; at 4\,KB writes it's $60\times$ of the
+      for 100 writes; at 4\,KB writes it's a $\sim$$115\times$ cut in the
       throughput --- batch commits.
 \item \textbf{Treating directories as files' contents.} The
       directory holds \emph{names}; the inode holds the file ---
@@ -115,7 +115,7 @@ when the device's minimum operation exceeds yours.
 \midrule
 inode    & name$\to$inode$\to$blocks; 4\,TB from 100\,B \\
 buffer cache & sequential reads at 17\,GB/s = RAM, measured \\
-fsync    & the durability syscall; $60\times$ tax at 4\,KB \\
+fsync    & the durability syscall; $\sim$$115\times$ tax at 4\,KB \\
 journal  & TxBegin..TxEnd..checkpoint = atomic crash safety \\
 SSD      & erase-block granularity punishes random writes \\
 \bottomrule

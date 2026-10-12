@@ -6,7 +6,7 @@ fsync frequency & effective write MB/s & cost \\
 \midrule
 never & 6\,722 & 1$\times$ \\
 per 1\,MB & 1\,896 & $3.5\times$ slower \\
-per 4\,KB & $\approx$110 & $60\times$ slower (0.07\,ms each) \\
+per 4\,KB & $\approx$58 & $\sim$$115\times$ slower (0.07\,ms each) \\
 \bottomrule
 \end{tabular}
 \caption{fsync is cheap per call but brutal per byte: at 4\,KB

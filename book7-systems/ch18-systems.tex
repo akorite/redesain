@@ -34,7 +34,7 @@ and every compiled language inherits from its semantics.
 \section{The compiler: emit once}
 \input{figures/ch18/fig_compile.tex}
 
-\texttt{ch18\_cc.c} emits the same arithmetic as five arm64
+\texttt{ch18\_cc.c} emits the same kind of arithmetic as five arm64
 instructions --- no dispatch loop, no stack discipline at runtime.
 The constant operands are baked in at compile time
 (\texttt{\# eval at compile time: 104}); the interpreter can never
