@@ -3,11 +3,16 @@
 \label{ch:systems16}
 \index{SIMD}\index{NEON}\index{vectorisation}
 
-Threading splits work across cores; vectorisation splits it across
-lanes in one instruction. This is the third parallelism the book
-has built, and the cheapest: change nothing about the algorithm,
-get 4 items per issue. The catch is in the chapter's second
-measurement --- the compiler may already have taken the win.
+A computer can get more done at once in three different ways. It can
+overlap the steps of different instructions (the pipeline of
+ch.\,6 and 7), it can run several threads on several cores (ch.\,13),
+or it can make a single instruction handle several numbers together.
+This chapter is about the third way, called \emph{vectorisation}. It is
+the cheapest of the three, because you change nothing about the
+algorithm and each instruction simply does four or eight times as much
+work. The catch, which the chapter's second measurement shows, is that
+your compiler may already have done it for you, and that the whole trick
+stops helping once the data is too big for the cache.
 
 \begin{wins}[After this chapter you can]
 Take a plain C loop, say whether the compiler already turned it into
@@ -71,21 +76,74 @@ nothing. This chapter walks through all three, using a loop small
 enough to see completely.
 \end{principle}
 
-\section{Data-level parallelism}
+\section{Three ways to do more at once}
+
+Picture a kitchen that has to chop 1000 carrots. The head cook can
+(a) start chopping the next carrot before finishing the last (overlap,
+which is what a pipeline does), (b) hire more cooks (threads on more
+cores), or (c) buy a slicer that cuts four carrots in one push. Option
+(c) is \emph{data-level parallelism} (DLP): the \emph{same} operation
+applied to many pieces of \emph{data} at the same moment. It only works
+when the pieces do not depend on each other, which is true for carrots
+and, very often, for the elements of an array.
 \input{figures/ch16/fig_dlp}
 
-\section{One instruction, four lanes}
+\begin{principle}[Concept: the same job, many items]
+Whenever you see a loop whose body does \emph{the same arithmetic on
+each element, and element $i$ never needs the result for element
+$i-1$}, you are looking at data-level parallelism. Learn to spot that
+shape first; the instruction names come second.
+\end{principle}
+
+\section{From a tiny example to lanes}
+
+Start with the smallest possible case. Add two lists of four numbers,
+\texttt{[1, 2, 3, 4]} and \texttt{[10, 20, 30, 40]}. A scalar CPU does
+it with four loads of the first list, four loads of the second, four
+adds and four stores: 16 instructions. A vector CPU has registers wide
+enough to hold all four numbers at once. It does one wide load for
+each list, one wide add, one wide store: 4 instructions, and the
+answer \texttt{[11, 22, 33, 44]} is the same. The four slots of the
+register are called \emph{lanes}, like the lanes of a motorway: cars
+travel side by side and never swap lanes. That last point is why SIMD
+hardware is cheap to build: the four additions are independent, so
+the chip simply contains four adders next to each other and does not
+need any wiring between them.
+
+How many lanes you get depends on the register width and on the size of
+the numbers. A 128-bit register holds four 32-bit floats or sixteen
+8-bit bytes; a 256-bit register holds eight floats or thirty-two bytes;
+a 512-bit register holds sixteen floats. SSE2 on x86 and NEON on Arm
+are 128-bit, AVX2 is 256-bit, and AVX-512 is 512-bit.
 \input{figures/ch16/fig_lanes}
 
 \section{SAXPY, measured}
+
+To measure vectorisation we need a loop that is simple, important and
+easy to get right. The classic choice is \emph{SAXPY}: ``Single-precision
+$A$ times $X$ Plus $Y$'', that is $y_i \leftarrow a\,x_i + y_i$ for every
+element of two arrays of 32-bit floats. It is the inner loop of a great
+deal of numerical software. Two details matter for everything that
+follows. First, each element needs only 2 arithmetic operations (one
+multiply, one add). Second, it must move 12 bytes: read $x_i$, read
+$y_i$, write $y_i$. We will use those two numbers to explain the results.
+The \emph{speedup} below is simply (time of the scalar version) divided
+by (time of the vector version); a speedup of 4 means four times faster.
 \input{figures/ch16/fig_saxpy}
 
-\begin{example}[3--4$\times$ real (Mac/NEON)]
-\texttt{-fno-vectorize} scalar vs NEON intrinsics across
-$n=2^{10}\dots2^{25}$: speedup tracks the 4-lane ideal (3.5$\times$
-at $2^{16}$, 4.2$\times$ at $2^{22}$), sagging to 3.0$\times$ at
-$2^{25}$ where memory bandwidth, not issue width, is the limit ---
-ch9's roofline arriving on schedule.
+\begin{example}[Do four lanes give four times the speed? Nearly, on the Mac (Mac/NEON)]
+The scalar version here was compiled with \texttt{-fno-vectorize}
+(a switch that forbids the compiler from using vector instructions
+on its own), so it really is one number at a time. The other version
+uses NEON \emph{intrinsics}, which are C function names that turn into
+exactly one vector instruction each. Across array lengths
+$n=2^{10}\dots2^{25}$ the speedup stays near the 4-lane ideal:
+3.5$\times$ at $2^{16}$ and 4.2$\times$ at $2^{22}$. At $2^{25}$ it
+sags to 3.0$\times$. The reason is that an array of $2^{25}$ floats is
+far larger than the cache, so the CPU spends its time waiting for bytes
+from memory, not for arithmetic: ch.\,9's roofline arriving on schedule.
+(A figure above 4 is probably timing noise or the compiler's choices in
+the scalar loop; treat these as 3--4$\times$, not as exact ratios.)
 \end{example}
 
 \section{SAXPY on x86\_64: SSE2 and AVX2}
@@ -175,20 +233,64 @@ $n=1003$ used in the program's correctness check that is $250$ vector
 passes and $3$ scalar steps.
 \end{example}
 
+\section{Why a compiler can sometimes not vectorise}
+
+Before we ask whether hand-written intrinsics beat the compiler, we
+should see what the compiler needs in order to vectorise at all. It
+must be \emph{certain} that doing four iterations together gives the
+same answer as doing them one after another. Two things can spoil that
+certainty.
+
+\paragraph{A dependence between iterations.} Consider
+\texttt{a[i] = a[i-1] + 1}. Start with \texttt{a[0]=0}. Iteration 1
+needs the new \texttt{a[0]}; iteration 2 needs the new \texttt{a[1]}.
+Done one by one the array becomes $0,1,2,3,4,\dots$. If a vector unit
+tried to do iterations 1 to 4 together, all four would read the
+\emph{old} neighbours and the result would be wrong. The loop is
+therefore not data-parallel as written, and a correct compiler leaves it
+scalar. Compare \texttt{y[i] = a*x[i] + y[i]}: each iteration touches
+only its own $i$, so any grouping is safe.
+
+\paragraph{Aliasing.} In C, two pointer arguments may secretly point
+into the same array. In \texttt{f(float *x, float *y, \dots)} the
+compiler cannot know that \texttt{y} is not, say, \texttt{x+1}; if it
+were, writing \texttt{y[i]} would change a later \texttt{x[i+1]}, which is
+the same dependence problem in disguise. The programmer promises
+otherwise with the \texttt{restrict} keyword (``this pointer is the only
+way to reach this memory''), and good compilers also insert a quick
+run-time check and keep a scalar fallback. Our \texttt{sax\_scalar}
+uses \texttt{restrict} for exactly this reason.
+
+\begin{principle}[Think like this]
+A compiler is a very careful lawyer: it will only apply a transformation
+if it can prove the answer cannot change. When it refuses to vectorise,
+do not fight it. Ask what it cannot prove (a dependence? aliasing? an
+early \texttt{break}?) and either change the loop so that it \emph{can}
+prove it, or tell it the fact (\texttt{restrict}).
+\end{principle}
+
 \section{The folklore item that fails}
+
+Folklore says ``hand-written intrinsics always beat the compiler''.
+Like every rule of thumb in this book, we test it rather than trust it.
+The compiler's own vectorising is called \emph{auto-vectorisation}.
 \input{figures/ch16/fig_autovec}
 
-\begin{example}[Intrinsics $=$ compiler, measured (Mac/NEON)]
-At \texttt{-O3} clang auto-vectorises the scalar SAXPY: 2.891\,ms
-vs the hand-written intrinsics' 2.885\,ms --- $1.00\times$. The
-``intrinsics beat the compiler'' claim dies on this machine.
-Write intrinsics for guaranteed vectorisation on compilers that
-won't, or for ops the compiler can't express --- not for raw speed
-it already finds.
+\begin{example}[Do hand-written intrinsics beat the compiler? Not on the Mac (Mac/NEON)]
+At optimisation level \texttt{-O3} (``optimise hard'') clang
+auto-vectorises the plain scalar SAXPY on its own: 2.891\,ms against
+the hand-written intrinsics' 2.885\,ms, a ratio of $1.00\times$. The
+claim ``intrinsics beat the compiler'' fails here. What the claim gets
+right is narrower: write intrinsics when you need vectorisation
+guaranteed on a compiler that might not do it, or for operations
+the compiler cannot express from scalar code. Do not write them for raw
+speed the compiler already finds.
 \end{example}
 
-\begin{example}[Intrinsics vs compiler on x86\_64: reading the machine code]
-Rebuild the same file with the vectoriser allowed (\texttt{gcc -O3
+\begin{example}[Did the compiler vectorise it? Read the machine code, on x86\_64]
+A habit worth building: never guess whether a loop is vectorised, look.
+\texttt{objdump -d} prints the machine code of a compiled file. Rebuild
+the same file with the vectoriser allowed (\texttt{gcc -O3
 -mavx2}). Before looking at times, look at what the compiler produced
 for the plain scalar C function \texttt{sax\_scalar}, using
 \texttt{objdump -d}:
@@ -227,8 +329,10 @@ spirit: when the loop is simple, intrinsics do not beat the compiler,
 and an intrinsic version written for a narrower register can lose.
 \end{example}
 
-\begin{example}[Where intrinsics do win: saturating add]
-Brightening an 8-bit image adds two bytes and clamps at 255. In C:
+\begin{example}[When intrinsics do win: saturating add]
+\emph{Saturating} arithmetic stops at the largest value instead of
+wrapping around. Brightening an 8-bit image is the everyday case: a pixel of
+200 plus 100 should become 255 (white), not 44. The scalar C adds two bytes and clamps at 255. In C:
 \texttt{s = a[i]+b[i]; o[i] = s>255 ? 255 : s;}. SSE2 has one
 instruction for it, \texttt{\_mm\_adds\_epu8}, on 16 bytes at once.
 \texttt{ch16\_satadd.c} checks that both give identical output on
@@ -250,14 +354,32 @@ takes the compiler a compare-and-select sequence.
 \end{example}
 
 \section{SoA vs AoS: the layout is the vector}
+
+So far the data was one plain array. Real programs store records. Take
+particles with four numbers each: position $x,y,z$ and mass $m$. There
+are two natural ways to lay them out in memory. In an \emph{array of
+structures} (AoS) each particle's four numbers sit together:
+$x_0\,y_0\,z_0\,m_0\,x_1\,y_1\,z_1\,m_1\dots$. In a \emph{structure of
+arrays} (SoA) each field has its own array: $x_0\,x_1\,x_2\dots$, then
+$y_0\,y_1\dots$ and so on. AoS is what most people write first, because a
+particle feels like one thing.
 \input{figures/ch16/fig_soa.tex}
 
-A struct-of-arrays update reads only the fields used; array-of-
-structs drags the whole record through every cache line. Measured on the Mac:
-2.0\,ms vs 4.7\,ms on 16M particles --- $2.35\times$ for a pure
-layout change, no SIMD written. The vector unit loves SoA because
-the memory system already does.
+Now suppose a loop only needs $x$ and $m$. With SoA the CPU streams two
+tidy arrays, and a vector load picks up four consecutive $x$ values in one
+go. With AoS the useful numbers are scattered one in every four slots; half
+of every 64-byte cache line brought from memory is wasted (two of the four
+fields are unused), and a vector load would pick up $x_0\,y_0\,z_0\,m_0$, of which
+only two lanes matter. On the Mac this was measured as 2.0\,ms against
+4.7\,ms on 16M particles, a factor of $2.35$ for a change of layout alone
+(Mac). The vector unit loves SoA because the memory system already does.
 
+\begin{principle}[Think like this]
+Decide the data layout \emph{by the loops that will run over it}, not by
+how the data feels to name. Ask: ``which fields does the hot loop touch
+together?'' and store those together, or apart if each loop touches only
+one field.
+\end{principle}
 \lstinputlisting[language=C,firstline=12,lastline=16,
 caption={The two kernels of \texttt{ch16\_soa\_x86.c}: the same
 arithmetic, different layouts.}]{code/ch16_soa_x86.c}
@@ -303,23 +425,47 @@ barely do (1.27$\times$). The habit to keep is: compute the
 operations-per-byte of a loop \emph{before} reaching for intrinsics.
 
 \section{The three vector ISAs}
+
+An \emph{ISA} (instruction set architecture) is the list of instructions a
+CPU understands (ch.\,3). The three vector ISAs in this chapter differ in a
+simple but important way. NEON and SSE2 fix the register width at 128 bits,
+so a loop is written for exactly four floats, and code written for a wider
+machine must be rewritten (we wrote separate SSE2 and AVX2 kernels above).
+RISC-V's vector extension (RVV) is \emph{vector-length-agnostic}: the loop does
+not say ``eight at a time''. Instead each pass asks the hardware, ``how many
+elements can you take now?'', handles that many, and repeats until none are left,
+which also removes the scalar tail that tripped our naive loop. The same
+program then runs on a small core with 128-bit registers and on a large one with
+1024-bit registers. No RVV hardware is available here, so RVV is a read-along
+and is not run.
 \input{figures/ch16/fig_rvv}
 
 \section{Common mistakes}
 \begin{itemize}
 \item \textbf{Assuming the scalar baseline is scalar.} At
-      \texttt{-O3} the compiler vectorises anyway --- our honest
-      baseline needed \texttt{-fno-vectorize} to be honest.
-\item \textbf{``Intrinsics always win.''} $1.00\times$ vs
-      auto-vec here; the hand-written version earns its keep in
-      control and portability, not raw speed.
-\item \textbf{Vectorising the wrong loop.} Amdahl again --- a
-      4$\times$ kernel at 10\% of runtime buys 3\%.
-\item \textbf{AoS by default.} The struct grouping that's natural
-      to write is the layout that costs $2.35\times$ ---
-      SoA-when-vectorising is a discipline.
-\item \textbf{Memory-bound blindness.} At $n>2^{22}$ the kernel is
-      bandwidth-limited; more lanes don't buy more bytes/sec.
+      \texttt{-O3} the compiler vectorises anyway, so a baseline that
+      you did not check may already be vector code. Ours needed
+      \texttt{-fno-vectorize} (Mac) or \texttt{-fno-tree-vectorize}
+      (gcc) to be honest, and we confirmed it by reading the machine code.
+\item \textbf{``Intrinsics always win.''} They tied the
+      compiler ($1.00\times$) on the Mac and on x86, and a narrower
+      hand-written kernel lost to the compiler's wider one. They earn
+      their keep when you need guaranteed vector code or an
+      instruction the compiler cannot find (saturating add).
+\item \textbf{Vectorising the wrong loop.} If a kernel that you speed
+      up 4$\times$ is only 10\% of the run time, the whole program
+      gets $1/(0.9+0.1/4)\approx1.08\times$ faster, about 8\%. Measure
+      where the time goes first (ch.\,15).
+\item \textbf{AoS by default.} The record layout that is natural to
+      write cost $2.35\times$ on the Mac and $2.47\times$ on x86. Choosing
+      SoA for loops that you intend to vectorise is a discipline you
+      must apply deliberately.
+\item \textbf{Memory-bound blindness.} Once the arrays are bigger than
+      the cache the kernel is limited by bytes per second, and more
+      lanes do not deliver more bytes per second.
+\item \textbf{Forgetting the ragged end.} A vector loop that steps by 4
+      or 8 reads and writes past the array when $n$ is not a multiple of
+      the lane count.
 \end{itemize}
 
 \section{Summary}
@@ -374,129 +520,182 @@ RVV      & vector-length-agnostic --- the portable SIMD \\
 Why is data-level parallelism ``free'' instruction-level
 parallelism? One line.
 \end{exercise}
-\begin{solution}[hint]
-One issue retires 4 lanes --- the pipeline never sees the other
-three instructions.
+\begin{solution}
+One instruction goes through the pipeline (fetch, decode, execute) once,
+yet it does the work of four scalar instructions. The pipeline never has
+to find, schedule or order those other three, so you get their work
+without paying for any of that machinery. That is why people call it
+``free'': the cost is in the register width, not in extra instructions.
 \end{solution}
 \begin{exercise}[easy]
 Our scalar-vs-NEON gap is 3$\times$ at 4 lanes, not 4. What bounds
 it at large n?
 \end{exercise}
-\begin{solution}[hint]
-Memory bandwidth --- the roofline, ch9.
+\begin{solution}
+Memory bandwidth. Past the cache, every element must travel from main
+memory, and the loop can only run as fast as the bytes arrive. Wider
+arithmetic then waits for data. This is the roofline of ch.\,9: below
+the roof you are limited by compute, above a certain size by memory.
 \end{solution}
 \begin{exercise}[easy]
 What does \texttt{-fno-vectorize} prove about our baseline?
 \end{exercise}
-\begin{solution}[hint]
-That the ``scalar'' number is scalar, not the compiler's hidden
-SIMD.
+\begin{solution}
+It proves the slow side of the comparison really is one number at a
+time. Without the switch the compiler may quietly vectorise the ``scalar''
+loop, and then you would be comparing the compiler's SIMD with your SIMD
+and calling the ratio a speedup.
 \end{solution}
 \begin{exercise}[easy]
 Which layout lets the vector unit fetch 4 useful floats per line:
 AoS or SoA?
 \end{exercise}
-\begin{solution}[hint]
-SoA --- AoS interleaves the fields you're not using.
+\begin{solution}
+SoA (structure of arrays). In AoS each cache line contains fields the
+loop does not use, mixed in with the ones it does, so only some of every
+vector load is useful. In SoA four consecutive floats of one field are
+exactly what a 4-lane load picks up.
 \end{solution}
 \begin{exercise}[medium]
 Design the experiment that separates lane-parallel gain from
 cache-friendly gain in the SoA result. What would you time?
 \end{exercise}
-\begin{solution}[hint]
-Time AoS-with-2-fields (a stripped struct) vs SoA --- isolates
-the vectorisation from the memory footprint.
+\begin{solution}
+Add a third variant: AoS with only the two fields the loop uses (a
+``stripped'' struct of 8 bytes). Compare three timings. Full AoS against
+stripped AoS shows the cost of carrying unused fields (the memory
+footprint). Stripped AoS against SoA shows what is left, which is mostly
+the vectoriser's ability to use contiguous arrays. Changing one thing at a
+time is the habit of a good experiment.
 \end{solution}
 \begin{exercise}[medium]
 Auto-vectorisation fails on which loop shapes? Name two and the
 fix for each.
 \end{exercise}
-\begin{solution}[hint]
-Data-dependent exits, and pointer aliasing (\texttt{restrict});
-unrollable-count loops help.
+\begin{solution}
+(1) A loop that may exit early depending on the data, for example
+\texttt{if (x[i]<0) break;}: the compiler cannot know how many iterations
+will run. Fix: split into a search loop and a clean arithmetic loop, or
+use a mask instead of a break. (2) Pointer aliasing, where the compiler
+cannot prove that two arrays do not overlap. Fix: add \texttt{restrict}
+if it is true. A dependence between iterations, such as
+\texttt{a[i]=a[i-1]+1}, also blocks it; that one needs a different algorithm.
 \end{solution}
 \begin{exercise}[medium]
 Why does RVV's vector-length-agnostic loop beat NEON for portable
 code? Trade-off?
 \end{exercise}
-\begin{solution}[hint]
-Same source runs on 128/512/1024-bit hardware; NEON needs a
-rewrite per width.
+\begin{solution}
+The RVV loop asks the hardware how many elements it can take this
+pass, so the same program runs on 128-bit and on 1024-bit machines and
+needs no scalar tail. NEON and SSE2 code is written for a fixed four lanes
+and must be rewritten for wider registers. The trade-off is that the
+hardware, not you, chooses the chunk size, so you must write the loop in
+that style and trust the machine; and RVV hardware is still much less common
+than NEON or x86.
 \end{solution}
 \begin{exercise}[medium]
 A kernel is 90\% memory-bound. Argue why intrinsics are the wrong
 tool, and name the right one.
 \end{exercise}
-\begin{solution}[hint]
-The bottleneck is bytes not lanes; fix the access pattern
-(blocking, SoA, prefetch) instead.
+\begin{solution}
+If 90\% of the time is waiting for memory, even infinitely wide
+arithmetic can remove at most the other 10\%: the program gets at best
+$1/0.9\approx1.11\times$ faster. The right tool reduces the bytes moved:
+a better layout (SoA), blocking (reuse data while it is in cache, ch.\,10),
+or prefetching.
 \end{solution}
 \begin{exercise}[hard]
 Design the SoA+NEON+blocking version of a particle integrator and
 predict the total speedup over the naive AoS scalar. What are the
 two multiplicative terms?
 \end{exercise}
-\begin{solution}[hint]
-Lane parallelism ($\approx$4$\times$) $\times$ footprint
-($\approx$2$\times$) --- but they share the bandwidth ceiling;
-predict sub-multiplicative.
+\begin{solution}
+The two gains are lane parallelism (about 4$\times$ from 4 lanes) and
+footprint (about 2$\times$ from moving fewer bytes with SoA). Naively they
+multiply to about 8$\times$. But both are limited by the same memory
+bandwidth ceiling, so once the data is out of cache the combined gain
+will be smaller than 8$\times$. Our x86 measurements show the pattern:
+layout alone gave 1.70$\times$, layout plus vector 2.47$\times$, well below
+the product.
 \end{solution}
 \begin{exercise}[hard]
 The folklore entry said ``intrinsics beat compiler'' fails at
 $1.00\times$. Write the counterexample where intrinsics DO win
 (hint: ops the compiler can't express) and verify on your machine.
 \end{exercise}
-\begin{solution}[hint]
-Shuffle/permute, saturating arithmetic, crypto primitives ---
-the compiler won't find them from scalar code.
+\begin{solution}
+The saturating add of this chapter is one counterexample:
+\texttt{\_mm\_adds\_epu8} did in one instruction what gcc needed a
+compare-and-select sequence for, and ran about 3$\times$ faster here. Other
+cases are byte shuffles and permutes, and cryptographic instructions (AES
+rounds). To verify, run \texttt{ch16\_satadd.c} on your machine and
+compare the two timings.
 \end{solution}
 \begin{exercise}[easy]
 Rank the three parallelisms by cost-per-speedup for a
 compute-bound kernel.
 \end{exercise}
-\begin{solution}[hint]
-DLP (free, 4$\times$) $>$ ILP (already there) $>$ TLP (real
-cost --- ch13's locks).
+\begin{solution}
+Cheapest first: data-level parallelism needs no change of algorithm and
+gives up to the lane count; instruction-level parallelism is already used
+by the hardware (ch.\,6, 7) at no cost to you; thread-level parallelism
+gives the most potential but costs real design work: locks, races and
+ch.\,13's contention.
 \end{solution}
 \begin{exercise}[medium]
 At what n does our saxpy become memory-bound? Estimate from the
 table and the machine's bandwidth.
 \end{exercise}
-\begin{solution}[hint]
-Gap narrows at $2^{25}$ --- about when the working set leaves
-cache (ch9's mountain).
+\begin{solution}
+On the Mac the gap narrows at $2^{25}$. On the x86 container the
+speedup falls from about 5$\times$ at $2^{16}$ to 2.2$\times$ at $2^{19}$ and
+about 1.3$\times$ at $2^{22}$ and above, where $8n$ bytes reaches the size of
+the 33\,MiB L3. Estimate by comparing $8n$ bytes with the cache sizes
+(ch.\,9's mountain).
 \end{solution}
 \begin{exercise}[medium]
 Explain why SoA is a vectorisation \emph{enabler}, not just a
 layout.
 \end{exercise}
-\begin{solution}[hint]
-Contiguous same-type arrays = clean lane loads; AoS forces
-gathers or shuffles.
+\begin{solution}
+A vector load fills the lanes from consecutive memory. SoA arrays are
+consecutive, so one load fills all lanes with useful numbers. With AoS the
+numbers you need are spaced out, so the compiler must use slower
+\emph{gather} instructions or shuffle values into place. So the layout
+decides whether vectorising is possible at all, not just how fast it is.
 \end{solution}
 \begin{exercise}[medium]
 A teammate proposes AVX-512 ``for 4$\times$ more lanes''. Give
 the two honest cautions beyond availability.
 \end{exercise}
-\begin{solution}[hint]
-Frequency throttling on some parts, and bandwidth caps at large
-n regardless of width.
+\begin{solution}
+First, on some processors the clock speed drops when wide instructions
+are used heavily, which can cancel part of the gain. Second, the loop is
+still limited by memory bandwidth for large $n$, and doubling the lanes
+does not double the bytes arriving per second (see the x86 sweep:
+$1.27\times$ at $2^{25}$ for 8 lanes).
 \end{solution}
 \begin{exercise}[hard]
 Predict the RVV loop's behaviour at vlen=128 vs 1024 given our
 bandwidth numbers --- at what vlen does the extra width stop
 helping?
 \end{exercise}
-\begin{solution}[hint]
-When the vector unit saturates memory BW --- on this class of
-machine, above $\sim$256 bits.
+\begin{solution}
+The vector-length-agnostic loop uses whatever width the hardware has.
+Extra width helps until the unit already consumes all the bytes memory
+can supply. Our x86 numbers suggest that for out-of-cache SAXPY this
+happens already at about 128--256 bits (SSE2 and AVX2 differ by only
+$1.27/1.21$), so for such kernels 1024 bits would be no faster than 256.
+For in-cache data the width keeps helping. This is a prediction from
+the measurements, not something we ran on RVV.
 \end{solution}
 
 \begin{exercise}[easy]
 A vector loop uses 8 lanes. How many vector passes and how many scalar
 tail steps does it run for $n=1003$? For $n=1024$?
 \end{exercise}
-\begin{solution}[hint]
+\begin{solution}
 $1003=8\cdot125+3$: 125 vector passes and 3 tail steps. $1024=8\cdot128$:
 128 passes, 0 tail steps.
 \end{solution}
@@ -506,7 +705,7 @@ bandwidth it achieved, counting one read of \texttt{x} and a read plus
 a write of \texttt{y}, and say what fraction of that the scalar
 version (35.52\,ms) reached.
 \end{exercise}
-\begin{solution}[hint]
+\begin{solution}
 Bytes moved $=3\cdot 2^{25}\cdot 4=402\,653\,184$. At 27.96\,ms that is
 $14.4$\,GB/s; at 35.52\,ms it is $11.3$\,GB/s, so the scalar loop
 already reaches $11.3/14.4\approx 79\%$ of what AVX2 achieves,
@@ -518,7 +717,7 @@ for which swept sizes do \texttt{x} and \texttt{y} together fit in L2,
 and why does the AVX2 speedup drop from $5.2\times$ at $2^{16}$ to
 $2.2\times$ at $2^{19}$?
 \end{exercise}
-\begin{solution}[hint]
+\begin{solution}
 The working set is $8n$ bytes: $2^{13}\to 64$\,KiB and $2^{16}\to 512$\,KiB
 fit in the 1\,MiB L2; $2^{19}\to 4$\,MiB does not, so the loop is
 fed from the slower L3, whose bandwidth, not the ALU, now limits it.

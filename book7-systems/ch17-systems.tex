@@ -3,12 +3,17 @@
 \label{ch:systems17}
 \index{low latency}\index{ring buffer}\index{jitter}
 
-Low latency isn't a mean problem --- it's a jitter problem. The
-patterns in this chapter each remove a source of \emph{occasional}
-slowness: a lock that sometimes convoys, an allocator that
-sometimes walks its free list, a branch that sometimes misses.
-The chapter runs the standard claims on real hardware first,
-because two of the four come out backwards.
+Most programs are fast on average. A program that must answer in
+a fixed time, such as an audio player, a game or a trading system,
+cares about something else: the \emph{occasional} slow answer. A
+song that stutters once an hour is a broken song even if the average
+delay is tiny. That occasional slowness is called \emph{jitter}, and
+low-latency engineering is the craft of removing its causes: a lock
+that sometimes makes threads queue up, an allocator that sometimes
+has to search for free memory, a branch that sometimes guesses
+wrong. Each pattern in this chapter removes one such cause. We run the
+standard claims on real hardware first, because two of the four come
+out backwards, and that is a good first lesson in itself.
 
 \begin{wins}[After this chapter you can]
 Measure a latency distribution (median, p99, p99.9) instead of a
@@ -69,15 +74,60 @@ measurement disagrees with a rule you trusted, you have learned
 something; do not argue with the measurement, find the condition.
 \end{principle}
 
+\section{Why the average hides the problem}
+
+Here is the smallest possible example. You time 10 calls and get, in
+microseconds, \texttt{10 10 10 10 10 10 10 10 10 100}. The average is
+$(9\cdot10+100)/10=19$\,\textmu s, and that number describes no call
+that actually happened: nine calls took 10 and one took 100. The
+\emph{median} (the middle value when sorted) is 10. The \emph{p90} (the
+value that 90\% of calls are at or below) is 10, and the largest is 100.
+A user who happens to meet the 100 sees a service ten times slower than the
+average implies. With many calls, the interesting numbers are the high
+percentiles: p99 (the slowest 1\% start here), p99.9, and the maximum. The
+rest of the chapter measures these, not only means.
+
+\begin{principle}[Concept: latency is a distribution]
+One call has one latency. A program has a \emph{distribution} of
+latencies. The mean is one summary of it and a poor one when a few
+calls are far slower than the rest. Always ask for the median and a high
+percentile as well, and ask what \emph{causes} the slow ones.
+\end{principle}
+
 \section{The folklore audit}
+
+A \emph{folklore} claim is a rule that everyone repeats and few have
+tested. We take four low-latency rules, run each on real hardware, and
+report whether it holds.
 \input{figures/ch17/fig_audit.tex}
 
-\begin{example}[Branchless loses on predictable data (Mac)]
-On the Mac, \texttt{ch17\_folklore.c}: a branchy \texttt{min} over predictable
-inputs runs 23.3\,ms; the bit-trick branchless version runs
-25.1\,ms --- 7\% \emph{slower}, because the predictor made the
-branch free and the ALU work isn't. Branchless only pays where
-the data defeats the predictor; the claim fails by inversion.
+\subsection*{First, what is a branch and why can it be slow?}
+
+A \emph{branch} is an \texttt{if}: the CPU must choose which instructions
+to run next. The pipeline of ch.\,6 and 7 is already fetching the next
+instructions before the choice is known, so the CPU \emph{guesses}.
+Picture a waiter who sets the table for the next customer before knowing
+whether it is one person or two. If the guess is right nothing is lost. If
+it is wrong, the half-prepared work is thrown away and restarted, which costs
+roughly 15 to 25 cycles. The part of the CPU that guesses is the
+\emph{branch predictor}. It is very good at patterns (``always taken'',
+``taken, not taken, taken, not taken'') and cannot beat a coin flip when the
+data is random.
+
+The \emph{branchless} trick avoids the guess altogether: it computes the
+answer with arithmetic (for example, a bit mask that is all ones or all zeros)
+so that there is no \texttt{if} to guess. The price is that it always does the
+extra arithmetic. So the folklore rule ``branchless is faster'' has a hidden
+condition: it should only win when the predictor would have guessed badly.
+
+\begin{example}[The rule fails when the branch is predictable (Mac)]
+The naive expectation is that removing a branch can only help. On the Mac,
+\texttt{ch17\_folklore.c} compares a branchy \texttt{min} over predictable
+inputs (23.3\,ms) with a bit-trick branchless version (25.1\,ms): the
+branchless one is 7\% \emph{slower}. The predictor guessed right almost
+every time, so the branch cost nothing, while the branchless version still
+paid for its extra arithmetic. The claim fails by inversion, which is
+the lesson: branchless pays only where the data defeats the predictor.
 \end{example}
 
 \input{figures/ch17/fig_branch.tex}
@@ -178,18 +228,37 @@ $0.031/0.007\approx 4.4\times$ at $n=64$ and
 $8.5\,\mathrm{ms}/0.083\,\mu\mathrm{s}\approx 10^{5}\times$ at 16M.
 \end{example}
 
-Binary search wins at n=64 too --- but $4\times$, not the
-20\,000$\times$ it wins at 16M. ``Linear is fine for small n'' is
-true in ratio and false in direction; the honest version is
-``linear's disadvantage is small at small n.''
+Binary search wins at $n=64$ too, but by $4\times$ (Mac), not the
+20\,000$\times$ it wins by at 16M. ``Linear is fine for small $n$'' is
+true in size of the gap and false in direction: binary never lost. The
+honest version of the rule is ``linear's disadvantage is small at small
+$n$''.
+
+\begin{principle}[Think like this]
+Count the work first, then measure. Counting says binary search does
+about $\log_2 n$ steps and linear search up to $n$. Measuring tells you
+how much \emph{each step} costs on this machine. A rule is
+trustworthy only when the counted work and the measured time agree about
+the direction.
+\end{principle}
 
 \section{The allocation myth, priced}
-On the Mac, malloc on a thread-cached allocator costs 11\,ns/pair --- the
-``malloc is slow'' scare is mostly myth at this granularity. But
-pool reuse still wins (0.011 vs 0.000\,\textmu s) and, more
-importantly, removes the allocator's tail: the reason low-latency
-code pre-allocates isn't steady-state cost, it's the rare
-free-list walk the p99 sees.
+
+\texttt{malloc} hands out heap memory, and the \emph{allocator}
+behind it keeps lists of free blocks. When you free a block it goes back on
+a list; when you ask for one the allocator usually takes one from a
+quick per-thread list (the \emph{thread cache}), but sometimes it must
+search a longer list or ask the operating system for more. A \emph{pool} is
+the alternative: allocate all the blocks you will need once, at the start,
+and hand them out from a free stack with no searching.
+
+The folklore says ``malloc is slow, never call it in the hot path''. On the
+Mac, malloc with a thread-cached allocator cost 11\,ns per malloc/free pair,
+so the scare is mostly myth at this granularity. A pool still wins (0.011
+against 0.000\,\textmu s per pair on the Mac), but the more important
+reason to use one is the allocator's \emph{tail}: low-latency code
+pre-allocates not because the average malloc is slow, but because of the rare
+call that has to search, which is exactly what the p99 sees.
 
 \lstinputlisting[language=C,firstline=27,lastline=32,
 caption={The measured loop of \texttt{ch17\_tail.c}: only the \texttt{malloc} call sits between the two clock reads.}]{code/ch17_tail.c}
@@ -244,14 +313,29 @@ the tick next to an item before the item itself has been written. That
 is what the acquire/release annotations in the code say.
 
 \section{The SPSC ring}
+
+\subsection*{A queue with no allocation, from a tiny example}
+
+Suppose a producer (say, a microphone driver) hands samples to a
+consumer (an audio mixer). The simplest store is a ring of 4 slots,
+numbered 0 to 3, in a fixed array, plus two counters: \texttt{head}, the slot
+the producer will write next, and \texttt{tail}, the slot the consumer will read
+next. Start with both at 0: the ring is empty. The producer writes \texttt{A}
+into slot 0 and moves \texttt{head} to 1; writes \texttt{B} into slot 1 and
+moves \texttt{head} to 2. The consumer reads slot 0 (\texttt{A}) and moves
+\texttt{tail} to 1. When a counter reaches the end it wraps around to 0
+(``(\texttt{head}+1) mod 4''), so the same four slots are reused forever: hence
+a \emph{ring}. Nothing is allocated or freed while it runs. ``SPSC'' means
+\emph{single producer, single consumer}: one thread only writes, one thread only reads.
 \input{figures/ch17/fig_ring.tex}
 
-Power-of-two slots, head written only by the producer, tail only
-by the consumer --- no mutex because each index has one owner.
-The real \texttt{ch17\_ringbuf.c}: 1M push/pop pairs, 0
-mismatches. It's the workhorse of audio pipelines and network
-drivers precisely because it trades capacity headroom (a fixed
-256 slots) for zero synchronisation.
+The real ring has 256 slots (a power of two, so the wrap-around is
+a fast bit mask) and \texttt{head} is written only by the producer,
+\texttt{tail} only by the consumer: no lock, because each counter has one
+owner. The test \texttt{ch17\_ringbuf.c} pushes and pops 1M values and finds 0
+mismatches. This ring is the workhorse of audio pipelines and network drivers
+precisely because it trades a little capacity (a fixed number of slots) for
+zero locking.
 
 \begin{example}[Why the 256-slot ring holds 255 items]
 The code distinguishes ``full'' from ``empty'' by comparing indices:
@@ -323,24 +407,31 @@ likely bound by cache-line transfers between the cores, not by computation
 \end{example}
 
 \section{The cost sheet}
+
+Nothing here is free. Each pattern buys a steadier tail by paying in
+something else, and a good engineer writes the bill down before
+choosing. The figure lists what the patterns of this chapter cost.
 \input{figures/ch17/fig_cost.tex}
 
 \section{Common mistakes}
 \begin{itemize}
 \item \textbf{Branchless everywhere.} Our branchless \texttt{min}
-      lost 7\% on predictable data --- the trick pays only where
-      the predictor fails.
+      lost 7\% on the Mac with predictable data, and on x86 gcc had already
+      removed the branch. The trick pays only where the predictor fails
+      (9$\times$ on random data, 1.5$\times$ on sorted).
 \item \textbf{``Never malloc in the hot path'' as dogma.} The
-      thread cache is 11\,ns; the real reason is the allocator's
-      \emph{tail}, not its mean.
-\item \textbf{Lock-free = fast, assumed.} ch13 already priced it:
-      contended lines cost more than locks at scale.
-\item \textbf{Optimising the mean.} The user on the p99 feels the
-      rare syscall/alloc/miss --- mean optimisation is often
-      invisible.
-\item \textbf{Unbounded queues for backpressure.} A ring that
-      blocks at 256 beats a queue that swells to 2\,GB and then
-      falls over --- capacity is a design decision.
+      thread cache made a pair cost 11\,ns on the Mac; the real reason to
+      pre-allocate is the allocator's \emph{tail}, not its mean.
+\item \textbf{Lock-free = fast, assumed.} ch.\,13 priced it: a cache
+      line that several cores write to costs more than a well-used lock.
+      Our padded and packed rings were not consistently different.
+\item \textbf{Optimising the mean.} The user who meets the slowest 1\%
+      feels the rare system call, allocation or cache miss. Making the
+      average faster is often invisible to that user.
+\item \textbf{Unbounded queues for backpressure.} \emph{Backpressure}
+      means telling the producer to slow down when the consumer cannot
+      keep up. A ring that refuses at 255 items beats a queue that grows to
+      2\,GB and then falls over; capacity is a design decision.
 \end{itemize}
 
 \section{Summary}
@@ -390,61 +481,82 @@ ring     & 1M pairs, 0 mismatches; 20M items across 2 threads in order; holds 25
 \begin{exercise}[easy]
 Why is jitter, not the mean, the low-latency target?
 \end{exercise}
-\begin{solution}[hint]
-The p99 is what the user sees; mean cost is usually fine already.
+\begin{solution}
+A user does not experience the average; they experience each call.
+If 1 call in 100 is ten times slower, that user sees a slow service once in
+every hundred actions, and the mean (which barely moves) hides it. The
+p99 describes that slow 1\%. And the mean is usually already acceptable,
+so there is little left to win there.
 \end{solution}
 \begin{exercise}[easy]
 Our branchless min lost on predictable data --- which side of
 the hardware made the branchy version free?
 \end{exercise}
-\begin{solution}[hint]
-The branch predictor; it only loses on unpredictable data.
+\begin{solution}
+The branch predictor. On predictable data it guesses right and the branch
+costs nothing, so the branchy version does less work. The branchless
+version only wins when the predictor guesses wrong often.
 \end{solution}
 \begin{exercise}[easy]
 What makes the SPSC ring lock-free with only two fields?
 \end{exercise}
-\begin{solution}[hint]
-Single owner per index --- no shared write to order.
+\begin{solution}
+Each index (\texttt{head}, \texttt{tail}) has exactly one thread that
+writes it, so two threads never write the same variable and there is
+no write conflict to lock against. The other thread only reads it.
 \end{solution}
 \begin{exercise}[easy]
 Name the real cost the ring buffer pays for zero locks.
 \end{exercise}
-\begin{solution}[hint]
-Fixed capacity --- it drops or blocks at 256 entries.
+\begin{solution}
+Fixed capacity: with 256 slots the ring holds at most 255 items. When
+it is full the producer must drop, wait or overwrite.
 \end{solution}
 \begin{exercise}[medium]
 Binary beat linear at n=64 by only $4\times$. Explain why the
 ratio is small there and huge at 16M, in memory terms.
 \end{exercise}
-\begin{solution}[hint]
+\begin{solution}
 The work ratio is $n$ against about $\log_2 n+1$ probes: 64 against 7
-at $n=64$, and 16M against 25 at $n=2^{24}$. The measured ratio is smaller than the
-work ratio at $n=64$ because fixed per-call costs dominate a 7-probe search.
+at $n=64$, and 16M against 25 at $n=2^{24}$. At $n=64$ the whole array
+is a few cache lines and the function call and loop set-up are a large
+share of a 7-probe search, so the measured gain (4$\times$) is smaller than
+the work ratio (about 9). At 16M the work ratio is huge and the gain follows.
 \end{solution}
 \begin{exercise}[medium]
 A teammate removes all mallocs from a hot loop and sees no
 improvement. Using our 11\,ns figure, argue why --- and where the
 win actually lives.
 \end{exercise}
-\begin{solution}[hint]
-At 11\,ns each the mean cost is noise; the win is the tail ---
-free-list walks and lock contention at the p99.
+\begin{solution}
+At 11\,ns per malloc/free pair the mean cost is lost in the noise
+of the rest of the loop, so removing it changes the average by almost
+nothing. The win from a pool shows up in the tail: the rare free-list
+search and any lock contention that the p99 sees. To prove it, time each call
+separately as \texttt{ch17\_tail.c} does.
 \end{solution}
 \begin{exercise}[medium]
 Extend the ring to MPMC (multi-producer/consumer). Which fields
 stop being single-owner, and what primitive replaces them?
 \end{exercise}
-\begin{solution}[hint]
-Head and tail become contended --- CAS loops or sequence numbers
-(LMAX-style) restore order.
+\begin{solution}
+With several producers, \texttt{head} is written by more than one thread, so
+the ``one owner'' rule is gone (and likewise \texttt{tail} with several consumers).
+Two producers could claim the same slot. The usual replacement is an
+atomic compare-and-swap (CAS) loop to claim a slot, or per-slot sequence numbers
+that say whether a slot is ready, as in the LMAX disruptor design. Both
+cost more than the SPSC ring.
 \end{solution}
 \begin{exercise}[medium]
 Design the experiment that shows WHERE branchless actually wins
 on your machine. What data property flips the result?
 \end{exercise}
-\begin{solution}[hint]
-Random vs sorted inputs --- mispredicts at $\sim$50\% each cost
-10--20 cycles; predictable costs 0.
+\begin{solution}
+Run the same branchy and branchless loops on random data and on the
+same data sorted. Random data makes the branch a coin flip (about 50\%
+mispredicted, each costing roughly 15--25 cycles); sorted data makes it
+nearly always right. The data property that flips the result is
+predictability, and this chapter's x86 experiment does exactly that.
 \end{solution}
 \begin{exercise}[hard]
 Argue the memory-ordering contract that makes our SPSC ring
@@ -452,9 +564,16 @@ correct on a weakly-ordered ISA: what must the producer's
 head-store publish, and what can go wrong if the buffer write
 isn't ordered before it? Give the Dekker-style reasoning.
 \end{exercise}
-\begin{solution}[hint]
-The data write must be release-ordered before head; otherwise
-the consumer reads tail-but-stale buffer (a torn read).
+\begin{solution}
+The producer writes the slot and then updates \texttt{head}. If the CPU
+(or the compiler) lets the \texttt{head} update become visible before the
+slot write, the consumer sees the new \texttt{head}, reads the slot, and
+gets stale data. Storing \texttt{head} with release ordering forbids moving the
+slot write after it; the consumer loading \texttt{head} with acquire ordering
+forbids reading the slot before it. Together: if the consumer sees the new
+\texttt{head}, it sees the new data. (A Dekker-style argument would also
+say what happens when both indices race; here each has one writer, so only
+this one-way publication has to be justified.)
 \end{solution}
 \begin{exercise}[hard]
 The folklore audit killed 2 of 4 claims. Write the claim about
@@ -462,40 +581,46 @@ low-latency design that IS true in your experience, run it, and
 report the number --- and explain what makes it survive where
 the others didn't.
 \end{exercise}
-\begin{solution}[hint]
-True claims specify \emph{conditions} (``branchless wins on
-random data'') --- they survive because the measurement matches
-the assumption.
+\begin{solution}
+A claim that survives states its \emph{conditions}: ``branchless wins
+when the branch is unpredictable'' (here 9$\times$ on random data). It
+survives because the experiment is built to match the assumption, whereas
+the claims that failed left the condition unstated.
 \end{solution}
 \begin{exercise}[easy]
 What does ``allocation-free'' actually mean in the ring code?
 \end{exercise}
-\begin{solution}[hint]
-Fixed compile-time storage --- the 256-slot array lives in the
-struct, not the heap.
+\begin{solution}
+No \texttt{malloc} or \texttt{free} happens while the ring is used:
+the 256-slot array is part of the \texttt{ring\_t} structure, whose size is
+known at compile time, so there is no allocator work (and no allocator tail).
 \end{solution}
 \begin{exercise}[medium]
 Backpressure: our push returns -1 when full. Compare that policy
 with blocking and with unbounded growth --- which is correct for
 real-time audio and why?
 \end{exercise}
-\begin{solution}[hint]
-Drop/overwrite --- a late audio sample is a click; a growing
-queue is unbounded latency.
+\begin{solution}
+Drop or overwrite. A late audio sample is heard as a click, and a
+queue that keeps growing makes every later sample later still: unbounded
+latency. Blocking is wrong because the audio callback must not wait.
+Dropping loses one sample, which is a bounded, tolerable error.
 \end{solution}
 \begin{exercise}[medium]
 The ring uses \texttt{volatile} head/tail. Why isn't that enough
 on a real concurrent ISA --- what's missing?
 \end{exercise}
-\begin{solution}[hint]
-Ordering --- volatile stops compiler reordering, not CPU
-reordering; you need release/acquire.
+\begin{solution}
+\texttt{volatile} only tells the compiler to perform every access. It does
+not tell the CPU to make writes visible to other cores in order, and on
+Arm or RISC-V the CPU may reorder them. Release and acquire operations give
+that guarantee (and on x86 they are cheap).
 \end{solution}
 \begin{exercise}[medium]
 Estimate the cache-line cost of head and tail sharing one line
 (false sharing) on our ring, and name the fix.
 \end{exercise}
-\begin{solution}[hint]
+\begin{solution}
 In theory each push and pop bounce the line between cores, and the
 fix is to pad head and tail to separate lines. In this chapter's
 own measurement (four runs of \texttt{ch17\_spsc}) the padding gave
@@ -506,16 +631,24 @@ Design a low-latency request path with a 1\,ms p99 budget, from
 accept to reply. Budget each hop, choose the data structures,
 and defend the two hardest trade-offs.
 \end{exercise}
-\begin{solution}[hint]
-Pools + SPSC rings + pre-allocated reply buffers; the hard
-trades are capacity vs latency and batching vs immediacy.
+\begin{solution}
+There is no single right answer; a good one writes a budget that adds
+up. For example (an illustrative plan, not a measurement): accept and parse
+100\,\textmu s, hand off through an SPSC ring 50\,\textmu s, look up the
+data 300\,\textmu s, build the reply in a pre-allocated buffer 100\,\textmu s, send 150\,\textmu s,
+leaving 300\,\textmu s of slack for the tail. Use pools and rings so that no step
+allocates or locks. The two hard trade-offs are capacity against latency
+(a bigger ring absorbs bursts but lets queues build up, which adds waiting
+time) and batching against immediacy (handling several requests together
+saves work but makes the first one wait). Defend each with the p99 you
+would measure.
 \end{solution}
 
 \begin{exercise}[easy]
 The ring has \texttt{head}=250 and \texttt{tail}=3. How many items does
 it hold, and how many more pushes succeed before one is rejected?
 \end{exercise}
-\begin{solution}[hint]
+\begin{solution}
 It holds $(250-3)\bmod 256=247$ items. Capacity is 255, so $255-247=8$
 pushes succeed (head goes $251,252,253,254,255,0,1,2$); at head=2 the next
 index would equal the tail 3, so the ninth is rejected.
@@ -525,7 +658,7 @@ You time 1000 calls: 985 take 20\,ns, 14 take 100\,ns, one takes
 10\,000\,ns. Compute the mean, the median, the p99 (the 991st value in sorted order) and the max, and say which
 one a user waiting on the slowest 1\% would feel.
 \end{exercise}
-\begin{solution}[hint]
+\begin{solution}
 Mean $=(985\cdot20+14\cdot100+10000)/1000=(19700+1400+10000)/1000=31.1$\,ns.
 Median 20\,ns. In sorted order positions 1--985 are 20\,ns, 986--999 are
 100\,ns and 1000 is 10\,000\,ns, so the 991st value (p99) is 100\,ns, and
@@ -537,7 +670,7 @@ A branchy loop over $10^{6}$ random bits runs 4\,ms slower than the
 branchless loop. Assuming the predictor is right half the time, what
 does one mispredict cost in nanoseconds, and in cycles at 3\,GHz?
 \end{exercise}
-\begin{solution}[hint]
+\begin{solution}
 $5\times10^{5}$ mispredicts account for 4\,ms: $4\times10^{-3}/(5\times10^{5})=8$\,ns,
 and $8\,\mathrm{ns}\times3\,\mathrm{GHz}=24$ cycles.
 \end{solution}
