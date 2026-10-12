@@ -1,3 +1,5 @@
+> Status 2026-10-12: the videos in this file were checked by Keitaro (project owner) on their own machine, per their project message. This session could not open them, so no title, channel or length here was re-checked by Claude. Any row whose length is approximate (`~`) still needs exact minutes.
+
 | ch | title | channel | length | URL | matched sections | accessed |
 |---|---|---|---|---|---|---|
 | 01 | 1D Kinematics — Speed, Velocity, Acceleration (MIT 8.01x Lect 2) | Lectures by Walter | 50:42 | https://youtu.be/q9IWoQ199_o | 1.1–1.3 | 2026-10-11 |

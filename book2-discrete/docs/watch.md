@@ -1,3 +1,5 @@
+> Status 2026-10-12: the videos in this file were checked by Keitaro (project owner) on their own machine, per their project message. This session could not open them, so no title, channel or length here was re-checked by Claude. Any row whose length is approximate (`~`) still needs exact minutes.
+
 # Watch instead — verified video picks
 
 Rule: only videos actually opened and confirmed (oembed/page metadata). Never
