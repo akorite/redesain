@@ -1,25 +1,92 @@
-\begin{tikzpicture}[font=\tiny]
-\begin{scope}
-  \node[anchor=west] at (0,0) {0\quad 4\quad $\infty$\quad 2};
-  \node[anchor=west] at (0,-0.35) {5\quad 0\quad 7\quad 3};
-  \node[anchor=west] at (0,-0.7) {$\infty$\quad $\infty$\quad 0\quad 1};
-  \node[anchor=west] at (0,-1.05) {6\quad 1\quad 8\quad 0};
-  \node at (0.8,-1.7) {before};
-\end{scope}
-\begin{scope}[xshift=2.9cm]
-  \node[anchor=west] at (0,0) {0\quad 4\quad $\infty$\quad 2};
-  \node[anchor=west] at (0,-0.35) {5\quad 0\quad 7\quad 3};
-  \node[anchor=west] at (0,-0.7) {$\infty$\quad $\infty$\quad 0\quad 1};
-  \node[anchor=west] at (0,-1.05) {6\quad 1\quad 8\quad 0};
-  \node at (0.8,-1.7) {after $k=1$};
-\end{scope}
-\begin{scope}[xshift=5.8cm]
-  \node[anchor=west] at (0,0) {0\quad 4\quad 11\quad 2};
-  \node[anchor=west] at (0,-0.35) {5\quad 0\quad 7\quad 3};
-  \node[anchor=west] at (0,-0.7) {$\infty$\quad $\infty$\quad 0\quad 1};
-  \node[anchor=west] at (0,-1.05) {6\quad 1\quad 8\quad 0};
-  \node at (0.8,-1.7) {after $k=2$};
-\end{scope}
-\node[anchor=west] at (0,-2.4) {each stage lets routes detour through
-one more vertex};
+% fig38-floyd.tex -- Figure 7.10: Floyd--Warshall stages on a 4-vertex digraph
+% edges 1->2:4, 1->4:9, 2->3:2, 3->4:1, 4->1:3; amber cells improved in that stage.
+\input{figures/fstyle}
+\begin{tikzpicture}[font=\footnotesize]
+\tikzset{mc/.style={draw=slate, minimum size=5.4mm, inner sep=0pt, font=\scriptsize}}
+\node[mc, fill=graybg] at (0.00,0.00) {0};
+\node[mc] at (0.54,0.00) {4};
+\node[mc] at (1.08,0.00) {$\infty$};
+\node[mc] at (1.62,0.00) {9};
+\node[mc] at (0.00,-0.54) {$\infty$};
+\node[mc, fill=graybg] at (0.54,-0.54) {0};
+\node[mc] at (1.08,-0.54) {2};
+\node[mc] at (1.62,-0.54) {$\infty$};
+\node[mc] at (0.00,-1.08) {$\infty$};
+\node[mc] at (0.54,-1.08) {$\infty$};
+\node[mc, fill=graybg] at (1.08,-1.08) {0};
+\node[mc] at (1.62,-1.08) {1};
+\node[mc] at (0.00,-1.62) {3};
+\node[mc] at (0.54,-1.62) {$\infty$};
+\node[mc] at (1.08,-1.62) {$\infty$};
+\node[mc, fill=graybg] at (1.62,-1.62) {0};
+\node[lab, align=center] at (0.81,-2.2) {initial: direct edges};
+\node[mc, fill=graybg] at (2.95,0.00) {0};
+\node[mc] at (3.49,0.00) {4};
+\node[mc] at (4.03,0.00) {$\infty$};
+\node[mc] at (4.57,0.00) {9};
+\node[mc] at (2.95,-0.54) {$\infty$};
+\node[mc, fill=graybg] at (3.49,-0.54) {0};
+\node[mc] at (4.03,-0.54) {2};
+\node[mc] at (4.57,-0.54) {$\infty$};
+\node[mc] at (2.95,-1.08) {$\infty$};
+\node[mc] at (3.49,-1.08) {$\infty$};
+\node[mc, fill=graybg] at (4.03,-1.08) {0};
+\node[mc] at (4.57,-1.08) {1};
+\node[mc] at (2.95,-1.62) {3};
+\node[mc, fill=amberbg, draw=amber, text=amber] at (3.49,-1.62) {7};
+\node[mc] at (4.03,-1.62) {$\infty$};
+\node[mc, fill=graybg] at (4.57,-1.62) {0};
+\node[lab, align=center] at (3.76,-2.2) {after $k=1$};
+\node[mc, fill=graybg] at (5.90,0.00) {0};
+\node[mc] at (6.44,0.00) {4};
+\node[mc, fill=amberbg, draw=amber, text=amber] at (6.98,0.00) {6};
+\node[mc] at (7.52,0.00) {9};
+\node[mc] at (5.90,-0.54) {$\infty$};
+\node[mc, fill=graybg] at (6.44,-0.54) {0};
+\node[mc] at (6.98,-0.54) {2};
+\node[mc] at (7.52,-0.54) {$\infty$};
+\node[mc] at (5.90,-1.08) {$\infty$};
+\node[mc] at (6.44,-1.08) {$\infty$};
+\node[mc, fill=graybg] at (6.98,-1.08) {0};
+\node[mc] at (7.52,-1.08) {1};
+\node[mc] at (5.90,-1.62) {3};
+\node[mc] at (6.44,-1.62) {7};
+\node[mc, fill=amberbg, draw=amber, text=amber] at (6.98,-1.62) {9};
+\node[mc, fill=graybg] at (7.52,-1.62) {0};
+\node[lab, align=center] at (6.71,-2.2) {after $k=2$};
+\node[mc, fill=graybg] at (8.85,0.00) {0};
+\node[mc] at (9.39,0.00) {4};
+\node[mc] at (9.93,0.00) {6};
+\node[mc, fill=amberbg, draw=amber, text=amber] at (10.47,0.00) {7};
+\node[mc] at (8.85,-0.54) {$\infty$};
+\node[mc, fill=graybg] at (9.39,-0.54) {0};
+\node[mc] at (9.93,-0.54) {2};
+\node[mc, fill=amberbg, draw=amber, text=amber] at (10.47,-0.54) {3};
+\node[mc] at (8.85,-1.08) {$\infty$};
+\node[mc] at (9.39,-1.08) {$\infty$};
+\node[mc, fill=graybg] at (9.93,-1.08) {0};
+\node[mc] at (10.47,-1.08) {1};
+\node[mc] at (8.85,-1.62) {3};
+\node[mc] at (9.39,-1.62) {7};
+\node[mc] at (9.93,-1.62) {9};
+\node[mc, fill=graybg] at (10.47,-1.62) {0};
+\node[lab, align=center] at (9.66,-2.2) {after $k=3$};
+\node[mc, fill=graybg] at (11.80,0.00) {0};
+\node[mc] at (12.34,0.00) {4};
+\node[mc] at (12.88,0.00) {6};
+\node[mc] at (13.42,0.00) {7};
+\node[mc, fill=amberbg, draw=amber, text=amber] at (11.80,-0.54) {6};
+\node[mc, fill=graybg] at (12.34,-0.54) {0};
+\node[mc] at (12.88,-0.54) {2};
+\node[mc] at (13.42,-0.54) {3};
+\node[mc, fill=amberbg, draw=amber, text=amber] at (11.80,-1.08) {4};
+\node[mc, fill=amberbg, draw=amber, text=amber] at (12.34,-1.08) {8};
+\node[mc, fill=graybg] at (12.88,-1.08) {0};
+\node[mc] at (13.42,-1.08) {1};
+\node[mc] at (11.80,-1.62) {3};
+\node[mc] at (12.34,-1.62) {7};
+\node[mc] at (12.88,-1.62) {9};
+\node[mc, fill=graybg] at (13.42,-1.62) {0};
+\node[lab, align=center] at (12.61,-2.2) {after $k=4$};
+\node[lab] at (7.2,-3.0) {each stage lets routes detour through one more vertex; amber marks the entries that improved};
 \end{tikzpicture}

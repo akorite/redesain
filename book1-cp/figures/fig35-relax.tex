@@ -1,8 +1,13 @@
+% fig35-relax.tex -- Figure 7.7: one relaxation step across an edge of weight 4.
+\input{figures/fstyle}
 \begin{tikzpicture}[font=\footnotesize]
-\node[circle,draw=slate,font=\tiny] (u) at (0,0) {u};
-\node[circle,draw=slate,font=\tiny] (v) at (2.4,0) {v};
-\draw[-{stealth},slate] (u)--(v) node[midway,above,font=\tiny] {w=4};
-\node[font=\tiny] at (0,0.65) {dist=7};
-\node[font=\tiny,anchor=west] at (1.7,0.65) {dist=15 $\to$ 11};
-\node[font=\tiny] at (1.2,-0.7) {$7+4 < 15$: relax};
+\node[vtxh, minimum size=8mm] (u) at (0,0) {$u$};
+\node[vtx, minimum size=8mm] (v) at (4,0) {$v$};
+\draw[arr] (u) -- (v) node[midway, above, lab] {$w=4$};
+\node[labA] at (0,0.85) {dist $=7$};
+\node[lab] at (4,0.85) {dist $=15$};
+\node[lab, align=center] at (2,-0.9) {$7+4=11<15$: strictly better, so update};
+\node[vtxa, minimum size=8mm] (v2) at (7.4,0) {$v$};
+\node[labM] at (7.4,0.85) {dist $=11$};
+\draw[arrM] (v.east) -- (v2.west) node[midway, above, labM] {relax};
 \end{tikzpicture}

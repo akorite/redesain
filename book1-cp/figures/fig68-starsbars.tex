@@ -1,5 +1,13 @@
-\begin{tikzpicture}[font=\tiny]
-\node at (0,0) {\texttt{**} $|$ \texttt{*} $|$ \texttt{***} $|$};
-\node[font=\tiny] at (0,-0.6) {apples + walls $=$ one string};
-\node[font=\tiny] at (0,-1.1) {$\binom{n+m-1}{n-1}$ placements};
+% fig68-starsbars.tex -- Figure 13.x: stars and bars; m = 5 apples among n = 3 children -> 7 symbols, 2 walls.
+\input{figures/fstyle}
+\begin{tikzpicture}[font=\footnotesize]
+\foreach \s [count=\i from 0] in {a,a,w,a,w,a,a} {
+  \if\s w \node[cell, minimum width=3mm, minimum height=9mm, fill=amber!30, draw=amber] (s\i) at (\i*0.8,0) {$|$};
+  \else \node[cellh, minimum width=7mm, minimum height=7mm, rounded corners=3.5pt] (s\i) at (\i*0.8,0) {$\bullet$};\fi}
+\draw[decorate,decoration={brace,mirror,raise=4pt},accent] (s0.south west) -- (s1.south east) node[midway,below=8pt,labA]{child 1: $2$};
+\draw[decorate,decoration={brace,mirror,raise=4pt},accent] (s3.south west) -- (s3.south east) node[midway,below=8pt,labA]{child 2: $1$};
+\draw[decorate,decoration={brace,mirror,raise=4pt},accent] (s5.south west) -- (s6.south east) node[midway,below=8pt,labA]{child 3: $2$};
+\node[lab, anchor=west, align=left] at (6.3,0.4) {$m=5$ apples ($\bullet$) and $n-1=2$ walls ($|$)};
+\node[lab, anchor=west, align=left] at (6.3,-0.3) {choose which $2$ of the $7$ slots are walls:};
+\node[labM, anchor=west] at (6.3,-1.0) {$\binom{n+m-1}{n-1}=\binom{7}{2}=21$};
 \end{tikzpicture}

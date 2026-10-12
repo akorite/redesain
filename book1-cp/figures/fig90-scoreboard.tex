@@ -1,17 +1,20 @@
-\begin{tikzpicture}[font=\tiny,scale=0.72]
-\draw[rulegray] (0,0) rectangle (10.6,3.4);
-\foreach \y in {0.6,1.2,1.8,2.4,3.0} \draw[rulegray] (0,\y)--(10.6,\y);
-\foreach \x/\t in {0.0/Rank,1.4/Team,4.0/A,5.0/B,6.0/C,7.0/D,8.0/E,9.0/Pen.}
-  \node[anchor=west,font=\tiny\bfseries] at (\x+0.12,3.1) {\t};
-\foreach \y/\rk/\tm/\a/\b/\c/\d/\e/\p in {
-  2.7/1/byte girls/+2/+/{}/{}/+1/89:52,
-  2.1/2/night owls/+/+1/{}/{}/-2/143:20,
-  1.5/3/you/{}/{}/-3/{}/{}/---,
-  0.9/4/segfaults/-1/{}/{}/{}/{}/---,
-  0.3/5/newbies/{}/{}/{}/{}/{}/---}
-  {\node[anchor=west] at (0.12,\y) {\rk};
-   \node[anchor=west] at (1.52,\y) {\tm};
-   \node at (4.5,\y) {\a}; \node at (5.5,\y) {\b}; \node at (6.5,\y) {\c};
-   \node at (7.5,\y) {\d}; \node at (8.5,\y) {\e}; \node[anchor=east] at (10.5,\y) {\p};}
-\node[align=left,anchor=west] at (10.9,1.7) {Read it as:\\$\bullet$ +: solved, --: failed tries\\$\bullet$ +2 = solved on 3rd try\\$\bullet$ penalty = time + 20m/try\\$\bullet$ unsolved problems with\\most tries = where effort goes};
-\end{tikzpicture}
+% fig90-scoreboard.tex -- Figure 18.x: reading a contest scoreboard (ICPC-style: + solved, -k failed tries, +k solved after k failed tries).
+\input{figures/fstyle}
+\fitfig{\begin{tikzpicture}[font=\footnotesize]
+\tikzset{sc/.style={minimum width=9mm, minimum height=6.5mm, inner sep=0pt, font=\footnotesize}}
+\foreach \x/\t in {0/Rank, 1.1/Team, 3.9/A, 4.8/B, 5.7/C, 6.6/D, 7.5/E, 8.8/Penalty} \node[font=\footnotesize\bfseries, anchor=west] at (\x,0) {\t};
+\draw[ink] (-0.1,-0.3)--(10.2,-0.3);
+\foreach \y/\rk/\tm/\a/\b/\c/\d/\e/\p/\hl in {
+  -0.7/1/{byte girls}/{+2}/{+}/{}/{}/{+1}/{89:52}/amberbg,
+  -1.3/2/{night owls}/{+}/{+1}/{}/{}/{$-2$}/{143:20}/white,
+  -1.9/3/{you}/{}/{}/{$-3$}/{}/{}/{---}/accentsoft,
+  -2.5/4/{segfaults}/{$-1$}/{}/{}/{}/{}/{---}/white,
+  -3.1/5/{newbies}/{}/{}/{}/{}/{}/{---}/white} {
+  \fill[\hl] (-0.1,\y-0.3) rectangle (10.2,\y+0.3);
+  \node[anchor=west] at (0,\y) {\rk}; \node[anchor=west] at (1.1,\y) {\tm};
+  \node[sc] at (4.15,\y) {\a}; \node[sc] at (5.05,\y) {\b}; \node[sc] at (5.95,\y) {\c}; \node[sc] at (6.85,\y) {\d}; \node[sc] at (7.75,\y) {\e};
+  \node[anchor=west] at (8.8,\y) {\p};}
+\draw[ink] (-0.1,-3.4)--(10.2,-3.4);
+\node[lab, anchor=west, align=left] at (0,-4.1) {\texttt{+}\,solved first try \quad \texttt{+k}\,solved after $k$ failed tries \quad \texttt{-k}\,$k$ failed tries, unsolved \quad penalty $=$ solve time $+\,20$ min per failed try};
+\node[labA, anchor=west] at (0,-4.7) {read it as: problems with the most tries and no solve are where the effort goes (here: you on C)};
+\end{tikzpicture}}

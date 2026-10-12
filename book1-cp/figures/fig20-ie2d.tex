@@ -1,17 +1,23 @@
-\begin{tikzpicture}[font=\footnotesize]
-% F5.2 2D inclusion--exclusion on a 5x4 grid, rect (2,2)-(4,4).
-\foreach \x in {0,...,5} \draw[slate] (\x*0.62,0) -- (\x*0.62,2.48);
-\foreach \y in {0,...,4} \draw[slate] (0,\y*0.62) -- (3.1,\y*0.62);
-\fill[accentsoft] (0.62,0.62) rectangle (2.48,2.48);
-\node[font=\tiny] at (1.55,1.55) {target};
-\node[font=\tiny] at (1.55,1.32) {rect};
-\node[font=\small] at (3.45,2.3) {$+P_{r2,c2}$};
-\node[font=\small] at (3.45,1.7) {$-P_{r1-1,c2}$};
-\node[font=\small] at (3.45,1.1) {$-P_{r2,c1-1}$};
-\node[font=\small] at (3.45,0.5) {$+P_{r1-1,c1-1}$};
-\node[align=left,text width=5.2cm] at (6.6,1.3)
-  {\footnotesize two over-subtracted\\
-   corners return once:\\
-   $+{}-{}-{}+$ alternating,\\
-   same signs as PIE};
+% fig20-ie2d.tex -- Figure 5.2: 2D inclusion--exclusion on a 4-row x 5-column grid; target = rows 2..4, cols 2..4.
+% P_{r,c} = sum of all cells with row <= r and column <= c (rows counted downward from the top).
+\input{figures/fstyle}
+\begin{tikzpicture}[font=\footnotesize, x=0.42cm, y=0.42cm]
+% \mini{xshift}{shaded x0}{x1}{y0}{y1}{fill}
+\newcommand{\mini}[6]{\begin{scope}[shift={(#1,0)}]
+  \fill[#6] (#2,#4) rectangle (#3,#5);
+  \foreach \x in {0,...,5} \draw[slate] (\x,0) -- (\x,4);
+  \foreach \y in {0,...,4} \draw[slate] (0,\y) -- (5,\y);
+  \draw[accent, thick, dashed] (1,0) rectangle (4,3);
+  \end{scope}}
+\mini{0}{0}{4}{0}{4}{accent!18}      \node at (6.1,2) {\Large $-$};
+\mini{7}{0}{4}{3}{4}{amber!25}          \node at (13.1,2) {\Large $-$};
+\mini{14}{0}{1}{0}{4}{amber!25}         \node at (20.1,2) {\Large $+$};
+\mini{21}{0}{1}{3}{4}{good!30}          \node at (27.1,2) {\Large $=$};
+\mini{28}{1}{4}{0}{3}{accent!18}
+\node[font=\scriptsize] at (2.5,-1.1) {$P_{r_2,c_2}$};
+\node[font=\scriptsize] at (9.5,-1.1) {$P_{r_1-1,\,c_2}$};
+\node[font=\scriptsize] at (16.5,-1.1) {$P_{r_2,\,c_1-1}$};
+\node[font=\scriptsize] at (23.5,-1.1) {$P_{r_1-1,\,c_1-1}$};
+\node[font=\scriptsize, text=accent] at (30.5,-1.1) {target (dashed)};
+\node[lab, align=center] at (15,-3.3) {the top-left strip is subtracted twice, so it is added back once --- the signs alternate $+\,-\,-\,+$};
 \end{tikzpicture}

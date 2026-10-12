@@ -1,9 +1,15 @@
+% fig42-cutprop.tex -- Figure 8.3: the cut property; the lightest edge crossing a cut belongs to some MST.
+\input{figures/fstyle}
 \begin{tikzpicture}[font=\footnotesize]
-\draw[slate,rounded corners=4pt] (0,0) rectangle (1.6,2);
-\draw[slate,rounded corners=4pt] (2.4,0) rectangle (4,2);
-\node[font=\tiny] at (0.8,1) {S};
-\node[font=\tiny] at (3.2,1) {$V\setminus S$};
-\draw[-,slate] (1.4,1.6)--(2.6,1.6) node[midway,above,font=\tiny] {9};
-\draw[-,amber,thick] (1.4,0.4)--(2.6,0.4) node[midway,below,font=\tiny] {3};
-\node[font=\tiny] at (2,-0.5) {lightest crossing edge is exchangeable};
+\draw[rounded corners=8pt, draw=accent, fill=accentsoft] (-0.2,-0.2) rectangle (3.4,3.6);
+\draw[rounded corners=8pt, draw=amber, fill=amberbg] (5.2,-0.2) rectangle (8.8,3.6);
+\node[labA] at (1.6,3.9) {$S$}; \node[labM] at (7.0,3.9) {$V\setminus S$};
+\node[vtx] (p1) at (0.8,2.8) {}; \node[vtx] (p2) at (2.4,2.6) {}; \node[vtx] (p3) at (1.2,0.9) {}; \node[vtx] (p4) at (2.6,0.6) {};
+\node[vtx] (q1) at (6.0,2.7) {}; \node[vtx] (q2) at (7.8,2.9) {}; \node[vtx] (q3) at (6.2,0.8) {}; \node[vtx] (q4) at (7.9,0.8) {};
+\draw[edge, slate] (p1)--(p2) (p1)--(p3) (p3)--(p4) (q1)--(q2) (q1)--(q3) (q3)--(q4);
+\draw[edge, slate] (p2) -- (q1) node[midway, above, lab] {9};
+\draw[edgeM, very thick] (p4) -- (q3) node[midway, below, labM] {3};
+\draw[edge, slate] (p2) -- (q4) node[pos=0.25, below left=1pt, lab] {6};
+\node[labM, align=center] at (4.0,-1.0) {lightest crossing edge (3): safe to take};
+\draw[dashed, slate] (4.0,-0.4) -- (4.0,3.9);
 \end{tikzpicture}

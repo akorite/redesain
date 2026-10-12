@@ -1,9 +1,13 @@
-\begin{tikzpicture}[font=\scriptsize]
-\foreach \x/\t in {0/{cut 1},1.5/{cut 2},3.0/{cut 3}}{
-  \draw[->,thick,amber] (\x,1.4) -- (\x,1.0);}
-\draw[very thick] (-0.5,0.0) -- (4.0,0.0);
-\foreach \x/\l in {-0.5/{full},1.0/{\dots},3.5/{empty}}{
-  \node at (\x,-0.4) {\l};}
-\draw[->,very thick,accent] (4.4,-0.9) -- (-0.9,-0.9);
-\node[align=left] at (1.75,-1.6) {read the cuts in reverse:\\deletion log = build log};
+% fig103-reverse.tex -- Figure 5.x: deletion log read in reverse is a build log.
+\input{figures/fstyle}
+\begin{tikzpicture}[font=\footnotesize]
+\draw[ink, very thick] (0,0)--(8,0);
+\node[labA, anchor=east] at (-0.2,0) {full};
+\node[lab, anchor=west] at (8.2,0) {empty};
+\foreach \x/\t in {2/{cut 1}, 4/{cut 2}, 6/{cut 3}} {
+  \draw[arrM, thick] (\x,1.2)--(\x,0.1);
+  \node[labM, above] at (\x,1.2) {\t};}
+\draw[arrA, ultra thick] (8,-0.9)--(0,-0.9);
+\node[labA, anchor=north] at (4,-1.0) {read the cuts in reverse: \emph{add} cut 3, then cut 2, then cut 1};
+\node[lab, anchor=north] at (4,-1.7) {deletion log $=$ build log};
 \end{tikzpicture}

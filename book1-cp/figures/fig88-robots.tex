@@ -1,8 +1,19 @@
-\begin{tikzpicture}[scale=0.62,font=\tiny]
-\draw[slate,step=1] (0,0) grid (8,8);
-\node at (3.5,3.5) {$\frac1d$};
-\node at (3.5,2.5) {$d$};
-\foreach \p in {(3.5,3.5),(3.5,4.5),(4.5,3.5),(2.5,3.5),(3.5,2.5)}
-  \fill[accentsoft] \p circle (6pt);
-\node[align=left,anchor=west] at (8.4,4) {each square sends\\$\frac1{\deg}$ of its mass\\to each neighbour\\--- 64 independent\\sources tracked};
+% fig88-robots.tex -- Figure 17.x: robots on an 8x8 board; each square sends 1/deg of its robot to each neighbour.
+\input{figures/fstyle}
+\begin{tikzpicture}[font=\footnotesize, x=0.78cm, y=0.78cm]
+\foreach \x in {0,...,7} \foreach \y in {0,...,7} \draw[slate!50] (\x,\y) rectangle +(1,1);
+% interior square (3,4) with 4 neighbours
+\fill[amber!25] (3,4) rectangle +(1,1);
+\foreach \x/\y in {2/4,4/4,3/3,3/5} \fill[accentsoft] (\x,\y) rectangle +(1,1);
+\foreach \x/\y in {2/4,4/4,3/3,3/5,3/4} \draw[slate] (\x,\y) rectangle +(1,1);
+\foreach \x/\y/\dx/\dy in {3.5/4.5/-1/0, 3.5/4.5/1/0, 3.5/4.5/0/-1, 3.5/4.5/0/1} \draw[arrM, shorten >=2pt] (\x,\y) -- ++(\dx*0.95,\dy*0.95);
+
+% corner square (0,0) with 2 neighbours
+\fill[amber!25] (0,0) rectangle +(1,1); \fill[accentsoft] (1,0) rectangle +(1,1); \fill[accentsoft] (0,1) rectangle +(1,1);
+\foreach \x/\y in {0/0,1/0,0/1} \draw[slate] (\x,\y) rectangle +(1,1);
+\draw[arrM, shorten >=2pt] (0.5,0.5)--(1.45,0.5); \draw[arrM, shorten >=2pt] (0.5,0.5)--(0.5,1.45);
+\node[font=\tiny, text=amber, anchor=south west] at (0.0,0.02) {$\frac12$};
+\node[lab, anchor=west, align=left, text width=5.6cm] at (8.6,6.9) {every square starts with one robot; each step it moves to a uniformly random neighbour};
+\node[lab, anchor=west, align=left, text width=5.6cm] at (8.6,4.5) {a square of degree $d$ sends $\frac1d$ of its robot to each neighbour: $\frac14$ inside, $\frac12$ in a corner};
+\node[labM, anchor=west, align=left, text width=5.6cm] at (8.6,1.8) {$\Pr[s\text{ empty}]=\prod_t(1-p_{t\to s})$, then sum over the $64$ squares by linearity};
 \end{tikzpicture}

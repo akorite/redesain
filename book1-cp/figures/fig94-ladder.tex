@@ -1,8 +1,11 @@
-\begin{tikzpicture}[font=\tiny,scale=0.78]
-\draw[->,rulegray] (0,0)--(11,0) node[below left] {CF rating};
-\foreach \x/\r/\t in {0.4/800/impl+math,1.8/1100/greedy+sim,3.4/1300/dp+graphs lite,5.2/1600/full toolkit,7.4/1900/adv data structs,9.4/2100+/creative}
-  {\fill[accentsoft] (\x,0) rectangle (\x+1.2,0.5+0.12*\x);
-   \node at (\x+0.6,-0.4) {\r};
-   \node[align=center,below] at (\x+0.6,-0.7) {\t};}
-\node[align=left,anchor=west] at (0,3.2) {ladder rules:\\$\bullet$ solve rate $>60\%$: move up\\$\bullet$ 3+ fails in a row: move down, upsolve the misses\\$\bullet$ bank named sets: CSES, USACO guide lists, CF div2 A--C};
+% fig94-ladder.tex -- Figure 18.x: practice ladder by rating band.
+\input{figures/fstyle}
+\begin{tikzpicture}[font=\footnotesize]
+\draw[->, rulegray] (0,0)--(13.2,0) node[right, idx] {CF rating};
+\foreach \x/\r/\t/\h in {0.2/800/{implementation\\+ math}/0.6, 2.4/1100/{greedy +\\simulation}/0.95, 4.6/1300/{DP +\\light graphs}/1.3, 6.8/1600/{full\\toolkit}/1.7, 9.0/1900/{advanced data\\structures}/2.1, 11.2/2100+/{creative /\\ad hoc}/2.5} {
+  \fill[accentsoft, draw=accent] (\x,0) rectangle (\x+1.9,\h);
+  \node[font=\footnotesize\bfseries, text=accent] at (\x+0.95,\h/2) {\r};
+  \node[align=center, anchor=north, font=\scriptsize, text=slate] at (\x+0.95,-0.1) {\t};}
+\node[lab, anchor=west, align=left] at (0,3.8) {move up when the solve rate is above $60\%$; after 3+ fails in a row move down and upsolve the misses};
+\node[lab, anchor=west, align=left] at (0,3.2) {banks per rung: CSES, USACO Guide lists, Codeforces Div. 2 A--C};
 \end{tikzpicture}

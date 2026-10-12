@@ -1,13 +1,14 @@
+% fig26-deque.tex -- Figure 6.3: monotone deque on {3,0,1,8,2,4,7,6}, k=5; indices stored in the deque.
+\input{figures/fstyle}
 \begin{tikzpicture}[font=\footnotesize]
-% F6.3 deque slide on {3,0,1,8,2,4,7,6}, k=5: real index traces.
-% dq lists the index stack after each window closes.
-\foreach \f/\w/\dq/\mn in {0/{3,0,1,8,2}/{1,2,4}/{0},
-  1/{0,1,8,2,4}/{1,2,4,5}/{0},
-  2/{1,8,2,4,7}/{2,4,5,6}/{1},
-  3/{8,2,4,7,6}/{4,5,7}/{2}}{
-  \begin{scope}[xshift=\f*3.6cm]
-    \node[font=\tiny,anchor=west] at (0,0) {win \w};
-    \node[font=\tiny,anchor=west] at (0,-0.4) {dq \dq};
-    \node[font=\tiny,anchor=west] at (0,-0.8) {min=\mn};
-  \end{scope}}
+\node[labA] at (2.4,0.75) {array $a$};
+\node[labA] at (8.2,0.75) {deque of indices (front $\to$ back)};
+\foreach \f/\lo/\dq/\mn in {0/0/{1,2,4}/0, 1/1/{1,2,4,5}/0, 2/2/{2,4,5,6}/1, 3/3/{4,5,7}/2} {
+  \pgfmathsetmacro{\y}{-\f*1.1}
+  \foreach \v [count=\i from 0] in {3,0,1,8,2,4,7,6}
+    \node[\ifnum\i<\lo cellx\else\ifnum\i>\numexpr\lo+4\relax cellx\else cellh\fi\fi, minimum width=6mm, minimum height=6mm] at (\i*0.62,\y) {\v};
+  \foreach \d [count=\j from 0] in \dq
+    \node[cella, minimum width=6mm, minimum height=6mm] at (6.2+\j*0.62,\y) {\d};
+  \node[labM, anchor=west] at (11.0,\y) {min $=a[\mathrm{front}]=\mn$};
+}
 \end{tikzpicture}

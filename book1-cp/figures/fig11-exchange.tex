@@ -1,21 +1,21 @@
-\begin{tikzpicture}[x=0.62cm,y=0.62cm]
-% F3.2: the exchange — first index where optimal O and greedy G differ.
-\begin{scope}[font=\footnotesize]
-\node[anchor=east] at (-0.2,1.0) {optimal $O$:};
-\node[anchor=east] at (-0.2,2.6) {greedy $G$:};
-% shared prefix
-\draw[fill=graybg,draw=slate] (0,0.75) rectangle (1.4,1.25);
-\draw[fill=graybg,draw=slate] (0,2.35) rectangle (1.4,2.85);
-\node at (1.9,1.0) {$\cdots$}; \node at (1.9,2.6) {$\cdots$};
-% first differing pair: g_j ends no later than o_j
-\draw[fill=accentsoft,draw=accent,thick] (2.4,2.35) rectangle (4.4,2.85)
-  node[midway,font=\tiny]{$g_j$};
-\draw[draw=slate,thick] (2.4,0.75) rectangle (5.6,1.25)
-  node[midway,font=\tiny]{$o_j$};
-\draw[fill=graybg,draw=slate] (6.0,0.75) rectangle (7.6,1.25);
-\draw[fill=graybg,draw=slate] (4.8,2.35) rectangle (6.4,2.85);
-\draw[{stealth}-{stealth},amber,thick] (4.4,-0.15) -- (5.6,-0.15)
-  node[midway,below,font=\footnotesize,text=amber]{$g_j$ frees this much earlier};
-\draw[{stealth}->,accent,thick] (3.4,2.3) -- (3.4,1.35);
-\end{scope}
+% fig11-exchange.tex -- Figure 3.2: the exchange argument at the first index where optimal O and greedy G differ.
+\input{figures/fstyle}
+\begin{tikzpicture}[x=1cm,y=1cm,font=\footnotesize,
+  blk/.style={draw=ink, fill=graybg, minimum height=7mm, inner sep=0pt}]
+\node[anchor=east] at (-0.3,2.4) {greedy $G$:};
+\node[anchor=east] at (-0.3,0.6) {optimal $O$:};
+\foreach \y in {0.6,2.4}{
+  \node[blk, minimum width=1.6cm, anchor=west] at (0,\y) {shared prefix};
+  \node at (2.1,\y) {$\cdots$};}
+\node[blk, draw=accent, fill=accentsoft, minimum width=1.6cm, anchor=west] (g) at (2.6,2.4) {$g_j$};
+\node[blk, draw=amber, fill=amberbg, minimum width=3.0cm, anchor=west] (o) at (2.6,0.6) {$o_j$};
+\node[blk, minimum width=1.4cm, anchor=west] at (5.9,0.6) {$o_{j+1}$};
+\node[blk, minimum width=1.4cm, anchor=west] at (4.4,2.4) {$g_{j+1}$};
+\draw[dashed, slate] (4.2,0.1) -- (4.2,2.9);
+\draw[dashed, slate] (5.6,0.1) -- (5.6,2.9);
+\draw[{stealth}-{stealth}, amber, thick] (4.2,1.7) -- (5.6,1.7)
+  node[midway, below=2pt, font=\scriptsize, text=amber] {slack};
+\node[labA, anchor=west] at (7.5,2.4) {$g_j$ ends no later than $o_j$};
+\node[labM, anchor=west, align=left] at (7.5,0.6) {swap $o_j \to g_j$: still valid,\\[-1pt]same count};
+\draw[arrA] (g.south) -- (g.south |- o.north) node[midway, right, labA] {swap};
 \end{tikzpicture}

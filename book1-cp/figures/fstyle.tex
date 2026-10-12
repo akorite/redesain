@@ -1,0 +1,31 @@
+% fstyle.tex -- shared TikZ styles for the figures of this book (palette from lifeos.sty).
+\tikzset{%
+  cell/.style={draw=ink, minimum width=7mm, minimum height=6.5mm, inner sep=0pt, font=\footnotesize, fill=white},
+  cellh/.style={cell, fill=accentsoft, draw=accent},
+  cella/.style={cell, fill=amberbg, draw=amber},
+  cellg/.style={cell, fill=goodbg, draw=good},
+  cellx/.style={cell, fill=graybg, draw=slate, text=slate},
+  vtx/.style={circle, draw=ink, minimum size=6.5mm, inner sep=0pt, font=\footnotesize, fill=white},
+  vtxh/.style={vtx, draw=accent, fill=accentsoft},
+  vtxa/.style={vtx, draw=amber, fill=amberbg},
+  vtxg/.style={vtx, draw=good, fill=goodbg},
+  vtxd/.style={vtx, draw=slate, fill=graybg, text=slate},
+  lab/.style={font=\footnotesize, text=slate},
+  labA/.style={font=\footnotesize, text=accent},
+  labM/.style={font=\footnotesize, text=amber},
+  idx/.style={font=\tiny, text=slate},
+  arr/.style={-{stealth}, thick, ink},
+  arrA/.style={-{stealth}, thick, accent},
+  arrM/.style={-{stealth}, thick, amber},
+  arrG/.style={-{stealth}, thick, good},
+  edge/.style={thick, ink},
+  edgeA/.style={thick, accent},
+  edgeM/.style={thick, amber},
+}%
+% \cellrow{prefix}{x0}{y}{style}{v0,v1,...}: a row of cells named prefix0, prefix1, ... (pitch 0.75cm)
+\providecommand{\cellrow}[5]{\foreach \v [count=\i from 0] in {#5} {\node[#4] (#1\i) at (#2+\i*0.75,#3) {\v};}}%
+% \cellidx{prefix}{n}{start}: index labels under cells prefix0 .. prefix(n-1)
+\providecommand{\cellidx}[3]{\foreach \i in {0,...,\numexpr#2-1\relax} {\node[idx, below=0pt of #1\i] {\the\numexpr\i+#3\relax};}}%
+% \fitfig{<tikzpicture>}: shrink the picture to \linewidth only when it would overflow.
+\ifdefined\fitbox\else\newsavebox{\fitbox}\fi%
+\providecommand{\fitfig}[1]{\sbox{\fitbox}{#1}\ifdim\wd\fitbox>\linewidth\resizebox{\linewidth}{!}{\usebox{\fitbox}}\else\usebox{\fitbox}\fi}%

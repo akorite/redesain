@@ -1,10 +1,13 @@
-\begin{tikzpicture}[scale=0.75,font=\tiny]
-% 2d6 distribution: counts 1,2,3,4,5,6,5,4,3,2,1 over 2..12
-\foreach \i/\c in {2/1,3/2,4/3,5/4,6/5,7/6,8/5,9/4,10/3,11/2,12/1}{
-  \draw[fill=accentsoft,draw=ink] (\i*0.55-1.1,0) rectangle (\i*0.55-0.62,\c*0.5);
-  \node[below] at (\i*0.55-0.86,0) {\i};}
-\node at (5.3,3.2) {count$/36$: mode at 7};
-\draw[accent,thick] (9*0.55-1.1,0) rectangle (10*0.55-0.62,3*0.5);
-\draw[accent,thick] (10*0.55-1.1,0) rectangle (11*0.55-0.62,3*0.5);
-\node[align=left,anchor=west] at (6.2,1.4) {$P(9\le S\le10)=\frac{7}{36}$\\highlighted bars};
+% fig84-dicesum.tex -- Figure 16.x: distribution of the sum of two fair dice; P(9 <= S <= 10) = 7/36.
+\input{figures/fstyle}
+\begin{tikzpicture}[font=\footnotesize, x=0.82cm, y=0.55cm]
+\foreach \s/\c in {2/1,3/2,4/3,5/4,6/5,7/6,8/5,9/4,10/3,11/2,12/1} {
+  \ifnum\s=9 \def\f{amber!35}\def\d{amber}\else\ifnum\s=10 \def\f{amber!35}\def\d{amber}\else\def\f{accentsoft}\def\d{accent}\fi\fi
+  \draw[draw=\d, fill=\f] (\s-0.4,0) rectangle (\s+0.4,\c);
+  \node[font=\scriptsize] at (\s,\c+0.4) {\c};
+  \node[idx, below] at (\s,0) {\s};}
+\node[lab, anchor=east] at (1.5,3.5) {ways};
+\node[lab] at (7,-1.3) {sum $S$ of two dice (36 equally likely outcomes)};
+\node[labM, anchor=west, align=left] at (12.9,3.8) {$P(9\le S\le10)=\dfrac{4+3}{36}=\dfrac{7}{36}$};
+\node[lab, anchor=west, align=left] at (12.9,1.8) {the mode is $S=7$ ($6/36$);\\ amber bars are the event};
 \end{tikzpicture}

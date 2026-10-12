@@ -1,24 +1,13 @@
+% fig96-bswalk.tex -- Figure 4.x: first_true walk on a monotone predicate over positions 1..8 (first true at 6).
+\input{figures/fstyle}
 \begin{tikzpicture}[font=\footnotesize]
-% first_true walk on a monotone predicate row.
-\foreach \i/\v in {0/F,1/F,2/F,3/F,4/F}
-  \node[draw=slate,minimum width=7mm,minimum height=6mm,fill=graybg]
-    (c\i) at (\i*0.8,0) {\v};
-\foreach \i/\v in {5/T,6/T,7/T}
-  \node[draw=slate,minimum width=7mm,minimum height=6mm,fill=accentsoft]
-    (c\i) at (\i*0.8,0) {\v};
-\foreach \i/\x in {0/1,1/2,2/3,3/4,4/5,5/6,6/7,7/8}
-  \node[below,font=\tiny,text=ink] at (c\i.south) {\x};
-\node[left,text=ink] at ($(c0.west)+(-0.2,0)$) {predicate $P(x)$};
-\draw[-{stealth},thick,accent] (2.4,-1.15) -- (2.4,-0.75);
-\node[below,font=\tiny,align=center,text=accent] at (2.4,-1.35)
-  {probe 1: $\mathit{mid}=4$ is F\\ $\Rightarrow$ throw the left half};
-\draw[-{stealth},thick,accent] (4.8,-1.15) -- (4.8,-0.75);
-\node[below,font=\tiny,align=center,text=accent] at (4.8,-1.35)
-  {probe 2: $\mathit{mid}=7$ is T\\ $\Rightarrow$ keep its left};
-\draw[-{stealth},thick,accent] (3.6,-2.4) -- (3.6,-1.6);
-\node[below,font=\tiny,align=center,text=accent] at (3.6,-2.4)
-  {probe 3: $\mathit{mid}=5$ is F\\
-   probe 4: $\mathit{mid}=6$ is T --- \emph{first true}};
-\draw[thick,ink] (c4.south west) -- (c5.south east);
-\node[above,font=\tiny,text=accent] at (4.4,0.42) {boundary};
+\node[lab, anchor=east] at (-0.55,0) {$P(x)$};
+\foreach \i/\v in {1/F,2/F,3/F,4/F,5/F,6/T,7/T,8/T}
+  \node[\ifnum\i<6 cella\else cellh\fi, minimum width=8mm, minimum height=7mm] (c\i) at (\i*1.0,0) {\v};
+\foreach \i in {1,...,8} \node[idx, below] at (c\i.south) {\i};
+\node[labA, text width=2.4cm, align=center, anchor=north] (p1) at (3.2,-1.2) {probe 1: $\mathit{mid}=4$ is F\\ $\Rightarrow$ throw the left half};
+\node[labA, text width=2.4cm, align=center, anchor=north] (p2) at (7.2,-1.2) {probe 2: $\mathit{mid}=7$ is T\\ $\Rightarrow$ keep its left side};
+\node[labA, text width=6.4cm, align=center, anchor=north] (p3) at (5.0,-3.1) {probe 3: $\mathit{mid}=5$ is F;\\ probe 4: $\mathit{mid}=6$ is T: \emph{first true}};
+\draw[arrA] ($(p1.north)+(0.8,0)$) -- (c4.south); \draw[arrA] (p2.north) -- (c7.south); \draw[arrA] (5,-3.1) -- (5,-0.85);
+\draw[ink, very thick] (c5.north east) -- ++(0,0.4) node[above, labA] {boundary};
 \end{tikzpicture}

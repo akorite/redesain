@@ -1,14 +1,54 @@
-\begin{tikzpicture}[font=\footnotesize]
-\node[circle,draw=slate,font=\tiny] (e) at (0,0) {$\emptyset$};
-\node[circle,draw=slate,font=\tiny] (a) at (-1.5,0.8) {$\{1\}$};
-\node[circle,draw=slate,font=\tiny] (b) at (-0.5,0.8) {$\{2\}$};
-\node[circle,draw=slate,font=\tiny] (c) at (0.5,0.8) {$\{3\}$};
-\node[circle,draw=slate,font=\tiny] (d) at (1.5,0.8) {$\{4\}$};
-\node[circle,draw=slate,font=\tiny] (ab) at (-1,1.6) {$\{1,2\}$};
-\node[circle,draw=slate,font=\tiny] (cd) at (1,1.6) {$\{3,4\}$};
-\node[circle,draw=slate,font=\tiny] (top) at (0,2.4) {$U$};
-\draw[slate] (e)--(a) (e)--(b) (e)--(c) (e)--(d)
-            (a)--(ab) (b)--(ab) (c)--(cd) (d)--(cd)
-            (ab)--(top) (cd)--(top);
-\node[font=\tiny] at (0,-0.7) {DP climbs by adding one element};
-\end{tikzpicture}
+% fig55-masklattice.tex -- Figure 11.x: the subset lattice of {1,2,3,4}; a mask DP only moves upward (adds one element).
+\input{figures/fstyle}
+\fitfig{\begin{tikzpicture}[font=\footnotesize]
+\node[vtxh, rounded corners=2pt, shape=rectangle, minimum width=9mm, minimum height=6mm, font=\scriptsize] (m0) at (0.00,0.00) {${\emptyset}$};
+\node[vtx, rounded corners=2pt, shape=rectangle, minimum width=9mm, minimum height=6mm, font=\scriptsize] (m1) at (-2.17,1.25) {${1}$};
+\node[vtx, rounded corners=2pt, shape=rectangle, minimum width=9mm, minimum height=6mm, font=\scriptsize] (m2) at (-0.72,1.25) {${2}$};
+\node[vtx, rounded corners=2pt, shape=rectangle, minimum width=9mm, minimum height=6mm, font=\scriptsize] (m3) at (-3.62,2.50) {${12}$};
+\node[vtx, rounded corners=2pt, shape=rectangle, minimum width=9mm, minimum height=6mm, font=\scriptsize] (m4) at (0.72,1.25) {${3}$};
+\node[vtx, rounded corners=2pt, shape=rectangle, minimum width=9mm, minimum height=6mm, font=\scriptsize] (m5) at (-2.17,2.50) {${13}$};
+\node[vtx, rounded corners=2pt, shape=rectangle, minimum width=9mm, minimum height=6mm, font=\scriptsize] (m6) at (-0.72,2.50) {${23}$};
+\node[vtx, rounded corners=2pt, shape=rectangle, minimum width=9mm, minimum height=6mm, font=\scriptsize] (m7) at (-2.17,3.75) {${123}$};
+\node[vtx, rounded corners=2pt, shape=rectangle, minimum width=9mm, minimum height=6mm, font=\scriptsize] (m8) at (2.17,1.25) {${4}$};
+\node[vtx, rounded corners=2pt, shape=rectangle, minimum width=9mm, minimum height=6mm, font=\scriptsize] (m9) at (0.72,2.50) {${14}$};
+\node[vtx, rounded corners=2pt, shape=rectangle, minimum width=9mm, minimum height=6mm, font=\scriptsize] (m10) at (2.17,2.50) {${24}$};
+\node[vtx, rounded corners=2pt, shape=rectangle, minimum width=9mm, minimum height=6mm, font=\scriptsize] (m11) at (-0.72,3.75) {${124}$};
+\node[vtx, rounded corners=2pt, shape=rectangle, minimum width=9mm, minimum height=6mm, font=\scriptsize] (m12) at (3.62,2.50) {${34}$};
+\node[vtx, rounded corners=2pt, shape=rectangle, minimum width=9mm, minimum height=6mm, font=\scriptsize] (m13) at (0.72,3.75) {${134}$};
+\node[vtx, rounded corners=2pt, shape=rectangle, minimum width=9mm, minimum height=6mm, font=\scriptsize] (m14) at (2.17,3.75) {${234}$};
+\node[vtxh, rounded corners=2pt, shape=rectangle, minimum width=9mm, minimum height=6mm, font=\scriptsize] (m15) at (0.00,5.00) {${1234}$};
+\draw[slate] (m0.north) -- (m1.south);
+\draw[slate] (m0.north) -- (m2.south);
+\draw[slate] (m0.north) -- (m4.south);
+\draw[slate] (m0.north) -- (m8.south);
+\draw[slate] (m1.north) -- (m3.south);
+\draw[slate] (m1.north) -- (m5.south);
+\draw[slate] (m1.north) -- (m9.south);
+\draw[slate] (m2.north) -- (m3.south);
+\draw[slate] (m2.north) -- (m6.south);
+\draw[slate] (m2.north) -- (m10.south);
+\draw[slate] (m3.north) -- (m7.south);
+\draw[slate] (m3.north) -- (m11.south);
+\draw[slate] (m4.north) -- (m5.south);
+\draw[slate] (m4.north) -- (m6.south);
+\draw[slate] (m4.north) -- (m12.south);
+\draw[slate] (m5.north) -- (m7.south);
+\draw[slate] (m5.north) -- (m13.south);
+\draw[slate] (m6.north) -- (m7.south);
+\draw[slate] (m6.north) -- (m14.south);
+\draw[slate] (m7.north) -- (m15.south);
+\draw[slate] (m8.north) -- (m9.south);
+\draw[slate] (m8.north) -- (m10.south);
+\draw[slate] (m8.north) -- (m12.south);
+\draw[slate] (m9.north) -- (m11.south);
+\draw[slate] (m9.north) -- (m13.south);
+\draw[slate] (m10.north) -- (m11.south);
+\draw[slate] (m10.north) -- (m14.south);
+\draw[slate] (m11.north) -- (m15.south);
+\draw[slate] (m12.north) -- (m13.south);
+\draw[slate] (m12.north) -- (m14.south);
+\draw[slate] (m13.north) -- (m15.south);
+\draw[slate] (m14.north) -- (m15.south);
+\foreach \k/\t in {0/{size 0},1/{size 1},2/{size 2},3/{size 3},4/{size 4}} \node[idx, anchor=west] at (5.6,\k*1.25) {\t};
+\node[labA, anchor=west, align=left] at (6.7,2.5) {a transition adds one element:\\ the DP climbs from $\emptyset$ to the full set};
+\end{tikzpicture}}

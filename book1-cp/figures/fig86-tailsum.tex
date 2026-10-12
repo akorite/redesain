@@ -1,8 +1,11 @@
-\begin{tikzpicture}[scale=0.8,font=\tiny]
-% E[max] tail-sum columns for n=2,k=3: P(max>=v)=1-((v-1)/3)^2 = 1,8/9,5/9
-\foreach \i/\h/\p in {0/3.4/1, 1/2.72/{8/9}, 2/1.89/{5/9}}{
-  \draw[fill=goodbg,draw=ink] (\i*1.3,0) rectangle (\i*1.3+1.1,\h);
-  \node[below] at (\i*1.3+0.55,0) {$v=\the\numexpr\i+1$};
-  \node at (\i*1.3+0.55,\h+0.25) {$\p$};}
-\node[align=left,anchor=west] at (4.4,1.9) {$E[\max]=\sum_v\Pr[\max\ge v]$\\$=1+\tfrac89+\tfrac59=\tfrac{22}{9}$};
+% fig86-tailsum.tex -- Figure 16.x: E[max] of two rolls of a 3-sided die by tail sums: sum_v P(max >= v) = 1 + 8/9 + 5/9 = 22/9.
+\input{figures/fstyle}
+\begin{tikzpicture}[font=\footnotesize, x=1.4cm, y=1.2cm]
+\foreach \v/\h/\p in {1/1.0/{1}, 2/0.889/{8/9}, 3/0.556/{5/9}} {
+  \draw[draw=good, fill=goodbg] (\v-0.4,0) rectangle (\v+0.4,\h*2.4);
+  \node[labA] at (\v,\h*2.4+0.3) {$\p$};
+  \node[idx, below] at (\v,0) {$v=\v$};}
+\node[lab, anchor=east] at (0.4,1.2) {$\Pr[\max\ge v]$};
+\node[lab, anchor=west, align=left] at (3.8,2.0) {$\Pr[\max\ge v]=1-\big(\tfrac{v-1}{3}\big)^2$};
+\node[labM, anchor=west, align=left] at (3.8,1.0) {$E[\max]=\sum_v \Pr[\max\ge v]=1+\tfrac89+\tfrac59=\tfrac{22}{9}$};
 \end{tikzpicture}

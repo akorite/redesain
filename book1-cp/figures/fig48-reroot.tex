@@ -1,8 +1,13 @@
+% fig48-reroot.tex -- Figure 10.x: rerooting; up[u] = 1 + max(up[v], 1 + down[w]) for sibling w. Here up[v]=1, down[w]=2.
+\input{figures/fstyle}
 \begin{tikzpicture}[font=\footnotesize]
-\node[circle,draw=slate,font=\tiny] (p) at (0,0.9) {v};
-\node[circle,draw=slate,font=\tiny] (c1) at (-0.8,0) {u};
-\node[circle,draw=slate,font=\tiny] (c2) at (0.8,0) {w};
-\draw[-{stealth},amber,thick] (p)--(c1);
-\draw[-{stealth},amber,thick] (p)--(c2);
-\node[font=\tiny,align=center] at (0,-0.9) {pass 2: up[child] uses up[v]\\ + best sibling down};
+\node[vtx] (p) at (2,3.6) {$p$}; \node[vtx] (v) at (2,2.4) {$v$};
+\node[vtxh] (u) at (0.8,1.2) {$u$}; \node[vtx] (w) at (3.2,1.2) {$w$};
+\node[vtx] (x) at (3.2,0) {$x$}; \node[vtx] (y) at (3.2,-1.2) {$y$};
+\draw[edge] (p)--(v)--(u) (v)--(w)--(x)--(y);
+\draw[arrA, bend right=40] (p.west) to node[left, labA] {up$[v]=1$} (v.west);
+\draw[arrM, bend left=35, dashed] (w.east) to node[right, labM, align=left] {down$[w]=2$} (y.east);
+\node[labM, align=left, anchor=west] at (6.3,1.9) {pass 2: up$[u]$ $=1+\max\big(\mathrm{up}[v],\ 1+\mathrm{down}[w]\big)$};
+\node[labM, align=left, anchor=west] at (6.3,1.2) {\phantom{pass 2: up$[u]$ }$=1+\max(1,3)=4$};
+\node[lab, align=left, anchor=west, text width=6.2cm] at (6.3,0.2) {the longest path from $u$ goes up to $v$, then down through the \emph{sibling} $w$ to $y$};
 \end{tikzpicture}

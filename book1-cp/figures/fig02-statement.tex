@@ -1,9 +1,9 @@
 % fig02-statement.tex -- Figure 1.2: anatomy of a problem statement.
 % The statement itself is invented for this book; the layout follows
 % the CSES / USACO convention of name, limits, task, I/O, example.
-\begin{tikzpicture}[font=\small, every node/.style={inner sep=0pt}]
-\node[draw, text width=0.56\linewidth, inner sep=8pt, font=\footnotesize,
-      align=flush left] (stmt) at (0,0) {%
+\begin{tikzpicture}[font=\small]
+\node[draw=ink, fill=white, text width=7.8cm, inner sep=8pt, font=\footnotesize,
+      align=flush left, anchor=north west] (stmt) at (0,0) {%
   {\sansfont\bfseries Apple Sums}\quad{\color{slate}time 1.0 s \quad memory 256 MB}\\[4pt]
   \textbf{Task.} A shop sells $n$ kinds of apples. Kind $i$ costs $a_i$ rupiah.
   Find the cheapest way to buy exactly $k$ apples (any kinds, repeats allowed),
@@ -13,20 +13,14 @@
   \textbf{Constraints.} $1 \le n \le 10^5$, $1 \le k \le 10^9$,
   $1 \le a_i \le 10^9$.\\[4pt]
   \textbf{Example.} Input \texttt{3 5 / 4 2 9} $\to$ output \texttt{10}.};
-\draw[{stealth}-, thick, accent] ($(stmt.north east)+(-2.0cm,0)$)
-  -- ++(0.5,0.3) node[right, font=\footnotesize, text=accent, text width=3.9cm,
-                      align=flush left]
-  {limits: the budget your program lives under};
-\draw[{stealth}-, thick, accent] ($(stmt.east)+(0,-0.62)$)
-  -- ++(0.5,0.2) node[right, font=\footnotesize, text=accent, text width=3.9cm,
-                      align=flush left]
-  {I/O contract: what stdin gives, what stdout must print};
-\draw[{stealth}-, thick, accent] ($(stmt.east)+(0,-1.72)$)
-  -- ++(0.5,-0.25) node[right, font=\footnotesize, text=accent, text width=3.9cm,
-                        align=flush left]
-  {constraints: these numbers choose the algorithm};
-\draw[{stealth}-, thick, accent] ($(stmt.east)+(0,-2.35)$)
-  -- ++(0.5,-0.3) node[right, font=\footnotesize, text=accent, text width=3.9cm,
-                       align=flush left]
-  {example: a handshake test, not a proof};
+\begin{scope}[font=\footnotesize, text=accent, text width=3.7cm, align=flush left, anchor=west]
+\node (c1) at (8.9,-0.45) {\textbf{limits:} the budget your program lives under};
+\node (c2) at (8.9,-1.75) {\textbf{I/O contract:} what stdin gives, what stdout must print};
+\node (c3) at (8.9,-3.05) {\textbf{constraints:} these numbers choose the algorithm};
+\node (c4) at (8.9,-4.2) {\textbf{example:} a handshake test, not a proof};
+\end{scope}
+\draw[-{stealth}, accent, thick] (c1.west) -- (8.35,-0.45);
+\draw[-{stealth}, accent, thick] (c2.west) -- (8.35,-1.45);
+\draw[-{stealth}, accent, thick] (c3.west) -- (8.35,-2.5);
+\draw[-{stealth}, accent, thick] (c4.west) -- (8.35,-3.2);
 \end{tikzpicture}

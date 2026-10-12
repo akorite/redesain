@@ -1,16 +1,17 @@
+% fig40-compress.tex -- Figure 8.1: find(d) with path compression.
+\input{figures/fstyle}
 \begin{tikzpicture}[font=\footnotesize]
-\begin{scope}
-\node[circle,draw=slate,font=\tiny] (r) at (1,1.4) {r};
-\node[circle,draw=slate,font=\tiny] (a) at (1,0.7) {a};
-\node[circle,draw=slate,font=\tiny] (b) at (1,0) {b};
-\draw[-{stealth},slate] (b)--(a) (a)--(r);
-\node[font=\tiny] at (1,-0.7) {before find(b)};
-\end{scope}
-\begin{scope}[xshift=3.4cm]
-\node[circle,draw=slate,font=\tiny] (r) at (1,1.4) {r};
-\node[circle,draw=slate,font=\tiny] (a) at (0.6,0.7) {a};
-\node[circle,draw=slate,font=\tiny] (b) at (1.4,0.7) {b};
-\draw[-{stealth},slate] (a)--(r) (b)--(r);
-\node[font=\tiny] at (1,-0.7) {after: b points at root};
-\end{scope}
+% before
+\node[vtx] (r) at (0,3.0) {r}; \node[vtx] (a) at (0,2.1) {a}; \node[vtxh] (b) at (0,1.2) {b}; \node[vtxh] (c) at (0,0.3) {c};
+\node[vtxh] (d) at (0,-0.6) {d}; \node[vtx] (x) at (1.1,0.3) {x};
+\draw[arr, shorten >=1pt] (a)--(r); \draw[arr, shorten >=1pt] (b)--(a); \draw[arr, shorten >=1pt] (c)--(b); \draw[arr, shorten >=1pt] (d)--(c); \draw[arr, shorten >=1pt] (x)--(b);
+\node[lab, align=center] at (0.5,-1.5) {before \texttt{find(d)}};
+\draw[arrA, ultra thick] (2.2,1.2) -- (3.2,1.2) node[midway, above, labA] {find};
+% after
+\node[vtx] (r2) at (5.5,3.0) {r};
+\node[vtx] (a2) at (4.3,1.7) {a}; \node[vtxh] (b2) at (5.1,1.7) {b}; \node[vtxh] (c2) at (5.9,1.7) {c}; \node[vtxh] (d2) at (6.7,1.7) {d};
+\node[vtx] (x2) at (5.1,0.3) {x};
+\foreach \n in {a2,b2,c2,d2} \draw[arr, shorten >=1pt] (\n)--(r2);
+\draw[arr, shorten >=1pt] (x2)--(b2);
+\node[lab, align=center] at (5.5,-0.55) {after: path re-parented to the root,\\ off-path $x$ untouched};
 \end{tikzpicture}

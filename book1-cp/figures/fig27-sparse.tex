@@ -1,21 +1,16 @@
-\begin{tikzpicture}[font=\footnotesize,x=0.42cm]
-% F6.4 sparse levels over 8 cells.
-\foreach \i/\v in {0/3,1/2,2/4,3/5,4/1,5/1,6/5,7/3}
-  \node[draw=slate,minimum width=0.4cm,minimum height=0.35cm,font=\tiny]
-    at (\i*0.46,0) {\v};
-\node[font=\tiny,left] at (-0.3,0) {$j{=}0$};
-\foreach \i/\v in {0/2,1/2,2/4,3/1,4/1,5/1,6/3}
-  \node[draw=slate,fill=accentsoft,minimum width=0.4cm,
-        minimum height=0.35cm,font=\tiny] at (\i*0.46+0.23,0.55) {\v};
-\node[font=\tiny,left] at (-0.3,0.55) {$j{=}1$};
-\foreach \i/\v in {0/2,1/1,2/1,3/1,4/1}
-  \node[draw=slate,fill=accentsoft,minimum width=0.4cm,
-        minimum height=0.35cm,font=\tiny] at (\i*0.46+0.46,1.1) {\v};
-\node[font=\tiny,left] at (-0.3,1.1) {$j{=}2$};
-\node[font=\tiny,left] at (-0.3,1.65) {$j{=}3$};
-\node[draw=slate,fill=accentsoft,minimum width=0.4cm,
-      minimum height=0.35cm,font=\tiny] at (1.38,1.65) {1};
-\node[font=\tiny,align=left] at (6.2,1.2)
-  {level $j$ covers length $2^j$:\\
-   query = two overlapping pieces};
+% fig27-sparse.tex -- Figure 6.4: sparse-table (min) levels over {3,2,4,5,1,1,5,3}; query [1,6] = two level-2 cells.
+\input{figures/fstyle}
+\begin{tikzpicture}[font=\footnotesize]
+\newcommand{\lev}[3]{% level j, list of values, style
+  \foreach \v [count=\i from 0] in {#2}
+    \node[#3, minimum width=6.5mm] (s#1-\i) at ({(\i+(2^#1-1)/2)*0.75}, {-#1*0.9}) {\v};
+  \node[lab, anchor=east] at (-0.5,{-#1*0.9}) {$j{=}#1$};}
+\lev{0}{3,2,4,5,1,1,5,3}{cell}
+\lev{1}{2,2,4,1,1,1,3}{cellx}
+\lev{2}{2,1,1,1,1}{cellx}
+\lev{3}{1}{cellx}
+\foreach \i in {1,...,6} \draw[amber, very thick] (s0-\i.south west) rectangle (s0-\i.north east);
+\foreach \i in {1,3} \draw[amber, very thick, fill=amberbg] (s2-\i.south west) rectangle (s2-\i.north east);
+\node at (s2-1) {1}; \node at (s2-3) {1};
+\node[labM, align=left, anchor=west] at (7.0,-1.8) {query $\min a[1..6]$: length 6,\\ $j=2$, read two cells\\ $\min(\text{level}_2[1],\text{level}_2[3])=1$};
 \end{tikzpicture}

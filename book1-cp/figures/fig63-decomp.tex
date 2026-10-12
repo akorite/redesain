@@ -1,8 +1,14 @@
-\begin{tikzpicture}[font=\tiny]
-\draw[slate!50] (0,0) rectangle (4,0.6);
-\node[font=\tiny] at (2,-0.35) {array of 8};
-\node[draw=ink,fill=accent!40] at (1,0.3) {[1,4]};
-\node[draw=ink,fill=accentsoft!40] at (2.5,0.3) {[5]};
-\node[draw=ink,fill=accentsoft!40] at (3.5,0.3) {[6,8]};
-\node[font=\tiny] at (2,-1) {query decomposes into $\le 2\log n$ nodes};
+% fig63-decomp.tex -- Figure 12.x: query [2,7] on 8 leaves decomposes into the nodes [2], [3,4], [5,6], [7].
+\input{figures/fstyle}
+\begin{tikzpicture}[font=\footnotesize]
+\tikzset{sn/.style={draw=slate, fill=white, rounded corners=1pt, minimum height=6.5mm, minimum width=1.2cm, inner sep=1pt, font=\scriptsize},
+         pick/.style={sn, draw=amber, fill=amber!25, very thick}}
+\foreach \lo/\hi/\x/\y/\st in {1/8/5.25/3.0/sn, 1/4/2.625/2.0/sn, 5/8/7.875/2.0/sn, 1/2/1.3125/1.0/sn, 3/4/3.9375/1.0/pick, 5/6/6.5625/1.0/pick, 7/8/9.1875/1.0/sn}
+  \node[\st] (n\lo\hi) at (\x,\y) {[\lo,\hi]};
+\foreach \v/\x in {1/0.65, 2/1.97, 3/3.28, 4/4.6, 5/5.9, 6/7.2, 7/8.5, 8/9.8}
+  \node[\ifnum\v>1\ifnum\v<8 cellh\else cellx\fi\else cellx\fi, minimum width=1.0cm, minimum height=6mm, font=\tiny] (l\v) at (\x,0) {$a_\v$};
+\node[pick, minimum width=1.0cm] at (l2) {$a_2$}; \node[pick, minimum width=1.0cm] at (l7) {$a_7$};
+\draw[slate] (n18)--(n14) (n18)--(n58) (n14)--(n12) (n14)--(n34) (n58)--(n56) (n58)--(n78);
+\draw[slate] (n12)--(l1) (n12)--(l2) (n34)--(l3) (n34)--(l4) (n56)--(l5) (n56)--(l6) (n78)--(l7) (n78)--(l8);
+\node[labM, anchor=west] at (0,-0.9) {query $[2,7]$ reads the amber nodes only: $a_2$, $[3,4]$, $[5,6]$, $a_7$ --- at most $2\log_2 n$ of them};
 \end{tikzpicture}

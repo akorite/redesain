@@ -1,7 +1,14 @@
-\begin{tikzpicture}[font=\tiny]
-\foreach \i/\L in {0/{7},1/{3},2/{3,5},3/{3,3},4/{3,3,6},5/{2,3,6},6/{2,3,6,9},7/{2,3,6,8}}{
-  \node[anchor=west] at (\i*1.1,0) {\L};
-  \node at (\i*1.1+0.4,-0.5) {\i};
+% fig53-patience.tex -- Figure 11.x: tails array L for a = {7,3,5,3,6,2,9,8} (strict LIS, lower_bound); answer 4.
+\input{figures/fstyle}
+\begin{tikzpicture}[font=\footnotesize]
+\node[lab, anchor=east] at (-0.2,0.6) {read};
+\foreach \x [count=\i from 0] in {7,3,5,3,6,2,9,8} {
+  \node[cell, minimum width=6mm] at (\i*1.5,0.6) {\x};}
+\foreach \i/\L/\how in {0/{7}/{append}, 1/{3}/{replace 7}, 2/{3,5}/{append}, 3/{3,5}/{replace 3}, 4/{3,5,6}/{append}, 5/{2,5,6}/{replace 3}, 6/{2,5,6,9}/{append}, 7/{2,5,6,8}/{replace 9}} {
+  \node[lab, anchor=north, font=\tiny, text width=1.35cm, align=center] at (\i*1.5,0.15) {\how};
+  \foreach \v [count=\j from 0] in \L {
+    \node[\ifnum\i<7 cellh\else cella\fi, minimum width=6mm] at (\i*1.5,-0.75-\j*0.62) {\v};}
 }
-\node[anchor=west] at (0,-1.1) {$L$ stays sorted; each read rewrites a tail};
+\node[lab, anchor=east] at (-0.2,-0.75) {$L$};
+\node[labM, anchor=west] at (0,-3.6) {$|L|=4$ = length of the longest strictly increasing subsequence};
 \end{tikzpicture}

@@ -1,15 +1,14 @@
+% fig13-compress.tex -- Figure 3.4: values -> ranks for {4e9,10,10,80,4e9}.
+\input{figures/fstyle}
 \begin{tikzpicture}[font=\footnotesize]
-% F3.4: values -> ranks for {4e9,10,10,80,4e9}.
+\node[lab, anchor=east] at (-0.2,1.1) {values};
+\node[lab, anchor=east] at (-0.2,-0.3) {ranks};
 \foreach \i/\v in {0/4000000000,1/10,2/10,3/80,4/4000000000}
-  \node[draw=slate,fill=graybg,minimum width=1.85cm,minimum height=0.5cm]
-    (v\i) at (\i*1.82,1.0) {\v};
+  \node[cellx, minimum width=2.2cm] (v\i) at (\i*2.4+1,1.1) {\v};
 \foreach \i/\r in {0/2,1/0,2/0,3/1,4/2}
-  \node[draw=accent,fill=accentsoft,minimum width=0.6cm,minimum height=0.5cm]
-    (r\i) at (\i*1.82,-0.4) {\r};
-\foreach \i in {0,...,4} \draw[{stealth}->,slate] (v\i) -- (r\i);
-\node[draw=ink,fill=white,anchor=west,align=left]
-  at (10.0,-0.4) {sorted distinct:\\ $[10,80,4{\cdot}10^9]$};
-\node[anchor=west,align=left,text width=4.2cm]
-  at (10.0,1.0) {ranks preserve $<$, $=$, $>$;\par
-                 only comparisons survive};
+  \node[cellh, minimum width=0.9cm] (r\i) at (\i*2.4+1,-0.3) {\r};
+\foreach \i in {0,...,4} \draw[arrA] (v\i.south) -- (r\i.north);
+\node[draw=ink, fill=white, inner sep=4pt] at (6.4,-1.45) {sorted distinct values: $[10,\;80,\;4{\cdot}10^9]$};
+\node[lab, align=center] at (6.4,-2.4)
+  {rank $=$ position among the sorted distinct values; $<$, $=$, $>$ survive, magnitudes do not};
 \end{tikzpicture}

@@ -1,7 +1,16 @@
-\begin{tikzpicture}[scale=0.8,font=\tiny]
-\draw[thick,ink] (0,0)--(4,0)--(5,3)--(2,4)--(0,3)--cycle;
-\fill[accent] (1.5,2) circle (2pt) node[below=2pt] {$q$};
-\draw[dashed,accent,-{stealth}] (1.5,2)--(6.2,2);
-\fill[slate] (4.83,2) circle (1.6pt); \fill[slate] (2.0,2) circle (1.6pt);
-\node[align=left] at (4.3,5) {crossings right of $q$: 1 (odd) $\Rightarrow$ inside\\vertex-touching edges need care ---\\count via the half-open $y$ rule};
+% fig82-raycast.tex -- Figure 15.x: ray casting. Polygon (0,0),(4,0),(5,3),(2,4),(0,3); ray to the right at y=2.
+\input{figures/fstyle}
+\begin{tikzpicture}[font=\footnotesize, x=1.1cm, y=0.95cm]
+\draw[ink, very thick, fill=accent!8] (0,0)--(4,0)--(5,3)--(2,4)--(0,3)--cycle;
+% inside point q
+\fill[accent] (1.5,2) circle (2.6pt) node[below left, labA] {$q$};
+\draw[arrA, dashed] (1.5,2)--(6.3,2);
+\fill[amber] (4.667,2) circle (2.6pt) node[below right=1pt, labM] {};
+% outside point p
+\fill[good] (5.4,1.0) circle (2.6pt) node[below, text=good, font=\footnotesize] {$p$};
+\draw[arrG, dashed] (5.4,1.0)--(6.3,1.0);
+\node[font=\footnotesize, text=good, anchor=west] at (6.4,1.0) {0 crossings: outside};
+\node[font=\footnotesize, text=accent, anchor=west] at (6.4,2.0) {1 crossing (odd): inside};
+\node[lab, anchor=west, align=left, text width=5.6cm] at (6.4,3.4) {cast a ray from the point and count edges it crosses};
+\node[labM, anchor=west, align=left, text width=5.6cm] at (6.4,-0.2) {a vertex on the ray is counted once via the half-open rule: edge $(a,b)$ counts if $a_y\le y<b_y$ or $b_y\le y<a_y$};
 \end{tikzpicture}

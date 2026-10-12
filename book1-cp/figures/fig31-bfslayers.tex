@@ -1,33 +1,16 @@
-\begin{tikzpicture}[font=\footnotesize]
-% F7.3 BFS waves: 4 frames, vertices lit when dequeued.
-\begin{scope}
-  \node[circle,draw=slate,fill=accentsoft,font=\tiny] at (1.1,1.0) {s};
-  \node[circle,draw=slate,font=\tiny] at (0.4,0.2) {};
-  \node[circle,draw=slate,font=\tiny] at (1.1,0.2) {};
-  \node[circle,draw=slate,font=\tiny] at (1.8,0.2) {};
-  \node[font=\tiny] at (1.1,-0.5) {wave 0: \{s\}};
-\end{scope}
-\begin{scope}[xshift=3.2cm]
-  \node[circle,draw=slate,fill=graybg,font=\tiny] at (1.1,1.0) {s};
-  \node[circle,draw=slate,fill=accentsoft,font=\tiny] at (0.4,0.2) {};
-  \node[circle,draw=slate,fill=accentsoft,font=\tiny] at (1.1,0.2) {};
-  \node[circle,draw=slate,fill=accentsoft,font=\tiny] at (1.8,0.2) {};
-  \node[font=\tiny] at (1.1,-0.5) {wave 1};
-\end{scope}
-\begin{scope}[xshift=6.4cm]
-  \node[circle,draw=slate,fill=graybg,font=\tiny] at (1.1,1.0) {s};
-  \node[circle,draw=slate,fill=graybg,font=\tiny] at (0.4,0.2) {};
-  \node[circle,draw=slate,fill=graybg,font=\tiny] at (1.1,0.2) {};
-  \node[circle,draw=slate,fill=accentsoft,font=\tiny] at (1.8,0.2) {};
-  \node[circle,draw=slate,fill=accentsoft,font=\tiny] at (2.6,0.2) {};
-  \node[font=\tiny] at (1.5,-0.5) {wave 2};
-\end{scope}
-\begin{scope}[xshift=10.2cm]
-  \node[circle,draw=slate,fill=graybg,font=\tiny] at (1.1,1.0) {s};
-  \node[circle,draw=slate,fill=graybg,font=\tiny] at (0.4,0.2) {};
-  \node[circle,draw=slate,fill=graybg,font=\tiny] at (1.1,0.2) {};
-  \node[circle,draw=slate,fill=graybg,font=\tiny] at (1.8,0.2) {};
-  \node[circle,draw=slate,fill=graybg,font=\tiny] at (2.6,0.2) {};
-  \node[font=\tiny] at (1.5,-0.5) {wave 3: done};
-\end{scope}
-\end{tikzpicture}
+% fig31-bfslayers.tex -- Figure 7.3: BFS as expanding waves; grey = dequeued, blue = in the queue.
+\input{figures/fstyle}
+\fitfig{\begin{tikzpicture}[font=\footnotesize]
+% \fr{x}{style s}{a}{b}{c}{d}{e}{f}{caption}
+\newcommand{\fr}[9]{%
+  \coordinate (s) at (#1,1.0);  \coordinate (a) at (#1+0.9,1.8); \coordinate (b) at (#1+0.9,1.0);
+  \coordinate (c) at (#1+0.9,0.2); \coordinate (d) at (#1+1.8,1.8); \coordinate (e) at (#1+1.8,0.2); \coordinate (f) at (#1+2.7,1.8);
+  \draw[edge, slate] (s)--(a) (s)--(b) (s)--(c) (a)--(d) (c)--(e) (d)--(f);
+  \node[#2] at (s) {s}; \node[#3] at (a) {a}; \node[#4] at (b) {b}; \node[#5] at (c) {c};
+  \node[#6] at (d) {d}; \node[#7] at (e) {e}; \node[#8] at (f) {f};
+  \node[lab, align=center] at (#1+1.35,-0.6) {#9};}
+\fr{0}{vtxh}{vtx}{vtx}{vtx}{vtx}{vtx}{vtx}{wave 0: queue $[s]$}
+\fr{3.9}{vtxd}{vtxh}{vtxh}{vtxh}{vtx}{vtx}{vtx}{wave 1: distance 1}
+\fr{7.8}{vtxd}{vtxd}{vtxd}{vtxd}{vtxh}{vtxh}{vtx}{wave 2: distance 2}
+\fr{11.7}{vtxd}{vtxd}{vtxd}{vtxd}{vtxd}{vtxd}{vtxh}{wave 3: distance 3}
+\end{tikzpicture}}

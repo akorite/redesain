@@ -1,7 +1,14 @@
-\begin{tikzpicture}[font=\tiny]
-\foreach \i/\c in {0/a,1/a,2/b,3/a,4/a,5/b,6/a,7/a,8/b,9/a,10/a,11/b}{\node[draw=slate!50,minimum size=0.3cm] at (\i*0.34,0) {\c};}
-\foreach \i/\v in {1/1,2/0,3/9,4/1,5/0,6/6,7/1,8/0,9/3,10/1,11/0}{\node[draw=amber!60,minimum size=0.3cm,below=0.1cm] at (\i*0.34,-0.35) {\v};}
-\draw[decorate,decoration={brace,amplitude=4pt}] (3*0.34-0.15,0.25) -- (11*0.34+0.15,0.25) node[midway,above=5pt] {Z-box $[l,r]=[3,11]$ from $z[3]=9$};
-\node[anchor=west] at (0,-1.0) {at $i{=}6$: inside the box, $z[6]\ge\min(11{-}6{+}1,\,z[6{-}3])=\min(6,9)=6$ --- free};
-\node[anchor=west] at (0,-1.4) {$r$ only moves right; total extension work $\le n$};
-\end{tikzpicture}
+% fig73-zbox.tex -- Figure 14.x: Z-function of s = aabaabaabaab (z[1..11] = 1 0 9 1 0 6 1 0 3 1 0); Z-box [3,11] from z[3]=9.
+\input{figures/fstyle}
+\fitfig{\begin{tikzpicture}[font=\footnotesize]
+\foreach \c [count=\i from 0] in {a,a,b,a,a,b,a,a,b,a,a,b}
+  \node[\ifnum\i<3 cell\else\ifnum\i>11 cell\else cellh\fi\fi, minimum width=7mm] (s\i) at (\i*0.78,0) {\c};
+\foreach \z [count=\i from 1] in {1,0,9,1,0,6,1,0,3,1,0}
+  \node[draw=slate, minimum width=7mm, minimum height=6mm, inner sep=0pt, font=\footnotesize] (z\i) at (\i*0.78,-0.8) {\z};
+\foreach \i in {0,...,11} \node[idx, above=0pt of s\i] {\i};
+\node[lab, anchor=east] at (-0.5,0) {$s$}; \node[lab, anchor=east] at (-0.5,-0.8) {$z$};
+\draw[decorate,decoration={brace,mirror,raise=4pt},accent,thick] (z3.south west) -- (z11.south east) node[midway,below=8pt,labA]{Z-box $[l,r]=[3,11]$: $s[3..11]$ equals the prefix of length $9$};
+\node[fill=amber!25, draw=amber, minimum width=7mm, minimum height=6mm, inner sep=0pt] at (z6) {6};
+\node[labM, anchor=west, align=left] at (0,-2.5) {at $i=6$ (inside the box): $z[6]\ge\min(r-i+1,\ z[i-l])=\min(6,\ z[3])=6$, no character comparisons};
+\node[lab, anchor=west] at (0,-3.1) {$r$ only moves right: total extension work is $O(n)$};
+\end{tikzpicture}}

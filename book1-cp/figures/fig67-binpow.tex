@@ -1,10 +1,17 @@
-\begin{tikzpicture}[font=\tiny]
-\node[draw=slate] (a13) at (0,0) {$a^{13}$};
-\node[draw=slate] (a6) at (-1,-0.8) {$a^{6}\cdot a$};
-\node[draw=slate] (a3) at (-1,-1.6) {$(a^{3})^{2}$};
-\node[draw=slate] (a1) at (-1,-2.4) {$a^{2}\cdot a$};
-\draw[-{stealth},amber] (a13)--(a6);
-\draw[-{stealth},amber] (a6)--(a3);
-\draw[-{stealth},amber] (a3)--(a1);
-\node[font=\tiny] at (1.6,-1.2) {each bit: square, maybe multiply};
+% fig67-binpow.tex -- Figure 13.x: squaring tree for a^13; the exponent halves each level.
+\input{figures/fstyle}
+\begin{tikzpicture}[font=\footnotesize]
+\tikzset{pn/.style={draw=slate, rounded corners=1.5pt, minimum height=8mm, minimum width=3.0cm, inner sep=2pt, fill=white}}
+\tikzset{po/.style={pn, fill=amber!20, draw=amber}, pe/.style={pn, fill=accentsoft, draw=accent}, pz/.style={pn, fill=goodbg, draw=good}}
+\foreach \e/\ex/\how/\y/\sty [count=\i] in {13/{a^{13}}/{$=a\cdot(a^{6})^{2}$\quad 13 odd: multiply by $a$}/0/po,
+                                      6/{a^{6}}/{$=(a^{3})^{2}$\quad 6 even: just square}/-1.15/pe,
+                                      3/{a^{3}}/{$=a\cdot(a^{1})^{2}$\quad 3 odd: multiply by $a$}/-2.3/po,
+                                      1/{a^{1}}/{$=a\cdot(a^{0})^{2}$\quad 1 odd: multiply by $a$}/-3.45/po,
+                                      0/{a^{0}}/{$=1$\quad base case}/-4.6/pz} {
+  \node[\sty] (p\i) at (0,\y) {$\ex$};
+  \node[lab, anchor=west] at (1.8,\y) {\how};
+  \node[idx] at (-2.2,\y) {exp $\e$};
+}
+\foreach \i/\j in {1/2,2/3,3/4,4/5} \draw[arr, shorten >=1pt] (p\i.south) -- (p\j.north);
+\node[labA, anchor=west] at (6.8,-4.6) {$\lceil\log_2 13\rceil=4$ squarings};
 \end{tikzpicture}

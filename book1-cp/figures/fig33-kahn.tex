@@ -1,8 +1,19 @@
-\begin{tikzpicture}[font=\footnotesize]
-\foreach \i/\q/\e in {0/{3,4}/{ },1/{4,1}/{3},2/{1,5}/{3,4},3/{5,2}/{3,4,1}}{
-  \begin{scope}[xshift=\i*3.2cm]
-    \node[font=\tiny,anchor=west] at (0,0.6) {queue: \q};
-    \node[font=\tiny,anchor=west] at (0,0.2) {emitted: \e};
-  \end{scope}}
-\node[font=\tiny] at (4.5,-0.5) {in-degree 0 enters; emission deletes its edges};
-\end{tikzpicture}
+% fig33-kahn.tex -- Figure 7.5: Kahn on the CSES sample (edges 3->1, 1->2, 4->5); order 3 4 1 5 2.
+\input{figures/fstyle}
+\fitfig{\begin{tikzpicture}[font=\footnotesize]
+% \fr{x}{style 1..5 as 5 args}{queue}{emitted}
+\newcommand{\fr}[8]{%
+  \node[#2, minimum size=6mm] (n1#1) at (#1+1.2,1.1) {1};
+  \node[#3, minimum size=6mm] (n2#1) at (#1+2.4,1.1) {2};
+  \node[#4, minimum size=6mm] (n3#1) at (#1,1.1) {3};
+  \node[#5, minimum size=6mm] (n4#1) at (#1,0) {4};
+  \node[#6, minimum size=6mm] (n5#1) at (#1+1.2,0) {5};
+  \draw[arr, shorten >=1pt] (n3#1) -- (n1#1); \draw[arr, shorten >=1pt] (n1#1) -- (n2#1); \draw[arr, shorten >=1pt] (n4#1) -- (n5#1);
+  \node[lab, anchor=west] at (#1-0.4,-0.9) {queue: #7};
+  \node[lab, anchor=west] at (#1-0.4,-1.4) {emitted: #8};}
+\fr{0}{vtx}{vtx}{vtxh}{vtxh}{vtx}{$[3,4]$}{(none)}
+\fr{4}{vtxh}{vtx}{vtxd}{vtxh}{vtx}{$[4,1]$}{3}
+\fr{8}{vtxd}{vtx}{vtxd}{vtxd}{vtxh}{$[1,5]$}{3, 4}
+\fr{12}{vtxd}{vtxh}{vtxd}{vtxd}{vtxd}{$[5,2]$}{3, 4, 1}
+\node[lab] at (7,-2.3) {white: in-degree $>0$ \quad blue: in the queue \quad grey: emitted, its out-edges deleted};
+\end{tikzpicture}}

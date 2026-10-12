@@ -1,8 +1,14 @@
+% fig46-binlift.tex -- Figure 10.x: binary lifting table for node 8 on a chain 8 - 7 - ... - 0 (root 0).
+\input{figures/fstyle}
 \begin{tikzpicture}[font=\footnotesize]
-\foreach \i/\v in {0/7,1/5,2/3,3/1}
-  \node[circle,draw=slate,font=\tiny] (\v) at (\i*1.1,0) {\v};
-\draw[slate] (7)--(5) (5)--(3) (3)--(1);
-\draw[-{stealth},amber,thick] (7) to[out=30,in=150] node[above,font=\tiny] {$2^1$} (3);
-\draw[-{stealth},amber,thick] (7) to[out=45,in=135] node[above,font=\tiny] {$2^2$} (1);
-\node[font=\tiny] at (1.7,-0.9) {$up[v][k]$ jumps $2^k$ ancestors};
+\foreach \i in {0,...,8} \node[vtx, minimum size=6.5mm] (v\i) at (\i*1.2,0) {\i};
+\foreach \i in {1,...,8} \draw[arr, slate, shorten >=1pt, shorten <=1pt] (v\i) -- (v\the\numexpr\i-1\relax);
+\node[lab, anchor=east] at (-0.6,0) {chain};
+\foreach \k/\t/\sty/\row in {0/7/arrM/-0.9, 1/6/arrA/-1.55, 2/4/arrG/-2.2, 3/0/arrM/-2.85} {
+  \draw[dotted, slate] (v8) -- (8*1.2,\row);
+  \draw[\sty] (8*1.2,\row) -- (\t*1.2,\row);
+  \draw[dotted, slate] (\t*1.2,\row) -- (v\t.south);
+  \node[lab, anchor=east] at (-0.6,\row) {$k=\k$: jump $2^\k$};
+  \node[font=\scriptsize, fill=white, inner sep=1pt] at ({(8*1.2+\t*1.2)/2},\row) {$\mathrm{up}[8][\k]=\t$};}
+\node[lab, anchor=west] at (0,-3.7) {$\mathrm{up}[v][k]=\mathrm{up}\big[\mathrm{up}[v][k-1]\big][k-1]$: a jump of $2^k$ is two jumps of $2^{k-1}$};
 \end{tikzpicture}

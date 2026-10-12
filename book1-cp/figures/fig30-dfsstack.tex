@@ -1,37 +1,18 @@
+% fig30-dfsstack.tex -- Figure 7.2: DFS recursion stack on the path A - B - D.
+\input{figures/fstyle}
 \begin{tikzpicture}[font=\footnotesize]
-% F7.2 DFS stack frames on path A-B-D: explicit cells, accent = on stack.
-\begin{scope}
-  \foreach \i/\v in {0/A,1/B,2/D}
-    \node[draw=slate,fill=graybg,minimum width=0.4cm,
-          minimum height=0.3cm,font=\tiny] at (\i*0.5,0) {\v};
-  \node[draw=slate,fill=accentsoft,minimum width=0.4cm,
-        minimum height=0.3cm,font=\tiny] at (0,0) {A};
-  \node[font=\tiny] at (0.5,-0.5) {depth 0};
-\end{scope}
-\begin{scope}[xshift=2.6cm]
-  \foreach \i/\v in {0/A,1/B,2/D}
-    \node[draw=slate,fill=graybg,minimum width=0.4cm,
-          minimum height=0.3cm,font=\tiny] at (\i*0.5,0) {\v};
-  \node[draw=slate,fill=accentsoft,minimum width=0.4cm,
-        minimum height=0.3cm,font=\tiny] at (0,0) {A};
-  \node[draw=slate,fill=accentsoft,minimum width=0.4cm,
-        minimum height=0.3cm,font=\tiny] at (0.5,0) {B};
-  \node[font=\tiny] at (0.5,-0.5) {depth 1};
-\end{scope}
-\begin{scope}[xshift=5.2cm]
-  \foreach \i/\v in {0/A,1/B,2/D}
-    \node[draw=slate,fill=accentsoft,minimum width=0.4cm,
-          minimum height=0.3cm,font=\tiny] at (\i*0.5,0) {\v};
-  \node[font=\tiny] at (0.5,-0.5) {depth 2};
-\end{scope}
-\begin{scope}[xshift=7.8cm]
-  \foreach \i/\v in {0/A,1/B,2/D}
-    \node[draw=slate,fill=graybg,minimum width=0.4cm,
-          minimum height=0.3cm,font=\tiny] at (\i*0.5,0) {\v};
-  \node[draw=slate,fill=accentsoft,minimum width=0.4cm,
-        minimum height=0.3cm,font=\tiny] at (0,0) {A};
-  \node[draw=slate,fill=accentsoft,minimum width=0.4cm,
-        minimum height=0.3cm,font=\tiny] at (0.5,0) {B};
-  \node[font=\tiny] at (0.5,-0.5) {D returns};
-\end{scope}
+% frame: x, number of stack entries, current vertex (A/B/D), caption
+\newcommand{\fr}[4]{%
+  \node[\ifnum#2>0 vtxh\else vtx\fi] (A#4) at (#1,2.4) {A};
+  \node[\ifnum#2>1 vtxh\else vtx\fi] (B#4) at (#1+0.9,2.4) {B};
+  \node[\ifnum#2>2 vtxh\else vtx\fi] (D#4) at (#1+1.8,2.4) {D};
+  \draw[edge] (A#4)--(B#4)--(D#4);
+  \foreach \l [count=\k from 0] in {A,B,D} {%
+    \ifnum\k<#2 \node[cellh, minimum width=9mm] at (#1+0.9,0.4+\k*0.7) {\l};\fi}
+  \draw[slate] (#1+0.35,0) -- (#1+0.35,2.0) -- ++(0,0) (#1+1.45,0) -- (#1+1.45,2.0) (#1+0.35,0) -- (#1+1.45,0);
+  \node[lab, align=center, text width=2.6cm] at (#1+0.9,-0.65) {#3};}
+\fr{0}{1}{call A: depth 1}{1}
+\fr{3.6}{2}{call B: depth 2}{2}
+\fr{7.2}{3}{call D: depth 3}{3}
+\fr{10.8}{2}{D returns: pop}{4}
 \end{tikzpicture}

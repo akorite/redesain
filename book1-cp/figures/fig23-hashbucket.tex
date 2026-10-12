@@ -1,17 +1,12 @@
+% fig23-hashbucket.tex -- Figure 5.5: prefix residues mod 5 for a = {3,1,2,7,4} (P = 0,3,4,6,13,17 -> 0,3,4,1,3,2).
+\input{figures/fstyle}
 \begin{tikzpicture}[font=\footnotesize]
-% F5.5 residue buckets for {3,1,2,7,4} mod 5.
-\foreach \i/\lbl in {0/r{=}0,1/r{=}1,2/r{=}2,3/r{=}3,4/r{=}4} {
-  \node[draw=slate,minimum width=1.1cm,minimum height=0.5cm,font=\tiny]
-    (b\i) at (\i*1.3,0) {\lbl};
-}
-\node[font=\tiny,above] at (b0) {$P_0$};
-\node[font=\tiny,above] at (b1) {$P_3$};
-\node[font=\tiny,above] at (b2) {$P_5$};
-\node[font=\tiny,above] at (b3) {$P_1, P_4$};
-\node[font=\tiny,above] at (b4) {$P_2$};
-\node[align=left,text width=4.6cm] at (8.6,0.3)
-  {prefixes $P_i$ by residue:\\
-   bucket 3 has a \emph{pair}\\
-   $P_1{=}P_4{=}3$ $\Rightarrow$\\
-   $a_{2..4}$ sums to $0 \bmod 5$};
+\node[lab, anchor=east] at (-0.5,-0.2) {$P_i \bmod 5$};
+\foreach \i/\r in {0/0,1/3,2/4,3/1,4/3,5/2} {
+  \node[idx] at (\i*0.9,0.4) {$P_\i$};
+  \node[cell, minimum width=7mm] (q\i) at (\i*0.9,-0.2) {\r};}
+\node[cella] at (q1) {3}; \node[cella] at (q4) {3};
+\draw[amber, thick] (q1.south) -- ++(0,-0.4) -| (q4.south);
+\node[labM, below=0.55cm of q2.south east, align=center] {equal residues $P_1=P_4=3$};
+\node[lab, align=left, anchor=west] at (6.2,0.0) {$a_{2..4}=1+2+7=10$,\\ divisible by 5};
 \end{tikzpicture}

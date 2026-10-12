@@ -1,14 +1,21 @@
-\begin{tikzpicture}[font=\footnotesize]
-\begin{scope}
-\node[circle,draw=slate,fill=accentsoft,font=\tiny] at (0,1) {big};
-\node[circle,draw=slate,font=\tiny] at (0.8,1) {small};
-\draw[-{stealth},amber,thick] (0.8,1) to[out=45,in=45] (0,1);
-\node[font=\tiny] at (0.4,0.4) {small $\to$ big: stays shallow};
-\end{scope}
-\begin{scope}[xshift=4.4cm]
-\node[circle,draw=slate,font=\tiny] at (0,1) {big};
-\node[circle,draw=slate,fill=accentsoft,font=\tiny] at (0.8,1) {small};
-\draw[-{stealth},amber,thick,dashed] (0,1) to[out=135,in=135] (0.8,1);
-\node[font=\tiny] at (0.4,0.4) {big $\to$ small: deepens};
-\end{scope}
+% fig41-unionsize.tex -- Figure 8.2: union by size; hang the smaller tree under the larger root.
+\input{figures/fstyle}
+\begin{tikzpicture}[font=\footnotesize, x=1cm, y=1cm]
+% big tree: R(A(C),B) height 2; small tree: S(T) height 1
+\newcommand{\bigtree}[3]{% x, y, prefix
+  \node[vtxh] (R#3) at (#1,#2) {R}; \node[vtx] (A#3) at (#1-0.6,#2-0.9) {A}; \node[vtx] (B#3) at (#1+0.6,#2-0.9) {B}; \node[vtx] (C#3) at (#1-0.6,#2-1.8) {C};
+  \draw[edge] (R#3)--(A#3) (R#3)--(B#3) (A#3)--(C#3);}
+\newcommand{\smalltree}[3]{
+  \node[vtxa] (S#3) at (#1,#2) {S}; \node[vtxa] (T#3) at (#1,#2-0.9) {T};
+  \draw[edge] (S#3)--(T#3);}
+% case 1 : small under big
+\node[lab] at (1.5,0.9) {size 4 $\leftarrow$ size 2};
+\bigtree{1.2}{0}{1}; \smalltree{3.0}{-0.9}{1};
+\draw[arrM] (S1.north west) to[out=110,in=0] (R1.east);
+\node[labM, align=center] at (1.9,-2.9) {smaller under larger:\\ height stays 2};
+% case 2 : big under small
+\node[lab] at (8.5,0.9) {size 2 $\leftarrow$ size 4};
+\smalltree{9.6}{0}{2}; \bigtree{7.5}{-0.9}{2};
+\draw[arrM] (R2.north east) to[out=70,in=180] (S2.west);
+\node[labM, align=center] at (8.7,-3.9) {larger under smaller:\\ height grows to 3};
 \end{tikzpicture}

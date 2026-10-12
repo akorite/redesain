@@ -1,7 +1,11 @@
-\begin{tikzpicture}[font=\tiny]
-% s = abcabca, period 3: s[i]=s[i+3]; period = n - border
-\foreach \i/\c in {0/a,1/b,2/c,3/a,4/b,5/c,6/a}{\node[draw=slate!50,minimum size=0.32cm] at (\i*0.36,0) {\c};}
-\foreach \i/\j in {0/3,1/4,2/5,3/6}{\draw[<->,amber] (\i*0.36,0.32) -- (\j*0.36,0.32);}
-\node[anchor=west] at (0,-0.6) {period $p{=}3$: $s_i = s_{i+p}$; suffix ``abca'' repeats prefix ``abca''};
-\node[anchor=west] at (0,-1.0) {$\Leftarrow$ border of length $n-p = 4$; every border gives a period};
+% fig77-period.tex -- Figure 14.x: s = abcabca (n = 7), border abca (4), period p = n - 4 = 3: s_i = s_{i+3}.
+\input{figures/fstyle}
+\begin{tikzpicture}[font=\footnotesize]
+\foreach \c [count=\i from 0] in {a,b,c,a,b,c,a}
+  \node[\ifnum\i<4 cellh\else cell\fi, minimum width=7mm] (s\i) at (\i*0.78,0) {\c};
+\foreach \i [evaluate=\j using int(\i+3)] in {0,1,2,3} \draw[arrM, <->, bend left=40] (s\i.north) to (s\j.north);
+\draw[decorate,decoration={brace,mirror,raise=3pt},amber,thick] (s3.south west) -- (s6.south east) node[midway,below=5pt,labM]{suffix \texttt{abca}};
+\draw[decorate,decoration={brace,mirror,raise=3pt},accent,thick] (s0.south west) -- (s3.south east) node[midway,below=5pt,labA]{prefix \texttt{abca}};
+\node[lab, anchor=west, align=left] at (5.6,0.2) {period $p=3$: $s_i=s_{i+3}$};
+\node[labM, anchor=west, align=left] at (0,-1.9) {border of length $n-p=4$ $\Longleftrightarrow$ period $p=7-4=3$; every border gives a period};
 \end{tikzpicture}

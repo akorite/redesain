@@ -1,6 +1,15 @@
-\begin{tikzpicture}[scale=0.8,font=\tiny]
-\foreach \p in {(0.3,1.2),(0.8,3.4),(1.4,2.0),(1.7,4.1),(2.1,2.6),(2.5,1.0),(2.9,3.0),(3.4,2.2),(4.0,3.6),(4.5,1.4),(5.0,2.8)} \fill[ink] \p circle (1.6pt);
-\draw[dashed,slate] (2.3,0)--(2.3,4.6) node[above] {mid-$x$};
-\draw[accent] (2.3-0.9,0) rectangle (2.3+0.9,4.6);
-\node[align=left,anchor=west] at (5.4,2.6) {$d=\min(d_L,d_R)$\\strip width $d$ each side\\$\le 8$ candidates in $y$-order};
+% fig83-strip.tex -- Figure 15.x: closest-pair strip around the dividing line x = m.
+\input{figures/fstyle}
+\begin{tikzpicture}[font=\footnotesize, x=1cm, y=0.9cm]
+\fill[accent!10] (2.2,0) rectangle (4.2,4.6);
+\draw[dashed, slate] (3.2,-0.2)--(3.2,4.8) node[above, lab] {$x=m$};
+\draw[accent, thick] (2.2,0) rectangle (4.2,4.6);
+\foreach \x/\y in {0.3/1.2,0.8/3.4,1.4/2.0,1.7/4.1,2.5/1.0,3.0/3.0,3.5/2.2,4.6/3.6,5.2/1.4,5.7/2.8} \fill[slate] (\x,\y) circle (2pt);
+\foreach \x/\y in {2.5/3.5,2.9/2.6,3.5/3.9,3.8/1.9} \fill[accent] (\x,\y) circle (2.4pt);
+\draw[amber, thick, dashed] (2.2,2.6) rectangle (4.2,3.71);
+\node[font=\scriptsize, text=amber, anchor=west] at (4.25,3.15) {height $d$};
+\draw[<->, amber, thick] (2.2,-0.5)--(3.2,-0.5) node[midway, below, labM] {$d$}; \draw[<->, amber, thick] (3.2,-0.5)--(4.2,-0.5) node[midway, below, labM] {$d$};
+\node[lab, anchor=west, align=left, text width=5.6cm] at (6.5,4.3) {$d=\min(d_L,d_R)$ from the two halves};
+\node[lab, anchor=west, align=left, text width=5.2cm] at (6.5,3.3) {only points within $d$ of the line (blue) can beat $d$};
+\node[labA, anchor=west, align=left, text width=5.2cm] at (6.5,1.4) {scanned in $y$-order, a point only checks the few strip points within $d$ above it: past a gap of $d$ no later point can improve $d$};
 \end{tikzpicture}

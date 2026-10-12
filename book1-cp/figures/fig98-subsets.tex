@@ -1,21 +1,15 @@
-\begin{tikzpicture}[font=\scriptsize,level distance=10mm,
-level 1/.style={sibling distance=42mm},
-level 2/.style={sibling distance=21mm},
-level 3/.style={sibling distance=10.5mm}]
-\node {$\{\}$}
-  child {node {$\{1\}$}
-    child {node {$\{1,2\}$}
-      child {node[fill=accent!15] {$\{1,2,3\}$}}
-      child {node[fill=accent!15] {$\{1,2\}$}}}
-    child {node {$\{1\}$}
-      child {node[fill=accent!15] {$\{1,3\}$}}
-      child {node[fill=accent!15] {$\{1\}$}}}}
-  child {node {$\{\}$}
-    child {node {$\{2\}$}
-      child {node[fill=accent!15] {$\{2,3\}$}}
-      child {node[fill=accent!15] {$\{2\}$}}}
-    child {node {$\{\}$}
-      child {node[fill=accent!15] {$\{3\}$}}
-      child {node[fill=accent!15] {$\{\}$}}}};
-\node[align=left] at (0,-3.6) {$2^{3}=8$ leaves: include/exclude per element};
+% fig98-subsets.tex -- Figure 2.x: recursion tree for subsets of {1,2,3}: include/exclude each element -> 2^3 = 8 leaves.
+\input{figures/fstyle}
+\begin{tikzpicture}[font=\footnotesize, x=1cm, y=1cm,
+  tn/.style={draw=slate, rounded corners=1.5pt, minimum height=6mm, minimum width=9mm, inner sep=1.5pt, fill=white, font=\scriptsize},
+  lf/.style={draw=accent, rounded corners=1.5pt, minimum height=6mm, minimum width=12mm, inner sep=1.5pt, fill=accentsoft, font=\scriptsize},
+  el/.style={font=\tiny, text=slate, fill=white, inner sep=1pt}]
+\node[tn] (r) at (4.2,0) {$\{\}$};
+\node[tn] (a1) at (2.1,-1.3) {$\{1\}$}; \node[tn] (a0) at (6.3,-1.3) {$\{\}$};
+\node[tn] (b11) at (1.05,-2.6) {$\{1,2\}$}; \node[tn] (b10) at (3.15,-2.6) {$\{1\}$}; \node[tn] (b01) at (5.25,-2.6) {$\{2\}$}; \node[tn] (b00) at (7.35,-2.6) {$\{\}$};
+\foreach \n/\x/\t in {c111/0.525/{$\{1,2,3\}$}, c110/1.575/{$\{1,2\}$}, c101/2.625/{$\{1,3\}$}, c100/3.675/{$\{1\}$}, c011/4.725/{$\{2,3\}$}, c010/5.775/{$\{2\}$}, c001/6.825/{$\{3\}$}, c000/7.875/{$\{\}$}}
+  \node[lf] (\n) at (\x,-3.9) {\t};
+\foreach \p/\c/\l in {r/a1/{in 1}, r/a0/{out}, a1/b11/{in 2}, a1/b10/{out}, a0/b01/{in 2}, a0/b00/{out}, b11/c111/{in 3}, b11/c110/{out}, b10/c101/{in 3}, b10/c100/{out}, b01/c011/{in 3}, b01/c010/{out}, b00/c001/{in 3}, b00/c000/{out}}
+  \draw[edge, slate] (\p) -- (\c) node[midway, el] {\l};
+\node[lab, anchor=west] at (0,-4.8) {one level per element, two choices each: $2^3=8$ leaves, one per subset};
 \end{tikzpicture}

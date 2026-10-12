@@ -1,17 +1,17 @@
-\begin{tikzpicture}[font=\footnotesize,x=0.66cm,y=0.66cm]
-% F5.1 prefix cells -> range sum as subtraction.
-\foreach \i/\v in {0/3,1/2,2/4,3/5,4/1,5/1}
-  \node[draw=slate,minimum width=0.55cm,minimum height=0.55cm]
-    (a\i) at (\i*0.62,0) {\v};
-\node[below,font=\tiny] at (a0) {$a_1$};
-\node[below,font=\tiny] at (a5) {$a_6$};
+% fig19-prefixsum.tex -- Figure 5.1: prefix cells -> range sum as subtraction.
+\input{figures/fstyle}
+\begin{tikzpicture}[font=\footnotesize]
+\node[lab, anchor=east] at (-0.4,0) {$a$};
+\cellrow{a}{0.4}{0}{cell}{3,2,4,5,1,1}
+\foreach \i [count=\k from 1] in {0,...,5} \node[idx, below=0pt of a\i] {$a_\k$};
+\node[lab, anchor=east] at (-0.4,1.4) {$P$};
 \foreach \i/\v in {0/0,1/3,2/5,3/9,4/14,5/15,6/16}
-  \node[draw=accent,fill=accentsoft,minimum width=0.55cm,
-        minimum height=0.4cm,font=\tiny] (p\i) at (\i*0.62-0.31,1.1) {\v};
-\node[anchor=east,font=\tiny] at (-0.6,1.1) {$P$:};
-\draw[decorate,decoration={brace,raise=3pt},amber,thick]
-  (a1.north west) -- (a4.north east)
-  node[midway,above=4pt]{query $[2,5]$};
-\node[amber,align=center] at (2.4,-1.2)
-  {$P_5 - P_1 = 15 - 3 = 12$:\\ one subtraction, not four reads};
+  \node[cellh, minimum width=7mm] (p\i) at (\i*0.75+0.025,1.4) {\v};
+\foreach \i in {0,...,6} \node[idx, above=0pt of p\i] {$P_\i$};
+\foreach \i in {1,2,3,4} \node[cell, fill=amberbg, draw=amber, minimum width=7mm] at (a\i) {};
+\foreach \i/\v in {1/2,2/4,3/5,4/1} \node[font=\footnotesize] at (a\i) {\v};
+\draw[decorate,decoration={brace,mirror,raise=11pt},amber,thick] (a1.south west) -- (a4.south east) node[midway,below=15pt,labM]{query $[2,5]$};
+\node[cella, minimum width=7mm] at (p1) {3};
+\node[cella, minimum width=7mm] at (p5) {15};
+\node[labM, align=left, anchor=west] at (5.5,0.7) {sum $=P_5-P_1$\\$\phantom{\text{sum }}=15-3=12$\\[2pt]one subtraction,\\not four reads};
 \end{tikzpicture}

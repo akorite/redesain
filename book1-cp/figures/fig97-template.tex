@@ -1,13 +1,15 @@
-\begin{tikzpicture}[font=\scriptsize]
-\draw[very thick,fill=accent!8,rounded corners=0.15] (-3.4,-2.6) rectangle (3.4,2.6);
-\node[anchor=north west,font=\ttfamily\scriptsize] at (-3.2,2.4) {\#include <bits/stdc++.h>};
-\node[anchor=north west,font=\ttfamily\scriptsize] at (-3.2,1.7) {using namespace std;};
-\node[anchor=north west,font=\ttfamily\scriptsize] at (-3.2,0.6) {void solve()\{};
-\node[anchor=north west,font=\ttfamily\scriptsize] at (-2.6,-0.1) {// the actual logic};
-\node[anchor=north west,font=\ttfamily\scriptsize] at (-3.2,-0.8) {\}};
-\node[anchor=north west,font=\ttfamily\scriptsize] at (-3.2,-1.9) {int main()\{ ios::sync\_with\_stdio(false);};
-\draw[->,thick,accent] (3.0,2.1) -- (4.1,2.1) node[right,align=left]{headers};
-\draw[->,thick,accent] (3.0,0.25) -- (4.1,0.25) node[right,align=left]{solve()};
-\draw[->,thick,accent] (3.0,-2.2) -- (4.1,-2.2) node[right,align=left]{fast I/O};
-\node[align=left] at (0,-3.3) {one file, three parts:\\every solution in this book};
+% fig97-template.tex -- the three parts of every solution file.
+\begin{tikzpicture}[font=\scriptsize, lab/.style={font=\footnotesize, text=accent, anchor=west}]
+\draw[draw=ink, fill=accentsoft, rounded corners=1.5pt] (-3.9,-2.7) rectangle (3.9,2.7);
+\node[anchor=north west, font=\ttfamily\scriptsize, align=left] at (-3.7,2.5)
+  {\#include <bits/stdc++.h>\\using namespace std;};
+\node[anchor=north west, font=\ttfamily\scriptsize, align=left] at (-3.7,0.9)
+  {void solve() \{\\\ \ // the actual logic\\\}};
+\node[anchor=north west, font=\ttfamily\scriptsize, align=left] at (-3.7,-0.6)
+  {int main() \{\\\ \ ios::sync\_with\_stdio(false);\\\ \ cin.tie(nullptr);\\\ \ solve();\\\}};
+\draw[accent, thick] (3.9,1.95) -- (4.4,1.95) node[lab] {headers};
+\draw[accent, thick] (3.9,0.6) -- (4.4,0.6) node[lab] {solve()};
+\draw[accent, thick] (3.9,-1.2) -- (4.4,-1.2) node[lab] {fast I/O};
+\node[font=\footnotesize, text=slate, align=center] at (0,-3.3)
+  {one file, three parts: every solution in this book};
 \end{tikzpicture}

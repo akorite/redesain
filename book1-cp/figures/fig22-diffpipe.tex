@@ -1,14 +1,14 @@
-\begin{tikzpicture}[font=\footnotesize,x=0.6cm]
-% F5.4 diff pipeline: [2,4]+3 -> writes -> restore.
-\node[anchor=east] at (-0.3,0) {writes:};
-\foreach \i/\v in {0/0,1/0,2/+3,3/0,4/0,5/$-3$,6/0,7/0}
-  \node[draw=slate,minimum width=0.6cm,minimum height=0.45cm,font=\tiny]
-    at (\i*0.68,0) {\v};
-\node[font=\tiny] at (1.36,0.42) {$d[2]$};
-\node[font=\tiny] at (3.4,0.42) {$d[5]$};
-\node[anchor=east] at (-0.3,-0.9) {prefix:};
-\foreach \i/\v in {0/0,1/0,2/3,3/3,4/3,5/0,6/0,7/0}
-  \node[draw=accent,fill=accentsoft,minimum width=0.6cm,
-        minimum height=0.45cm,font=\tiny] at (\i*0.68,-0.9) {\v};
-\draw[-{stealth},thick,ink] (2.4,-0.15) -- (2.4,-0.6);
+% fig22-diffpipe.tex -- Figure 5.4: difference-array pipeline: add 3 on [2,4] of an 8-cell array.
+\input{figures/fstyle}
+\begin{tikzpicture}[font=\footnotesize]
+\node[lab, anchor=east] at (-0.2,2.4) {1. two writes};
+\cellrow{d}{0.4}{2.4}{cell}{0,0,+3,0,0,$-3$,0,0}
+\node[labA] at ($(d2.north)+(0,0.35)$) {$d[2]\mathrel{+}=3$};
+\node[labM] at ($(d5.north)+(0,0.35)$) {$d[5]\mathrel{-}=3$};
+\node[lab, anchor=east] at (-0.2,0.8) {2. running sum};
+\cellrow{p}{0.4}{0.8}{cellx}{0,0,3,3,3,0,0,0}
+\foreach \i in {2,3,4} \node[cellh] at (p\i) {3};
+\cellidx{p}{8}{0}
+\foreach \i in {2,3,4} \draw[arrA] (d\i.south) -- (p\i.north);
+\node[lab, align=left, anchor=west] at (6.7,1.6) {one write at each end,\\ one pass restores the array};
 \end{tikzpicture}

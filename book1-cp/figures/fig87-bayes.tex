@@ -1,13 +1,15 @@
-\begin{tikzpicture}[scale=0.9,font=\tiny,grow=right]
-\node (r) at (0,1.2) {population};
-\node (s) at (3.2,2.4) {sick $1\%$};
-\node (h) at (3.2,0) {healthy $99\%$};
-\node (pp) at (6.6,3.0) {test$+$ $99\%$};
-\node (pn) at (6.6,1.8) {test$-$ $1\%$};
-\node (hp) at (6.6,0.6) {test$+$ $5\%$};
-\node (hn) at (6.6,-0.6) {test$-$ $95\%$};
-\draw[-{stealth}] (r)--(s); \draw[-{stealth}] (r)--(h);
-\draw[-{stealth}] (s)--(pp); \draw[-{stealth}] (s)--(pn);
-\draw[-{stealth}] (h)--(hp); \draw[-{stealth}] (h)--(hn);
-\node[align=left,anchor=west] at (8.1,1.6) {$\Pr[\text{sick}|+]=\frac{.01\cdot.99}{.01\cdot.99+.99\cdot.05}$\\$=\frac{.0099}{.0594}\approx16.7\%$};
+% fig87-bayes.tex -- Figure 16.x: Bayes by a probability tree; 1% prevalence, 99% sensitivity, 5% false positives -> P(sick|+) = 16.7%.
+\input{figures/fstyle}
+\begin{tikzpicture}[font=\footnotesize]
+\tikzset{tb/.style={draw=slate, rounded corners=2pt, inner sep=3pt, fill=white}}
+\node[tb] (r) at (0,0) {population};
+\node[tb, draw=amber] (s) at (3.4,1.6) {sick $1\%$};
+\node[tb, draw=accent] (h) at (3.4,-1.6) {healthy $99\%$};
+\node[tb] (pp) at (7.2,2.3) {test$+$ $99\%$\ $\to$\ $0.0099$};
+\node[tb] (pn) at (7.2,1.0) {test$-$ $1\%$\ $\to$\ $0.0001$};
+\node[tb] (hp) at (7.2,-1.0) {test$+$ $5\%$\ $\to$\ $0.0495$};
+\node[tb] (hn) at (7.2,-2.3) {test$-$ $95\%$\ $\to$\ $0.9405$};
+\draw[arr] (r)--(s); \draw[arr] (r)--(h); \draw[arr] (s)--(pp); \draw[arr] (s)--(pn); \draw[arr] (h)--(hp); \draw[arr] (h)--(hn);
+\draw[amber, very thick] (pp.south west) rectangle (pp.north east); \draw[accent, very thick] (hp.south west) rectangle (hp.north east);
+\node[labM, anchor=west, align=left] at (0,-3.6) {$\Pr[\text{sick}\mid +]=\dfrac{0.0099}{0.0099+0.0495}=\dfrac{0.0099}{0.0594}\approx16.7\%$};
 \end{tikzpicture}

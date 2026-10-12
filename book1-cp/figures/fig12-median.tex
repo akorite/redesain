@@ -1,21 +1,19 @@
-\begin{tikzpicture}[x=0.9cm,y=0.9cm]
-% F3.3: median pairing on the CSES sample {1,2,2,3,5}, m=2.
-\draw[->,ink] (0,0) -- (6.4,0);
-\foreach \t in {0,...,6} { \draw[ink] (\t,-0.08) -- (\t,0.08);
-  \node[below,font=\tiny] at (\t,-0.1) {\t}; }
-\foreach \x/\lbl in {1/$p_1$,2/$p_2{=}m$,2.28/,3/$p_4$,5/$p_5$}
-  \fill[accent] (\x,0) circle (1.6pt);
-\node[font=\tiny,above] at (1,0.06) {$1$};
-\node[font=\tiny,above] at (2,0.06) {$2$};
-\node[font=\tiny,above] at (2.28,0.06) {$2$};
-\node[font=\tiny,above] at (3,0.06) {$3$};
-\node[font=\tiny,above] at (5,0.06) {$5$};
-\draw[accent,thick] (1,0.35) -- (2,0.35);
-\draw[accent,thick] (2,0.35) -- (5,0.35);
-\node[font=\footnotesize,accent] at (3,0.48) {$|1-2|+|5-2|=4=|5-1|$};
-\draw[slate,thick] (2.14,0.75) -- (3,0.75);
-\node[font=\footnotesize,slate] at (2.55,0.9) {$|2-3|=1$};
-\node[font=\footnotesize,ink,text width=6.2cm,align=flush left]
-  at (3.2,1.35) {inside each pair, the two costs together equal the
-                 pair's own gap --- the median's exact position does not matter};
+% fig12-median.tex -- Figure 3.3: median pairing on the CSES sample {1,2,2,3,5}, m=p_3=2.
+\input{figures/fstyle}
+\begin{tikzpicture}[x=1.15cm,y=1cm,font=\footnotesize]
+\draw[->,ink] (0.4,0) -- (6.1,0) node[right,font=\scriptsize]{$x$};
+\foreach \t in {1,...,6} {\draw[ink] (\t,-0.07) -- (\t,0.07); \node[below,idx] at (\t,-0.08) {\t};}
+\foreach \x/\c in {1/ink,2/ink,3/ink,5/ink} \fill[\c] (\x,0) circle (2.2pt);
+\fill[accent] (2,0.22) circle (2.2pt);
+\node[labA, anchor=east] at (1.8,0.3) {$p_2,p_3{=}m$};
+% outer pair (p1,p5)
+\draw[amber, thick] (1,1.0) -- (5,1.0);
+\draw[amber, thick] (1,0.9) -- (1,1.1); \draw[amber, thick] (5,0.9) -- (5,1.1);
+\node[labM, above=1pt] at (3,1.0) {$(p_1,p_5)=(1,5)$: $|1-m|+|5-m|=4$};
+% inner pair (p2,p4)
+\draw[good, thick] (2,0.62) -- (3,0.62);
+\draw[good, thick] (2,0.52) -- (2,0.72); \draw[good, thick] (3,0.52) -- (3,0.72);
+\node[font=\scriptsize, text=good, anchor=west] at (3.1,0.62) {$(p_2,p_4)=(2,3)$: cost $1$};
+\node[lab, text width=9.5cm, align=center] at (3.5,-1.0)
+  {any $m$ between the two members of a pair costs exactly the pair's gap, and the median lies inside every pair};
 \end{tikzpicture}

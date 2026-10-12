@@ -1,6 +1,14 @@
+% fig49-lca.tex -- Figure 10.x: LCA in two lifts. depth(u)=4, depth(v)=2; LCA = r.
+\input{figures/fstyle}
 \begin{tikzpicture}[font=\footnotesize]
-\node[font=\tiny,anchor=west] at (0,0.6) {lift deeper end to equal depth};
-\node[font=\tiny,anchor=west] at (0,0.1) {binary-search both lifts together};
-\draw[-{stealth},slate] (0,-0.4)--(0,-1.1);
-\node[font=\tiny,anchor=west] at (0,-1.5) {parents meet $\Rightarrow$ LCA};
+\node[vtxg] (r) at (2,3.6) {$r$};
+\node[vtx] (A) at (0.8,2.4) {$A$}; \node[vtx] (B) at (3.2,2.4) {$B$};
+\node[vtx] (C) at (0.8,1.2) {$C$}; \node[vtx] (v) at (3.2,1.2) {$v$};
+\node[vtx] (D) at (0.8,0) {$D$}; \node[vtxa] (u) at (0.8,-1.2) {$u$};
+\draw[edge] (r)--(A) (r)--(B) (A)--(C) (B)--(v) (C)--(D) (D)--(u);
+\foreach \y/\d in {3.6/0,2.4/1,1.2/2,0/3,-1.2/4} \node[idx] at (-0.5,\y) {depth \d};
+\draw[arrM, bend right=60, looseness=1.3] (u.east) to (C.east);
+\node[labM, align=left, anchor=west] at (1.85,-0.15) {1. equalise: lift $u$\\ by $2$ to depth $2$};
+\node[labA, align=left, anchor=west] at (4.9,2.4) {2. lift both by $2^k$ while the ancestors differ:\\ $C,v \to A,B$ (differ), nothing higher differs};
+\node[font=\footnotesize, text=good, align=left, anchor=west] at (4.9,0.9) {3. both parents are $r$ $\Rightarrow$ $\mathrm{LCA}(u,v)=r$};
 \end{tikzpicture}

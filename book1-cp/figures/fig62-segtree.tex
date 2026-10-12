@@ -1,11 +1,12 @@
-\begin{tikzpicture}[font=\tiny]
-\node[draw=slate] (r) at (0,0) {[1,8]};
-\node[draw=slate] (a) at (-1.6,-0.9) {[1,4]};
-\node[draw=slate] (b) at (1.6,-0.9) {[5,8]};
-\node[draw=slate,font=\tiny] (a1) at (-2.4,-1.8) {[1,2]};
-\node[draw=slate,font=\tiny] (a2) at (-0.9,-1.8) {[3,4]};
-\node[draw=slate,font=\tiny] (b1) at (0.9,-1.8) {[5,6]};
-\node[draw=slate,font=\tiny] (b2) at (2.4,-1.8) {[7,8]};
-\draw[slate] (r)--(a) (r)--(b) (a)--(a1) (a)--(a2) (b)--(b1) (b)--(b2);
-\node[font=\tiny] at (0,-2.6) {$2n$ array: node $v$, children $2v,2v{+}1$};
+% fig62-segtree.tex -- Figure 12.x: segment tree over 8 leaves; node v has children 2v, 2v+1.
+\input{figures/fstyle}
+\begin{tikzpicture}[font=\footnotesize]
+\tikzset{sn/.style={draw=slate, fill=accentsoft, rounded corners=1pt, minimum height=7mm, minimum width=1.3cm, inner sep=1pt, align=center, font=\scriptsize}}
+\foreach \v/\lo/\hi/\x/\y in {1/1/8/5.25/3.0, 2/1/4/2.625/2.0, 3/5/8/7.875/2.0, 4/1/2/1.3125/1.0, 5/3/4/3.9375/1.0, 6/5/6/6.5625/1.0, 7/7/8/9.1875/1.0}
+  \node[sn] (n\v) at (\x*1.0,\y*1.0) {{[\lo,\hi]}\\[-1pt]{\tiny node \v}};
+\foreach \v/\lo/\x in {1/1/0.65, 2/2/1.97, 3/3/3.28, 4/4/4.6, 5/5/5.9, 6/6/7.2, 7/7/8.5, 8/8/9.8}
+  \node[cell, minimum width=1.0cm, minimum height=6mm, font=\tiny] (l\v) at (\x*1.0+0.0,0) {$a_\lo$};
+\draw[edge] (n1)--(n2) (n1)--(n3) (n2)--(n4) (n2)--(n5) (n3)--(n6) (n3)--(n7);
+\draw[edge] (n4)--(l1) (n4)--(l2) (n5)--(l3) (n5)--(l4) (n6)--(l5) (n6)--(l6) (n7)--(l7) (n7)--(l8);
+\node[lab, anchor=west] at (0,-0.9) {array of size $2n$: node $v$ stores the combine of its segment; children are $2v$ and $2v{+}1$};
 \end{tikzpicture}

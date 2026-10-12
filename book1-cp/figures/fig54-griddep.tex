@@ -1,8 +1,13 @@
-\begin{tikzpicture}[font=\footnotesize,x=0.5cm,y=0.5cm]
-\foreach \x in {0,...,3} \foreach \y in {0,...,3}
-  \draw[slate!60] (\x,\y) rectangle +(1,1);
-\fill[accentsoft] (2,2) rectangle +(1,1);
-\draw[-{stealth},amber,thick] (1.5,2.5)--(2.5,2.5);
-\draw[-{stealth},amber,thick] (2.5,1.5)--(2.5,2.5);
-\node[font=\tiny] at (2,-0.7) {cell (i,j) pulls from left and below};
+% fig54-griddep.tex -- Figure 11.x: grid DP; cell (i,j) pulls from the cell above and the cell to its left.
+\input{figures/fstyle}
+\begin{tikzpicture}[font=\footnotesize]
+\foreach \i in {0,...,3} \foreach \j in {0,...,4} \node[cell, minimum size=8mm, text=slate] (g\i\j) at (\j*0.9,-\i*0.9) {};
+\foreach \i in {0,...,3} \foreach \j in {0,...,4} \node[font=\tiny, text=slate] at (g\i\j) {\the\numexpr\i*5+\j+1\relax};
+\node[cell, minimum size=8mm, fill=amber!25, draw=amber] at (g22) {13};
+\node[cellh, minimum size=8mm] at (g12) {8}; \node[cellh, minimum size=8mm] at (g21) {12};
+\draw[arrM, shorten >=1pt] (g12.south) -- (g22.north);
+\draw[arrM, shorten >=1pt] (g21.east) -- (g22.west);
+\node[lab, anchor=west, align=left] at (4.7,-0.4) {cell $(i,j)$ reads its two inputs:};
+\node[lab, anchor=west, align=left] at (4.7,-1.0) {$(i{-}1,j)$ above and $(i,j{-}1)$ to the left};
+\node[lab, anchor=west, align=left] at (4.7,-1.9) {numbers = fill order (row by row):\\every input has a smaller number};
 \end{tikzpicture}

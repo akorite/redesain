@@ -1,19 +1,10 @@
-\begin{tikzpicture}[font=\tiny,->,>=stealth,auto,node distance=1.5cm]
-% pattern ABABAC: state = chars matched so far
-\node[draw,circle,minimum size=0.55cm] (q0) {0};
-\node[draw,circle,minimum size=0.55cm] (q1) [right=0.9cm of q0] {1};
-\node[draw,circle,minimum size=0.55cm] (q2) [right=0.9cm of q1] {2};
-\node[draw,circle,minimum size=0.55cm] (q3) [right=0.9cm of q2] {3};
-\node[draw,circle,minimum size=0.55cm] (q4) [right=0.9cm of q3] {4};
-\node[draw,circle,minimum size=0.55cm] (q5) [right=0.9cm of q4] {5};
-\node[draw,circle,minimum size=0.55cm,double] (q6) [right=0.9cm of q5] {6};
-\path (q0) edge node{A} (q1) (q1) edge node{B} (q2) (q2) edge node{A} (q3)
-      (q3) edge node{B} (q4) (q4) edge node{A} (q5) (q5) edge node{C} (q6);
-% failure links
-\path[dashed] (q2) edge[bend left=35] node[below]{fail:0} (q0)
-      (q3) edge[bend left=35] node[below]{1} (q1)
-      (q4) edge[bend left=35] node[below]{2} (q2)
-      (q5) edge[bend left=35] node[below]{3} (q3)
-      (q6) edge[bend left=40] node[below]{0} (q0);
-\node[anchor=west] at (-0.4,-1.6) {at 5 read B: fail $5\to3$, then B re-matches $\to4$};
+% fig72-kmpauto.tex -- Figure 14.x: KMP automaton for pattern ABABAC; state = characters matched so far; dashed = failure links.
+\input{figures/fstyle}
+\begin{tikzpicture}[font=\footnotesize]
+\foreach \i in {0,...,5} \node[vtx] (q\i) at (\i*2.1,0) {\i};
+\node[vtxg, double, double distance=1.2pt] (q6) at (12.6,0) {6};
+\foreach \a/\b/\c in {0/1/A, 1/2/B, 2/3/A, 3/4/B, 4/5/A, 5/6/C} \draw[arr, shorten >=1pt] (q\a) -- (q\b) node[midway, above, labA] {\c};
+\foreach \a/\b/\l in {2/0/0, 3/1/1, 4/2/2, 5/3/3} \draw[arrM, dashed, bend left=48, shorten >=1pt] (q\a) to node[below, labM, font=\scriptsize] {fail $\to$ \l} (q\b);
+\draw[arrM, dashed, bend left=22, shorten >=1pt] (q6.south) to node[below, labM, font=\scriptsize, fill=white, inner sep=1pt] {fail $\to$ 0} (q0.south);
+\node[lab, anchor=west, align=left] at (0,-3.7) {at state 5 reading B: \texttt{C} was expected, so fall back $5\to3$ (\texttt{ABA}), where B is expected: advance to state $4$};
 \end{tikzpicture}

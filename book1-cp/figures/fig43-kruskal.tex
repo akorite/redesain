@@ -1,8 +1,16 @@
+% fig43-kruskal.tex -- Figure 8.4: Kruskal on the CSES Road Reparation sample (answer 14).
+\input{figures/fstyle}
 \begin{tikzpicture}[font=\footnotesize]
-\begin{scope}\node[circle,draw=slate,font=\tiny] at (0,0) {1};\node[circle,draw=slate,font=\tiny] at (1,0) {2};
-\draw[-,amber,thick] (0,0)--(1,0);\node[font=\tiny] at (0.5,-0.6) {accept 2};\end{scope}
-\begin{scope}[xshift=2.6cm]\node[circle,draw=slate,font=\tiny] at (0,0) {1};\node[circle,draw=slate,font=\tiny] at (1,0) {2};
-\draw[-,slate,dashed] (0,0)--(1,0);\node[font=\tiny] at (0.5,-0.6) {skip: same set};\end{scope}
-\begin{scope}[xshift=5.6cm]\node[circle,draw=slate,font=\tiny] at (0,0) {1};\node[circle,draw=slate,font=\tiny] at (1,0) {3};
-\draw[-,amber,thick] (0,0)--(1,0);\node[font=\tiny] at (0.5,-0.6) {accept 4};\end{scope}
+\node[vtx] (n1) at (0,2) {1}; \node[vtx] (n2) at (2.2,2) {2}; \node[vtx] (n3) at (4.4,2) {3};
+\node[vtx] (n5) at (0,0) {5}; \node[vtx] (n4) at (2.2,0) {4};
+\draw[edge, slate, dashed] (n1)--(n5) node[midway, left, lab] {7};
+\draw[edge, slate, dashed] (n3)--(n4) node[midway, below right, lab] {8};
+\draw[edgeM, very thick] (n1)--(n2) node[midway, above, labM] {3};
+\draw[edgeM, very thick] (n2)--(n3) node[midway, above, labM] {5};
+\draw[edgeM, very thick] (n2)--(n4) node[midway, right, labM] {2};
+\draw[edgeM, very thick] (n5)--(n4) node[midway, below, labM] {4};
+\node[lab, align=left, anchor=west] at (5.6,2.35) {edges sorted by weight:};
+\foreach \y/\w/\e/\verdict in {1.7/2/{2--4}/{accept}, 1.2/3/{1--2}/{accept}, 0.7/4/{4--5}/{accept}, 0.2/5/{2--3}/{accept}, -0.3/7/{1--5}/{skip (same set)}, -0.8/8/{3--4}/{skip (same set)}}
+  \node[lab, anchor=west] at (5.6,\y) {$\w$: edge \e\ $\to$ \verdict};
+\node[labM] at (7.4,-1.5) {total $2+3+4+5=14$};
 \end{tikzpicture}

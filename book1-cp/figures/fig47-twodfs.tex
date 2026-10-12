@@ -1,7 +1,12 @@
+% fig47-twodfs.tex -- Figure 10.x: two-DFS diameter. Path u1-u2-u3-u4-u5 plus leaf a on u2.
+\input{figures/fstyle}
 \begin{tikzpicture}[font=\footnotesize]
-\node[circle,draw=slate,fill=accentsoft,font=\tiny] (a) at (0,0) {a};
-\node[circle,draw=slate,font=\tiny] (x) at (1.5,0.4) {x};
-\node[circle,draw=slate,fill=accentsoft,font=\tiny] (b) at (3.2,0) {b};
-\draw[-{stealth},amber,thick] (a)--(x) (x)--(b);
-\node[font=\tiny,align=center] at (1.6,-0.9) {farthest from $a$ is a\\diameter endpoint $b$};
+\foreach \i in {1,...,5} \node[vtx] (u\i) at (\i*1.6,0) {$u_\i$};
+\node[vtxh] (a) at (3.2,1.4) {$a$};
+\draw[edge] (u1)--(u2)--(u3)--(u4)--(u5) (a)--(u2);
+\node[vtxa, minimum size=6.5mm] at (u5) {$u_5$};
+\draw[edgeM, very thick] (a)--(u2)--(u3)--(u4)--(u5);
+\draw[edgeA, very thick, dashed, transform canvas={yshift=-3pt}] (u5)--(u4)--(u3)--(u2)--(u1);
+\node[labM, anchor=west] at (0.7,-1.0) {1st DFS from $a$ (amber path): farthest vertex is $u_5$, distance $4$};
+\node[labA, anchor=west] at (0.7,-1.6) {2nd DFS from $u_5$ (blue dashes): farthest is $u_1$, distance $4$ $=$ the diameter};
 \end{tikzpicture}

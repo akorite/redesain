@@ -1,9 +1,14 @@
-\begin{tikzpicture}[font=\footnotesize,x=0.55cm,y=0.55cm]
-\foreach \x in {0,...,4} \foreach \y in {0,...,3}
-  \draw[slate!60] (\x,\y) rectangle +(1,1);
-\fill[accentsoft] (1,1) rectangle +(1,1);
-\foreach \d/\n in {0/-1/N,0/1/S,-1/0/W,1/0/E}
-  \draw[-{stealth},amber,thick] (1.5,1.5) -- (1.5+\d*0.9,1.5+\n*0.9);
-\node[font=\tiny,align=center] at (2.5,-0.6) {one floor cell = one vertex;\\
-4-direction adjacency};
+% fig32-gridgraph.tex -- Figure 7.4: a grid cell as a vertex with four computed neighbours.
+\input{figures/fstyle}
+\begin{tikzpicture}[font=\footnotesize, x=1.15cm, y=0.85cm]
+\foreach \x in {0,...,4} \foreach \y in {0,...,3} \draw[slate!60, fill=white] (\x,\y) rectangle +(1,1);
+\fill[amber!25] (1,1) rectangle +(1,1);
+\foreach \x/\y in {1/2,1/0,0/1,2/1} \fill[accentsoft] (\x,\y) rectangle +(1,1);
+\foreach \x in {0,...,4} \foreach \y in {0,...,3} \draw[slate!60] (\x,\y) rectangle +(1,1);
+\node[font=\scriptsize] at (1.5,1.5) {$(r,c)$};
+\node[font=\scriptsize] at (1.5,2.5) {$(r{-}1,c)$}; \node[font=\scriptsize] at (1.5,0.5) {$(r{+}1,c)$};
+\node[font=\scriptsize] at (0.5,1.5) {$(r,c{-}1)$}; \node[font=\scriptsize] at (2.5,1.5) {$(r,c{+}1)$};
+\node[lab, align=left, anchor=west] at (5.6,2.5) {one floor cell $=$ one vertex};
+\node[lab, align=left, anchor=west] at (5.6,1.5) {4 neighbours by the direction\\ arrays \texttt{dr}, \texttt{dc}};
+\node[lab, align=left, anchor=west] at (5.6,0.5) {no graph is stored:\\ neighbours are computed};
 \end{tikzpicture}

@@ -1,11 +1,16 @@
-\begin{tikzpicture}[font=\footnotesize,x=0.5cm,y=0.22cm]
-% F6.2 histogram {2,1,5,6,2,3}: bar2's rays to first-smaller bounds.
-\foreach \i/\h in {0/2,1/1,2/5,3/6,4/2,5/3}
-  \draw[fill=graybg,draw=slate] (\i,0) rectangle (\i+0.9,\h);
-\draw[fill=accentsoft,draw=slate] (2,0) rectangle (3.8,5);
-\draw[-{stealth},amber,thick] (2.45,5.4) -- (1.4,5.4);
-\draw[-{stealth},amber,thick] (2.45,5.4) -- (4.0,5.4);
-\node[font=\tiny] at (1.0,6.1) {first smaller left};
-\node[font=\tiny] at (4.6,6.1) {first smaller right};
-\node[font=\tiny] at (3,-1.6) {bar 2 (height 5): spans $[2,3]$, area $5\cdot2=10$};
+% fig25-histogram.tex -- Figure 6.2: histogram {2,1,5,6,2,3}; bar 2's reach ends at the first smaller bar on each side.
+\input{figures/fstyle}
+\begin{tikzpicture}[font=\footnotesize, x=1.1cm, y=0.42cm]
+\foreach \i/\h in {0/2,1/1,2/5,3/6,4/2,5/3} {
+  \draw[draw=slate, fill=graybg] (\i,0) rectangle (\i+0.85,\h);
+  \node[idx, below] at (\i+0.43,0) {bar \i};
+  \node[font=\scriptsize, above] at (\i+0.43,\h) {\h};}
+\draw[draw=amber, very thick, fill=amber!15] (2,0) rectangle (2.85,5);
+\draw[draw=amber, very thick, fill=amber!15] (3,0) rectangle (3.85,5);
+\draw[amber, very thick] (2,0) rectangle (3.85,5);
+\draw[arrA] (2.43,7.4) -- (1.43,7.4);
+\node[labA, anchor=east] at (1.35,7.4) {first smaller on left: bar 1};
+\draw[arrA] (3.43,7.4) -- (4.43,7.4);
+\node[labA, anchor=west] at (4.5,7.4) {first smaller on right: bar 4};
+\node[labM, anchor=west, align=left] at (6.9,2.5) {optimal rectangle\\[-1pt]height $5$, width $2$\\[-1pt]area $=10$};
 \end{tikzpicture}

@@ -1,8 +1,14 @@
-\begin{tikzpicture}[font=\tiny]
-\node[draw=slate] (m) at (0,0) {$\begin{pmatrix}1&1\\1&0\end{pmatrix}$};
-\node[draw=slate] (m2) at (2.4,0) {$M^{2}$};
-\node[draw=slate] (m4) at (4.2,0) {$M^{4}$};
-\draw[-{stealth},amber] (m)--(m2);
-\draw[-{stealth},amber] (m2)--(m4);
-\node[font=\tiny] at (2.1,-1) {square the transition, not the state};
+% fig71-matpow.tex -- Figure 13.x: Fibonacci by matrix power; M^10 = M^8 M^2 gives F_10 = 55.
+\input{figures/fstyle}
+\begin{tikzpicture}[font=\footnotesize]
+\tikzset{mb/.style={draw=slate, rounded corners=2pt, inner sep=4pt, fill=white}}
+\node[mb] (m1) at (0,0) {$M=\begin{pmatrix}1&1\\1&0\end{pmatrix}$};
+\node[mb] (m2) at (3.5,0) {$M^2=\begin{pmatrix}2&1\\1&1\end{pmatrix}$};
+\node[mb] (m4) at (7.0,0) {$M^4=\begin{pmatrix}5&3\\3&2\end{pmatrix}$};
+\node[mb] (m8) at (10.5,0) {$M^8=\begin{pmatrix}34&21\\21&13\end{pmatrix}$};
+\foreach \a/\b in {m1/m2,m2/m4,m4/m8} \draw[arrA] (\a.east) -- (\b.west) node[midway, above, labA, font=\scriptsize] {square};
+\node[mb, draw=amber, fill=amberbg] (m10) at (7.0,-2.0) {$M^{10}=M^8M^2=\begin{pmatrix}89&55\\55&34\end{pmatrix}$};
+\draw[arrM] (m8.south) -- (m10.east); \draw[arrM] (m2.south) -- (m10.west);
+\node[labM, anchor=west] at (9.7,-2.0) {$F_{10}=55$};
+\node[lab, align=center] at (6.0,-3.1) {exponentiate the transition: $\log_2 10$ squarings and one multiply; the state vector rides along};
 \end{tikzpicture}

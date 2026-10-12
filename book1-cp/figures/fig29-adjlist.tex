@@ -1,10 +1,16 @@
+% fig29-adjlist.tex -- Figure 7.1: the same triangle as a drawing and as adjacency lists.
+\input{figures/fstyle}
 \begin{tikzpicture}[font=\footnotesize]
-\node[circle,draw=slate] (v1) at (0,1.4) {1};
-\node[circle,draw=slate] (v2) at (1.4,1.4) {2};
-\node[circle,draw=slate] (v3) at (0.7,0.2) {3};
-\draw[slate] (v1)--(v2) (v2)--(v3) (v1)--(v3);
-\node[font=\tiny] at (0.7,-0.35) {triangle};
-\foreach \i/\n/\l in {0/1/{2,3},1/2/{1,3},2/3/{1,2}}
-  \node[draw=slate,font=\tiny] at (3.2+\i*0.9,0.7) {\n: \l};
-\node[font=\tiny] at (4.1,-0.35) {adjacency lists};
+\node[vtx] (v1) at (0,1.5) {1}; \node[vtx] (v2) at (1.8,1.5) {2}; \node[vtx] (v3) at (0.9,0) {3};
+\draw[edge] (v1)--(v2) (v2)--(v3) (v1)--(v3);
+\node[lab] at (0.9,-0.9) {triangle: 3 edges};
+\node[lab, anchor=east] at (4.6,1.5) {};
+\foreach \n/\l [count=\k from 0] in {1/{2,3},2/{1,3},3/{1,2}} {
+  \node[cellh, minimum width=6mm] (h\n) at (5.4,1.5-\k*0.85) {\n};
+  \node[lab, left=1pt of h\n] {};
+  \foreach \t [count=\j from 1] in \l
+    \node[cell, minimum width=6mm] (e\n\j) at (5.4+\j*1.0,1.5-\k*0.85) {\t};
+  \draw[arr] (h\n) -- (e\n1); \draw[arr] (e\n1) -- (e\n2);
+}
+\node[lab] at (6.5,-1.0) {adjacency lists: each edge stored twice};
 \end{tikzpicture}

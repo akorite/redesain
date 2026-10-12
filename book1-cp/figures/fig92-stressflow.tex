@@ -1,18 +1,18 @@
-\begin{tikzpicture}[font=\tiny,node distance=4mm and 8mm,scale=0.78]
-\node[draw=accent,rounded corners=2pt,minimum width=2.0cm,minimum height=0.7cm,align=center] (gen) {generator\\(random seed)};
-\node[draw=slate,rounded corners=2pt,minimum width=2.0cm,minimum height=0.7cm,align=center,right=of gen] (inp) {one small\\input};
-\node[draw=slate,rounded corners=2pt,align=center,right=of inp,yshift=7mm] (fast) {fast (submission)};
-\node[draw=slate,rounded corners=2pt,align=center,right=of inp,yshift=-7mm] (brute) {brute (obviously right)};
-\node[draw=accent,rounded corners=2pt,align=center,right=of fast,xshift=2mm,yshift=-7mm] (cmp) {outputs\\equal?};
-\node[draw=good,rounded corners=2pt,right=of cmp] (pass) {next seed};
-\node[draw=amber,rounded corners=2pt,align=center,below=4mm of pass] (fail) {STOP: print input\\+ both answers};
-\draw[->,slate] (gen)--(inp);
-\draw[->,slate] (inp)--(fast.west);
-\draw[->,slate] (inp)--(brute.west);
-\draw[->,slate] (fast)--(cmp);
-\draw[->,slate] (brute)--(cmp);
-\draw[->,good] (cmp)--node[above]{same}(pass);
-\draw[->,amber] (cmp)|-(fail) node[pos=0.25,below]{diff};
-\draw[->,rulegray,dashed] (fail.west)-|([xshift=-3mm]gen.south west)|-(gen);
-\node[below=1mm of fail,align=center] {then shrink the\\failing input by hand};
+% fig92-stressflow.tex -- Figure 18.x: stress-testing loop.
+\input{figures/fstyle}
+\begin{tikzpicture}[font=\footnotesize]
+\tikzset{pb/.style={draw=slate, rounded corners=2pt, minimum height=9mm, minimum width=2.5cm, align=center, fill=white}}
+\node[pb, draw=accent] (gen) at (0,0) {generator\\{\scriptsize random seed}};
+\node[pb] (inp) at (3.0,0) {one small\\random input};
+\node[pb] (fast) at (6.0,1.0) {fast\\{\scriptsize your submission}};
+\node[pb] (brute) at (6.0,-1.0) {brute force\\{\scriptsize obviously right}};
+\node[pb, draw=accent, minimum width=2.2cm] (cmp) at (8.9,0) {outputs\\equal?};
+\node[pb, draw=good, fill=goodbg, minimum width=2.2cm] (pass) at (11.9,0.9) {next seed};
+\node[pb, draw=amber, fill=amberbg, minimum width=2.7cm] (fail) at (11.9,-1.3) {STOP: print input\\and both answers};
+\draw[arr] (gen)--(inp); \draw[arr] (inp.east)--(fast.west); \draw[arr] (inp.east)--(brute.west);
+\draw[arr] (fast.east)--(cmp.north west); \draw[arr] (brute.east)--(cmp.south west);
+\draw[arrG] (cmp.east)--(pass.west) node[midway, above, text=good, font=\footnotesize] {same};
+\draw[arrM] (cmp.south east)--(fail.west) node[midway, below left, labM] {differ};
+\draw[arrG, dashed] (pass.north) -- ++(0,0.6) -| (gen.north);
+\node[lab, anchor=west] at (6.5,-2.6) {then shrink the failing input by hand};
 \end{tikzpicture}

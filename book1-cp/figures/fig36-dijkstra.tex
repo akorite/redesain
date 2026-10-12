@@ -1,14 +1,18 @@
-\begin{tikzpicture}[font=\footnotesize]
-\begin{scope}\node[circle,draw=slate,fill=accentsoft,font=\tiny] at (0,0) {s};
-\node[circle,draw=slate,font=\tiny] at (1,0.6) {}; \node[circle,draw=slate,font=\tiny] at (1,-0.6) {};
-\node[font=\tiny] at (0.5,-1.2) {settle s};\end{scope}
-\begin{scope}[xshift=2.2cm]\node[circle,draw=slate,fill=graybg,font=\tiny] at (0,0) {s};
-\node[circle,draw=slate,fill=accentsoft,font=\tiny] at (1,0.6) {}; \node[circle,draw=slate,font=\tiny] at (1,-0.6) {};
-\node[font=\tiny] at (0.5,-1.2) {settle near};\end{scope}
-\begin{scope}[xshift=4.4cm]\node[circle,draw=slate,fill=graybg,font=\tiny] at (0,0) {s};
-\node[circle,draw=slate,fill=graybg,font=\tiny] at (1,0.6) {}; \node[circle,draw=slate,fill=accentsoft,font=\tiny] at (1,-0.6) {};
-\node[font=\tiny] at (0.5,-1.2) {settle next};\end{scope}
-\begin{scope}[xshift=6.6cm]\node[circle,draw=slate,fill=graybg,font=\tiny] at (0,0) {s};
-\node[circle,draw=slate,fill=graybg,font=\tiny] at (1,0.6) {}; \node[circle,draw=slate,fill=graybg,font=\tiny] at (1,-0.6) {};
-\node[font=\tiny] at (0.5,-1.2) {done};\end{scope}
-\end{tikzpicture}
+% fig36-dijkstra.tex -- Figure 7.8: settled set growing. Edges s->a 2, s->b 5, a->b 1, a->c 7, b->c 2.
+\input{figures/fstyle}
+\fitfig{\begin{tikzpicture}[font=\footnotesize]
+% \fr{x}{name/style/dist/labelpos list}{caption}
+\newcommand{\fr}[3]{%
+  \coordinate (s) at (#1,1.0); \coordinate (a) at (#1+1.3,2.0); \coordinate (b) at (#1+1.3,0); \coordinate (c) at (#1+2.6,1.0);
+  \draw[arr, shorten >=7pt, shorten <=7pt] (s)--(a) node[midway,above left,lab,inner sep=1pt] {2};
+  \draw[arr, shorten >=7pt, shorten <=7pt] (s)--(b) node[midway,below left,lab,inner sep=1pt] {5};
+  \draw[arr, shorten >=7pt, shorten <=7pt] (a)--(b) node[midway,right,lab,inner sep=1pt] {1};
+  \draw[arr, shorten >=7pt, shorten <=7pt] (a)--(c) node[midway,above right,lab,inner sep=1pt] {7};
+  \draw[arr, shorten >=7pt, shorten <=7pt] (b)--(c) node[midway,below right,lab,inner sep=1pt] {2};
+  \foreach \nm/\sty/\dl/\pos in {#2} \node[\sty, label={[labM,font=\scriptsize]\pos:\dl}] at (\nm) {\nm};
+  \node[lab, align=center] at (#1+1.3,-1.5) {#3};}
+\fr{0}{s/vtxh/0/below,a/vtx//above,b/vtx//below,c/vtx//below}{settle $s$ (0)}
+\fr{3.9}{s/vtxd/0/below,a/vtxh/2/above,b/vtx/5/below,c/vtx//below}{settle $a$ (2):\\ $b\to3$, $c\to9$}
+\fr{7.8}{s/vtxd/0/below,a/vtxd/2/above,b/vtxh/3/below,c/vtx/9/below}{settle $b$ (3):\\ $c\to5$}
+\fr{11.7}{s/vtxd/0/below,a/vtxd/2/above,b/vtxd/3/below,c/vtxh/5/below}{settle $c$ (5): done}
+\end{tikzpicture}}

@@ -1,9 +1,11 @@
-\begin{tikzpicture}[font=\tiny]
-% s = abcababcab (n=10): borders 5 and 2 shown as nested equal blocks
-\foreach \i/\c in {0/a,1/b,2/c,3/a,4/b,5/a,6/b,7/c,8/a,9/b}{\node[draw=slate!50,minimum size=0.32cm] at (\i*0.36,0) {\c};}
-\draw[decorate,decoration={brace,amplitude=3pt}] (-0.01,0.28) -- (5*0.36-0.19,0.28) node[midway,above=4pt] {prefix ``abcab''};
-\draw[decorate,decoration={brace,amplitude=3pt,mirror}] (5*0.36+0.17,-0.12) -- (10*0.36-0.19,-0.12) node[midway,below=4pt] {suffix ``abcab'' $=$ border 5};
-\draw[decorate,decoration={brace,amplitude=3pt}] (-0.01,0.75) -- (2*0.36-0.19,0.75) node[midway,above=4pt] {``ab''};
-\draw[decorate,decoration={brace,amplitude=3pt,mirror}] (8*0.36+0.17,-0.6) -- (10*0.36-0.19,-0.6) node[midway,below=4pt] {``ab'' $=$ border 2};
-\node[anchor=west] at (0,-1.25) {borders chain: $\pi_n{=}5$, then border of ``abcab'' is $\pi_5{=}2$};
+% fig76-borders.tex -- Figure 14.x: borders of s = abcababcab (n = 10): longest border abcab (5); its border ab (2).
+\input{figures/fstyle}
+\begin{tikzpicture}[font=\footnotesize]
+\foreach \c [count=\i from 0] in {a,b,c,a,b,a,b,c,a,b}
+  \node[\ifnum\i<5 cellh\else cella\fi, minimum width=7mm] (s\i) at (\i*0.78,0) {\c};
+\draw[decorate,decoration={brace,raise=3pt},accent,thick] (s0.north west) -- (s4.north east) node[midway,above=5pt,labA]{prefix \texttt{abcab}};
+\draw[decorate,decoration={brace,mirror,raise=3pt},amber,thick] (s5.south west) -- (s9.south east) node[midway,below=5pt,labM]{suffix \texttt{abcab}: border of length $5$};
+\draw[good, very thick] (s0.north west) rectangle (s1.south east); \draw[good, very thick] (s8.north west) rectangle (s9.south east);
+\node[font=\footnotesize, text=good, anchor=north] at (s9.south |- 0,-1.55) {the inner border \texttt{ab} (length $2$) is outlined in green};
+\node[lab, anchor=west] at (0,-2.4) {chain of borders: $\pi_{10}=5$, then the border of \texttt{abcab} is $\pi_5=2$, then $\pi_2=0$};
 \end{tikzpicture}

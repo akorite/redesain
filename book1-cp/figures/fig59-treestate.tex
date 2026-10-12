@@ -1,9 +1,14 @@
+% fig59-treestate.tex -- Figure 11.x: Tree Matching states. in[v]: v is matched to a child; out[v]: v is free for its parent.
+\input{figures/fstyle}
 \begin{tikzpicture}[font=\footnotesize]
-\node[circle,draw=slate,font=\tiny] (v) at (0,0.9) {v};
-\node[circle,draw=slate,font=\tiny] (a) at (-0.7,0) {a};
-\node[circle,draw=slate,font=\tiny] (b) at (0.7,0) {b};
-\draw[slate] (v)--(a) (v)--(b);
-\node[font=\tiny,anchor=west] at (1.4,0.9) {in[v]: v matched below};
-\node[font=\tiny,anchor=west] at (1.4,0.3) {out[v]: v free upward};
-\node[font=\tiny] at (0.7,-0.8) {two states per vertex};
+\node[vtx] (v1) at (0.8,1.6) {$v$}; \node[vtx] (a1) at (0,0) {$a$}; \node[vtx] (b1) at (1.6,0) {$b$};
+\draw[edge] (v1)--(a1) (v1)--(b1);
+\draw[edgeM, very thick] (v1)--(a1);
+\node[labM, align=center] at (0.8,-0.85) {$\mathrm{in}[v]$: $v$ matched to a child};
+\node[vtx] (v2) at (6.0,1.6) {$v$}; \node[vtx] (a2) at (5.2,0) {$a$}; \node[vtx] (b2) at (6.8,0) {$b$};
+\draw[edge] (v2)--(a2) (v2)--(b2);
+\node[labA, align=center] at (6.0,-0.85) {$\mathrm{out}[v]$: $v$ free,\\ left for its parent};
+\draw[arrA, dashed] (v2.north) -- ++(0,0.5) node[above, labA] {to parent};
+\node[lab, anchor=west, align=left, text width=5.2cm] at (8.0,1.2) {$\mathrm{out}[v]=\sum_c \max(\mathrm{in}[c],\mathrm{out}[c])$};
+\node[lab, anchor=west, align=left, text width=5.2cm] at (8.0,0.2) {$\mathrm{in}[v]$: best of taking the edge $v$--$c$ for one child $c$: $1+\mathrm{out}[c]$ instead of $c$'s best};
 \end{tikzpicture}

@@ -1,21 +1,18 @@
-\begin{tikzpicture}[font=\tiny,level distance=0.9cm,
-  level 1/.style={sibling distance=2.6cm},
-  level 2/.style={sibling distance=1.5cm},
-  level 3/.style={sibling distance=1.1cm}]
-\node[draw,circle,minimum size=0.4cm] {}
-  child {node[draw,circle,minimum size=0.4cm] {a}
-    child {node[draw,circle,minimum size=0.4cm] {b}
-      child {node[draw,circle,minimum size=0.4cm] {a}
-        child {node[draw,circle,minimum size=0.4cm] {b}
-          child {node[draw,circle,double,minimum size=0.4cm] {c}}
-        }
-      }
-    }
-  }
-  child {node[draw,circle,minimum size=0.4cm] {c}
-    child {node[draw,circle,double,minimum size=0.4cm] {b}}
-  };
-\node[anchor=west] at (2.6,-0.4) {double circle $=$ terminal (count $>0$)};
-\node[anchor=west] at (2.6,-0.9) {dict $=$ \texttt{a, ab, abab, ababc, c, cb}};
-\node[anchor=west] at (2.6,-1.4) {``ab'': terminals at a, ab $\Rightarrow$ +2 matches};
+% fig75-trie.tex -- Figure 14.x: trie of dict = {a, ab, abab, ababc, c, cb}; double circle = terminal.
+\input{figures/fstyle}
+\begin{tikzpicture}[font=\footnotesize, level distance=1.1cm]
+\tikzset{tn/.style={circle, draw=ink, minimum size=7mm, inner sep=0pt, fill=white},
+         tt/.style={circle, draw=good, double, double distance=1.2pt, minimum size=7mm, inner sep=0pt, fill=goodbg}}
+\node[tn] (root) at (0,0) {$\cdot$};
+\node[tt] (a)  at (-2.4,-1.2) {a};
+\node[tt] (ab) at (-2.4,-2.4) {b};
+\node[tn] (aba) at (-2.4,-3.6) {a};
+\node[tt] (abab) at (-2.4,-4.8) {b};
+\node[tt] (ababc) at (-2.4,-6.0) {c};
+\node[tt] (c) at (2.4,-1.2) {c};
+\node[tt] (cb) at (2.4,-2.4) {b};
+\draw[edge] (root)--(a) (a)--(ab) (ab)--(aba) (aba)--(abab) (abab)--(ababc) (root)--(c) (c)--(cb);
+\node[lab, anchor=west, align=left] at (4.3,-1.0) {double circle = a word ends here (count $>0$)};
+\node[lab, anchor=west, align=left] at (4.3,-1.8) {words: \texttt{a, ab, abab, ababc, c, cb}};
+\node[labM, anchor=west, align=left, text width=6.5cm] at (4.3,-3.2) {text \texttt{ab}: walk $\cdot\to a\to b$ and count terminals on the way: \texttt{a} and \texttt{ab}, so $+2$ matches};
 \end{tikzpicture}

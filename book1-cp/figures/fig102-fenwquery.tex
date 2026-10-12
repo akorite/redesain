@@ -1,7 +1,13 @@
-\begin{tikzpicture}[font=\scriptsize]
-\foreach \x/\h in {1/1,2/2,3/1,4/4,5/1,6/2,7/1,8/8}{
-  \draw[very thick] (\x*0.8,0) rectangle (\x*0.8+0.7,\h*0.45);}
-\node[align=left] at (4.0,-0.5) {Fenwick tree: node $i$ covers the last\\lowbit($i$) cells};
-\foreach \x in {3.6,4.4,6.8}{\draw[fill=accent!25,opacity=0.6] (\x,0) rectangle (\x+0.7,1.8);}
-\node[align=left] at (6.0,-1.5) {prefix(7) = nodes 7, 6, 4:\\strip lowbit each step};
-\end{tikzpicture}
+% fig102-fenwquery.tex -- Figure 5.x: Fenwick prefix(7) reads nodes 7, 6, 4.
+\input{figures/fstyle}
+\fitfig{\begin{tikzpicture}[font=\footnotesize, x=1.1cm, y=0.78cm]
+\foreach \i/\lb in {1/1,2/2,3/1,4/4,5/1,6/2,7/1,8/8} {
+  \pgfmathsetmacro{\lev}{ln(\lb)/ln(2)}
+  \pgfmathsetmacro{\lo}{\i-\lb}
+  \ifnum\i=7 \def\fillc{amber!25}\def\drc{amber}\else\ifnum\i=6 \def\fillc{amber!25}\def\drc{amber}\else\ifnum\i=4 \def\fillc{amber!25}\def\drc{amber}\else\def\fillc{graybg}\def\drc{slate}\fi\fi\fi
+  \draw[draw=\drc, fill=\fillc] (\lo+0.06,\lev+0.1) rectangle (\i-0.06,\lev+0.9);
+  \node[font=\scriptsize] at ({(\lo+\i)/2},\lev+0.5) {$t[\i]$};}
+\foreach \i in {1,...,8} \node[idx, below] at (\i-0.5,0) {\i};
+\node[labM, anchor=west, align=left] at (8.4,2.6) {prefix$(7)$: $i=7$, read $t[7]$, $i\leftarrow 7-1=6$;\\ read $t[6]$, $i\leftarrow6-2=4$; read $t[4]$, $i\leftarrow 0$};
+\node[lab, anchor=west, align=left] at (8.4,0.9) {node $i$ covers the last $\mathrm{lowbit}(i)$ cells;\\ strip the lowest set bit each step};
+\end{tikzpicture}}

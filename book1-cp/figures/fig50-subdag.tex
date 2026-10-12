@@ -1,7 +1,10 @@
+% fig50-subdag.tex -- Figure 11.x: subproblem DAG for min-coin DP, coins {1,3,4}, amount 6.
+\input{figures/fstyle}
 \begin{tikzpicture}[font=\footnotesize]
-\node[draw=slate,font=\tiny] (s0) at (0,0) {dp[5]};
-\node[draw=slate,font=\tiny] (s1) at (1.6,0.6) {dp[4]};
-\node[draw=slate,font=\tiny] (s2) at (1.6,-0.6) {dp[3]};
-\draw[-{stealth},amber,thick] (s0)--(s1) (s0)--(s2);
-\node[font=\tiny,align=center] at (1.5,-1.5) {states = nodes;\\ transitions = edges};
+\foreach \i in {0,...,6} \node[vtx, minimum size=7mm] (d\i) at (\i*1.6,0) {\i};
+\foreach \i in {1,...,6} \draw[arr, shorten >=1pt, shorten <=1pt, bend left=45] (d\i) to (d\the\numexpr\i-1\relax);
+\foreach \i in {3,...,6} \draw[arrA, shorten >=1pt, shorten <=1pt, bend right=40] (d\i) to (d\the\numexpr\i-3\relax);
+\foreach \i in {4,...,6} \draw[arrM, shorten >=1pt, shorten <=1pt, bend right=55, looseness=1.1] (d\i) to (d\the\numexpr\i-4\relax);
+\node[lab, anchor=west, align=left] at (0,-3.4) {node $x$: ``fewest coins for amount $x$''; edge $x\to x-c$: ``last coin was $c$''};
+\node[lab, anchor=west, align=left] at (0,-4.0) {coin $1$ black (below), coins $3$ blue and $4$ amber (above); fill order $0,1,\dots,6$ is a topological order};
 \end{tikzpicture}

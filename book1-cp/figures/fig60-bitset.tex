@@ -1,6 +1,67 @@
-\begin{tikzpicture}[font=\tiny]
-\foreach \i/\b in {0/{1,0,0,0,0,0},1/{1,0,1,0,0,0},2/{1,0,1,0,1,0}}{
-  \node[anchor=west] at (\i*1.6,0) {\b};
-  \node at (\i*1.6+0.5,-0.5) {\i};}
-\node[anchor=west] at (0,-1) {$\texttt{dp} \mathrel{|}= \texttt{dp} \ll w$: every coin doubles coverage};
+% fig60-bitset.tex -- Figure 11.x: Money Sums as bitset shift-or with coins {2,3,5}; reachable sums 2 3 5 7 8 10.
+\input{figures/fstyle}
+\begin{tikzpicture}[font=\footnotesize]
+\tikzset{mc/.style={draw=slate, minimum width=6.4mm, minimum height=6mm, inner sep=0pt, font=\scriptsize}}
+\node[lab, anchor=east] at (-0.5,0.6) {sum};
+\node[idx] at (0.00,0.6) {0};
+\node[idx] at (0.68,0.6) {1};
+\node[idx] at (1.36,0.6) {2};
+\node[idx] at (2.04,0.6) {3};
+\node[idx] at (2.72,0.6) {4};
+\node[idx] at (3.40,0.6) {5};
+\node[idx] at (4.08,0.6) {6};
+\node[idx] at (4.76,0.6) {7};
+\node[idx] at (5.44,0.6) {8};
+\node[idx] at (6.12,0.6) {9};
+\node[idx] at (6.80,0.6) {10};
+\node[lab, anchor=east] at (-0.5,0.00) {start};
+\node[mc, fill=accentsoft, draw=accent] at (0.00,0.00) {1};
+\node[mc, text=slate] at (0.68,0.00) {0};
+\node[mc, text=slate] at (1.36,0.00) {0};
+\node[mc, text=slate] at (2.04,0.00) {0};
+\node[mc, text=slate] at (2.72,0.00) {0};
+\node[mc, text=slate] at (3.40,0.00) {0};
+\node[mc, text=slate] at (4.08,0.00) {0};
+\node[mc, text=slate] at (4.76,0.00) {0};
+\node[mc, text=slate] at (5.44,0.00) {0};
+\node[mc, text=slate] at (6.12,0.00) {0};
+\node[mc, text=slate] at (6.80,0.00) {0};
+\node[lab, anchor=east] at (-0.5,-0.62) {after coin 2};
+\node[mc, fill=accentsoft, draw=accent] at (0.00,-0.62) {1};
+\node[mc, text=slate] at (0.68,-0.62) {0};
+\node[mc, fill=amberbg, draw=amber, text=amber] at (1.36,-0.62) {1};
+\node[mc, text=slate] at (2.04,-0.62) {0};
+\node[mc, text=slate] at (2.72,-0.62) {0};
+\node[mc, text=slate] at (3.40,-0.62) {0};
+\node[mc, text=slate] at (4.08,-0.62) {0};
+\node[mc, text=slate] at (4.76,-0.62) {0};
+\node[mc, text=slate] at (5.44,-0.62) {0};
+\node[mc, text=slate] at (6.12,-0.62) {0};
+\node[mc, text=slate] at (6.80,-0.62) {0};
+\node[lab, anchor=east] at (-0.5,-1.24) {after coin 3};
+\node[mc, fill=accentsoft, draw=accent] at (0.00,-1.24) {1};
+\node[mc, text=slate] at (0.68,-1.24) {0};
+\node[mc, fill=accentsoft, draw=accent] at (1.36,-1.24) {1};
+\node[mc, fill=amberbg, draw=amber, text=amber] at (2.04,-1.24) {1};
+\node[mc, text=slate] at (2.72,-1.24) {0};
+\node[mc, fill=amberbg, draw=amber, text=amber] at (3.40,-1.24) {1};
+\node[mc, text=slate] at (4.08,-1.24) {0};
+\node[mc, text=slate] at (4.76,-1.24) {0};
+\node[mc, text=slate] at (5.44,-1.24) {0};
+\node[mc, text=slate] at (6.12,-1.24) {0};
+\node[mc, text=slate] at (6.80,-1.24) {0};
+\node[lab, anchor=east] at (-0.5,-1.86) {after coin 5};
+\node[mc, fill=accentsoft, draw=accent] at (0.00,-1.86) {1};
+\node[mc, text=slate] at (0.68,-1.86) {0};
+\node[mc, fill=accentsoft, draw=accent] at (1.36,-1.86) {1};
+\node[mc, fill=accentsoft, draw=accent] at (2.04,-1.86) {1};
+\node[mc, text=slate] at (2.72,-1.86) {0};
+\node[mc, fill=accentsoft, draw=accent] at (3.40,-1.86) {1};
+\node[mc, text=slate] at (4.08,-1.86) {0};
+\node[mc, fill=amberbg, draw=amber, text=amber] at (4.76,-1.86) {1};
+\node[mc, fill=amberbg, draw=amber, text=amber] at (5.44,-1.86) {1};
+\node[mc, text=slate] at (6.12,-1.86) {0};
+\node[mc, fill=amberbg, draw=amber, text=amber] at (6.80,-1.86) {1};
+\node[labA, anchor=west, align=left] at (8.0,-0.6) {\texttt{dp |= dp << c}\\ copies every set bit $c$ places up};
+\node[labM, anchor=west] at (0,-2.8) {amber = newly reachable; final set $\{2,3,5,7,8,10\}$ (6 sums, bit $0$ excluded)};
 \end{tikzpicture}

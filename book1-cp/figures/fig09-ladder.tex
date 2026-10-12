@@ -3,11 +3,13 @@
 % Curves given as coordinate lists: factorial() is not a pgfmath function.
 \begin{tikzpicture}
 \begin{loglogaxis}[
-  width=0.86\linewidth, height=6.6cm,
+  width=0.66\linewidth, height=6.6cm,
   xlabel={input size $n$}, ylabel={search-space size},
-  xmin=5, xmax=40, ymin=1e4, ymax=1e26,
-  legend style={at={(0.03,0.97)}, anchor=north west,
-                font=\footnotesize, fill=white},
+  xmin=5, xmax=40, ymin=1e1, ymax=1e26,
+  xtick={5,10,20,30,40}, xticklabels={5,10,20,30,40},
+  ytick={1e2,1e6,1e10,1e14,1e18,1e22,1e26},
+  legend pos=outer north east, legend cell align=left, legend style={
+                font=\footnotesize, fill=white, draw=rulegray},
   grid=major, grid style={gray!18},
   major tick style={draw=none},
   axis line style={slate},
@@ -29,14 +31,13 @@
 \addlegendentry{1-second budget ($10^8$)}
 % measured times, annotated at their n (subsets/sec ~ constant)
 \node[font=\scriptsize, text=slate, anchor=west, align=flush left]
-  at (axis cs: 6.2, 3e13) {measured, one op per subset (this machine):\\
-   $n=20$: 0.24\,ms \quad $n=27$: 35.4\,ms \quad $n=30$: 286\,ms};
+  at (axis cs: 5.8, 1e17) {measured (one op per subset):\\ $n=20$: 0.24\,ms\\ $n=27$: 35.4\,ms\\ $n=30$: 286\,ms};
 % feasibility bands
-\draw[slate, dotted, thick] (axis cs:20,1e4) -- (axis cs:20,1e26)
-  node[pos=0.93, anchor=south, rotate=90, font=\scriptsize, text=slate]
+\draw[slate, dotted, thick] (axis cs:27,1e1) -- (axis cs:27,1e26)
+  node[pos=0.55, anchor=south, rotate=90, font=\scriptsize, text=slate]
   {$2^n$ fits to $n \approx 27$};
-\draw[slate, dotted, thick] (axis cs:11,1e4) -- (axis cs:11,1e26)
-  node[pos=0.88, anchor=south, rotate=90, font=\scriptsize, text=slate]
+\draw[slate, dotted, thick] (axis cs:11,1e1) -- (axis cs:11,1e26)
+  node[pos=0.55, anchor=south, rotate=90, font=\scriptsize, text=slate]
   {$n!$ fits to $n \approx 11$};
 \end{loglogaxis}
 \end{tikzpicture}

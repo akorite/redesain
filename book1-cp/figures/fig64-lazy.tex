@@ -1,10 +1,23 @@
-\begin{tikzpicture}[font=\tiny]
-\node[draw=slate] (a) at (0,0) {tag $+5$};
-\node[draw=slate] (b) at (2.4,0) {children clean};
-\draw[-{stealth},amber] (a)--(b) node[midway,above,font=\tiny] {defer};
-\node[draw=slate] (c) at (0,-1.2) {push};
-\node[draw=slate] (d) at (2.4,-1.2) {children tagged};
-\draw[-{stealth},amber] (c)--(d) node[midway,above,font=\tiny] {descend};
-\draw[-{stealth},slate] (a)--(c);
-\node[font=\tiny] at (1.2,-2) {a tag travels down only when queried through};
+% fig64-lazy.tex -- Figure 12.x: lazy propagation; add +5 on [1,4] tags one node; a later query through it pushes the tag down.
+\input{figures/fstyle}
+\begin{tikzpicture}[font=\footnotesize]
+\tikzset{sn/.style={draw=slate, fill=white, rounded corners=1pt, minimum height=7mm, minimum width=1.35cm, inner sep=1pt, font=\scriptsize, align=center},
+         tg/.style={sn, draw=amber, fill=amber!25, very thick}}
+% panel A: after update
+\node[labA] at (2.0,3.1) {1. update $[1,4]\mathrel{+}=5$};
+\node[sn] (r) at (2.0,2.3) {$[1,8]$\\sum $+20$};
+\node[tg] (a) at (0.5,1.2) {$[1,4]$\\tag $+5$};
+\node[sn] (b) at (3.5,1.2) {$[5,8]$};
+\node[sn] (a1) at (-0.4,0) {$[1,2]$\\clean}; \node[sn] (a2) at (1.4,0) {$[3,4]$\\clean};
+\draw[slate] (r)--(a) (r)--(b) (a)--(a1) (a)--(a2);
+\node[labM, font=\scriptsize, align=center] at (1.5,-0.9) {the tag stays on $[1,4]$:\\ children are not touched};
+% arrow
+\draw[arrA, ultra thick] (4.9,1.2) -- (5.9,1.2) node[midway, above, labA] {query};
+% panel B: after push
+\node[labA] at (9.0,3.1) {2. a query descends through $[1,4]$};
+\node[sn] (r2) at (9.0,2.3) {$[1,8]$};
+\node[sn] (a_) at (7.5,1.2) {$[1,4]$\\tag cleared}; \node[sn] (b_) at (10.5,1.2) {$[5,8]$};
+\node[tg] (a1_) at (6.6,0) {$[1,2]$\\tag $+5$}; \node[tg] (a2_) at (8.4,0) {$[3,4]$\\tag $+5$};
+\draw[slate] (r2)--(a_) (r2)--(b_) (a_)--(a1_) (a_)--(a2_);
+\node[labM, font=\scriptsize, align=left, anchor=west] at (9.4,0.0) {push: the tag moves one\\ level down only when needed};
 \end{tikzpicture}

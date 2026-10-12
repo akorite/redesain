@@ -1,10 +1,19 @@
-\begin{tikzpicture}[scale=0.8,font=\tiny]
-\foreach \p/\n in {(2,1)/{(2,1)},(2,5)/{(2,5)},(3,3)/{},(4,3)/{},(4,4)/{(4,4)},(6,3)/{(6,3)}}{
-  \fill[ink] \p circle (1.6pt);
-  \node[above right] at \p {\n};}
-\draw[thick,accent] (2,1)--(6,3);            % lower chain
-\draw[thick,good] (6,3)--(4,4)--(2,5);       % upper chain
-\draw[thick,good] (2,5)--(2,1);              % closing edge
-\draw[dashed,slate] (3,3)--(4,3);            % interior chord
-\node[align=left] at (4.2,0) {lower: leftmost $\to$ rightmost\\upper: rightmost $\to$ leftmost};
+% fig80-hullbuild.tex -- Figure 15.x: monotone chain on {(2,1),(2,5),(3,3),(4,3),(4,4),(6,3)}; hull (2,1),(6,3),(2,5).
+\input{figures/fstyle}
+\begin{tikzpicture}[font=\footnotesize, x=1.0cm, y=0.85cm]
+\draw[slate!30] (1,0) grid (7,6);
+\foreach \x in {1,...,6} \node[idx] at (\x+0.5-0.5,-0.25) {\x}; \foreach \y in {1,...,5} \node[idx, anchor=east] at (0.8,\y) {\y};
+\fill[accent!10] (2,1)--(6,3)--(2,5)--cycle;
+\draw[accent, very thick] (2,1)--(6,3) node[midway, below right, labA] {lower chain};
+\draw[good, very thick] (6,3)--(2,5) node[pos=0.78, above right=-1pt, text=good, font=\footnotesize] {upper chain};
+\draw[slate, very thick] (2,5)--(2,1);
+\foreach \x/\y/\sty in {2/1/ink, 2/5/ink, 6/3/ink} \fill[\sty] (\x,\y) circle (3pt);
+\foreach \x/\y in {3/3, 4/3} \fill[slate] (\x,\y) circle (2.2pt);
+\fill[amber] (4,4) circle (2.6pt);
+\node[font=\scriptsize, anchor=south west] at (2,1) {(2,1)}; \node[font=\scriptsize, anchor=south west] at (2,5) {(2,5)}; \node[font=\scriptsize, anchor=south west] at (6,3) {(6,3)};
+\node[font=\scriptsize, text=slate, anchor=north west] at (3,3) {(3,3)}; \node[font=\scriptsize, text=slate, anchor=north west] at (4,3) {(4,3)};
+\node[font=\scriptsize, text=amber, anchor=north west] at (4.05,3.95) {(4,4) collinear};
+\node[lab, anchor=west, align=left, text width=5.2cm] at (7.4,4.6) {sort by $(x,y)$; sweep left to right for the lower chain, right to left for the upper chain};
+\node[lab, anchor=west, align=left, text width=5.2cm] at (7.4,2.8) {pop the last vertex whenever the new point makes a non-left turn ($\text{cross}\le 0$)};
+\node[labM, anchor=west, align=left, text width=5.2cm] at (7.4,1.1) {$(4,4)$ lies exactly on the segment $(6,3)$--$(2,5)$, so it is popped; interior points never survive};
 \end{tikzpicture}

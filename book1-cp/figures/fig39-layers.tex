@@ -1,10 +1,12 @@
+% fig39-layers.tex -- Figure 7.11: two-layer expansion for one half-price ticket.
+\input{figures/fstyle}
 \begin{tikzpicture}[font=\footnotesize]
-\node[circle,draw=slate,font=\tiny] (a0) at (0,0.8) {A};
-\node[circle,draw=slate,font=\tiny] (b0) at (1.6,0.8) {B};
-\node[circle,draw=slate,fill=graybg,font=\tiny] (a1) at (0,-0.8) {A$'$};
-\node[circle,draw=slate,fill=graybg,font=\tiny] (b1) at (1.6,-0.8) {B$'$};
-\draw[-{stealth},slate] (a0)--(b0) node[midway,above,font=\tiny] {w};
-\draw[-{stealth},amber,thick] (a0)--(b1) node[midway,right,font=\tiny] {w/2};
-\draw[-{stealth},slate] (a1)--(b1) node[midway,below,font=\tiny] {w};
-\node[font=\tiny,align=center] at (0.8,-1.7) {upper layer: coupon unused\\ lower: spent};
+\node[vtx, minimum size=8mm] (a0) at (0,1.6) {$A$}; \node[vtx, minimum size=8mm] (b0) at (3.2,1.6) {$B$};
+\node[vtxd, minimum size=8mm] (a1) at (0,-0.4) {$A'$}; \node[vtxd, minimum size=8mm] (b1) at (3.2,-0.4) {$B'$};
+\draw[arr] (a0) -- (b0) node[midway, above, lab] {$w$};
+\draw[arr] (a1) -- (b1) node[midway, below, lab] {$w$};
+\draw[arrM] (a0) -- (b1) node[pos=0.28, above right=-1pt, labM, fill=white, inner sep=1pt] {$\lfloor w/2\rfloor$};
+\node[lab, anchor=west, align=left] at (4.3,1.6) {upper layer: coupon unused};
+\node[lab, anchor=west, align=left] at (4.3,-0.4) {lower layer: coupon spent};
+\node[lab, anchor=west, text=amber, align=left] at (4.3,0.6) {discount edge: drops a layer only};
 \end{tikzpicture}

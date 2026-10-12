@@ -1,8 +1,11 @@
-\begin{tikzpicture}[font=\footnotesize]
-\node[draw=slate,font=\tiny] (t) at (0,0) {tight};
-\node[draw=slate,font=\tiny] (l) at (2.4,0) {loose};
-\draw[-{stealth},amber,thick] (t) to[bend left] node[above,font=\tiny] {digit $<$ bound} (l);
-\draw[-{stealth},slate] (t) to[loop above] node[above,font=\tiny] {digit $=$ bound} ();
-\draw[-{stealth},slate] (l) to[loop above] node[above,font=\tiny] {any digit} ();
-\node[font=\tiny] at (1.2,-0.9) {tight dies once you undercut};
-\end{tikzpicture}
+% fig56-digitauto.tex -- Figure 11.x: tight/loose automaton of a digit DP (bound = 321, adjacent digits must differ).
+\input{figures/fstyle}
+\fitfig{\begin{tikzpicture}[font=\footnotesize]
+\node[cellh, minimum width=2.2cm, minimum height=1.1cm, rounded corners=3pt, font=\small] (t) at (0,0) {tight};
+\node[cell, minimum width=2.2cm, minimum height=1.1cm, rounded corners=3pt, font=\small] (l) at (6,0) {loose};
+\draw[arrM, bend left=22] (t) to node[above, labM, align=center] {digit $<$ bound digit} (l);
+\draw[arrA] (t) to[out=150,in=210,looseness=6] node[left, labA, align=right] {digit $=$ bound digit} (t);
+\draw[arr] (l) to[out=30,in=-30,looseness=6] node[right, lab, align=left] {any digit\\ $\ne$ previous} (l);
+\node[lab, align=center] at (3,-1.6) {tight never comes back: one undercut frees the whole suffix, and loose states are memoised};
+\node[lab, align=center] at (3,-2.3) {bound $321$: tight loop reads $3,2,1$; picking $1<2$ in the second place jumps to loose};
+\end{tikzpicture}}
