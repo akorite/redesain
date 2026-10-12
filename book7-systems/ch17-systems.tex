@@ -191,6 +191,9 @@ importantly, removes the allocator's tail: the reason low-latency
 code pre-allocates isn't steady-state cost, it's the rare
 free-list walk the p99 sees.
 
+\lstinputlisting[language=C,firstline=27,lastline=32,
+caption={The measured loop of \texttt{ch17\_tail.c}: only the \texttt{malloc} call sits between the two clock reads.}]{code/ch17_tail.c}
+
 \begin{example}[Mean against tail, measured one call at a time]
 A mean hides the rare slow call, so time each call separately.
 \texttt{ch17\_tail.c} keeps 4096 live blocks of random size
