@@ -1,0 +1,6 @@
+naive 0  2048x2048:  38.73 ms  (1.00x vs naive)  result ok
+block 4  2048x2048:  24.18 ms  (1.60x vs naive)  result ok
+block 8  2048x2048:  18.77 ms  (2.06x vs naive)  result ok
+block16  2048x2048:  23.03 ms  (1.68x vs naive)  result ok
+block32  2048x2048:  18.11 ms  (2.14x vs naive)  result ok
+block64  2048x2048:  17.65 ms  (2.19x vs naive)  result ok

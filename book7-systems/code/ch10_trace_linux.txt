@@ -1,0 +1,13 @@
+S=2 E=2 B=8  (C=32 bytes)
+#    addr     set  tag   result
+1    0        0    0     MISS
+2    8        1    0     MISS
+3    16       0    1     MISS
+4    24       1    1     MISS
+5    0        0    0     hit 
+6    32       0    2     MISS (evicted a line)
+7    8        1    0     hit 
+8    40       1    2     MISS (evicted a line)
+9    16       0    1     MISS (evicted a line)
+10   0        0    0     MISS (evicted a line)
+hits=2 misses=8 evictions=4 dirty_evictions=0

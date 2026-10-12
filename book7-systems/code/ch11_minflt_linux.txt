@@ -1,0 +1,9 @@
+page size 4096 bytes, region 16384 pages (64 MiB)
+after mmap, before any touch: faults=107  rss=402 pages
+read pass 1   : +16384 faults   rss=432 pages
+read pass 2   : +0 faults
+write pass 1  : +16384 faults   rss=16816 pages
+write pass 2  : +0 faults
+child  reads 256 shared pages: +0 faults; then writes them: +256 faults
+parent still sees p[0]=42 (child wrote 99 into its own copy)
+parent writes the same 256 pages after the child exited: +256 faults

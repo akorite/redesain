@@ -1,0 +1,5 @@
+page size=4096 bytes
+pages=131072
+first-touch 1101 ns/page
+resident    8.8 ns/page
+fault cost 125x

@@ -12,12 +12,12 @@
   table[x=stride, y=nsacc] {code/ch09_stride.dat};
 \node[font=\scriptsize, anchor=west] at (axis cs:1,1.5)
   {$\approx$1\,ns: a line holds 8 accesses};
-\node[font=\scriptsize, anchor=west] at (axis cs:16,4.1)
-  {$\approx$3.7\,ns: one line fetched per access};
+\node[font=\scriptsize, anchor=east] at (axis cs:128,1.0)
+  {$\approx$3.7\,ns at stride 16: one line per access};
 \end{axis}
 \end{tikzpicture}
-\caption{Same 64\,MiB read, different strides (real
-\texttt{ch09\_stride\_bw.c} output). Through stride 8 each 64-byte
+\caption{Same 64\,MiB read, different strides (author's Mac,
+\texttt{ch09\_stride\_bw.c} output; the Linux run is in listing~\ref{lst:stridelinux09}). Through stride 8 each 64-byte
 line serves eight loads; at stride 16 every load hauls in its own
 line --- effective bandwidth collapses by $\approx$3$\times$.}
 \label{fig:stride09}

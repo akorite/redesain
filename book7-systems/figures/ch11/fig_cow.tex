@@ -9,8 +9,10 @@ child writes  & fault $\to$ copy made    & private copy \\
 parent writes & fault $\to$ copy made    & keeps sharing \\
 \bottomrule
 \end{tabular}
-\caption{Copy-on-write: \texttt{fork} copies zero pages; the first
-\emph{write} to a shared page triggers the fault that materialises
-the copy. Spawn cost becomes O(1) instead of O(memory).}
+\caption{Copy-on-write: \texttt{fork} copies the page \emph{tables},
+not the pages; the first \emph{write} to a shared page triggers the
+fault that makes the copy. Measured in listing~\ref{lst:minflt11}: a child
+that only reads 256 shared pages takes 0 faults, and one that then
+writes them takes 256.}
 \label{fig:cow11}
 \end{figure}

@@ -13,8 +13,57 @@ measures the real hierarchy on the machine in front of you, names
 the two localities that make it work, and turns the numbers into the
 contract every later chapter leans on.
 
+\begin{rulebox}[After this chapter you can]
+You will be able to write a small C program that measures how long one
+memory read takes for a given amount of data, run it, and read the
+result as a staircase: fast for small data, slower in steps as the data
+grows. You will be able to say what each step is (a cache level, or
+main memory), explain why a sequential walk and a random walk behave
+differently, and avoid the three classic mistakes that make such a
+measurement lie.
+\end{rulebox}
+
+\begin{rulebox}[Before you start]
+\emph{What a memory read costs.} In Book~1 chapter~1 (the contest
+machine and the cost model) we pretended that reading a variable costs
+one step. Chapters~5--8 of this book kept that pretence: a load takes one
+clock cycle. A \emph{clock cycle} is one tick of the processor's
+metronome; at 3\,GHz there are three billion ticks per second, so one
+tick is about a third of a nanosecond (1\,ns is a billionth of a
+second). This chapter is where the pretence ends.
+
+\emph{A five-line C refresher.} The programs here are in C, so here is
+all the C you need to read them.
+\texttt{uint64\_t x;} is a 64-bit whole number (8 bytes).
+\texttt{uint64\_t *a;} says ``\texttt{a} is the address of such a
+number''; \texttt{a[i]} is the \(i\)-th number at that address,
+and \texttt{malloc(n)} asks the system for \(n\) bytes of memory.
+A pointer is just an address stored in a variable, and
+\texttt{*p} means ``read the number stored at address \texttt{p}''.
+\texttt{for (long r = 0; r < reps; r++) \{ ... \}} repeats its body
+\texttt{reps} times. The keyword \texttt{volatile} tells the compiler
+``do not optimise this variable away; really read and write it each
+time''. Finally, \texttt{clock\_gettime} returns a stopwatch reading;
+we subtract two readings to time a loop.
+\end{rulebox}
+
+\begin{rulebox}[Think like this]
+A measurement is an experiment, and an experiment needs a hypothesis.
+Before running any benchmark in this chapter, write down in one line
+what you expect to see and why. When the number disagrees, the
+disagreement is the interesting part: either your picture of the
+machine is wrong, or your program is not measuring what you think.
+\end{rulebox}
+
 \section{Why there is a hierarchy at all}
 \label{sec:why09}
+
+Here is an everyday picture. You are studying at a desk. The book you
+are reading lies open in front of you (instant). Other books sit on a
+shelf behind you (a few seconds). The rest are in the library across
+town (an afternoon). Nobody would call this a design flaw: a desk big
+enough for the whole library would not fit in your room. A computer
+makes exactly this trade, for exactly this reason.
 
 The ideal memory is fast, huge, and cheap. Physics offers any two.
 The SRAM bit-cell that feeds a 3\,GHz pipeline uses six transistors
@@ -56,8 +105,11 @@ for (long r = 0; r < reps; r++)
     p = *(volatile uintptr_t *)p;   /* load depends on last load */
 \end{lstlisting}
 
-\begin{example}[What this machine answered]
-Verbatim output (full log in the captured \texttt{.out} file):
+\begin{example}[What the author's Mac answered]
+Verbatim output from the author's Apple-silicon Mac (arm64, macOS;
+the full log is in \texttt{code/ch09\_mountain.dat}). The Linux x86\_64
+container numbers come later in this section and differ, which is the
+point:
 
 \begin{verbatim}
    bytes    ns/load
@@ -85,6 +137,104 @@ three accesses and the ``latency'' you measure is just bandwidth.
 The random permutation forces every level to reveal itself.
 \end{checkpoint}
 
+\paragraph{Now run it yourself.} The same program, compiled with
+\texttt{gcc -O2} and run in the Linux x86\_64 container used to write
+this edition (4 virtual CPUs of an Intel Xeon at 2.8\,GHz under KVM;
+\texttt{getconf} reports a 32\,KiB 8-way L1 data cache and a 1\,MiB
+L2 per core), gives a different table. Treat these numbers as one
+sample; they move by 10--30\% between runs on a shared virtual machine.
+
+\begin{lstlisting}[language={},caption={Linux x86\_64 container, one
+full run of \texttt{./ch09\_mem\_mountain} (20 million dependent loads
+per size). Captured in \texttt{code/ch09\_mountain\_linux.txt}.}]
+   bytes    ns/load
+    4096       2.99
+   16384       3.02
+   32768       2.93
+   65536       4.48
+  131072       5.07
+  262144       5.38
+  524288       7.39
+ 1048576      14.49
+ 2097152      19.25
+ 4194304      98.86
+ 8388608     131.69
+16777216     154.43
+33554432     156.94
+67108864     162.71
+134217728     196.25
+\end{lstlisting}
+
+\begin{example}[Reading a second machine's staircase]
+Read the Linux table as steps. Up to 32\,KiB the time is flat at about
+3\,ns: the data fits in L1. At 64--512\,KiB it is 4.5--7.4\,ns: L1 has
+overflowed, and the loads now come from L2. At 1--2\,MiB it is
+14--19\,ns, and past 4\,MiB it jumps to about 100\,ns and then 130--200\,ns.
+The step positions (32\,KiB, then about 1\,MiB) match what \texttt{getconf}
+reports for L1 and L2, which is a check that the experiment measures
+what we think. Two surprises are worth saying aloud. First, the
+100\,ns at 4\,MiB is far below the 33\,MiB L3 size the container
+advertises; we did not isolate why (a virtual machine shares that
+cache with other tenants, and its page mapping is not ours to control),
+so we do not claim an L3 plateau. Second, even the L1 rows say 3\,ns,
+roughly 8 clock cycles at 2.8\,GHz, while an L1 hit should be about 4--5
+cycles. The next example explains the surplus.
+\end{example}
+
+\begin{example}[The benchmark taxes itself: what \texttt{volatile} costs]
+Our chain loop declares the pointer \texttt{volatile}, so that the
+compiler cannot delete the loop. A naive reading says ``that only
+protects the measurement''. Test it. \texttt{ch09\_volatile\_cost.c}
+times the same 4\,KiB chain, always an L1 hit, twice:
+
+\begin{lstlisting}[language={},caption={Linux x86\_64 container,
+\texttt{./ch09\_volatile\_cost}: the same L1-resident chain with a plain
+and a \texttt{volatile} pointer.}]
+plain pointer   : 1.26 ns/load  (0)
+volatile pointer: 2.93 ns/load
+\end{lstlisting}
+
+The plain loop runs at 1.26\,ns, about 3.5 cycles per load at the nominal 2.8\,GHz, which is a
+believable L1 latency. The \texttt{volatile} loop is 2.3 times slower,
+because every step now also stores the pointer to memory and reads it
+back before the next load can start. So the staircase above is a true
+staircase sitting on a floor of roughly 1.7\,ns of bookkeeping. The
+\emph{shape} survives, and the knees are still right; the absolute
+numbers in the low rows are inflated. When you meet a benchmark number,
+ask what the loop itself costs.
+\end{example}
+
+\begin{example}[Latency versus throughput: the independent-loads mistake]
+The checkpoint above warned that independent loads measure the wrong
+thing. Here is the proof. \texttt{ch09\_dep\_vs\_indep.c} visits the
+\emph{same} random order two ways. In the dependent version each address
+is the value just loaded (\texttt{p = a[p]}), so the processor must wait
+for each answer. In the independent version the addresses come from a
+separate array of indices (\texttt{s += a[idx[k]]}), so the processor can
+send many requests at once and overlap the waiting.
+
+\begin{lstlisting}[language={},caption={Linux x86\_64 container,
+\texttt{./ch09\_dep\_vs\_indep}: 20 million loads per row, same random
+visiting order, dependent versus independent (4-byte elements).}]
+     bytes  dep ns/load indep ns/load    ratio
+     32768         1.71         1.12     1.5x   (check 7035 1)
+   1048576        10.53         2.04     5.2x   (check 231304 0)
+   8388608       135.61        12.03    11.3x   (check 157217 1)
+ 134217728       194.30        23.93     8.1x   (check 30533386 1)
+\end{lstlisting}
+
+In L1 the two are close (1.7 versus 1.1\,ns): there is nothing to hide.
+At 8\,MiB and beyond the dependent chain pays the full 135--194\,ns per
+load while the independent version averages 12--24\,ns, as if roughly
+8 to 11 requests were overlapped in flight at once (an inference from
+the ratio, not a hardware counter reading). Same data, same order, same
+machine, an 8 to 11 times difference in the answer. If the question is
+``how long does one cache miss take?'', only the dependent chain answers
+it; the independent loop answers ``how many misses per second can the
+memory system sustain?''. Both are real numbers about the machine.
+They are different numbers.
+\end{example}
+
 \section{Locality: the only two tricks caches know}
 \label{sec:locality09}
 
@@ -108,7 +258,7 @@ it costs to lose the spatial one.
 \begin{example}[Effective access time, honestly]
 Suppose L1 hits at 95\% and misses cost 10\,ns. Then
 $\text{EAT} = 0.95 \times 1.4 + 0.05 \times 10 \approx 1.8$\,ns.
-Drop hit rate to 85\% and EAT nearly doubles to 2.7\,ns --- the
+Drop hit rate to 85\% and EAT rises by almost half, to 2.7\,ns --- the
 hierarchy's economics live in the last few percent of hit rate,
 which is why the next two chapters exist.
 \end{example}
@@ -129,11 +279,39 @@ stride     ns/acc    GB/s(eff)
     32      3.780         2.12
 \end{verbatim}
 
-Stride 8 means one access per 64-byte cache line: full speed.
-Stride 16 means each access \emph{consumes a whole line}: the bus
-moves 8$\times$ more bytes than the program uses, and per-access
-time triples. This is the column-order traversal trap every
-matrix chapter returns to.
+Elements are 8 bytes, so a stride of 8 means each access lands on its
+own 64-byte cache line. The bus then moves 64 bytes to deliver 8 useful
+ones, for stride 8 as for every larger stride. On the Mac the time per
+access is flat up to stride 8 and then triples at stride 16, where the
+accesses stop landing on consecutive lines. We measured this cliff but
+did not isolate its mechanism (the stride-128 dip in the data is
+likewise unexplained), so treat ``the hardware prefetcher gives up''
+as a plausible story, not a finding. This is the column-order traversal
+trap every matrix chapter returns to.
+\end{example}
+
+\begin{example}[The same experiment on Linux x86\_64]
+\begin{lstlisting}[language={},label={lst:stridelinux09},caption={Linux x86\_64 container,
+\texttt{./ch09\_stride\_bw}: 64\,MiB array, 8-byte elements, 20 sweeps
+per stride. Captured in \texttt{code/ch09\_stride\_linux.txt}.}]
+stride     ns/acc    GB/s(eff)
+     1      2.103         3.80
+     2      2.660         3.01
+     4      4.239         1.89
+     8      7.477         1.07
+    16     14.154         0.57
+    32     15.639         0.51
+    64     14.166         0.56
+   128     14.696         0.54
+\end{lstlisting}
+There is no sharp cliff here; the cost per access climbs smoothly from
+2.1\,ns at stride 1 to about 14\,ns at stride 16 and then stays flat.
+Both machines agree on the lesson: the time per access stops growing
+once every access owns a cache line, which on this container happens
+by stride 16 (stride 8 already costs 3.6 times stride 1). (Stride 1
+and 2 are partly limited by the \texttt{volatile} accumulator, as in the
+previous example.) Where the knee falls is a property of the machine;
+that it exists is a property of cache lines.
 \end{example}
 
 \input{figures/ch09/fig_stride.tex}
@@ -213,9 +391,13 @@ the contract  & every level managed from above, feeds from below \\
 \section*{Notes}
 \label{sec:notes09}
 \begin{itemize}
-\item All latency/bandwidth numbers are verbatim runs of this
-      chapter's C benchmarks on Apple Silicon (arm64); the exercise
-      asks you to re-run them on your own machine and compare knees.
+\item The first tables (mountain, stride) are verbatim runs of this
+      chapter's C benchmarks on the author's Apple-silicon Mac (arm64).
+      The tables labelled ``Linux x86\_64 container'' are new runs on a
+      4-vCPU Intel Xeon (2.8\,GHz, KVM guest, gcc \texttt{-O2}); the
+      exercise asks you to re-run them on your own machine and compare
+      knees. \texttt{code/test\_ch09.sh} checks only the shape of the
+      results, never exact nanoseconds.
 \item The stride-128 dip in the log is real and unexplained ---
       prefetcher interaction, flagged in-chapter rather than hidden.
 \end{itemize}
@@ -283,7 +465,8 @@ may hit in L2. Extend the formula to three levels and compute EAT
 for L1=95\% (1.4\,ns), L2=90\% (5\,ns), DRAM base 120\,ns.
 \end{exercise}
 \begin{solution}[hint]
-EAT$=p_1 t_1 + (1-p_1)(t_1{+}p_2 t_2 + (1-p_2)(t_1{+}t_2{+}120))$.
+Model: every access pays the L1 lookup (1.4\,ns); on the 5\% that miss, pay 5\,ns for L2, and on the 10\% of those that also miss, 120\,ns more.
+EAT $=1.4+0.05\,(5+0.10\times120)=1.4+0.05\times17=2.25$\,ns.
 \end{solution}
 
 \begin{exercise}[medium]

@@ -1,6 +1,7 @@
 x cfg ms
-1 naive 14.28
-2 block8 5.0
-3 block16 5.2
-4 block32 45.2
-5 block64 52.9
+1 naive 38.73
+2 block4 24.18
+3 block8 18.77
+4 block16 23.03
+5 block32 18.11
+6 block64 17.65

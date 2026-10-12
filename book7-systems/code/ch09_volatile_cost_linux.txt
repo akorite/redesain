@@ -1,0 +1,2 @@
+plain pointer   : 1.26 ns/load  (0)
+volatile pointer: 2.93 ns/load

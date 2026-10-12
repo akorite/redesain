@@ -1,18 +1,19 @@
 \begin{figure}[htbp]
 \centering
-\begin{tabular}{lr}
+\begin{tabular}{lrr}
 \toprule
-access & measured cost (this machine, 16KB pages) \\
+access & Mac (16\,KB pages) & Linux container (4\,KB pages) \\
 \midrule
-resident page touch      & 107.6\,ns \\
-first touch (page fault) & 744\,ns \\
+resident page touch      & 107.6\,ns & 8.8\,ns \\
+first touch (page fault) & 744\,ns   & 1101\,ns \\
 \midrule
-fault overhead           & 7$\times$ resident \\
+ratio                    & 7$\times$ & 125$\times$ \\
 \bottomrule
 \end{tabular}
-\caption{Real \texttt{ch11\_fault\_cost.c} numbers: mmap 512\,MB,
-touch each 16\,KB page once vs.\ twice. The fault is 7$\times$ ---
-page faults are cheap enough to be the load mechanism and expensive
-enough that thrashing kills you.}
+\caption{\texttt{ch11\_fault\_cost.c}: mmap 512\,MB, touch one byte per
+page twice. The fault costs roughly a microsecond on both machines. The
+\emph{ratios} differ by a factor of 18 because the denominators do:
+the Mac's ``resident'' touch is slow (each 16\,KB hop also misses the
+cache), the container's is fast. Compare absolute times, not ratios.}
 \label{fig:faultcurve11}
 \end{figure}

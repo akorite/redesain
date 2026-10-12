@@ -3,15 +3,16 @@
 \begin{tikzpicture}
 \begin{axis}[width=10cm,height=5.5cm, ybar, bar width=8mm,
   xtick={1,2,3,4,5}, xticklabels={naive,blk4,blk8,blk16,blk32},
-  ylabel={misses (sim, exact)}, ymin=0, ymax=90000,
+  ylabel={misses (sim, exact)}, ymin=0, ymax=80000,
   grid=major, grid style={gray!20},
   tick label style={font=\scriptsize}, label style={font=\small}]
 \addplot[fill=blue!50] table[x=x,y=misses]{code/ch10_misses.dat};
 \end{axis}
 \end{tikzpicture}
-\caption{Exact miss counts from the chapter's own cache model,
-256$\times$256 transpose: block-8 removes two of every three
-misses --- block-16 is \emph{worse than naive}. The sweet spot is
-small.}
+\caption{Exact miss counts from the chapter's cache model (toy
+16\,KB L1: 64 sets, 4 ways, 64-byte lines), $256\times256$ float
+transpose. Block-8 removes 82\% of the misses and block-16 86\%, but
+block-32 is back at the naive count: the tile no longer fits in the
+sets its rows map to.}
 \label{fig:misses10}
 \end{figure}

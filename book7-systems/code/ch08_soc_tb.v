@@ -27,7 +27,7 @@ module ch08_soc_tb;
   initial begin
     for (i=0;i<256;i=i+1) dmem[i]=0;
     ngot=0; sawtx=0;
-    $readmemh("ch08_prog.hex", imem);
+    $readmemh("ch08_prog.hex", imem, 0, 38);
     #12 rst=0; cyc=0;
     while (cyc<40000 && pcw!=32'h50) begin @(posedge clk); cyc=cyc+1; end
     repeat(800) @(posedge clk);
@@ -45,7 +45,7 @@ module ch08_soc_tb;
     $display("ch08 PASS");
     $finish;
   end
-  task check(input cond, input [8*24:0] name);
+  task check(input cond, input [8*32-1:0] name);
     if (!cond) begin $display("FAIL: %0s", name); $fatal; end
     else $display("  ok: %0s", name);
   endtask

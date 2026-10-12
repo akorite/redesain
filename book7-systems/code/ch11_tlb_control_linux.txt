@@ -1,0 +1,5 @@
+  64 lines in  1 page(s): 1.33 ns/hop (0)
+ 128 lines in  2 page(s): 1.33 ns/hop (0)
+ 256 lines in  4 page(s): 1.35 ns/hop (0)
+ 512 lines in  8 page(s): 3.35 ns/hop (0)
+1024 lines in 16 page(s): 4.37 ns/hop (0)

@@ -1,6 +1,6 @@
 \begin{figure}[htbp]
 \centering
-\begin{tabular}{lll}
+\begin{tabular}{llp{5.5cm}}
 \toprule
 symbol & meaning & our sim values \\
 \midrule
@@ -8,7 +8,7 @@ $S$ & sets          & 32 or 64 \\
 $E$ & lines per set (ways) & 1--8 \\
 $B$ & block (line) bytes   & 64 \\
 \midrule
-$C$ & capacity $=S\cdot E\cdot B$ & 128--256\,KB model \\
+$C$ & capacity $=S\cdot E\cdot B$ & 2--16\,KB (E-sweep), 16\,KB (toy L1), 32\,KB (container L1d) \\
 \bottomrule
 \end{tabular}
 \caption{Cache anatomy in three parameters. $C=S\times E\times B$ is
