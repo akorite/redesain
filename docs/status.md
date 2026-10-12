@@ -114,3 +114,11 @@ Pending a GitHub PAT: issue creation (pinned "Status" issue + `needs-user` label
 - book2 physics review: 15 PASS / 4 REVISE (ch06/07/10/15 at 5 figs — verbatim figure specs delivered, all from existing scripts). 38/38 watch videos oembed-verified, all check scripts physically correct. Nit: docs/notation.md is the cp file — author rewrite queued.
 - quant round-3 structural pass: 6 new mechanism sections; still 150pp (content fills slack). book2's diminishing-returns read accepted — commissioned ch16 "portfolio construction" as the floor-gap chapter (recorded in decisions.md).
 - physics needs-user flag: none. Its 4 figure fixes + notation rewrite go to book1.
+
+## 2026-10-12 — Claude's branches adopted; book7 at 216pp under re-review
+- Merged into main: claude/from-zero-intros (start.tex "from zero" chapters on books 1-6,8 + Before/After/How-to-think boxes on 125 chapters + first-attempt examples), claude/video-verify-book7 (watch.md verification + book5 ch01-04 Watch boxes + dead-link flags), diagrams/book1-cp (102 figures redrawn + shared fstyle.tex), book7-finish (Claude's systems floors pass: ch05-18 all now ≥5 examples/≥6 figs/≥15 ex/≥3 listings w/ output, fsync ~115× fix, smoke chapter removed, title set).
+- Coordinator fixes: book7 test portability on macOS arm64 — 18/18 scripts pass (guarded /proc, pthread_barrier, MADV_HUGEPAGE, x86 intrinsics/mnemonics behind uname checks; brew-clang riscv32 fallback); xurl added to all 8 preambles (killed the URL overfull boxes).
+- book7 gate: 216pp, 0 errors/0 undefined/0 overfull>3pt. Independent re-review running on book1's agent — tag book7-systems-v0.1 on ACCEPT.
+- Subagents running (cap 4): book1 agent=book7 re-review; book2 agent=real video verification all 8 books (oEmbed+lengthSeconds); book3 agent=diagram audit books 2/3/4/6/8; elec-0006=deeper from-zero + warmer-teacher voice pass on books 1/2/3/5 (more concepts + ways of thinking, toward 350 ceiling).
+- Pages now: cp ~230 · disc ~182 · linalg ~? · ml ~? · elec ~? · quant ~? · systems 216 · physics ~? (rebuild pending after all passes land).
+- Deferred until PAT: repo rename, pinned Status issue, needs-user labels, Releases w/ main.pdf.
