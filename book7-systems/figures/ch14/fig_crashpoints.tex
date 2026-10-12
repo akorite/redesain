@@ -1,0 +1,24 @@
+\begin{figure}[htbp]
+\centering
+\begin{tikzpicture}[font=\footnotesize, x=1cm, y=1cm]
+  \tikzset{st/.style={draw=ink, thin, minimum width=2.1cm, minimum height=0.8cm, align=center, fill=accentsoft}}
+  \node[st] (s1) at (0.0,1.6) {1. write\\log};
+  \node[st] (s2) at (2.5,1.6) {2. write\\commit};
+  \node[st,fill=goodbg] (s3) at (5.0,1.6) {3. write X\\in place};
+  \node[st,fill=goodbg] (s4) at (7.5,1.6) {4. write Y\\in place};
+  \node[st,fill=graybg] (s5) at (10.0,1.6) {5. clear\\log};
+  \foreach \a/\b in {s1/s2,s2/s3,s3/s4,s4/s5}{\draw[->,thick] (\a) -- (\b);}
+  \draw[amber, thick, dashed] (1.25,0.9) -- (1.25,2.7);
+  \node[amber, anchor=north, align=center] at (1.25,0.85) {crash here:\\log has no commit\\$\to$ discard};
+  \draw[good, thick, dashed] (3.75,0.9) -- (3.75,2.7);
+  \node[good, anchor=north, align=center] at (6.25,0.85) {crash anywhere after the commit line:\\replay the log\\$\to$ X and Y both new};
+  \node[good, anchor=south] at (3.75,2.7) {commit point};
+\end{tikzpicture}
+\caption{The five steps of the journaled transfer in
+\texttt{ch14\_journal\_sim.py}. Before the dashed commit line a crash
+means ``nothing happened''; after it a crash means ``replay it''.
+There is no step at which recovery leaves $X+Y\ne100$. Without a
+journal, steps 3 and 4 are the only two writes, and a crash between
+them is exactly the corrupt state.}
+\label{fig:crashpoints14}
+\end{figure}

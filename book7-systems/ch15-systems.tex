@@ -3,12 +3,58 @@
 \label{ch:systems15}
 \index{benchmark}\index{tail latency}\index{Amdahl}
 
-The book so far has measured everything --- and the measurements
-kept surprising us. This chapter is about \emph{why}: performance
-is a distribution, not a number, and a benchmark is an experiment,
-not a prayer. The running audit table on this page's opposite side
-is the thesis: three of the four folk claims we tested failed on
-real hardware.
+Suppose you time how long you take to walk to school, once, and
+get 14 minutes. Is that your walking time? It depends: was the light
+green, did you stop to talk, was it raining? A second walk gives 17.
+The honest answer is a \emph{range} with a typical value and a bad
+day. Computer timings behave the same way, and this book has already
+been surprised by them several times. This chapter is about \emph{why}
+the surprises happen: performance is a distribution, not a number, and
+a benchmark is an experiment, not a prayer. The audit table on the
+next page is the thesis: three of the four folk claims we tested
+failed on real hardware.
+
+\begin{wins}[What you will be able to do]
+After this chapter you can write a timing harness that warms up,
+takes many samples and reports percentiles instead of one number. You
+can recognise (and demonstrate) the four classic lies: no warmup, too
+few samples, reporting the mean, and a compiler that deleted the code
+you meant to time. You can decide whether the difference between two
+versions of a function is real or noise, using a standard error. And
+you can use Amdahl's law to say, before writing any code, how fast a
+parallel version can possibly be.
+\end{wins}
+
+\begin{rulebox}[Before you start]
+A \emph{benchmark} is a program that measures how long something
+takes. A \emph{percentile} says what fraction of samples are at or
+below a value: the p50 (median) is the middle sample, the p99 is the
+value that 99\% of samples do not exceed. The \emph{mean} is the sum
+divided by the count, and the \emph{standard deviation} measures
+spread. If these are new, Book~3 ch.~13 (statistics, estimation, and
+Bayesian inference) builds them carefully, and Book~1 ch.~1 (the
+contest machine and the cost model) shows why counting operations is
+only a first approximation of time. From this book you need
+ch.~\ref{ch:systems10} (caches) and ch.~\ref{ch:systems13} (the
+Amdahl curve and the atomic-versus-mutex result).
+
+\emph{A short C refresher.} \texttt{clock\_gettime(CLOCK\_MONOTONIC,
+\&ts)} fills a \texttt{struct timespec} with seconds and nanoseconds
+from a clock that never jumps backwards, the right clock for timing.
+\texttt{qsort(arr, n, size, cmp)} sorts an array given a comparison
+function. \texttt{volatile} forces the compiler to really perform an
+access. \texttt{gcc -O2} turns on optimisation, which is what makes the
+dead-code incident below possible. Numbers marked \emph{Mac} are the
+author's earlier laptop; \emph{Linux} marks a 4-vCPU Intel Xeon
+container (2.8\,GHz, gcc 13).
+\end{rulebox}
+
+\begin{principle}[Think like this]
+Before you believe a number, ask three things. What was the machine
+doing besides my code? Could the number be \emph{better} than the
+hardware allows (then the code did not run)? And if I ran it again,
+how different would it be? A number without its spread is a rumour.
+\end{principle}
 
 \section{The folklore audit}
 \input{figures/ch15/fig_audit.tex}
@@ -19,13 +65,143 @@ real hardware.
 \section{Latency is a distribution}
 \input{figures/ch15/fig_tail.tex}
 
-\begin{example}[The cold-cache median lies]
+\begin{example}[The cold-cache median lies (Mac)]
 \texttt{ch15\_bench.c} sums 4M ints honestly --- warmup, 21
 samples, sorted, p50/p99 reported: 0.15/0.18\,ms. The same kernel
 with no warmup and 3 samples reports 0.17\,ms --- off by 13\%
 \emph{against its own best case}, and that error is noise, not
 signal. Small samples don't measure the program; they measure
 the scheduler's mood.
+
+Two cautions we found while re-running this on Linux. First, with
+only 21 samples the ``p99'' is simply the largest sample (the 99th
+percentile of 21 values falls on the last one), so it says little
+about the tail; the next examples use 1000 samples. Second, the Mac
+figure of 0.15\,ms for 16\,MiB implies reading about 110\,GB/s, far
+above what main memory normally delivers, which suggests the Mac
+compiler may have shortened that kernel. We cannot verify this on the
+Mac, so treat the 0.15\,ms as unconfirmed.
+\end{example}
+
+\begin{example}[The same harness on the Linux container]
+\begin{lstlisting}[basicstyle=\ttfamily\scriptsize,caption={Real output of
+\texttt{ch15\_bench}, two consecutive runs (Linux container).}]
+n=4M ints sum: p50=3.24ms p99=4.10ms min=2.70ms max=4.10ms spread=2x
+same, 3 cold samples: p50=3.59ms (median lies by 33%)
+n=4M ints sum: p50=2.71ms p99=3.53ms min=2.49ms max=3.53ms spread=1x
+same, 3 cold samples: p50=2.48ms (median lies by -1%)
+\end{lstlisting}
+The kernel takes 2.5--3.2\,ms here, about 6\,GB/s, which is a
+believable memory rate. The ``3 cold samples'' line differs from the
+best sample by $+33\%$ in the first run and $-1\%$ in the second.
+(The program's label ``cold'' is a slight misnomer: the array has
+already been touched by the 21 warm samples, so what the line really
+shows is how much \emph{three samples} can mislead.) The two runs
+disagree with each other by far more than a 5\% optimisation would
+claim to gain.
+\end{example}
+
+\begin{example}[Dead code: a benchmark that measures nothing]
+\emph{The naive version.} Call \texttt{sum(a, n)} in a timing loop
+and ignore the result. An optimising compiler sees a pure function
+whose result is unused and deletes the call. \texttt{ch15\_dce.c}
+builds both ways from one source file:
+
+\begin{lstlisting}[basicstyle=\ttfamily\scriptsize,caption={Real output
+(Linux container, \texttt{gcc -O2}); the second build adds
+\texttt{-DSINK}, which stores each result into a \texttt{volatile}
+variable.}]
+without sink: best of 11 = 0.0000 ms  (671089.6 GB/s implied)
+with sink   : best of 11 = 2.6925 ms  (6.2 GB/s implied)
+\end{lstlisting}
+``Implied GB/s'' is bytes read divided by time. 671\,089\,GB/s is
+physically impossible, which is the clue: the loop never ran. With the
+volatile sink the same call takes 2.69\,ms, 6.2\,GB/s. The habit to
+keep: after every optimisation that makes things ``much faster'',
+compute the implied rate and compare it with what the hardware can do.
+\end{example}
+
+\begin{example}[Latency is a distribution: 1000 samples of one small kernel]
+\texttt{ch15\_cdf.c} times a sum over 1\,MiB (it fits in cache, so
+memory is not the story) 1000 times and prints the first samples, the
+percentiles, and a histogram.
+
+\begin{lstlisting}[basicstyle=\ttfamily\scriptsize,caption={Real output of
+\texttt{ch15\_cdf} (Linux container).}]
+first 5 samples (us): 111.4 81.9 50.5 50.1 98.6
+p50=50.7  p90=97.9  p99=194.4  p99.9=1062.8  max=1062.8  (us)
+mean=67.7 us  (mean/p50 = 1.33)
+histogram (count of 1000 samples):
+  < p50           : 500
+    50.7.. 177.2 us : 488
+   177.2.. 303.7 us : 7
+   303.7.. 430.2 us : 1
+   430.2.. 556.7 us : 0
+   556.7.. 683.2 us : 3
+   683.2.. 809.7 us : 0
+   809.7.. 936.2 us : 0
+   936.2..1062.8 us : 0
+  >= p99.9        : 1
+\end{lstlisting}
+\input{figures/ch15/fig_hist.tex}
+Read it from the top. The \emph{first} sample took 111\,\textmu s, more
+than twice the median 50.7: the cold-start cost of the first touch.
+The median is 50.7\,\textmu s, but p99 is 194 (3.8$\times$ the median)
+and the single worst sample is 1063\,\textmu s, 21$\times$ the median.
+The mean (67.7) is 33\% above the median and describes no actual run:
+a few outliers drag it up. If a service handled these requests, the
+users who matter for the service level would be the ones in the
+12 samples above 177\,\textmu s, and neither the median nor the mean
+mentions them. (The program's table is built by sorting the values,
+so p99.9 and the max coincide at 1062.8 here because index 999 of 1000
+\emph{is} the maximum.)
+\end{example}
+
+\begin{example}[Is B really faster than A? Mean $\pm$ standard error]
+\emph{The naive reading:} run A and B once each, see 3.10 versus 3.07,
+announce a 1\% win. A better rule: take many samples, compute the
+mean $m$ and standard deviation $\sigma$ of each, and estimate how
+precisely the mean is known by the \emph{standard error}
+$\mathrm{se}=\sigma/\sqrt{n}$. The difference of two means has
+$\mathrm{se}_{\Delta}=\sqrt{\mathrm{se}_A^2+\mathrm{se}_B^2}$; a
+difference smaller than about $2\,\mathrm{se}_{\Delta}$ is not
+distinguishable from noise. \texttt{ch15\_compare.c} times a plain
+sum (A) and a sum with four independent accumulators (B), 40 samples
+each, interleaved ABAB so drift hits both:
+
+\begin{lstlisting}[basicstyle=\ttfamily\scriptsize,caption={Real output
+of \texttt{ch15\_compare} (Linux container, first of two runs).}]
+A: mean 3.100 ms  sd 0.457  se 0.072
+B: mean 3.071 ms  sd 0.383  se 0.060
+B - A = -0.029 ms  (-0.9%), se of difference 0.094, |diff|/se = 0.3
+verdict: difference is within 2 se: not distinguishable from noise
+\end{lstlisting}
+Check the arithmetic: $0.457/\sqrt{40}=0.072$, $0.383/\sqrt{40}=0.061$,
+$\sqrt{0.072^2+0.060^2}=0.094$, and $0.029/0.094=0.31$. The second run
+gave A 2.710 ms, B 2.702 ms, difference $-0.3\%$, $|\text{diff}|/\text{se}=0.2$:
+again noise. The honest conclusion is ``no detectable difference'',
+which is also what you would expect: gcc already vectorises the
+plain loop, so unrolling by hand adds nothing.
+\end{example}
+
+\begin{example}[Amdahl before you code]
+A program spends 10\% of its time in a serial part. How fast can 8
+cores make it? \emph{Naive guess:} 8$\times$. Amdahl's law:
+speedup $=1/(s+(1-s)/p)$ with $s$ the serial fraction and $p$ cores.
+Here $1/(0.1+0.9/8)=1/0.2125=4.71$. Even infinite cores give
+$1/s=10$. \texttt{ch15\_amdahl.py} tabulates it:
+
+\begin{lstlisting}[basicstyle=\ttfamily\scriptsize,caption={Real output of
+\texttt{python3 ch15\_amdahl.py}.}]
+serial   5%: p=2    1.90x  p=4    3.48x  p=8    5.93x  p=64  15.42x   ceiling  20.0x
+serial  10%: p=2    1.82x  p=4    3.08x  p=8    4.71x  p=64   8.77x   ceiling  10.0x
+serial  20%: p=2    1.67x  p=4    2.50x  p=8    3.33x  p=64   4.71x   ceiling   5.0x
+6.0x on 8 cores needs serial fraction <= 0.0476 (4.8%)
+\end{lstlisting}
+The last line inverts the formula: to reach 6$\times$ on 8 cores,
+$s\le(1/6-1/8)/(1-1/8)=0.0476$, so the serial part must be under
+4.8\%. Use this \emph{before} writing parallel code: if the serial
+fraction is 20\%, no number of cores gets you past 5$\times$.
 \end{example}
 
 \section{The four lies}
@@ -47,8 +223,14 @@ the scheduler's mood.
       the canonical incident --- the compiler deleted the kernel;
       a volatile sink is mandatory.
 \item \textbf{Folklore as fact.} ``Misaligned is slow'' failed on
-      this CPU; ``atomics beat locks'' failed at 8 threads; measure
-      on \emph{your} machine.
+      the Mac; ``atomics beat locks'' failed at 8 threads on the Mac
+      and held on the Linux container; measure on \emph{your}
+      machine.
+\item \textbf{Calling a 1\% difference a win.} With a standard
+      error of 0.09\,ms on a 3.1\,ms kernel, a 0.03\,ms difference is
+      noise.
+\item \textbf{Believing an impossible number.} 671\,089\,GB/s means
+      the code did not run.
 \item \textbf{Optimising the wrong term.} Amdahl's arithmetic from
       ch13 --- 10\% serial caps you at 10$\times$ regardless of
       how clever the parallel part gets.
@@ -86,10 +268,16 @@ levers & instrs / CPI / cycle-time --- know which you're moving \\
 
 \section*{Notes}
 \begin{itemize}
-\item The 13\% cold-sample error is this machine's real figure,
-      measured the same minute as the honest run.
+\item The 13\% cold-sample error is the Mac's real figure, measured
+      the same minute as the honest run; on Linux the same line gave
+      $+33\%$ and $-1\%$ in two runs. The Mac 0.15\,ms kernel time is
+      unconfirmed (it implies $\approx$110\,GB/s) and may reflect
+      compiler optimisation.
 \item The folklore-audit row for vectorisation is intentionally
       left open --- ch16 closes it.
+\item In the performance ladder the page-fault row was corrected to
+      0.74\,\textmu s (ch11's measured Mac value); an earlier draft
+      said 0.7\,ms.
 \end{itemize}
 
 \section*{Exercises}
@@ -190,7 +378,7 @@ Cold measures first-touch behaviour; warm measures steady state
 --- report which question you asked.
 \end{solution}
 \begin{exercise}[medium]
-Our p99=0.18\,ms vs p50=0.15: a 1.2$\times$ tail. On a server with
+Our p99=0.18\,ms vs p50=0.15 (Mac, 21 samples): a 1.2$\times$ tail. On a server with
 10\,000 req/s, how many requests per second hit the tail?
 \end{exercise}
 \begin{solution}[hint]
@@ -213,4 +401,37 @@ fast'' or ``the cache works''? What measurement distinguishes them?
 \begin{solution}[hint]
 ``The cache works'' --- a file bigger than RAM or O\_DIRECT
 separates the two.
+\end{solution}
+
+\begin{exercise}[easy]
+In the \texttt{ch15\_cdf} listing, how many of the 1000 samples are
+above 177\,\textmu s, and what percentage is that?
+\end{exercise}
+\begin{solution}[hint]
+$7+1+0+3+0+0+0+1=12$ samples (the bucket rows 177--304, 304--430,
+557--683 and the last one), i.e.\ 1.2\%.
+\end{solution}
+
+\begin{exercise}[medium]
+The dead-code listing reports 6.2\,GB/s with the sink. Check it:
+the array is $2^{22}$ ints of 4 bytes and the best time is
+2.6925\,ms. Is 6.2 consistent?
+\end{exercise}
+\begin{solution}[hint]
+$2^{22}\times4=16\,777\,216$ bytes; $/0.0026925\,\text{s}=6.23\times10^9$
+bytes per second, i.e.\ 6.2\,GB/s (decimal gigabytes). Yes.
+\end{solution}
+
+\begin{exercise}[medium]
+Using the compare listing's sd values (0.457 and 0.383) and $n=40$,
+how many samples per version would you need for the 0.029\,ms
+difference to reach $|\text{diff}|/\text{se}=2$, assuming the standard
+deviations stay the same?
+\end{exercise}
+\begin{solution}[hint]
+$\mathrm{se}_\Delta=\sqrt{(0.457^2+0.383^2)/n}=0.596/\sqrt n$. We need
+$0.029/\mathrm{se}_\Delta=2$, i.e.\ $\mathrm{se}_\Delta=0.0145$, so
+$\sqrt n=0.596/0.0145=41.1$ and $n\approx1690$ samples per version.
+Ten times more samples would not be enough; a 1\% effect is
+expensive to confirm on a noisy machine.
 \end{solution}

@@ -4,16 +4,19 @@
 \toprule
 Guided read --- xv6 \texttt{proc.c} \\
 \midrule
-\texttt{swtch.S}: 14 instructions that save callee-saved registers,
-swap \texttt{sp}, restore the other side. The whole of a context
-switch is literally those 14 lines --- ch8's trap path plus this.
-\texttt{scheduler()}: a 6-line loop --- pick first RUNNABLE, switch
-to it, repeat. The OS's most famous 20 lines do everything this
-chapter's sim does, with real registers instead of arrays. \\
+\texttt{swtch.S}: 14 stores save \texttt{ra}, \texttt{sp} and
+\texttt{s0}--\texttt{s11} of the old context, 14 loads restore the
+new one, then \texttt{ret} (29 instructions in all; read from the
+xv6-riscv repository, October 2026). The stack-pointer swap is what
+actually changes which process is running.
+\texttt{scheduler()}: an endless loop that walks the process table
+from the start and runs every RUNNABLE process it finds until it
+gives the core back (a timer tick, or the process blocks).
+This is round robin over the table, not first-come first-served. \\
 \bottomrule
 \end{tabular}
 \caption{The read-the-source payoff: xv6's context switch and
-scheduler fit in about twenty lines between them. The policy
+scheduler fit in a few dozen lines between them. The policy
 chapter's machinery is this small on a real OS.}
 \label{fig:xv6_12}
 \end{figure}

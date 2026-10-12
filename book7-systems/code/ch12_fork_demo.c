@@ -4,10 +4,12 @@
 #include <sys/wait.h>
 int main(void){
     printf("parent %d starting\n",getpid());
+    fflush(stdout);                    // empty the stdio buffer BEFORE forking
     pid_t p=fork();
     if(p<0){perror("fork");return 1;}
     if(p==0){
         printf("  child %d exec'ing /bin/echo\n",getpid());
+        fflush(stdout);                // exec discards unflushed buffers
         execl("/bin/echo","echo","  hello from exec'd child",(char*)NULL);
         _exit(127);                    // only reached if exec fails
     }

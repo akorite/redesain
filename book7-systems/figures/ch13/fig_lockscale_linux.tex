@@ -1,0 +1,24 @@
+\begin{figure}[htbp]
+\centering
+\begin{tikzpicture}
+\begin{axis}[width=10.5cm,height=6cm,
+  xlabel={threads}, ylabel={ms for 400k increments/thread},
+  symbolic x coords={1,2,4,8}, xtick=data,
+  grid=major, grid style={gray!20},
+  tick label style={font=\scriptsize}, label style={font=\small},
+  legend style={font=\scriptsize, at={(0.02,0.98)}, anchor=north west}]
+\addplot[thick,mark=*,color=accent] coordinates {(1,8.9)(2,58.8)(4,69.6)(8,154.4)};
+\addplot[thick,mark=square*,color=amber] coordinates {(1,2.5)(2,11.8)(4,22.9)(8,50.1)};
+\addplot[thick,dashed,mark=triangle*,color=good] coordinates {(1,0.119)(2,0.193)(4,0.359)(8,0.678)};
+\legend{mutex, atomic add, partition (loop optimised away)}
+\end{axis}
+\end{tikzpicture}
+\caption{\texttt{ch13\_lockscale.c} on the Linux x86\_64 container
+(4 vCPUs, so the 8-thread point has twice as many threads as cores;
+one run, mutex values vary widely run to run). Here the atomic add is
+faster than the mutex at every thread count, the opposite of the Mac
+result in Figure~\ref{fig:lockscale13}. The dashed partition line
+is thread start-up time only, because the compiler replaced the loop
+by a single addition (see the example below).}
+\label{fig:lockscalelinux13}
+\end{figure}

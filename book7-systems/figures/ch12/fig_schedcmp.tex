@@ -7,11 +7,16 @@ policy & avg turnaround & avg response & order \\
 FIFO & 127.5 & 77.5 & ABCD \\
 SJF  & 122.5 & 72.5 & ACBD \\
 STCF & 82.5  & 5.0  & ABCD \\
+RR (slice 10) & 107.5 & 7.5 & --- \\
+MLFQ (10/20/40) & 97.5 & 0.0 & --- \\
 \bottomrule
 \end{tabular}
 \caption{Real \texttt{sched\_sim.py} output on the chapter's job set
 (A:100, B:30, C:10, D:60 time units): STCF's preemption buys a
 35\% turnaround win and a 15$\times$ response win --- the
-interactivity argument, measured not asserted.}
+interactivity argument, measured not asserted. RR and MLFQ rows
+come from the extended simulator in this chapter's listing (same
+job set; MLFQ has three levels with slices 10, 20, 40 and a boost
+every 100 units).}
 \label{fig:schedcmp12}
 \end{figure}

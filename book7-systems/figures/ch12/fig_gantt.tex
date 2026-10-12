@@ -1,0 +1,27 @@
+\begin{figure}[htbp]
+\centering
+\begin{tikzpicture}[font=\footnotesize, x=0.057cm, y=1cm]
+  \tikzset{blk/.style={draw=ink, thin, minimum height=0.7cm, inner sep=0pt, anchor=south west}}
+  \definecolor{jobA}{HTML}{DCE3F0}\definecolor{jobB}{HTML}{DDEBE2}
+  \definecolor{jobC}{HTML}{F1E3CF}\definecolor{jobD}{HTML}{E4E4E4}
+  % FIFO row
+  \node[anchor=east] at (-3,1.9) {FIFO};
+  \foreach \s/\e/\j in {0/100/A,100/130/B,130/140/C,140/200/D}{
+    \node[blk, fill=job\j, minimum width={(\e-\s)*0.057cm}] at (\s,1.55) {\j};}
+  % STCF row
+  \node[anchor=east] at (-3,0.4) {STCF};
+  \foreach \s/\e/\j in {0/10/A,10/20/B,20/30/C,30/50/B,50/110/D,110/200/A}{
+    \node[blk, fill=job\j, minimum width={(\e-\s)*0.057cm}] at (\s,0.05) {\j};}
+  % time axis
+  \draw[->] (0,-0.3) -- (206,-0.3) node[right]{\scriptsize time};
+  \foreach \t in {0,10,20,30,50,100,110,130,140,200}{
+    \draw (\t,-0.22) -- (\t,-0.38); \node[below, font=\tiny] at (\t,-0.38) {\t};}
+\end{tikzpicture}
+\caption{The same four jobs (A\,100, B\,30, C\,10, D\,60; arriving at
+0, 10, 20, 30) under FIFO and STCF. FIFO runs each job to completion
+in arrival order, so B, C and D all wait behind A. STCF switches at
+every arrival and finish (five switches) and runs A last. Both rows
+are the schedules behind the turnaround numbers in
+Figure~\ref{fig:schedcmp12}.}
+\label{fig:gantt12}
+\end{figure}

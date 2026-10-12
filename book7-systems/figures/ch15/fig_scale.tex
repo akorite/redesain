@@ -6,12 +6,14 @@ quantity & this book's measured range & span \\
 \midrule
 L1 hit & $\sim$1\,ns & 1$\times$ \\
 DRAM miss & $\sim$120\,ns & 120$\times$ \\
-ctx switch & $\sim$3\,\textmu s & 3{,}000$\times$ \\
-page fault & $\sim$0.7\,ms & 700{,}000$\times$ \\
+ctx switch (Mac) & $\sim$3\,\textmu s & 3{,}000$\times$ \\
+page fault (Mac, ch11) & $\sim$0.74\,\textmu s & 740$\times$ \\
 \bottomrule
 \end{tabular}
 \caption{The book's own measured latency ladder --- every number
-measured live in an earlier chapter, not cited. A performance
+measured live in an earlier chapter (on the Mac), not cited. The
+Linux container's context switch ranged from 2\,\textmu s (pinned) to
+20\,\textmu s (unpinned): the ladder's rungs move with the machine. A performance
 question answered from this table is answered for free.}
 \label{fig:scale15}
 \end{figure}

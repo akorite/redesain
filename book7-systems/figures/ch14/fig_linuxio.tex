@@ -1,0 +1,26 @@
+\begin{figure}[htbp]
+\centering
+\begin{tabular}{lrl}
+\toprule
+pattern (Linux x86\_64 container) & MB/s & what it is \\
+\midrule
+sequential read, 1\,MB calls & 5\,270 & page cache \\
+sequential read, 4\,KB calls & 4\,002 & page cache, 256$\times$ more calls \\
+random read, 4\,KB calls & 3\,363 & page cache, scattered offsets \\
+buffered write, no fsync & 2\,630 & copy into RAM \\
+write + fsync per 1\,MB & 267 & device flush each time (9.8$\times$ slower) \\
+write + fsync per 4\,KB & $\approx$7.7 & 0.51\,ms per fsync (343$\times$ slower) \\
+\midrule
+buffered read, 2nd pass & 6\,313 & page cache \\
+\texttt{O\_DIRECT} read & 1\,135 & bypasses the cache: the device \\
+\bottomrule
+\end{tabular}
+\caption{Real output of \texttt{ch14\_fs\_io} and \texttt{ch14\_direct}
+on the Linux container (ext4 on a virtual disk, one run each; every
+number varies by tens of percent between runs). The 4\,KB-write
+figure is $4096\,\text{B}/0.51\,\text{ms}$. Reading the same file
+through the cache is $6313/1135\approx5.6\times$ faster than going to
+the device. Compare with the Mac numbers in
+Figures~\ref{fig:seqrand14} and~\ref{fig:fsync14}.}
+\label{fig:linuxio14}
+\end{figure}

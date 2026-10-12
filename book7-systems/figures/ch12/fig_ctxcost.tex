@@ -4,14 +4,25 @@
 \toprule
 configuration & measured \textmu s/switch \\
 \midrule
+\multicolumn{2}{l}{\emph{Mac (author's laptop)}} \\
 1 pipe pair   & 2.93 \\
 2 pairs       & 3.71 \\
 4 pairs       & 3.14 \\
+\midrule
+\multicolumn{2}{l}{\emph{Linux x86\_64 container, median of 3}} \\
+1 pair, unpinned & 19.58 \\
+2 pairs, unpinned & 18.01 \\
+4 pairs, unpinned & 17.95 \\
+1 pair, pinned (\texttt{taskset -c 0}) & 2.06 \\
+2 pairs, pinned & 2.70 \\
+4 pairs, pinned & 3.35 \\
 \bottomrule
 \end{tabular}
-\caption{Real \texttt{ch12\_ctx\_switch.c} output: $\approx$3\,\textmu s
-per switch here. The flat scaling is an honest confound --- extra
-pairs spread over cores rather than serialising on one, so the
-number reads as cost, not contention.}
+\caption{Real \texttt{ch12\_ctx\_switch.c} output. On the Mac,
+$\approx$3\,\textmu s per switch, with flat scaling because extra
+pairs spread over cores. On the Linux container, unpinned runs cost
+$\approx$18--20\,\textmu s (cross-core wake-ups in a virtual machine)
+and pinned runs 2--3.4\,\textmu s. The two machines are different
+experiments and are not compared digit for digit.}
 \label{fig:ctxcost12}
 \end{figure}

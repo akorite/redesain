@@ -20,6 +20,11 @@ int main(void){
   f=open(F,O_RDONLY); double t=now();
   while(read(f,b,MB)==MB); close(f);
   printf("sequential read: %.1f MB/s\n",256.0/(now()-t));
+  // sequential read in 4KB pieces: same bytes, 256x more system calls
+  f=open(F,O_RDONLY); t=now(); long m=0;
+  while(read(f,b,4096)==4096) m++;
+  close(f);
+  printf("sequential 4KB read: %.1f MB/s\n",m*4096.0/MB/(now()-t));
   // random read, 4KB blocks
   srand(7); f=open(F,O_RDONLY); t=now(); long n=20000;
   for(long i=0;i<n;i++){off_t off=((long)rand()*4096)%(256L*MB-4096);
