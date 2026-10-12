@@ -17,8 +17,11 @@ module rv32i_pipe_top(
   wire [31:0] pc4 = pc + 32'd4;
   // ---- IF/ID pipeline register ----
   reg [31:0] ifid_insn, ifid_pc4;
+  localparam NOP = 32'h00000013;   // addi x0,x0,0
+  initial begin ifid_insn = NOP; ifid_pc4 = 32'd0; end
   always @(posedge clk) begin
-    ifid_insn <= insn_f;
+    // during reset pc is still X, so imem[pc] is X: feed a NOP instead
+    ifid_insn <= rst ? NOP : insn_f;
     ifid_pc4  <= pc4;
   end
   // ---- ID ----
@@ -89,6 +92,14 @@ module rv32i_pipe_top(
     memwb_y<=exmem_y; memwb_mem<=dmem_rdata; memwb_pc4<=exmem_pc4;
     memwb_rd<=exmem_rd; memwb_regwrite<=exmem_regwrite;
     memwb_wbsel<=exmem_wbsel;
+  end
+  // Power-up values: without these, memwb_regwrite/memwb_rd start as X in
+  // simulation and the regfile's write-bypass compare (we && wa==ra1)
+  // is X, so the first reads return X instead of the stale 0 (Icarus 12).
+  initial begin
+    idex_regwrite=0; idex_memread=0; idex_memwrite=0; idex_rd=0;
+    exmem_regwrite=0; exmem_memread=0; exmem_memwrite=0; exmem_rd=0;
+    memwb_regwrite=0; memwb_rd=0; memwb_wbsel=0;
   end
   // ---- WB ----
   assign wbdata = memwb_wbsel==2'd1 ? memwb_mem :

@@ -38,7 +38,7 @@ module rv32i_sc_top(
   // --- register file ---
   wire [31:0] rd1, rd2;
   reg  [31:0] wb;
-  rv32i_regfile rf(.clk(clk), .we(regwrite),
+  rv32i_regfile #(.BYPASS(0)) rf(.clk(clk), .we(regwrite),
     .ra1(insn[19:15]), .ra2(insn[24:20]), .wa(insn[11:7]),
     .wd(wb), .rd1(rd1), .rd2(rd2));
 
@@ -62,7 +62,7 @@ module rv32i_sc_top(
   end
 
   // --- next pc ---
-  wire brtake = branch & (insn[14] ? ~alu_zero : alu_zero); // beq vs bne
+  wire brtake = branch & (insn[12] ? ~alu_zero : alu_zero); // bne=f3 001, beq=f3 000
   wire [31:0] pc_next = jump ? pc_r + imm :
                         brtake ? pc_r + immB : pc_r + 32'd4;
   always @(posedge clk)

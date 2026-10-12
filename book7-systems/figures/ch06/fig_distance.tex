@@ -1,0 +1,21 @@
+\begin{tikzpicture}[font=\scriptsize, >=latex]
+\node[font=\footnotesize\bfseries] at (5.2,4.3) {how far behind its writer is the reader?};
+% header
+\foreach \c/\n in {0/1,1/2,2/3,3/4,4/5,5/6}{
+  \node at (3.0+\c*0.85,3.65) {c\n};}
+\node[anchor=east] at (2.4,3.65) {cycle};
+\node[anchor=east, font=\scriptsize] at (2.4,3.1) {writer, instr $i$};
+\foreach \s/\n in {0/IF,1/ID,2/EX,3/MEM,4/WB}{
+  \node[draw, thick, fill=accentsoft, minimum width=0.75cm, minimum height=0.4cm]
+    at (3.0+\s*0.85,3.1) {\n};}
+\foreach \d/\col/\lab in {1/red/{d=1: reads c3, write c5: STALE},
+  2/red/{d=2: reads c4, write c5: STALE},
+  3/good/{d=3: reads c5, same cycle: OK}}{
+  \pgfmathsetmacro{\y}{3.1-\d*0.55}
+  \node[anchor=east] at (2.4,\y) {reader, $i+\d$};
+  \node[draw, thick, fill=white, minimum width=0.75cm, minimum height=0.4cm,
+    draw=\col] at (3.0+\d*0.85+0.85,\y) {ID};
+  \node[anchor=west, text=\col] at (8.1,\y) {\lab};}
+\draw[dashed, thick, good] (3.0+4*0.85-0.4,1.2) -- (3.0+4*0.85-0.4,3.4);
+\node[text=good, font=\tiny] at (3.0+4*0.85,0.95) {write visible};
+\end{tikzpicture}

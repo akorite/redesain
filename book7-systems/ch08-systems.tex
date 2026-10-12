@@ -13,10 +13,55 @@ end, one testbench run shows a program compute \(6\times 7\), print
 \texttt{K}, return, print \texttt{!}, and park --- all on real
 Verilog, all bytes decoded off the simulated wire.
 
+\begin{rulebox}[After this chapter you can]
+You will be able to run one Verilog simulation of a pipelined RV32I
+core and say, from the printed log alone, which of its four output
+bytes came from the main program and which from the trap handler. You
+will be able to write the two instructions that print a byte through a
+memory-mapped UART, decode a serial frame by hand, and work out how
+long a software delay must be so that a byte is not lost.
+\end{rulebox}
+
+\begin{rulebox}[Before you start]
+Think of a restaurant kitchen. The core you built in chapters~5--7 is a
+kitchen that cooks very well but has no door to the dining room and no
+bell that a waiter can ring. This chapter adds the bell (a \emph{trap})
+and the serving window (a \emph{UART}). Here is what you need to
+remember from earlier, in plain words.
+\emph{Pipeline} (chapter~6): the core works like an assembly line with
+five stations, IF (fetch the instruction), ID (decode it), EX (compute),
+MEM (touch memory) and WB (write the result back), and each instruction
+moves one station per clock cycle.
+\emph{Hazards} (chapter~7): when two instructions in the line depend on
+each other, the hardware either \emph{forwards} a result early, or
+\emph{stalls} (freezes the front of the line for a cycle), or
+\emph{flushes} (throws away instructions that were fetched from the
+wrong place). We will use flush again today.
+\emph{Instructions} (chapter~3): \texttt{sw rs2, off(rs1)} writes the
+register \texttt{rs2} to the memory address \texttt{rs1+off}, and
+\texttt{lui} puts a constant into the upper 20 bits of a register.
+\emph{Serial transmitter} (Book~5, electronics, chapter~13, section
+``UART: talking to the outside world''): a shift register that puts one
+bit on a single wire per tick. If that is hazy, do not worry; the frame
+diagram in section~\ref{sec:uart08} redraws everything you need.
+\end{rulebox}
+
+\begin{rulebox}[Think like this]
+When a machine does something you cannot see, ask: \emph{what is the
+smallest observation that would prove it?} A counter of wire edges is a
+weak observation. A receiver that reads the bytes back is a strong one.
+This chapter climbs from the first to the second.
+\end{rulebox}
+
 \section{Two small additions, one big change of character}
 \label{sec:doors08}
 
-Everything so far treats the processor as a calculator that stalls
+Why does a processor need these at all? Picture a clerk who only ever
+does sums on paper. She is useful, but she cannot say what she found
+(no output), and she cannot be interrupted when something goes wrong
+(no way to ask for help). Both problems are solved by giving the
+hardware a small, fixed set of ways to talk to the world. Everything so
+far treats the processor as a calculator that stalls
 politely when it must. Real machines also need \emph{control}: a way
 for software to ask the hardware for a service and a way for hardware
 to seize control back. On RISC-V that mechanism is the trap: an
@@ -49,7 +94,11 @@ CSRs carry this chapter:
 \begin{itemize}
 \item \texttt{mepc}: hardware writes the faulting instruction's pc
       here on trap entry; \texttt{mret} jumps back to
-      \texttt{mepc}+4.
+      \texttt{mepc}+4. (Honest caveat: on a real RISC-V core
+      \texttt{mret} jumps to \texttt{mepc} itself and the handler
+      adds 4 with \texttt{csrr}/\texttt{addi}/\texttt{csrw}. We fold
+      that addition into the hardware to keep the demo handler to two
+      instructions.)
 \item \texttt{mcause}: a small code saying why. Present in our core
       as an extension point --- the demo handler does not read it.
 \end{itemize}
@@ -66,8 +115,10 @@ fixed vector (0x80 here); on \texttt{mret}, redirect to
 \begin{checkpoint}
 Why \texttt{mepc}+4 and not \texttt{mepc}? Because \texttt{mepc}
 holds the \emph{ecall's own} address; returning to it would trap
-again forever. Real RISC-V handlers choose: resume at \texttt{mepc}
-(emulate and retry) or skip to \texttt{mepc}+4 (move on). Ours skips.
+again forever. Real RISC-V handlers choose by editing \texttt{mepc} before
+\texttt{mret}: leave it (retry the instruction, as a page-fault
+handler does) or add 4 (move on, as a system-call handler does). Our
+hardware always adds 4.
 \end{checkpoint}
 
 \section{The UART: one shift register with an address}
@@ -99,8 +150,32 @@ byte out.
 For byte 0x34 (`4'), the serial line goes low for one bit time
 (start), carries \texttt{00110100} LSB-first (so the wire order is
 0,0,1,0,1,1,0,0), then returns high (stop). Figure~\ref{fig:uartwave08}
-draws the wire; the testbench literally counts the falling edges that
-begin frames.
+draws the wire; the testbench counts falling edges on \texttt{tx}.
+\end{example}
+
+\begin{example}[Counting falling edges: the naive count fails]
+A first guess says each frame begins with exactly one falling edge, so
+four frames give four edges. Count the real wire instead. The line sits
+high while idle, and every 1-to-0 step is a falling edge, whether it
+is the start bit or a data bit. Writing each frame as start bit,
+\texttt{d0}\ldots\texttt{d7}, stop bit:
+\begin{center}
+\begin{tabular}{@{}lllc@{}}
+\toprule
+byte & wire (start, d0..d7, stop) & falls at & count \\
+\midrule
+0x34 `4' & 0 0 0 1 0 1 1 0 0 1 & start, d2$\to$d3, d5$\to$d6 & 3 \\
+0x32 `2' & 0 0 1 0 0 1 1 0 0 1 & start, d1$\to$d2, d5$\to$d6 & 3 \\
+0x4B `K' & 0 1 1 0 1 0 0 1 0 1 & start, d1$\to$d2, d3$\to$d4, d6$\to$d7 & 4 \\
+0x21 `!' & 0 1 0 0 0 0 1 0 0 1 & start, d0$\to$d1, d5$\to$d6 & 3 \\
+\bottomrule
+\end{tabular}
+\end{center}
+\noindent The total is \(3+3+4+3=13\), exactly the number the
+testbench printed. (Each frame ends high, so the next start bit is
+always a clean 1-to-0 edge.) The ``13 versus 4'' is therefore not a
+sign of collisions; it is the data itself. The decoder in the next
+section stops guessing and reads the bytes back.
 \end{example}
 
 \section{The program, end to end}
@@ -153,9 +228,78 @@ ch08 PASS
 Read it slowly. \texttt{42} proves the compute and the data memory.
 \texttt{K} proves the trap: the handler ran, did its work, and
 \texttt{mret} landed back exactly on the instruction after
-\texttt{ecall} --- the \texttt{!}. Thirteen start-bit edges vs.\ four
-stores also records the early trials where back-to-back stores
-collided while the UART was still \texttt{busy}.
+\texttt{ecall} --- the \texttt{!}. The line ``tx start-bit edges seen: 13'' is
+a trap for the reader: the counter counts \emph{every} falling edge on
+\texttt{tx}, and a data bit going from 1 to 0 is a falling edge too.
+Thirteen is correct, and the next worked example recounts it by hand.
+\end{example}
+
+A counter of edges is weak evidence. A real receiver ignores edges
+and does what the standard says: wait for a start bit, sample each
+data bit in the \emph{middle} of its time slot, and check the stop
+bit. Listing~\ref{lst:wire08} is that receiver written as the second
+testbench, \texttt{ch08\_wire\_tb.v}. It never looks inside the CPU to
+learn what was sent; it sees only the \texttt{tx} wire.
+
+\begin{lstlisting}[language=Verilog,label={lst:wire08},caption={The wire
+decoder (core loop) and its captured output. Run on the book's own
+Icarus simulation; \texttt{div}=16 clocks per bit. The cycle numbers
+count clocks since reset release.}]
+forever begin
+  @(negedge tx);                          // start bit begins
+  repeat (DIV + DIV/2) @(posedge clk);    // 1.5 bit times: middle of d0
+  for (k = 0; k < 8; k = k + 1) begin
+    byte_r[k] = tx;                       // LSB first
+    repeat (DIV) @(posedge clk);          // next bit's middle
+  end
+  if (tx !== 1'b1) bad = bad + 1;         // stop bit must be high
+  dec[nframes] = byte_r; nframes = nframes + 1;
+end
+
+decoded from tx wire: 42K!
+frames=4  bad stop bits=0  falling edges on tx=13
+  frame 0: byte 0x34  start-bit cycle 42
+  frame 1: byte 0x32  start-bit cycle 283
+  frame 2: byte 0x4b  start-bit cycle 528
+  frame 3: byte 0x21  start-bit cycle 772
+ecall in EX at cycle 521; fetch pc becomes 0x80 at cycle 522 (1 cycles later)
+mret in EX at cycle 766; fetch pc is back at 0x48 at cycle 767 (1 cycles later)
+ch08 WIRE PASS
+\end{lstlisting}
+
+\begin{example}[What the wire decoder tells us that the first bench could not]
+Three facts. First, the bytes \texttt{0x34 0x32 0x4B 0x21} come off the
+wire, not off the bus into the UART: the whole path
+store $\to$ transmitter $\to$ pin works, with every stop bit high.
+Second, the trap is cheap in cycles but not in work: the core sees
+\texttt{ecall} in EX at cycle 521 and the fetch pc is 0x80 one cycle
+later; the two instructions fetched behind the \texttt{ecall} are
+discarded by the flush. The same one-cycle redirect happens on
+\texttt{mret} (cycle 766 $\to$ 767). Third, the gaps between start
+bits are 241, 245 and 244 cycles, far longer than the 160 clocks a
+frame needs, which prepares the next question.
+\end{example}
+
+\begin{example}[How short can the delay loop be?]
+The frame needs \(10\times16=160\) clocks, and the UART refuses a new
+byte while \texttt{busy}. Each delay iteration is
+\texttt{addi} (1 cycle) plus a taken \texttt{bne}, which flushes two
+younger instructions (2 cycles): about 4 cycles per iteration. The
+naive estimate is \(160/4=40\) iterations. Test it rather than trust
+it: rewrite the constant \texttt{li t1,60} to \texttt{li t1,}\(N\) in
+the hex file and rerun the decoder (the test script does this). Captured:
+
+\begin{verbatim}
+delay sweep: N=39 -> 2 frames, N=40 -> 4 frames
+\end{verbatim}
+
+At \(N=39\) the second byte (`2') is silently lost and only `4' and
+`K' arrive; at \(N=40\) all four arrive, with the first gap at 161
+cycles, i.e.\ \(4N+1\). The sweep confirms the estimate to the cycle,
+and shows what ``dropped, not queued'' looks like: no error, just a
+missing character. With \(N=60\) the program has a margin of 80
+cycles, and the three delay loops account for about
+\(3\times240=720\) of the first 772 cycles of the run.
 \end{example}
 
 \begin{checkpoint}
@@ -294,7 +438,7 @@ Cost        & $\approx$4k cells: pipelining bought speed at 10$\times$ logic \\
 
 \begin{exercise}[easy]
 
-Write the three RV32I instructions a program needs to send byte
+Write the two RV32I instructions a program needs to send byte
 0x41 (`A') to the UART, given that the base register already
 holds 0x10000000. What happens if the instruction immediately
 before it was also a UART store?
@@ -349,14 +493,16 @@ more input.
 
 \begin{exercise}[medium]
 
-Instrument the testbench to measure elapsed cycles from the
-\texttt{ecall} fetching to the handler's first useful instruction
-retiring. What is the trap latency in this design, in cycles, and
-which pipeline stage sets the floor?
+Using the wire decoder's numbers (ecall in EX at cycle 521, fetch pc
+equal to 0x80 at cycle 522), how many cycles after the \texttt{ecall}
+reaches EX is the first handler instruction \emph{fetched}? Then,
+counting pipeline stages, in which cycle does it reach EX? Which
+stage sets the floor on trap latency?
 \end{exercise}
 \begin{solution}[hint]
-Count from the flush to the first handler writeback; EX-entry
-redirect + refill depth.
+Fetched one cycle later (522). From IF it needs ID then EX, so it
+reaches EX two cycles after that, in cycle 524. The floor is where the
+redirect is decided: EX, three stages behind fetch.
 \end{solution}
 
 \begin{exercise}[medium]
@@ -408,15 +554,18 @@ two muxes but keeps everything single-edge.
 
 \begin{exercise}[hard]
 
-Estimate the CPI cost of the demo program's two delay loops
-(60 iterations each) as a fraction of total program cycles, using
-the measured run (\(\approx\)770 cycles, four frames). How would a
-busy-poll loop change that accounting?
+Estimate the share of the demo program's cycles spent in its three
+delay loops (60 iterations each), using the measured run: the last
+start bit appears at cycle 772. What is the loops' CPI? How would a
+busy-poll loop change the accounting?
 \end{exercise}
 \begin{solution}[hint]
-Each delay iteration retires $\approx$2 instructions;
-busy-poll spins on a load---also $\approx$2--3 per poll, but
-self-terminating.
+Each iteration retires 2 instructions (\texttt{addi}, \texttt{bne}) in
+about 4 cycles, so CPI $\approx 2$. Three loops give
+$3\times60\times4=720$ cycles, about $720/772\approx 93\%$ of the
+run. A busy-poll loop spins on a load plus a branch, also costing a few
+cycles per poll, but it exits the moment \texttt{busy} clears instead
+of waiting out a fixed worst case.
 \end{solution}
 
 \begin{exercise}[hard]
@@ -432,3 +581,37 @@ in EX like \texttt{ecall} works if the pin is level-sensitive and
 the handler disables re-entry.
 \end{solution}
 
+\begin{exercise}[easy]
+The testbench runs the UART with \texttt{div}=16. If the same design
+were clocked at 27\,MHz with \texttt{div}=16, how many clocks does one
+8N1 frame take, what is the baud rate, and how many bytes per second can
+be sent at most?
+\end{exercise}
+\begin{solution}[hint]
+A frame is 10 bits of 16 clocks each.
+Frame $=10\times16=160$ clocks. Baud $=27\,000\,000/16=1\,687\,500$
+bits per second. Bytes per second $=27\,000\,000/160=168\,750$.
+\end{solution}
+
+\begin{exercise}[medium]
+Write the wire order (start bit, d0 to d7, stop bit) of the byte 0x41
+(`A') and count the falling edges the decoder's edge counter would add
+for it, starting from an idle-high line.
+\end{exercise}
+\begin{solution}[hint]
+$0x41=01000001$; send d0 first.
+Wire: 0 | 1 0 0 0 0 0 1 0 | 1. The 1-to-0 steps are the start bit,
+d0$\to$d1 and d6$\to$d7: 3 falling edges.
+\end{solution}
+
+\begin{exercise}[medium]
+Reading the sweep: at \(N=40\) the gap between the first two start
+bits was 161 cycles, and at \(N=60\) it was 241. Fit the model
+gap\,$=aN+c$ to these two points, then predict the gap for \(N=50\)
+and say whether `2' survives.
+\end{exercise}
+\begin{solution}[hint]
+Two points give the slope: $(241-161)/(60-40)=4$ cycles per iteration,
+so $c=161-4\cdot40=1$. Then gap$(50)=201$. A frame needs $\approx161$
+cycles from the store, so 201 is safe: all four bytes arrive.
+\end{solution}

@@ -13,8 +13,8 @@
 \legend{mutex, atomic add, partitioned}
 \end{axis}
 \end{tikzpicture}
-\caption{Real \texttt{ch13\_lockscale.c} on this laptop. Partitioning
-is flat ($\sim$0.1\,ms) because nothing is shared. The honest
+\caption{Real \texttt{ch13\_lockscale.c} on the Mac. The partition line is flat
+($\sim$0.1\,ms) only because the compiler deleted its loop (see the examples). The honest
 surprise: at 8 threads the atomic add is \emph{slower than the
 mutex} --- the single contended cache line costs more than the lock.}
 \label{fig:lockscale13}

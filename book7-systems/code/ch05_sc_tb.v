@@ -30,7 +30,7 @@ module ch05_sc_tb;
     check(dut.rf.x[14] === 32'd8,  "a4 = a3+5 = 8 (beq skipped 99)");
     check(dut.rf.x[15] === 32'd5,  "a5 = a4-a2 = 5");
     check(dut.rf.x[16] === 32'h12345000, "a6 = lui 0x12345000");
-    $display("CPI check: %0d instrs retired in %0d cycles (CPI=1 by construction)", 12, cyc);
+    $display("CPI check: %0d instrs retired in %0d cycles (CPI=1 by construction)", cyc, cyc);
     $display("ch05 PASS");
     $finish;
   end

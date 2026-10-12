@@ -1,0 +1,38 @@
+== A: miss rate vs associativity (N=256 floats, S=32 sets, B=64)
+E=1      misses=71552    evictions=71520    miss rate=54.6%
+E=2      misses=69632    evictions=69568    miss rate=53.1%
+E=4      misses=69632    evictions=69504    miss rate=53.1%
+E=8      misses=69632    evictions=69376    miss rate=53.1%
+== B: toy L1 S=64 E=4 B=64 (16 KB), N=256 floats (256 KB per matrix)
+naive    misses=69632    evictions=69376    miss rate=53.1%
+block2   misses=36864    evictions=36608    miss rate=28.1%
+block4   misses=20480    evictions=20224    miss rate=15.6%
+block8   misses=12512    evictions=12256    miss rate=9.5%
+block16  misses=10064    evictions=9808     miss rate=7.7%
+block32  misses=69632    evictions=69376    miss rate=53.1%
+== D: three Cs, same toy L1 as B (fully-assoc. LRU shadow, same 16 KB)
+naive    compulsory=8192   capacity=61440   conflict=0       total=69632
+block8   compulsory=8192   capacity=4096    conflict=224     total=12512
+block16  compulsory=8192   capacity=0       conflict=1872    total=10064
+block32  compulsory=8192   capacity=0       conflict=61440   total=69632
+== F: toy L1 with next-line prefetch on miss, naive, N=256
+naive    demand misses=67833 (without prefetch: 69632)
+== G: toy L1 again, but each row padded to 272 floats (pitch 1088 B = 17 lines)
+naive    misses=24792    evictions=24536    miss rate=18.9%
+block8   misses=12040    evictions=11784    miss rate=9.2%
+block16  misses=8192     evictions=7936     miss rate=6.2%
+block32  misses=8192     evictions=7936     miss rate=6.2%
+== C: S=64 E=8 B=64 (32 KB, like this container's L1d), N=2048 floats
+naive    misses=4456448  evictions=4455936  miss rate=53.1%
+block4   misses=1319936  evictions=1319424  miss rate=15.7%
+block8   misses=847872   evictions=847360   miss rate=10.1%
+block16  misses=4456448  evictions=4455936  miss rate=53.1%
+block32  misses=4456448  evictions=4455936  miss rate=53.1%
+block64  misses=4456448  evictions=4455936  miss rate=53.1%
+== E: L1 (S=64 E=8) backed by L2 (S=1024 E=16, 1 MiB), N=2048 floats
+naive    L1 misses=4456448  L2 misses=4456448 
+block4   L1 misses=1319936  L2 misses=1310720 
+block8   L1 misses=847872   L2 misses=786432  
+block16  L1 misses=4456448  L2 misses=524288  
+block32  L1 misses=4456448  L2 misses=524288  
+block64  L1 misses=4456448  L2 misses=524288  

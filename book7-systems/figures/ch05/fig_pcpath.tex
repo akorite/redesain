@@ -1,0 +1,22 @@
+\begin{tikzpicture}[font=\scriptsize, >=latex]
+\node[font=\footnotesize\bfseries] at (4.2,7.2) {the 13-word program: the path the pc actually took};
+\foreach \i/\txt in {0/{addi a0,zero,1}, 1/{addi a1,zero,2}, 2/{add a2,a0,a1},
+  3/{sw a2,8(zero)}, 4/{lw a3,8(zero)}, 5/{addi a4,a3,5}, 6/{addi t0,zero,1},
+  7/{beq a0,t0,+8}, 8/{addi a4,zero,99}, 9/{sub a5,a4,a2}, 10/{beq a5,zero,+8},
+  11/{lui a6,0x12345}, 12/{jal zero,0}}{
+  \pgfmathsetmacro{\y}{6.6-\i*0.5}
+  \pgfmathtruncatemacro{\addr}{4*\i}
+  \node[anchor=east, font=\tiny, text=slate] at (0.9,\y) {\addr};
+  \ifnum\i=8
+    \node[draw, thick, fill=graybg, minimum width=3.2cm, minimum height=0.4cm,
+      anchor=west, text=slate] (w\i) at (1.0,\y) {\texttt{\txt}};
+  \else
+    \node[draw, thick, fill=accentsoft, minimum width=3.2cm, minimum height=0.4cm,
+      anchor=west] (w\i) at (1.0,\y) {\texttt{\txt}};
+  \fi}
+% skip arrow for the taken beq at word 7 (y=3.1) to word 9 (y=2.1)
+\draw[->, very thick, amber] (4.2,3.1) -- (4.9,3.1) -- (4.9,2.1) -- (4.2,2.1);
+\node[amber, anchor=west, align=left] at (5.0,2.6) {taken: pc $\to$ pc+8,\\word 8 never runs};
+\node[good, anchor=west, align=left] at (4.4,1.6) {not taken (a5 is 5): next is word 11};
+\node[text=slate, anchor=west, align=left] at (4.4,0.35) {word 12 is the parking loop:\\the pc stays at 48 forever};
+\end{tikzpicture}

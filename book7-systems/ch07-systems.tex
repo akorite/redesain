@@ -1,6 +1,7 @@
 % ch07-systems.tex -- hazards: forwarding, load-use stall, branch flush
 \chapter{Hazards: Forwarding, Stalls, Branches}
 \label{ch:hazards07}
+\emergencystretch=3em
 
 Ch06 ended with a fast liar: the naive pipeline retired one
 instruction per cycle while handing stale registers to dependent
@@ -13,6 +14,55 @@ flush} for branches. Then the same testbench ch06 failed: now
 \texttt{a0=5, a1=8, a2=41, a3=42, dmem[1]=42}, at a measured cost
 of exactly one pipeline bubble. Every number in this chapter comes
 from the real core.
+
+\begin{wins}[What you will be able to do after this chapter]
+You will be able to look at a short instruction sequence and say, before
+running anything, how many extra cycles a pipelined RV32I core will
+spend on it: zero for ALU-to-ALU dependencies, one for a load followed
+by its user, two for every taken branch. You will be able to check
+that prediction against the real core with the cycle formula
+$F = I + \text{stalls} + 2\cdot\text{taken}$, and to tell whether a
+test is any good by breaking the hardware on purpose and seeing it
+fail.
+\end{wins}
+
+\begin{rulebox}[Before you start]
+From ch06: a five-stage pipeline (IF, ID, EX, MEM, WB) overlaps five
+instructions, one per stage, with registers between stages; a later
+instruction that reads a register an earlier one is still computing
+gets a stale value, and a read is safe only if the reader is at least
+three instructions behind the writer in our design. From ch05: the ALU
+computes from two operands, the program counter (\texttt{pc}) names the
+next instruction, a \texttt{beq}/\texttt{bne} compares by subtracting
+and testing for zero. From Book 5 ch09 (combinational circuits): a
+\emph{multiplexer} picks one of several inputs by a select signal, and
+comparators (\texttt{==}) are a few gates. From Book 5 ch12: a
+testbench drives the clock and checks results. That is all.
+\end{rulebox}
+
+\section{The idea from zero: shortcuts, waiting, and guessing}
+\label{sec:zero07}
+
+Return to the assembly line. Suppose station 3 needs a part that
+station 4 is just finishing. There are three honest things the
+foreman can do. (1) \emph{Take a shortcut}: hand the part sideways from
+station 4 to station 3 the moment it exists, instead of sending it
+down to the warehouse (the register file) and back. That is
+\emph{forwarding}. (2) \emph{Wait}: if the part genuinely does not exist
+yet, stop station 3 for one tick and let a blank item pass through. That
+is a \emph{stall} (the blank is a \emph{bubble}). (3) \emph{Guess}: when
+the next job depends on a decision not yet made (a branch), start the
+most likely one and be ready to throw it away. That is \emph{prediction}
+with a \emph{flush}.
+
+\begin{principle}[Think like this: make the common case free, the rare case correct]
+Hardware designers do not try to avoid every delay. They ask which
+situations are common and make those cost nothing (ALU-to-ALU
+dependencies: forwarding), and make sure the rare, expensive
+situations are at least \emph{correct} (a load followed at once by its
+user: a one-cycle stall). Correctness is never negotiable; speed is
+what you buy with whatever logic you can afford.
+\end{principle}
 
 \section{Forwarding: don't wait for writeback}
 \label{sec:fwd07}
@@ -57,14 +107,18 @@ measured: 1 stalls, 6 WB-writes in 40 cycles
 \index{load-use hazard}\index{stall}
 
 \begin{example}[memory is one cycle too slow]\label{ex:loaduse07}
-\texttt{lw a2,0(x); addi a3,a2,1}: the load's data arrives at the
-end of MEM --- one stage \emph{after} the consumer's ALU needs it.
-No forward reaches backward far enough. The honest fix: the hazard
-unit detects that the EX instruction is a load (\texttt{idex\_memread})
-whose destination matches the ID instruction's \texttt{rs1} or
-\texttt{rs2}, freezes \texttt{pc} and \texttt{ifid},
-and bubbles EX once. Measured cost: \textbf{exactly 1 stall} ---
-the tb counts it.
+\texttt{lw a2,0(x); addi a3,a2,1}: in real hardware a load's data
+come out of the memory at the \emph{end} of the MEM cycle, one stage
+\emph{after} the consumer's ALU needs them at the start of its EX. No
+wire can run backwards in time. (One could build a path from the
+memory output straight into the next ALU in the same cycle, but then
+the clock period must cover memory \emph{plus} ALU in series, wiping
+out the point of pipelining.) The honest fix: the hazard unit detects
+that the EX instruction is a load (\texttt{idex\_memread}) whose
+destination matches the ID instruction's \texttt{rs1} or \texttt{rs2},
+freezes \texttt{pc} and \texttt{ifid}, and bubbles EX once; the load
+data are then forwarded from MEM/WB. Measured cost: \textbf{exactly 1
+stall} --- the tb counts it.
 \end{example}
 
 \begin{figure}[t]
@@ -90,6 +144,49 @@ runs --- it exists only a cycle later, so the consumer must wait
 one cycle; then MEM/WB forwarding covers it.
 \end{checkpoint}
 
+\begin{example}[take the stall away and watch it break]\label{ex:nostall07}
+How do you know the stall is needed rather than just believing the
+argument? Remove it. The test script builds a copy of the core in which
+the stall condition is forced to 0 and runs the sum program (which has
+\texttt{lw a0,0(zero); addi a1,a0,1}). The correct final state has
+\texttt{a1}=56 and memory word 1 equal to 56. The mutant core, run in
+the Linux x86\_64 container (Icarus 12), prints:
+\begin{lstlisting}
+CORE=fwd-pipe F=55 stalls=0 taken=9 lastret=-1
+x5=0000000b
+x6=00000037
+x7=0000000b
+x10=00000037
+x11=00000001
+m0=00000037
+m1=00000001
+\end{lstlisting}
+One cycle faster (55 instead of 56), and \texttt{a1}=1: the \texttt{addi}
+added 1 to the load's \emph{address} (0), because that is the only
+thing the EX/MEM register holds for a load. The reference model says
+56. Note a subtlety that we found along the way: an earlier version of
+this core forwarded the memory output combinationally into the next
+ALU, which made the stall unnecessary \emph{in simulation}, where
+memory answers instantly. That path is removed here so the model
+matches real memory timing.
+\end{example}
+
+\begin{example}[forwarding priority, broken on purpose]\label{ex:prio07}
+Two back-to-back writes of \texttt{a0} followed by a reader
+(\texttt{ch07\_prio.S}: \texttt{li a0,1; addi a0,a0,1; add a1,a0,zero}).
+When the \texttt{add} is in EX, EX/MEM holds the newer \texttt{a0}
+(2) and MEM/WB the older one (1). Correct: \texttt{a0}=2, \texttt{a1}=2.
+The mutant that tests MEM/WB \emph{first} gives
+\begin{lstlisting}
+CORE=fwd-pipe F=3 stalls=0 taken=0 lastret=-1
+x10=00000002
+x11=00000001
+\end{lstlisting}
+\texttt{a1}=1: the reader saw the stale writer. The test would pass for
+any program that never has two writers in flight, which is why this
+program exists.
+\end{example}
+
 \section{Branches: predict, verify, flush}
 \label{sec:branch07}
 \index{control hazard}\index{branch prediction}\index{flush}
@@ -111,7 +208,63 @@ two slots on the miss.}
 \label{fig:flush07}
 \end{figure}
 
+\begin{example}[a flush, with and without the squash]\label{ex:flush07}
+Program \texttt{ch07\_br.S}: two \texttt{li}, a \texttt{beq} that is
+taken, then two instructions \texttt{li a2,99} and \texttt{li a3,99}
+that the branch jumps over, then \texttt{li a5,7}. By the time the
+\texttt{beq} is decided in EX, the first wrong-path \texttt{li} is in
+ID and the second is being fetched. Correct core: \texttt{a2}, \texttt{a3}
+stay 0 and $F=4+2\cdot1=6$:
+\begin{lstlisting}
+CORE=fwd-pipe F=6 stalls=0 taken=1 lastret=-1
+x10=00000001
+x11=00000001
+x15=00000007
+\end{lstlisting}
+The mutant that still redirects the pc but forgets to turn the two
+wrong-path instructions into bubbles:
+\begin{lstlisting}
+CORE=fwd-pipe F=6 stalls=0 taken=1 lastret=-1
+x10=00000001
+x11=00000001
+x12=00000063
+x13=00000063
+x15=00000007
+\end{lstlisting}
+\texttt{0x63}$=99$ in both: the instructions that the program says never
+run, ran. The cycle count is identical, so only a state comparison
+can find this bug --- timing alone would have called the mutant
+correct.
+\end{example}
+
 \begin{example}[the scoreboard, all measured]\label{ex:score07}
+Put the three costs into one formula and test it. If a program executes
+$I$ instructions, hits $S$ load-use stalls and takes $K$ branches, the
+core fetches the parking instruction after
+\[
+F = I + S + 2K
+\]
+cycles. For the sum-1..10 program of ch05: $I=37$, $S=1$ (the
+\texttt{lw}/\texttt{addi} pair), $K=9$ (the \texttt{bne} is taken nine
+times and falls through once): $37+1+18=56$. Measured (Linux x86\_64
+container, Icarus 12):
+\begin{lstlisting}
+CORE=fwd-pipe F=56 stalls=1 taken=9 lastret=-1
+x5=0000000b
+x6=00000037
+x7=0000000b
+x10=00000037
+x11=00000038
+m0=00000037
+m1=00000038
+\end{lstlisting}
+The registers and memory equal the single-cycle core's and the
+reference model's. Compare ch05: the same program took $F=37$ there,
+one cycle per instruction, but on a clock about five times slower. The
+formula was also checked on a second program (the same loop with bound
+6: $22+1+8=31$, measured $F=31$). The CPI of this run is
+$56/37\approx1.51$ cycles per instruction, of which 18 of the 19 lost
+cycles are branch flushes.
 \end{example}
 \begin{figure}[h]
 \centering
@@ -146,7 +299,15 @@ hand-assembled constant \texttt{0x00002613} was written down as
 \texttt{addi a2,zero,0} (opcode \texttt{0x13}, not \texttt{0x03}).
 The ``load-use'' test never tested a load. The book's own assembler
 now generates every test byte; hand hex is exactly the
-decode-a-field-wrong mistake ch03 warned about.
+decode-a-field-wrong mistake ch03 warned about. Two more were found
+while re-running everything for this edition: (3) the branch-direction
+flag \texttt{idex\_f30} was never assigned on the normal path, so a
+branch would have acted on an unknown value; the earlier testbench
+contained no branch at all, so this had never been exercised. It now
+takes the low bit of \texttt{funct3}, and the sum program is the
+regression test. (4) A combinational path from the data-memory output
+into the forwarding mux made the load-use stall unnecessary in
+simulation (see the ``take the stall away'' example) and was removed.
 \end{example}
 
 \section{Common mistakes}
@@ -164,6 +325,9 @@ decode-a-field-wrong mistake ch03 warned about.
       we measured exactly that duplicate.
 \item \textbf{Hand-assembling test vectors.} One wrong field and
       the test tests nothing (our \texttt{0x00002613}).
+\item \textbf{Trusting a test that cannot fail.} Break the hardware
+      on purpose (drop the stall, swap the mux order, skip the squash);
+      if the test still passes it is not testing that feature.
 \item \textbf{Forgetting uninitialised tags are x.} \texttt{x==x}
       evaluates x, poisoning every comparison --- reset the tags.
 \end{itemize}
@@ -207,10 +371,17 @@ receipts & a1: 3$\to$8, a3: 42, dmem[1]: 42, stalls: 1 --- all real \\
 \begin{itemize}
 \item Hazard taxonomy and fix structure follow COD ch4; the
       scoreboard is measured on our core, not cited.
-\item All outputs are verbatim Icarus runs of \texttt{ch07\_fwd\_tb}
-      and \texttt{ch06\_pipe\_tb}; bug receipts in
-      sec:receipts07 are real session bugs, documented because
-      reviewers should be able to reproduce the failure modes too.
+\item The first three listings (the dependent pair, the load-use
+      count) are the original \texttt{ch07\_fwd\_tb} output; all other
+      outputs come from \texttt{ch05\_run\_tb.v} run by
+      \texttt{code/test\_ch07.sh} in the Linux x86\_64 container
+      (Icarus 12). Bug receipts in sec:receipts07 are real session bugs,
+      documented because reviewers should be able to reproduce the
+      failure modes too.
+\item Limits of the model: the data memory is a combinational array in
+      the testbench, branches are resolved in EX with predict-not-taken,
+      and only \texttt{beq}/\texttt{bne} are implemented (no
+      \texttt{blt}/\texttt{bge}, no \texttt{jalr}).
 \end{itemize}
 
 \section{Exercises}
@@ -285,4 +456,98 @@ rs1/rs2 compared in ID needs forwarding from EX/MEM and MEM/WB into
 ID --- and a load producing the compare operand needs TWO stalls.
 \end{solution}
 
+
+\begin{exercise}[easy]\label{ex:e07c}
+Fill in the cost, in lost cycles, of each situation on this core:
+ALU result used by the next instruction; load result used by the next
+instruction; load result used two instructions later; a taken branch.
+\end{exercise}
+\begin{solution}[hint]
+0; 1; 0 (the forward from MEM/WB covers it; run as
+\texttt{ch07\_gap.S}, \texttt{stalls=0}); 2.
+\end{solution}
+
+\begin{exercise}[easy]\label{ex:e07d}
+Use $F=I+S+2K$ for \texttt{ch07\_br.S} ($I=4$ executed instructions,
+one taken branch, no load). What is $F$?
+\end{exercise}
+\begin{solution}[hint]
+$4+0+2\cdot1=6$, matching the measured \texttt{F=6}.
+\end{solution}
+
+\begin{exercise}[medium]\label{ex:m07e}
+Predict $F$ for the sum program if the loop bound is 6
+(\texttt{li t2, 6}; the loop runs for $i=1\dots5$). Count $I$, $S$, $K$
+first.
+\end{exercise}
+\begin{solution}[hint]
+$I=3+5\cdot3+4=22$, $S=1$, $K=4$ (taken four times, falls through on
+the fifth). $F=22+1+8=31$. The test script runs exactly this variant
+and measures \texttt{F=31 stalls=1 taken=4}.
+\end{solution}
+
+\begin{exercise}[medium]\label{ex:m07f}
+The sum program's CPI on this core is $F/I$ (ignoring the 4-cycle
+drain). Compute it, and say what fraction of the lost cycles belongs
+to branches.
+\end{exercise}
+\begin{solution}[hint]
+$56/37\approx1.51$. Lost cycles $=56-37=19$, of which $2\cdot9=18$ are
+branch flushes: $18/19\approx95\%$.
+\end{solution}
+
+\begin{exercise}[medium]\label{ex:m07g}
+Insert one independent instruction between the \texttt{lw} and its
+user in each pair of \texttt{ch07\_stall2.S}. How many stalls remain,
+and what is the total instruction count?
+\end{exercise}
+\begin{solution}[hint]
+None: a load-use pair at distance 2 needs no bubble (the data are
+forwarded from MEM/WB). The program of 7 instructions becomes 9.
+Moving independent work into the gap (``scheduling'') is exactly what
+an optimising compiler does.
+\end{solution}
+
+\begin{exercise}[hard]\label{ex:h07c}
+In the mutant without the stall the sum program gives \texttt{a1}=1
+instead of 56. Explain the value 1 from what the EX/MEM register holds
+for a load.
+\end{exercise}
+\begin{solution}[hint]
+For \texttt{lw a0,0(zero)} the EX stage computed the address
+$0+0=0$ and that is what EX/MEM keeps; with no stall the \texttt{addi}
+takes that 0 from the forward and adds 1.
+\end{solution}
+
+\begin{exercise}[hard]\label{ex:h07d}
+The program \texttt{ch07\_false10.S} (\texttt{lw a0,0(zero);
+addi a1,zero,10}) is independent, yet the core stalls once
+(\texttt{stalls=1}); changing 10 to 11 removes the stall
+(\texttt{stalls=0}). Explain, and say how to fix the hazard unit.
+\end{exercise}
+\begin{solution}[hint]
+The immediate 10 occupies instruction bits 24:20, the field the hazard
+unit reads as \texttt{rs2}; 10 equals the load's destination
+\texttt{a0}=x10, so it looks like a match. Fix: compare \texttt{rs2}
+only for instructions that really read it (R-type, stores, branches),
+using a ``reads rs2'' control bit from the decoder. The cost of the
+bug is one wasted cycle, never a wrong result.
+\end{solution}
+
+\begin{exercise}[hard]\label{ex:h07e}
+Model (not run): suppose hardware predicted \emph{backward branches
+taken} with no penalty when right, and still paid 2 cycles when wrong.
+What would $F$ be for the sum-1..10 program, and what extra hardware
+does ``no penalty when right'' secretly require?
+\end{exercise}
+\begin{solution}[hint]
+All nine backward \texttt{bne}s are taken and
+correctly predicted; only the final fall-through is a misprediction:
+$F=37+1+2\cdot1=40$ instead of 56. ``No penalty'' requires knowing the
+branch target in the same cycle the branch is fetched: a small table
+(a branch target buffer) or decoding in IF; this is the cost of the
+model's optimism.
+\end{solution}
+
+\emergencystretch=0pt
 % chapter end

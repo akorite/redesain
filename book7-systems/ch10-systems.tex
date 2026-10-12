@@ -3,112 +3,441 @@
 \label{ch:systems10}
 \index{cache}\index{miss rate}\index{blocking}\index{tiling}
 
-Chapter~9 showed the mountain: 1.4\,ns at L1, 120\,ns at DRAM. This
-chapter explains the machine that holds the knee up --- the cache ---
-then does the thing that makes the whole book worth it: changes two
-loop bounds and measures a transpose run almost three times faster
-on real silicon, predicted exactly by a cache model we build in 40
-lines of C.
+Chapter~9 showed the staircase: about 1\,ns when the data is small,
+over 100\,ns when it is large. This chapter opens the box that makes
+the staircase. We will build a \emph{cache simulator} in about 60 lines
+of C, check it by hand on a ten-access example, and then use it to
+predict which of several loop shapes will make a matrix transpose
+faster. Finally we run the real thing and see how much of the
+prediction survives contact with real silicon.
+
+\begin{rulebox}[After this chapter you can]
+You will be able to take any cache description (for example ``64 sets,
+4 ways, 64-byte lines'') and, for any address, say which set it falls
+in and what its tag is. You will be able to trace a short access
+sequence through such a cache by hand, write a simulator that agrees
+with your hand trace, sort every miss into one of three kinds, and
+rewrite a loop into tiles so that it misses far less.
+\end{rulebox}
+
+\begin{rulebox}[Before you start]
+\emph{From chapter~9.} Main memory is slow (over 100\,ns on our
+machines) and a small memory close to the processor, the
+\emph{cache}, is fast (a few ns). The cache does not hold single
+bytes; it holds \emph{lines} of 64 bytes at a time, because programs
+tend to use nearby addresses soon after (spatial locality) and the same
+addresses again soon (temporal locality). A \emph{hit} means the data
+was in the cache; a \emph{miss} means it had to be fetched.
+
+\emph{Binary and remainders.} An address is a binary number. Dividing
+by \(2^k\) and keeping the quotient is the same as dropping the lowest
+\(k\) bits (Book~5 chapter~8, numbers, bits and Boolean algebra); the
+remainder \(a \bmod m\), written \texttt{a \% m} in C, is what is
+left after taking out as many whole \(m\)'s as possible (Book~2
+chapter~6, modular arithmetic). We use both to chop an address into
+fields.
+
+\emph{A ten-line C refresher.} We write the simulator in C, so here is
+what you need. A \texttt{struct} bundles named fields, as in
+\texttt{typedef struct \{ int valid; unsigned long tag; \} Line;}, and
+\texttt{l.tag} or, through a pointer, \texttt{p->tag} reads a field.
+\texttt{Line *ln = calloc(n, sizeof(Line));} reserves room for \(n\)
+lines, all zero. An array \texttt{float a[N][N]} is stored row after
+row, so \texttt{a[i][j]} sits at byte offset \((iN+j)\cdot 4\) from
+the start. \texttt{x >> k} shifts the bits of \texttt{x} right by
+\(k\) places (dividing by \(2^k\)), \texttt{x \& 63} keeps only the
+low 6 bits, and \texttt{x \% 64} gives the same remainder.
+\texttt{uint64\_t} is an unsigned 64-bit integer. A function that
+returns \texttt{int} can pack several yes/no answers into its bits.
+\end{rulebox}
+
+\begin{rulebox}[Think like this]
+When something is too complicated to reason about, write the simplest
+model that could be wrong, run it on a case small enough to check by
+hand, and only then trust it on a case too large to check. A model you
+have not tested against a hand calculation is a number generator.
+\end{rulebox}
 
 \section{Anatomy: three parameters, one equation}
 \label{sec:anatomy10}
 
-A cache is $C = S \times E \times B$: $S$ \emph{sets}, each holding
-$E$ \emph{lines} (ways) of $B$ bytes. A 32-bit address splits three
-ways: low $b=\log_2 B$ bits pick a byte inside the line, the next
-$s=\log_2 S$ pick the set, and everything above is the \emph{tag}
-that identifies which line of the set lives there.
+Start with a picture you know: a library with a reading room. The
+reading room cannot hold the whole library, so it has a rule for where
+each book may sit. The simplest rule says ``book number \(k\) may sit
+only on shelf \(k \bmod 8\)''. The librarian never has to search the
+whole room; she looks at one shelf. A cache does exactly that. The
+shelves are called \emph{sets}, the places on a shelf are called
+\emph{ways}, and a book is a \emph{line} of \(B\) bytes. Why have
+a rule at all? Because checking every slot of a big cache on every
+load would be too slow; checking one set of a few slots is fast.
+
+A cache is therefore \(C = S \times E \times B\): \(S\) \emph{sets},
+each holding \(E\) \emph{lines} (also called ways) of \(B\) bytes. A
+32-bit address splits three ways. The low \(b=\log_2 B\) bits pick a
+byte inside the line (the \emph{offset}). The next \(s=\log_2 S\) bits
+pick the set (the \emph{index}). Everything above is the \emph{tag},
+which tells apart the many lines that share one set.
 
 \input{figures/ch10/fig_split.tex}
 
 \input{figures/ch10/fig_anatomy.tex}
 
 \begin{example}[Decoding a real geometry]
-For $S{=}64$, $E{=}4$, $B{=}64$: $C=16$\,KB. Address
-\texttt{0x00001234}: the low 6 bits are the offset
-(\texttt{0x34} $\&$ 63 $=52$); bits 6--11 give set 18; the tag is
-\texttt{0x1234}$\gg 12=1$. The line lives in set 18, in one of its
-four ways, tagged 1.
+For \(S{=}64\), \(E{=}4\), \(B{=}64\): \(C=64\cdot4\cdot64=16\,384\)
+bytes \(=16\)\,KB. Take address \texttt{0x00001234} \(=4660\). The low
+6 bits are the offset: \(4660 \bmod 64 = 52\) (\texttt{0x34}\,\&\,63).
+Drop them: \(4660 \gg 6 = 72\), the line number. The set is the next 6
+bits: \(72 \bmod 64 = 8\). The tag is what remains: \(72 \gg 6 = 1\)
+(equivalently \texttt{0x1234}\,\(\gg 12 = 1\)). So the line lives in
+set 8, in one of its four ways, tagged 1. (An earlier edition of this
+chapter said set 18; that was an arithmetic slip, and the corrected
+value is 8.)
+\end{example}
+
+\begin{example}[Decoding by the naive guess, then by the rule]
+A first guess is ``consecutive addresses go to consecutive sets''. Test
+it with the same geometry. Addresses \(0, 1, 2, \ldots, 63\) all have
+line number 0, so all sit in set 0: the cache keeps whole lines together
+on purpose. The next line, addresses \(64\ldots127\), goes to set 1.
+So \emph{consecutive lines} go to consecutive sets, and the set number
+wraps around after \(S\) lines, that is after \(S\cdot B=4096\) bytes.
+Two addresses exactly 4096 bytes apart therefore always fight for the
+same set. That single fact, ``addresses \(S\cdot B\) bytes apart
+collide'', explains most of the surprises later in this chapter.
 \end{example}
 
 \section{Replacement and the three Cs}
 \label{sec:threecs10}
 
-When a set is full, something must leave --- LRU is the textbook
-answer and what our simulator implements. Writes add policy:
-write-back (dirty line goes to memory only on eviction) vs.\
-write-through; write-allocate (a store miss loads the line first)
-vs.\ no-allocate. Our model is write-back + write-allocate, the
-common desktop choice.
+When a set is full and a new line arrives, something must leave. The
+textbook answer is \emph{LRU}, least recently used: throw out the line
+that has gone longest without being touched. The thinking behind it is
+temporal locality: what you have not used for a long time you are
+unlikely to use next. Writes add policy: \emph{write-back} (a modified
+line, called \emph{dirty}, goes to memory only when it is evicted) versus
+\emph{write-through} (every store goes to memory immediately);
+\emph{write-allocate} (a store miss first loads the line) versus
+no-allocate. Our model is write-back plus write-allocate, the common
+desktop choice.
 
 \input{figures/ch10/fig_threecs.tex}
 
-Every miss is one of the three: \emph{compulsory} (nobody has seen
-this line yet), \emph{capacity} (the whole set can't fit), or
-\emph{conflict} (the set can fit but not in \emph{this} set). The
-diagnosis determines the treatment --- which is why
-figure~\ref{fig:assoc10} matters.
+Every miss is one of three kinds. A \emph{compulsory} miss is the first
+touch of a line anywhere in the program: nobody could have had it. A
+\emph{capacity} miss happens because the program's working set is
+larger than the whole cache: even a perfect cache of that size
+would miss. A \emph{conflict} miss happens when the data would fit in
+the cache overall but too many lines map to the same set. The diagnosis
+decides the cure, which is why figure~\ref{fig:assoc10} matters.
 
 \input{figures/ch10/fig_assoc.tex}
 
-\begin{example}[Associativity isn't a panacea]
-The E-sweep on the transpose workload: 59.6\% misses at 1 way,
-58.3\% at 2 ways, and \emph{no further gain} to 8. This workload's
-misses are capacity-dominated; throwing ways at them is wasted
-silicon. A real result, not a citation --- and exactly why blocked
-tiling (which attacks capacity directly) is the fix that works.
+\begin{example}[Associativity is not a panacea]
+The associativity sweep on the transpose workload (listing~\ref{lst:sim10},
+section~A): 54.6\% misses at one way, 53.1\% at two, and \emph{no further
+gain} at 4 or 8. This workload's misses are capacity-dominated, as
+section~\ref{sec:blocking10} will confirm with a classification: throwing
+ways at them is wasted silicon, and the cure has to reduce the working
+set instead. (The sweep used a deliberately small cache of 32 sets,
+so \(C\) runs from 2\,KB to 16\,KB.)
 \end{example}
 
 \section{The simulator}
 \label{sec:sim10}
 
-\texttt{ch10\_cache\_sim.c} models tag/index/offset exactly, LRU by
-age counter, write-back dirty tracking. Its output is not estimated
---- it is the exact miss count the geometry produces on a driven
-trace:
+A \emph{simulator} is a program that behaves like a machine we do not
+want to build. Ours keeps, for every set, a small array of lines, each
+with a valid bit, a tag, a dirty bit and a time stamp. Its job on each
+access is the three steps you would do by hand: split the address, look
+for the tag in the set, and on a miss evict the oldest line. The core
+(the whole model is in \texttt{code/ch10\_cache.h}, about 40 lines):
 
-\begin{lstlisting}[language=C,caption={The access core of the
-model: hit = tag match in the set; miss = evict the coldest line.}]
-static void access(Cache *c, uint64_t addr, int wr) {
-    uint64_t set = (addr / c->B) % c->S, tag = addr / c->B / c->S;
+\begin{lstlisting}[language=C,label={lst:core10},caption={The access core
+of the model. Hit: a valid way holds the tag. Miss: take a free way,
+otherwise evict the way with the smallest (oldest) time stamp.}]
+static int cache_access(Cache *c, uint64_t addr, int is_write) {
+    c->clock++;
+    uint64_t block = addr >> c->bbits;        /* drop the offset bits */
+    uint64_t set = block % (uint64_t)c->S;    /* next s bits: the set */
+    uint64_t tag = block / (uint64_t)c->S;    /* the rest: the tag    */
     Line *l = &c->ln[set * c->E];
     for (int i = 0; i < c->E; i++)
-        if (l[i].valid && l[i].tag == tag)
-            { l[i].lru = c->clock++; c->hits++; return; }
-    /* miss: find invalid, else evict oldest */
-    c->misses++; ...
+        if (l[i].valid && l[i].tag == tag) {
+            l[i].lru = c->clock; c->hits++;
+            if (is_write) l[i].dirty = 1;
+            return 0;
+        }
+    c->misses++;
+    /* ... pick a victim way, count the eviction, install the tag ... */
 }
+\end{lstlisting}
+
+\begin{example}[Trace ten accesses by hand, then check the machine]
+Take a tiny cache: \(S{=}2\) sets, \(E{=}2\) ways, \(B{=}8\) bytes
+(32 bytes in all) and read these byte addresses in order:
+\(0,8,16,24,0,32,8,40,16,0\). The line number is \(\lfloor a/8\rfloor\),
+the set is the line number mod 2, and the tag is the line number \(\gg 1\).
+Walk through it, keeping each set as a list with the oldest line first.
+
+\begin{center}\small
+\begin{tabular}{@{}rrrrll@{}}
+\toprule
+\# & addr & set & tag & result & set contents afterwards (oldest first) \\
+\midrule
+1 &  0 & 0 & 0 & miss & set0: [0] \\
+2 &  8 & 1 & 0 & miss & set1: [0] \\
+3 & 16 & 0 & 1 & miss & set0: [0,1] \\
+4 & 24 & 1 & 1 & miss & set1: [0,1] \\
+5 &  0 & 0 & 0 & hit  & set0: [1,0] (0 is now newest) \\
+6 & 32 & 0 & 2 & miss, evicts tag 1 & set0: [0,2] \\
+7 &  8 & 1 & 0 & hit  & set1: [1,0] \\
+8 & 40 & 1 & 2 & miss, evicts tag 1 & set1: [0,2] \\
+9 & 16 & 0 & 1 & miss, evicts tag 0 & set0: [2,1] \\
+10 &  0 & 0 & 0 & miss, evicts tag 2 & set0: [1,0] \\
+\bottomrule
+\end{tabular}
+\end{center}
+\noindent By hand: 2 hits, 8 misses, 4 evictions. Notice access 9: the
+line with tag 1 was thrown out at step 6 only because step 5 had just
+refreshed tag 0, so the least recently used line was tag 1. LRU is the
+reason the hit at step 5 \emph{causes} the miss at step 9. Now ask the
+program (\texttt{code/ch10\_trace.c}, run in the Linux container):
+
+\begin{lstlisting}[language={},caption={\texttt{./ch10\_trace 2 2 8 0 8 16 24 0 32 8 40 16 0}.
+The machine agrees with the hand trace line for line.}]
+S=2 E=2 B=8  (C=32 bytes)
+#    addr     set  tag   result
+1    0        0    0     MISS
+2    8        1    0     MISS
+3    16       0    1     MISS
+4    24       1    1     MISS
+5    0        0    0     hit 
+6    32       0    2     MISS (evicted a line)
+7    8        1    0     hit 
+8    40       1    2     MISS (evicted a line)
+9    16       0    1     MISS (evicted a line)
+10   0        0    0     MISS (evicted a line)
+hits=2 misses=8 evictions=4 dirty_evictions=0
+\end{lstlisting}
+\end{example}
+
+\begin{example}[The bug the first simulator hid]
+Here is a receipt from this chapter's own history. The first version of
+the simulator computed the set with
+\texttt{b = ctz(B); set = (addr / b) \% S} where \texttt{ctz(64)}
+is 6, the \emph{number of offset bits}. It divided the address by 6
+instead of by \(2^6=64\) (the correct step is \texttt{addr >> b}, as in
+listing~\ref{lst:core10}). The program compiled, ran, and printed
+plausible miss counts (76\,459 for the naive transpose, then ``block-16
+is worse than naive'', which we proudly wrote into the chapter). Those
+numbers were produced by a cache whose sets mixed unrelated addresses,
+and the ``block-16 cliff'' was an artifact. What caught it was the
+chapter's own listing, which showed the right formula while the code did
+not. Lesson: run the ten-access trace above \emph{before} trusting any
+large result. The ten-access trace fails on the buggy version; it takes
+one second.
+
+The corrected simulator also uses a fixed, made-up base address for the
+matrices (\texttt{0x1000\allowbreak0000}) instead of the real address of a C
+array, because the old results changed from run to run with where the
+linker put the array. Everything printed in this chapter's simulator
+listings is therefore exactly reproducible.
+\end{example}
+
+\begin{lstlisting}[language={},label={lst:sim10},caption={\texttt{./ch10\_cache\_sim}, first
+two sections: miss counts of the naive transpose of a $256\times256$
+float matrix across associativity (A), and naive versus blocked on the
+16\,KB toy L1 (B). Exact, deterministic. Full output in
+\texttt{code/ch10\_cache\_sim\_linux.txt}.}]
+== A: miss rate vs associativity (N=256 floats, S=32 sets, B=64)
+E=1      misses=71552    evictions=71520    miss rate=54.6%
+E=2      misses=69632    evictions=69568    miss rate=53.1%
+E=4      misses=69632    evictions=69504    miss rate=53.1%
+E=8      misses=69632    evictions=69376    miss rate=53.1%
+== B: toy L1 S=64 E=4 B=64 (16 KB), N=256 floats (256 KB per matrix)
+naive    misses=69632    evictions=69376    miss rate=53.1%
+block2   misses=36864    evictions=36608    miss rate=28.1%
+block4   misses=20480    evictions=20224    miss rate=15.6%
+block8   misses=12512    evictions=12256    miss rate=9.5%
+block16  misses=10064    evictions=9808     miss rate=7.7%
+block32  misses=69632    evictions=69376    miss rate=53.1%
 \end{lstlisting}
 
 \section{The payoff: blocking}
 \label{sec:blocking10}
 
-A matrix transpose writes \texttt{b[j][i]} while reading
-\texttt{a[i][j]} --- one stream is unit-stride, the other strides
-by $N$ floats $= 8$\,KB: consecutive writes land in the same set on
-many geometries, churning conflict misses. \emph{Blocking} walks the
-matrix in small tiles so both streams reuse whole lines before
-moving on.
+\subsection*{Why the naive transpose is slow}
+
+A transpose copies \texttt{a[i][j]} to \texttt{b[j][i]}. In C a matrix
+is stored row after row, so as \texttt{j} increases the read
+\texttt{a[i][j]} walks along memory one float at a time, while the write
+\texttt{b[j][i]} jumps down a column by a whole row, \(N\times4\) bytes
+(1\,KB for \(N{=}256\)). The read stream uses all 16 floats of each line it
+loads. The write stream touches a different line on every step, and
+the loop then moves to the next \texttt{i}, which needs the \emph{same}
+256 lines again; but by then 256 other lines have been touched in a
+16\,KB cache that holds only 256 lines in total, and the one extra read
+line is enough to push things out. So the misses are plain capacity.
+
+\emph{Blocking} (also called \emph{tiling}) changes the visiting order
+so that the data touched by a short stretch of the loop fits in the
+cache, and each line is used completely before it is evicted. We walk the
+matrix in small \(bs\times bs\) tiles, finishing one tile before moving
+to the next.
 
 \input{figures/ch10/fig_misses.tex}
 
-\begin{example}[Model first, silicon agrees]
-Sim, exact counts, 256$^2$: naive 76\,459 misses; block-4 32\,777;
-block-8 \textbf{28\,118} (2.7$\times$ fewer); block-16 \emph{79\,179
---- worse than naive}. Then the wall clock, real machine,
-2048$^2$: naive 14.3\,ms, block-8 \textbf{5.0\,ms} (2.9$\times$
-faster), block-32 45\,ms. The model predicted the ranking, the
-magnitude, and the cliff --- this is what a model is \emph{for}.
+\begin{example}[Which tile size? Let the model answer]
+Section~B of the simulator (listing~\ref{lst:sim10}) gives, for the 16\,KB
+toy L1 on a $256\times256$ float transpose: naive 69\,632 misses; tile
+4: 20\,480; tile 8: 12\,512; tile 16: \textbf{10\,064} (6.9 times fewer than
+naive); tile 32: 69\,632, \emph{exactly as bad as naive}. Misses fall as
+the tile grows, then fall off a cliff. A first guess is ``bigger tile,
+fewer misses, until the tile exceeds the cache''. But the 32-by-32 float
+tile is only 4\,KB, a quarter of the cache, so that guess is wrong. The
+cliff comes from the \emph{sets}, not from the total capacity, as the
+next example shows.
+\end{example}
+
+\begin{example}[Why the cliff sits at tile 32: the set budget]
+The destination rows are 1\,KB apart, which is 16 lines. Line numbers
+that differ by 16 map to set numbers that differ by 16 (mod 64), so the
+rows of a tile reach only the sets \(0,16,32,48\): just \textbf{4
+sets}, each with 4 ways, giving room for \(4\times4=16\) lines. A
+16-row tile needs 16 destination lines: it fits (with a few conflicts
+from the source line, hence the 1\,872 conflict misses below). A 32-row
+tile needs 32 lines in 16 slots, and LRU then evicts each line just
+before it is needed again. The simulator can prove this, because it can
+classify misses. It keeps a second, \emph{fully associative} cache of the
+same 16\,KB (one set with 256 ways, so no conflicts possible): a miss
+that the shadow cache also has is a capacity miss, one it does not have is
+a conflict miss, and the first touch of a line is compulsory.
+
+\begin{lstlisting}[language={},label={lst:threec10},caption={Section D of
+\texttt{./ch10\_cache\_sim}: the three Cs of each transpose on the toy
+L1.}]
+== D: three Cs, same toy L1 as B (fully-assoc. LRU shadow, same 16 KB)
+naive    compulsory=8192   capacity=61440  conflict=0       total=69632
+block8   compulsory=8192   capacity=4096    conflict=224     total=12512
+block16  compulsory=8192   capacity=0       conflict=1872    total=10064
+block32  compulsory=8192   capacity=0       conflict=61440   total=69632
+\end{lstlisting}
+
+\noindent Read the table like a doctor reads a chart. The naive
+transpose has \textbf{no conflict misses at all}: its 61\,440 extra misses
+are pure capacity, because a column of 256 lines does not fit even in a
+perfectly flexible 256-line cache once the source line is added. That is
+why more ways did not help in section~A. Block-32 is the opposite: zero
+capacity misses, 61\,440 \textbf{conflict} misses. The cache is big
+enough; the address pattern aims it all at 4 sets. Two different
+diseases, two different cures: tiling fixes the first; padding the rows fixes the second. We can test
+that claim rather than assert it. If each row is padded from 256 to 272
+floats (1\,088 bytes, 17 lines, so successive rows now start in
+different sets), section~G of the simulator reports block-32 at
+\textbf{8\,192} misses, exactly the compulsory minimum, and the naive
+transpose falls from 69\,632 to 24\,792.
+\end{example}
+
+\begin{example}[Scaling up: the same story on a real 32\,KB L1]
+Now the size the real timing run uses, \(2048\times2048\) floats, with the
+geometry that \texttt{getconf} reports for the container's L1 data cache
+(32\,KB, 8-way, 64-byte lines, so \(S=64\)). A row is
+\(2048\times4=8192\) bytes \(=128\) lines, and \(128 \bmod 64 = 0\):
+every row of a tile lands in the \emph{same single set}, which has only
+8 ways. So the tile can have at most 8 rows before conflicts begin:
+
+\begin{lstlisting}[language={},caption={Section C of \texttt{./ch10\_cache\_sim}:
+$2048\times2048$ floats on a 32\,KB, 8-way L1.}]
+== C: S=64 E=8 B=64 (32 KB, like this container's L1d), N=2048 floats
+naive    misses=4456448  evictions=4455936  miss rate=53.1%
+block4   misses=1319936  evictions=1319424  miss rate=15.7%
+block8   misses=847872   evictions=847360   miss rate=10.1%
+block16  misses=4456448  evictions=4455936  miss rate=53.1%
+block32  misses=4456448  evictions=4455936  miss rate=53.1%
+block64  misses=4456448  evictions=4455936  miss rate=53.1%
+\end{lstlisting}
+
+Tile 8 has 5.3 times fewer L1 misses than naive (\(4\,456\,448 / 847\,872\));
+tile 16 and above fall back to the naive count. The predicted rule is:
+\emph{the tile height must not exceed the number of ways when the row
+length is a multiple of \(S\cdot B\)}. A power-of-two matrix size is the
+worst case for caches, which is why padding is a standard trick.
 \end{example}
 
 \input{figures/ch10/fig_timing.tex}
 
+\subsection*{Now the real machine}
+
+\begin{lstlisting}[language={},label={lst:real10},caption={\texttt{./ch10\_transpose\_real}
+(Linux x86\_64 container, gcc \texttt{-O2}). Each row is the best of 7 full
+sweeps of a $2048\times2048$ float transpose, with a checksum to prove the
+result is the same transpose. Captured in
+\texttt{code/ch10\_transpose\_linux.txt}.}]
+naive 0  2048x2048:  38.73 ms  (1.00x vs naive)  result ok
+block 4  2048x2048:  24.18 ms  (1.60x vs naive)  result ok
+block 8  2048x2048:  18.77 ms  (2.06x vs naive)  result ok
+block16  2048x2048:  23.03 ms  (1.68x vs naive)  result ok
+block32  2048x2048:  18.11 ms  (2.14x vs naive)  result ok
+block64  2048x2048:  17.65 ms  (2.19x vs naive)  result ok
+\end{lstlisting}
+
+\begin{example}[Model against silicon: what survived and what did not]
+Compare the simulator's prediction with the stopwatch. Survived: blocking
+helps a lot (block-8 is 2.06 times faster than naive in this run, and
+2.06 to 2.96 times over six runs of the program), and the answer is
+correct (the checksum matches). Did not survive: the L1 model said tiles
+16 and larger would be as bad as naive, but the wall clock shows tile 16
+at 23\,ms (between naive and block-8), and tiles 32 and 64 as the \emph{fastest}.
+Why? The L1-only model is missing a level. The container has a 1\,MiB,
+16-way L2 behind the L1, and a tile of 32 rows is easily held there. We
+can test that explanation in the simulator by adding the L2
+(section~E, an L1 miss becomes an L2 access):
+
+\begin{lstlisting}[language={},caption={Section E of \texttt{./ch10\_cache\_sim}:
+L1 32\,KB 8-way backed by an L2 of 1\,MiB, 16-way ($S=1024$).}]
+== E: L1 (S=64 E=8) backed by L2 (S=1024 E=16, 1 MiB), N=2048 floats
+naive    L1 misses=4456448  L2 misses=4456448
+block4   L1 misses=1319936  L2 misses=1310720
+block8   L1 misses=847872   L2 misses=786432
+block16  L1 misses=4456448  L2 misses=524288
+block32  L1 misses=4456448  L2 misses=524288
+block64  L1 misses=4456448  L2 misses=524288
+\end{lstlisting}
+
+With the L2 in the model, tiles 16, 32 and 64 all reach 524\,288 L2
+misses, which is exactly the compulsory minimum (two 16\,MiB matrices
+\(/\,64\) bytes), while the naive loop misses the L2 every single time.
+So the two-level model correctly predicts that the naive loop is the
+loser and that big tiles are fine. It does \emph{not} explain why tile 16
+is slower than tile 8 on the real machine; we did not isolate that (the
+hardware prefetchers and the L2-to-L1 bandwidth are candidates, not
+findings). The honest summary is that a cache model predicts \emph{which
+loop wins and roughly why}, and a stopwatch is still needed for the
+numbers.
+\end{example}
+
+\begin{example}[A harness that flattered the answer]
+An earlier edition of this chapter reported, from the author's Apple
+Silicon Mac, ``naive 14.3\,ms, block-8 5.0\,ms, a 2.9 times speed-up''.
+We could not reproduce that in a fair comparison, and the reason is in the
+harness. The blocked loops ran their four repetitions \emph{inside} each
+tile (so the second to fourth repetitions found the tile already in
+cache), and the printed blocked times were not divided by the
+repetition count, while the naive time was. Equal work was not being
+timed. The harness in this chapter does one full sweep per trial for
+every variant, takes the best of 7, and checks the result. We keep the
+chapter title's ``3 times'' because block-8 over six runs spans 2.06 to
+2.96 times on the container, but the Mac figures of the earlier
+edition are retired. The general habit of mind: before believing a
+speed-up, check that the two sides did the same work.
+\end{example}
+
 \begin{checkpoint}
-Why does block-16 lose? A 16$\times$16 float tile is 16 rows of
-$16\times4=64$ bytes = one full line per row; the tile's footprint
-is fine, but each source row's line conflicts with the destination
-tile's lines in the small-set cache. Bigger tile $\neq$ bigger win:
-the tile must fit the \emph{set budget}, not just the capacity.
+Why does a tile need to fit the \emph{set budget} and not just the
+total capacity? Because a line may live only in one set. If many of the
+tile's lines map to the same few sets, those sets overflow while the
+rest of the cache sits empty. Capacity is the sum over all sets; a tile
+is limited by the busiest one.
 \end{checkpoint}
 
 \section{Software-visible effects beyond tiling}
@@ -121,23 +450,36 @@ the tile must fit the \emph{set budget}, not just the capacity.
       two threads writing adjacent bytes in one line bounce it
       between cores --- the fix is padding, and it's cache geometry
       leaking through the abstraction.
-\item \textbf{Layout}: AOS vs.\ SOA decides whether a walk touches
-      a whole line per element or eight elements per line.
+\item \textbf{Layout}: array of structs versus struct of arrays
+      decides whether a walk touches a whole line per element or
+      sixteen 4-byte elements per line.
+\item \textbf{Power-of-two strides}: as the 2048 example showed,
+      row lengths that are multiples of \(S\cdot B\) concentrate
+      accesses in few sets; padding the row by one line fixes it.
 \end{itemize}
 
 \section{Common mistakes}
 \label{sec:mistakes10}
 \begin{itemize}
 \item \textbf{Optimising associativity for capacity misses.} Our
-      E-sweep: +0.9\% from 4 extra ways. Classify the miss first.
-\item \textbf{Bigger tile = better, assumed.} Block-16 beat naive in
-      \emph{misses}; it still lost. The tile must fit the set
-      budget --- verify by measurement, not formula.
+      E-sweep: going from 2 to 8 ways changed nothing (53.1\%). Classify
+      the miss first.
+\item \textbf{Bigger tile = better, assumed.} Block-32 had 61\,440
+      conflict misses and no capacity misses at all, because its rows
+      aimed at 4 of 64 sets. The tile must fit the set budget, not just
+      the capacity.
+\item \textbf{Trusting a simulator you never hand-checked.} The first
+      version of ours divided by the offset \emph{width} instead of the
+      line size and printed plausible nonsense. Trace ten accesses by hand
+      first.
+\item \textbf{Comparing unequal work.} A speed-up from a harness that
+      repeats a hot tile but divides only the other side is not a
+      speed-up.
 \item \textbf{Counting accesses, not misses.} Both transposes make
       the same $2N^2$ accesses; only the miss count changes.
 \item \textbf{Believing the model equals hardware.} We checked
-      prediction vs.\ wall clock --- a model that can't predict the
-      ranking is just a number generator.
+      prediction against the wall clock: the L1-only model got the
+      loser right but missed the L2's rescue of large tiles.
 \item \textbf{Write policies as an afterthought.} Write-back +
       write-allocate hides store latency in the same lines reads
       use; no-allocate turns every store miss into a bus trip.
@@ -149,12 +491,14 @@ the tile must fit the \emph{set budget}, not just the capacity.
 \toprule
 \textbf{Piece} & \textbf{Verified version} \\
 \midrule
-$C=S\cdot E\cdot B$  & the only geometry equation needed \\
-three Cs  & classify before you fix; our workload is capacity-bound \\
+$C=S\cdot E\cdot B$  & the only geometry equation needed; address = tag | index | offset \\
+three Cs  & compulsory, capacity, conflict; classify before you fix \\
 LRU/write-back & what the sim implements and what real L1s do \\
-sim vs silicon & exact miss counts predict real ms ranking + cliff \\
-block-8 & 2.9$\times$ faster transpose, both measured \\
-block-16 & capacity cliff: worse than naive, sim and wall alike \\
+hand trace & 10 accesses, 2 hits, 8 misses, 4 evictions: sim agrees \\
+naive transpose & 69\,632 misses, 88\% capacity, 0 conflict (toy L1) \\
+block-16 / block-32 & 10\,064 misses versus 69\,632: a set-budget cliff, 61\,440 conflict misses \\
+padding & rows of 272 floats: block-32 back to the 8\,192 compulsory minimum \\
+sim vs silicon & L1 model finds the loser; L2 model explains big tiles; block-8 2.06--2.96$\times$ faster measured \\
 \bottomrule
 \end{tabularx}
 
@@ -183,10 +527,15 @@ block-16 & capacity cliff: worse than naive, sim and wall alike \\
 \label{sec:notes10}
 \begin{itemize}
 \item All miss counts are exact outputs of
-      \texttt{ch10\_cache\_sim.c} (LRU, write-back); all timings are
-      real wall-clock runs of \texttt{ch10\_transpose\_real.c} on
-      Apple Silicon. No citation was needed because nothing was
-      estimated.
+      \texttt{ch10\_cache\_sim.c} (LRU, write-back, synthetic
+      addresses; deterministic). They replace the counts of the
+      first edition, which came from a simulator with an
+      addressing bug (see the bug receipt in section~\ref{sec:sim10}). All
+      timings are wall-clock runs of \texttt{ch10\_transpose\_real.c}
+      in the Linux x86\_64 container (Intel Xeon 2.8\,GHz, KVM guest,
+      4 vCPU); the first edition's Apple Silicon timings are retired
+      because that harness timed unequal work. \texttt{code/test\_ch10.sh}
+      checks the simulator's numbers exactly and the timings by shape.
 \item The checksum sink in the timing harness exists because the
       first build's transpose was optimised away entirely ---
       dead-code elimination, the chapter's own common-mistake
@@ -198,16 +547,16 @@ block-16 & capacity cliff: worse than naive, sim and wall alike \\
 \stepcounter{section}
 
 \begin{exercise}[easy]
-
-For $S{=}256,E{=}8,B{=}64$: find $C$, the index width, and the set
-of address \texttt{0xCAFEBABE}.
+For $S{=}256$, $E{=}8$, $B{=}64$: find $C$, the number of offset and index
+bits, and the set and tag of address \texttt{0xCAFEBABE}.
 \end{exercise}
 \begin{solution}[hint]
-$b=6,s=8$; set = bits 6--13.
+$C=256\cdot8\cdot64=131\,072$ bytes $=128$\,KB; $b=6$, $s=8$. Offset
+$=\texttt{0xCAFEBABE}\,\&\,63=62$. Set $=(\texttt{0xCAFEBABE}\gg6)\,\&\,255=234$.
+Tag $=\texttt{0xCAFEBABE}\gg14=\texttt{0x32BFA}$.
 \end{solution}
 
 \begin{exercise}[easy]
-
 Which of the three Cs does a never-run program's very first access
 produce, and which fix applies?
 \end{exercise}
@@ -216,145 +565,174 @@ Compulsory; prefetch or longer lines.
 \end{solution}
 
 \begin{exercise}[easy]
-
-Write-back vs write-through in one sentence each: what leaves the
+Write-back versus write-through in one sentence each: what leaves the
 cache, and when?
 \end{exercise}
 \begin{solution}[hint]
-WB: only dirty evictions; WT: every store.
+Write-back: only dirty lines, only when evicted. Write-through: every
+store, immediately.
 \end{solution}
 
 \begin{exercise}[easy]
-
-The sim reports 76\,203 evictions vs 76\,459 misses on the naive
-transpose. What are the other 256?
+Section B of the simulator reports 69\,376 evictions against 69\,632
+misses for the naive transpose. What are the other 256 misses, and why
+is that exactly 256?
 \end{exercise}
 \begin{solution}[hint]
-Compulsory fills into empty (invalid) ways --- misses without
-evictions.
+They are misses that landed in an empty (invalid) way, so nothing was
+evicted. The toy cache has $S\cdot E=64\cdot4=256$ ways, each filled
+once.
 \end{solution}
 
 \begin{exercise}[medium]
-
-Compute the naive-transpose miss count \emph{by hand} for
-$N{=}4$ on $S{=}2,E{=}1,B{=}8$ (two bytes per element, both
-matrices line-aligned and contiguous); then check it in the sim.
+Count by hand the misses of the naive $4\times4$ transpose with
+2-byte elements ($a$ at byte 0, $b$ at byte 32, row-major, so
+\texttt{a[i][j]} is at $8i+2j$ and \texttt{b[j][i]} at $32+8j+2i$) on a
+direct-mapped cache with $S{=}2$, $E{=}1$, $B{=}8$. Then check with
+\texttt{ch10\_trace}. Finally, give the miss count with $E{=}2$.
 \end{exercise}
 \begin{solution}[hint]
-Trace 32 accesses; the interleaved streams evict each other.
+The 32 accesses are \texttt{0 w32 2 w40 4 w48 6 w56 8 w34 \ldots}. Each
+$a$-row is one line (lines 0--3) and each $b$-row one line (lines 4--7);
+with only two sets the streams keep evicting each other. The trace
+tool reports $E{=}1$: 26 misses, 6 hits. With $E{=}2$ the same trace has
+19 misses, 13 hits.
 \end{solution}
 
 \begin{exercise}[medium]
-
-Why does block-8 beat block-16 on our geometry \emph{and} our
-hardware? State the set-budget argument precisely: what is the
-tile's footprint in lines, and what must it fit under?
+On the toy cache (64 sets, 4 ways, 64-byte lines), tile 16 gives 10\,064
+misses and tile 32 gives 69\,632 for $N{=}256$ floats. State the
+set-budget argument precisely: how many distinct sets do the 32 rows of
+a tile reach, how many lines fit in them, and how many lines does the
+tile need?
 \end{exercise}
 \begin{solution}[hint]
-16 rows $\times$ 1 line each vs.\ set availability for both
-matrices' lines.
+Rows are 1\,KB $=16$ lines apart, so the set number advances by 16 (mod
+64) per row: only sets 0, 16, 32, 48. That is $4\cdot4=16$ line slots.
+A 16-row tile needs 16 lines (fits), a 32-row tile needs 32 (does not).
 \end{solution}
 
 \begin{exercise}[medium]
-
 A strided-access workload shows high conflict misses but only 4\%
-capacity misses. Two possible fixes: name them and rank by cost.
+capacity misses. Name two fixes and rank them by cost.
 \end{exercise}
 \begin{solution}[hint]
-Pad the stride to a non-power-of-two; raise associativity if
-the hardware allows.
+Pad the stride to a value coprime with the number of sets (free, a
+software change); raise associativity (costs silicon, and is not under
+your control).
 \end{solution}
 
 \begin{exercise}[medium]
-
-Instrument the sim to split miss count into compulsory / capacity /
-conflict. What extra state does each class require? (Do the
-design; the [hard] variant implements it.)
+Section D lists the three Cs. Explain from the code how the simulator
+decides that a miss is compulsory, capacity or conflict. What extra
+state does each class need?
 \end{exercise}
 \begin{solution}[hint]
-Compulsory: seen-set. Capacity: infinite-cache comparison.
-Conflict: direct-mapped comparison.
+Compulsory: a \texttt{seen} bit per line number. Capacity: it also
+misses in a fully associative LRU cache of the same total size. Conflict:
+it misses in the real cache but hits in that fully associative shadow.
 \end{solution}
 
 \begin{exercise}[hard]
-
-Implement LRU + dirty bits in the sim (ours has both), then verify
-against a hand-checked 10-access trace on $S{=}2,E{=}2,B{=}8$.
-Report the trace, the expected state, and the diff.
+Add a dirty-eviction counter to a hand experiment: predict, then check
+with \texttt{./ch10\_trace 1 2 8 w0 w8 16 24}, how many misses, evictions
+and dirty evictions occur on a 2-way, 1-set cache with 8-byte lines.
 \end{exercise}
 \begin{solution}[hint]
-Eviction order is the sensitive part; draw the per-set LRU
-stack.
+Lines 0 and 1 are written (dirty). Access 16 evicts the oldest (line
+0, dirty); access 24 evicts line 1 (dirty). So 4 misses, 2 evictions,
+2 dirty evictions; the tool prints exactly
+\texttt{hits=0 misses=4 evictions=2 dirty\_evictions=2}.
 \end{solution}
 
 \begin{exercise}[hard]
-
-Extend the sim with a $B$-byte stride-1 prefetcher (on miss, also
-fetch line+1). Predict its effect on the naive transpose misses,
-then measure. Where does prefetch fail to help?
+Section F of the simulator adds a next-line prefetcher (on a miss, also
+fetch the following line). It reports 67\,833 demand misses against 69\,632
+without it. Explain why the gain is only 2.6\%.
 \end{exercise}
 \begin{solution}[hint]
-Sequential side wins; the strided side gains nothing ---
-prefetch follows line direction only.
+Only the read stream is sequential, and it already misses once per 16
+floats; the write stream jumps a whole row each step, so ``the next
+line'' is the wrong line. The prefetch even pollutes sets that are already
+over-subscribed.
 \end{solution}
 
 \begin{exercise}[hard]
-
-Argue that a ``perfect'' cache model for timing prediction still
-cannot predict our wall-clock numbers exactly. Name two mechanisms
-the model lacks that real cores have, and state when each matters.
+Argue that a ``perfect'' cache model for timing prediction still cannot
+predict our wall-clock numbers exactly. Name two mechanisms the model
+lacks that real cores have, and say when each matters.
 \end{exercise}
 \begin{solution}[hint]
-Out-of-order overlap (misses hidden under independent work)
-and hardware prefetchers; they matter when the access pattern
-isn't serialised by dependencies.
+Out-of-order overlap (misses hidden under independent work) and
+hardware prefetchers; they matter when the access pattern is not
+serialised by dependencies. Chapter~9's dependent-versus-independent
+experiment measured the first effect at 8 to 11 times.
 \end{solution}
 
 \begin{exercise}[easy]
-A program's miss rate doubles when the input doubles. Which miss
-type is scaling, and which measurement separates it from the other
-two?
+A program's miss rate doubles when the input doubles. Which miss type is
+scaling, and which measurement separates it from the other two?
 \end{exercise}
 \begin{solution}[hint]
-Capacity; compare against an infinite-cache run.
+Capacity; compare against a fully associative (or infinite) cache run.
 \end{solution}
 
 \begin{exercise}[medium]
-
-\texttt{b[j][i]=a[i][j]} strides writes by $4N$ bytes. For $N=1024$
-on a 4096-set/64B-line machine, show that consecutive write lines
-map to the \emph{same} set. Why does transposing in place make it
-worse?
+$N{=}1024$ floats, a 32\,KB 8-way cache with 64 sets and 64-byte lines.
+Show that the column writes \texttt{b[j][i]} for fixed \texttt{i} all map
+to the \emph{same} set. How many of them can the cache hold at once, and
+what does padding each row by 16 floats do?
 \end{exercise}
 \begin{solution}[hint]
-$4N=4$\,KB: set-index bits 6--17 cycle every 4096\,B; in-place
-aliases source and dest into one stream.
-\end{solution}
-\begin{solution}[hint]
+Consecutive rows are $4N=4096$ bytes $=64$ lines apart, and $64\bmod64=0$,
+so every row's line lands in one set. Only 8 ways, so at most 8 such
+lines at once. With a 16-float pad the pitch is $4160$ bytes $=65$ lines;
+$\gcd(65,64)=1$, so successive rows rotate through all 64 sets.
 \end{solution}
 
 \begin{exercise}[medium]
-
-Our wall-clock run used REPS=4 with a checksum sink. What did the
-sink prevent, and what compiler flag would reveal the same thing?
+The timing harness compares a checksum of \texttt{b} after every variant.
+What mistake does that catch that the stopwatch alone cannot?
 \end{exercise}
 \begin{solution}[hint]
-Dead-code elimination; \texttt{-O0} or disassembly shows the
-empty loop.
-\end{solution}
-\begin{solution}[hint]
+A wrong loop bound or an optimised-away copy is \emph{faster} and wrong.
+The checksum turns ``faster'' into ``faster and still correct''.
 \end{solution}
 
 \begin{exercise}[hard]
-
-The model's naive count (76\,459) and hardware's naive time
-(14.3\,ms) both exist --- compute misses-per-nanosecond implied by
-each and argue whether the sim's miss-latency constant (one line
-fill $\approx$ one DRAM trip) is consistent.
+Using listing~\ref{lst:real10} and section~C of the simulator, compute
+nanoseconds per L1 miss for the naive loop (38.73\,ms, 4\,456\,448 misses)
+and for block-8 (18.77\,ms, 847\,872 misses). Do the two agree? What does
+the difference tell you about predicting time from miss counts?
 \end{exercise}
 \begin{solution}[hint]
-$\approx$187ns effective per miss if all misses were DRAM ---
-compare to our measured 120\,ns and reason about overlap.
+Naive: $38.73\cdot10^{-3}/4\,456\,448=8.7$\,ns per miss. Block-8:
+$18.77\cdot10^{-3}/847\,872=22.1$\,ns. They disagree, so time is not
+proportional to L1 misses: the L2 absorbs most misses cheaply, misses
+overlap, and the loop has non-miss costs. Miss counts predict ranking,
+not milliseconds.
 \end{solution}
+
+\begin{exercise}[medium]
+Why is the first edition's ``naive 14.3\,ms versus block-8 5.0\,ms''
+comparison unfair? Say what a fair harness must hold equal.
+\end{exercise}
 \begin{solution}[hint]
+The blocked loops repeated four sweeps inside each tile (later sweeps
+hit a hot tile) and their time was not divided by four, whereas the
+naive time was. A fair harness does the same total work per variant:
+one full sweep, timed separately, best of several trials.
+\end{solution}
+
+\begin{exercise}[hard]
+For a row pitch of $p$ lines and $S{=}64$ sets, how many distinct sets do
+32 consecutive rows reach when $p=16$? When $p=17$? Generalise: when
+do $R$ rows spread over all the sets?
+\end{exercise}
+\begin{solution}[hint]
+Row $r$ starts in set $rp \bmod 64$, which takes $64/\gcd(p,64)$ distinct
+values. $p=16$: $\gcd=16$, so 4 sets. $p=17$: $\gcd=1$, so 64 values;
+32 rows reach 32 distinct sets. Rows spread over all sets when $p$ is odd
+and $R\ge64$. (Section~G measures the effect of $p=17$: block-32 falls
+from 69\,632 to 8\,192 misses.)
 \end{solution}

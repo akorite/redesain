@@ -3,33 +3,143 @@
 \label{ch:systems14}
 \index{inode}\index{journal}\index{fsync}\index{file system}
 
-A file system makes three promises: \emph{names} --- a path you
-can remember; \emph{durability} --- bytes that survive a power
-cut; \emph{crash behaviour} --- no file left half-written.
-This chapter pays for all three on real hardware. The opening
-surprise is honest: at 17\,GB/s our sequential read never touched
-the disk at all --- it was reading the buffer cache, which is the
-layer this whole chapter exists to explain.
+Think of a huge library. Without a catalogue you could only find a
+book by walking every shelf. A file system is the catalogue plus the
+shelving rules for a disk: it turns a flat sea of numbered blocks into
+named files you can find, grow and delete. It makes three promises.
+\emph{Names}: a path you can remember. \emph{Durability}: bytes that
+survive a power cut. \emph{Crash behaviour}: no file left half
+written. The first is easy, the other two are expensive, and this
+chapter pays for them on real hardware. The opening surprise is
+honest: on the author's Mac our sequential read ran at 17\,GB/s and
+never touched the disk at all. It was reading the \emph{buffer
+cache}, the RAM the kernel keeps copies of recent file data in, which
+is the layer this whole chapter exists to explain.
+
+\begin{wins}[What you will be able to do]
+After this chapter you can explain what a path lookup does, tell a
+file's name from its inode and show with a program that unlinking an
+open file does not destroy it. You can compute the largest file an
+indexed inode can address and the metadata a 1\,GiB file needs. You
+can measure on your own machine how much of a file read comes from RAM
+and how much from the device, and what \texttt{fsync} costs as a
+function of write size. And you can walk a write-ahead journal through
+every possible crash point and say what recovery does at each.
+\end{wins}
+
+\begin{rulebox}[Before you start]
+A disk (or SSD) stores fixed-size \emph{blocks}, typically 4\,KB, and
+knows nothing about files or names; the kernel builds those on top.
+Recall from Book~7 ch.~\ref{ch:systems09} (the memory hierarchy) that
+each level is a cache for the slower level beneath it, and from
+ch.~\ref{ch:systems11} that the kernel manages memory in 4\,KB pages;
+the buffer cache is that idea applied to disk blocks. Book~2 ch.~4
+(sets, relations and functions) is where a mapping such as
+name$\to$number was first made precise: a directory is exactly such a
+function.
+
+\emph{A short C refresher on files.} \texttt{int fd = open(path,
+flags, mode)} returns a small integer, a \emph{file descriptor}, or
+$-1$ on failure; \texttt{read(fd, buf, n)} and \texttt{write(fd, buf,
+n)} return how many bytes they moved; \texttt{close(fd)} releases
+the descriptor. \texttt{struct stat st; stat(path, \&st)} fills in a
+record whose fields \texttt{st.st\_ino} (inode number),
+\texttt{st.st\_nlink} (number of names) and \texttt{st.st\_size} you
+will see below. \texttt{printf("\%lu", x)} prints an unsigned long.
+Numbers marked \emph{Mac} are from the author's earlier laptop
+(APFS); numbers marked \emph{Linux} are from a 4-vCPU container with
+ext4 on a virtual disk and are kept separate.
+\end{rulebox}
+
+\begin{principle}[Think like this]
+Every persistence mechanism is an answer to ``what if the power fails
+\emph{right now}?'' The habit of mind is to write the steps of an
+update as a numbered list and ask, for each gap between two steps,
+what a person would find on the disk if the machine stopped there. We
+do exactly that in the journaling section.
+\end{principle}
 
 \section{Names, inodes, and the API}
 \label{sec:inode14}
 
+Why not store a file's name and bytes together? Because then
+renaming or linking a file would mean moving or copying its contents.
+UNIX separates the two: the \emph{name} lives in a directory, the
+\emph{contents and bookkeeping} live in an \emph{inode}.
 A directory is a table of \texttt{name $\to$ inode~number}; the
 inode is the file's real identity --- mode, size, and the block
 numbers holding its bytes. \texttt{open()} walks the path, resolves
 the inode, and returns a descriptor; \texttt{read}/\texttt{write}/
 \texttt{fsync}/\texttt{close} do the rest. The real inode walker
 \texttt{ch14\_inodes.py} on this book's own code tree:
-\texttt{ino=2484919 mode=0o100644 blocks=8 ch02\_bytes.out} ---
-128 files, 758\,KB payload, one line each.
+(Mac) it printed lines such as
+\texttt{ino=2484919 mode=0o100644 blocks=8} for \texttt{ch02\_bytes.out} ---
+128 files, 758\,KB payload, one line each. On the Linux container,
+over this chapter's code directory, it printed three sample lines and
+a total of 216 files, 1161\,KB.
 
 \input{figures/ch14/fig_inode.tex}
 
 \begin{example}[Max file size, computed]
-12 direct blocks + 1024 single-indirect + 1024$^2$ double +
-1024$^3$ triple at 4\,KB blocks $\approx$ 4\,TB from a
-$\sim$100-byte inode --- the indexed-allocation payoff, and why
-the classic scheme survives into ext4 (as extents).
+\emph{Why indirection?} An inode is small and fixed in size, but
+files range from 1 byte to terabytes. The trick is to put a few block
+numbers in the inode and let those point to \emph{blocks of block
+numbers}. With 4\,KB blocks and 4-byte block numbers one block holds
+1024 numbers. The classic inode has 12 direct pointers, one
+single-indirect, one double-indirect and one triple-indirect pointer:
+$12+1024+1024^2+1024^3$ blocks $\approx$ 4\,TiB from an inode of
+roughly 100--128 bytes. The program \texttt{ch14\_maxfile.py} does the
+arithmetic step by step:
+
+\begin{lstlisting}[basicstyle=\ttfamily\scriptsize,caption={Real output of
+\texttt{python3 ch14\_maxfile.py}.}]
+pointers per indirect block : 1024
+direct only                 : 48 KiB
++ single indirect           : 4.05 MiB
++ double indirect           : 4.00 GiB
++ triple indirect (max)     : 4.0039 TiB
+1 GiB file = 262144 blocks of 4 KiB
+  block-map metadata        : 257 blocks = 1028 KiB (+ 12 direct pointers in the inode)
+  one extent (start,length) : 16 bytes
+\end{lstlisting}
+Check the 1\,GiB line by hand: $2^{30}/2^{12}=262\,144$ blocks; the
+12 direct and 1024 single-indirect pointers cover 1036 of them, the
+remaining 261\,108 need $\lceil261108/1024\rceil=255$ second-level
+blocks, plus one single-indirect and one double-indirect root block:
+$255+1+1=257$ blocks, i.e.\ 1028\,KiB, about 0.1\% of the file. An
+\emph{extent} (start block, length) describes the same contiguous
+file in 16 bytes. That is why ext4 uses extents: indexed allocation
+is flexible, but for big sequential files a run-length description is
+far smaller.
+\end{example}
+
+\begin{example}[Names are not files: link, symlink, unlink while open]
+\emph{What a beginner expects.} Deleting a file erases it, and a
+``link'' is a copy. Both are wrong, and a short program shows it.
+\texttt{ch14\_links.c} creates a file, gives it a second name with
+\texttt{link}, makes a symbolic link, removes both names while the
+file is still open, and reads from the open descriptor.
+
+\begin{lstlisting}[basicstyle=\ttfamily\scriptsize,caption={Real output of
+\texttt{ch14\_links} (Linux container; inode numbers differ on every
+run).}]
+created   a         ino=1630546  nlink=1 size=12
+link a->b a         ino=1630546  nlink=2 size=12
+          b         ino=1630546  nlink=2 size=12
+symlink   s         ino=1630562  is-symlink=1 size=1 (length of the text "a")
+unlinked  a         (no such name)
+read via still-open fd: 12 bytes: hello inode
+fstat(fd): nlink=0 (data lives until close)
+\end{lstlisting}
+Read it line by line. After \texttt{link}, \texttt{a} and \texttt{b}
+report the \emph{same inode number} and \texttt{nlink=2}: one file,
+two names. The symlink has its \emph{own} inode whose content is just
+the text ``a'' (size 1). After both names are removed, the name is
+gone but the open descriptor still reads the 12 bytes, and
+\texttt{nlink} has dropped to 0. The kernel frees the blocks only when
+the link count is zero \emph{and} no descriptor is open, which is why
+you can delete a log file a running program is writing to without
+crashing it.
 \end{example}
 
 \section{The layers a read() descends}
@@ -42,14 +152,59 @@ the classic scheme survives into ext4 (as extents).
 
 \input{figures/ch14/fig_seqrand.tex}
 
-\begin{example}[17\,GB/s is RAM, not disk]
-\texttt{ch14\_fs\_io.c} on this machine: sequential 17\,269\,MB/s
---- faster than any SSD by $30\times$, because every read hits the
-page cache after the build pass. Random 4\,KB reads: 5\,950\,MB/s
---- still cached, but the miss-driven re-ordering costs $3\times$.
-The folklore ``disk is slow, RAM is fast'' is true; the surprise is
-that \emph{the OS has already hidden the disk from you}, and only
-\texttt{fsync} gets you past it.
+\begin{example}[17\,GB/s is RAM, not disk (Mac)]
+\texttt{ch14\_fs\_io.c} on the Mac: sequential 17\,269\,MB/s,
+far beyond what a storage device of that era delivered, because every
+read hits the page cache after the build pass. Random 4\,KB reads:
+5\,950\,MB/s, still cached. The folklore ``disk is slow, RAM is
+fast'' is true; the surprise is that \emph{the OS has already hidden
+the disk from you}, and only \texttt{fsync} gets you past it.
+\end{example}
+
+\begin{example}[Why random 4\,KB reads are slower even from RAM (Linux)]
+\emph{A tempting wrong explanation} is ``random access misses the
+cache''. Nothing here misses the page cache: the whole file is in RAM.
+So what else differs? The call size. Reading 4\,KB at a time takes 256
+times as many system calls as reading 1\,MB at a time, and each call
+has a fixed cost. We added a line that reads \emph{sequentially} in
+4\,KB pieces to separate the two effects:
+
+\begin{lstlisting}[basicstyle=\ttfamily\scriptsize,caption={Real output of
+\texttt{ch14\_fs\_io} (Linux container, file in the page cache).}]
+sequential read: 5269.6 MB/s
+sequential 4KB read: 4002.4 MB/s
+random 4KB read: 3363.0 MB/s
+write (no fsync): 2630.0 MB/s
+write + fsync per 1MB: 267.3 MB/s
+fsync per 4KB write: 0.51 ms per fsync
+\end{lstlisting}
+Going from 1\,MB to 4\,KB calls costs $5270\to4002$, a factor of
+1.32. Making the 4\,KB reads random costs a further $4002\to3363$,
+1.19. So on this machine most of the gap is the per-call overhead,
+not randomness; we did not measure why the random part costs the rest
+(likely less effective prefetching and cold page-table entries).
+\end{example}
+
+\input{figures/ch14/fig_linuxio.tex}
+
+\begin{example}[Reaching the real device: \texttt{O\_DIRECT}]
+How do you measure the disk instead of the cache? Open the file with
+the \texttt{O\_DIRECT} flag, which tells the kernel to skip the page
+cache (buffers and sizes must be aligned to 4096). \texttt{ch14\_direct.c}
+reads the same 256\,MB file three ways:
+
+\begin{lstlisting}[basicstyle=\ttfamily\scriptsize,caption={Real output of
+\texttt{ch14\_direct} (Linux container, ext4 on a virtual disk).}]
+buffered read, 1st pass :     4984 MB/s
+buffered read, 2nd pass :     6313 MB/s
+O_DIRECT read           :     1135 MB/s
+\end{lstlisting}
+Even the ``first'' buffered pass is fast because the program has just
+written the file, so its pages are still cached. The honest device
+rate shows only with \texttt{O\_DIRECT}: 1\,135\,MB/s, so the cache
+made the same read $6313/1135\approx5.6\times$ faster. Note that this
+is a virtual disk whose real hardware we cannot see; the figure is the
+rate this container gets, not a property of any particular SSD.
 \end{example}
 
 \section{fsync: the syscall that pierces the cache}
@@ -57,17 +212,91 @@ that \emph{the OS has already hidden the disk from you}, and only
 
 \input{figures/ch14/fig_fsync.tex}
 
-Buffered writes run at 6.7\,GB/s because the kernel only copies
+A \texttt{write} call returns as soon as the bytes are copied into
+the kernel's cache; the data is not yet on the device, so a power cut
+loses it. \texttt{fsync(fd)} says ``do not return until this file's
+data is on stable storage''. That promise is what you pay for.
+
+(Mac) Buffered writes run at 6.7\,GB/s because the kernel only copies
 into RAM. Add \texttt{fsync} per megabyte and throughput drops
-$3.5\times$; per 4\,KB it drops $\sim$$60\times$ --- the flush
+$3.5\times$; per 4\,KB it drops $\sim$$115\times$ (4\,KB every 0.07\,ms is $\approx$58\,MB/s against 6\,722) --- the flush
 itself becomes the workload. Databases batch commits for exactly
 this reason; the cost isn't the write, it's the durability
 boundary.
+
+\begin{example}[How big must a write be before fsync stops dominating?]
+\emph{The naive guess} is that fsync costs a fixed amount, so any
+write size is fine. We measured instead. \texttt{ch14\_fsync\_}\allowbreak\texttt{sweep.c}
+writes in sizes from 4\,KB to 1\,MB, calling \texttt{fsync} after every
+write:
+
+\begin{lstlisting}[basicstyle=\ttfamily\scriptsize,caption={Real output of
+\texttt{ch14\_fsync\_sweep} (Linux container, one run; a repeat
+run gave 2.9 and 10.5\,ms/fsync at 1\,MB on other occasions, so this
+disk is noisy).}]
+write size     fsyncs     ms/fsync       MB/s
+    4096 B        512        0.679        5.8
+   16384 B        512        0.586       26.7
+   65536 B        128        0.568      110.0
+  262144 B         32        1.029      242.9
+ 1048576 B          8        2.374      421.2
+\end{lstlisting}
+Reading the table: for 4\,KB to 64\,KB the cost per fsync is about
+0.57--0.68\,ms, a \emph{fixed flush cost} that does not depend on the
+size. At 1\,MiB the call takes 2.374\,ms, so the data transfer part is
+about $2.374-0.57=1.8$\,ms per MiB, i.e.\ $\approx$550\,MiB/s. The
+fixed cost equals the transfer time when
+$0.57\,\text{ms}\times550\,\text{MiB/s}\approx0.31$\,MiB: below
+roughly 300\,KiB per fsync the flush dominates, above it the data
+does. Throughput climbs from 5.8 to 421\,MB/s because the same fixed
+cost is spread over more bytes. This is the whole argument for
+\emph{group commit}: gather many small writes and flush once.
+\end{example}
 
 \section{Journaling: never half-written}
 \label{sec:journal14}
 
 \input{figures/ch14/fig_journal.tex}
+
+Before the details, recall the problem. Moving 10 from account block
+X to account block Y takes two block writes, and a disk can only
+promise that each \emph{single} block write is atomic. If the power
+fails between them, 10 units vanish. A \emph{journal} (a write-ahead
+log) fixes this by first writing down the intention, in a place the
+recovery code knows to look, and only then changing the real blocks.
+
+\begin{example}[Crash at every point, with and without a journal]
+\emph{The naive attempt:} write X, then write Y. \texttt{ch14\_journal\_sim.py}
+models the disk as a few blocks, stops the machine after each possible
+step, runs recovery, and checks the invariant $X+Y=100$ (start
+$X{=}60$, $Y{=}40$, transfer 10).
+
+\begin{lstlisting}[basicstyle=\ttfamily\scriptsize,caption={Real output of
+\texttt{python3 ch14\_journal\_sim.py}.}]
+  plain    crash after step 0: X=60 Y=40 sum=100 ok
+  plain    crash after step 1: X=50 Y=40 sum= 90 CORRUPT
+  plain    crash after step 2: X=50 Y=50 sum=100 ok
+  journal  crash after step 0: X=60 Y=40 sum=100 ok
+  journal  crash after step 1: X=60 Y=40 sum=100 ok
+  journal  crash after step 2: X=50 Y=50 sum=100 ok
+  journal  crash after step 3: X=50 Y=50 sum=100 ok
+  journal  crash after step 4: X=50 Y=50 sum=100 ok
+  journal  crash after step 5: X=50 Y=50 sum=100 ok
+corrupt states: plain=1, journal=0
+\end{lstlisting}
+\input{figures/ch14/fig_crashpoints.tex}
+The plain version has exactly one bad moment, between its two writes,
+and 90 is not an amount anyone ever had. The journal version writes
+the new values to a log (step 1), then a \emph{commit record} (step 2),
+then updates X and Y in place (3, 4), then clears the log (5). Crash
+after step 1: the log has no commit, recovery discards it, nothing
+happened. Crash after step 2, 3 or 4: the commit exists, recovery
+\emph{replays} the logged values into X and Y; replaying is harmless
+if some of it was already done, a property called idempotence. The
+model assumes a single block write is atomic and does not model
+torn writes within a block, which is the guarantee real disks give
+and journals rely on.
+\end{example}
 
 The commit record is the whole trick: a crash before it discards
 the transaction; a crash after it replays the write. Ordering the
@@ -94,10 +323,10 @@ when the device's minimum operation exceeds yours.
       \texttt{write()} returns after a RAM copy --- power loss
       loses it silently. fsync is the durability boundary.
 \item \textbf{Measuring ``disk speed'' through the page cache.}
-      Our own first run read 17\,GB/s --- of RAM. A valid storage
+      Our own first run read 17\,GB/s (Mac) --- of RAM. A valid storage
       benchmark must outsize RAM or bypass the cache.
 \item \textbf{fsync-per-write by default.} 0.07\,ms each is fine
-      for 100 writes; at 4\,KB writes it's $60\times$ of the
+      for 100 writes; at 4\,KB writes it's a $\sim$$115\times$ cut in the
       throughput --- batch commits.
 \item \textbf{Treating directories as files' contents.} The
       directory holds \emph{names}; the inode holds the file ---
@@ -115,7 +344,7 @@ when the device's minimum operation exceeds yours.
 \midrule
 inode    & name$\to$inode$\to$blocks; 4\,TB from 100\,B \\
 buffer cache & sequential reads at 17\,GB/s = RAM, measured \\
-fsync    & the durability syscall; $60\times$ tax at 4\,KB \\
+fsync    & the durability syscall; $\sim$$115\times$ tax at 4\,KB \\
 journal  & TxBegin..TxEnd..checkpoint = atomic crash safety \\
 SSD      & erase-block granularity punishes random writes \\
 \bottomrule
@@ -144,12 +373,14 @@ SSD      & erase-block granularity punishes random writes \\
 \section*{Notes}
 \label{sec:notes14}
 \begin{itemize}
-\item All throughput numbers are verbatim \texttt{ch14\_fs\_io.c}
-      output on this machine's APFS volume + page cache; your
-      numbers will differ --- the exercise is to compare shapes,
-      not digits.
+\item The first set of throughput numbers is verbatim
+      \texttt{ch14\_fs\_io.c} output on the author's Mac (APFS volume
+      plus page cache); the Linux listings are from an ext4
+      container on a virtual disk, labelled as such. Your numbers
+      will differ --- the exercise is to compare shapes, not digits.
 \item The inode walker output is real \texttt{lstat} data on this
-      repo's own code directory.
+      repo's own code directory. The journal model checks crash
+      points between whole block writes only.
 \end{itemize}
 
 \section*{Exercises}
@@ -175,7 +406,7 @@ descriptor count zero.
 \end{solution}
 
 \begin{exercise}[easy]
-Sequential write is buffered at 6.7\,GB/s here --- where do the
+Sequential write is buffered at 6.7\,GB/s on the Mac (2.6\,GB/s on the Linux container) --- where do the
 bytes physically go between \texttt{write} and \texttt{fsync}?
 \end{exercise}
 \begin{solution}[hint]
@@ -213,12 +444,17 @@ write --- atomic by hardware.
 \end{solution}
 
 \begin{exercise}[medium]
-Our fsync-per-4KB run implies a flush latency of 0.07\,ms. At
-what write size does fsync stop dominating? Derive from the data.
+Using the Linux sweep table (flush $\approx0.57$\,ms, and
+2.374\,ms for a 1\,MiB write), estimate the write size at which the
+data transfer time equals the fixed flush cost, and say what the
+Mac's 0.07\,ms flush implies about its crossover.
 \end{exercise}
 \begin{solution}[hint]
-Flush $\approx$ fixed cost; amortise until write time $>$ flush
-time --- roughly 1\,MB here.
+Transfer rate $\approx1\,\text{MiB}/(2.374-0.57)\,\text{ms}\approx554$
+MiB/s, so crossover $\approx0.57\,\text{ms}\times554\approx0.31$\,MiB.
+With the same device rate, a flush of 0.07\,ms would cross over at
+about $0.07\times554\approx39$\,KiB; the device rate on the Mac was
+not measured, so this is a scaling statement, not a Mac prediction.
 \end{solution}
 
 \begin{exercise}[medium]
@@ -287,4 +523,15 @@ lies about having flushed (hint: power-fail protected caches).
 After flush to non-volatile media; a lying drive trades
 durability for benchmark speed --- enterprise drives add
 capacitors to keep the promise honest.
+\end{solution}
+
+\begin{exercise}[easy]
+In the \texttt{ch14\_links} output, which two fields prove that
+\texttt{a} and \texttt{b} are the same file, and which field shows
+the symlink is \emph{not}?
+\end{exercise}
+\begin{solution}[hint]
+Same \texttt{ino} and \texttt{nlink=2} for \texttt{a} and \texttt{b};
+the symlink \texttt{s} has a different inode number and its size (1) is
+the length of the stored path text.
 \end{solution}

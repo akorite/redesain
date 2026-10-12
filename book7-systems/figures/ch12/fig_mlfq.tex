@@ -1,23 +1,24 @@
 \begin{figure}[htbp]
 \centering
 \begin{tikzpicture}[font=\footnotesize, x=1cm, y=1cm]
-  \foreach \y/\pri/\fill in {3.4/{high (short slice)}/red!15,
-                             2.2/{mid}/yellow!15,
-                             1.0/{low (long slice)}/green!15} {
-    \draw[thick,fill=\fill] (0,\y) rectangle (4.4,\y+0.8);
-    \node[anchor=west] at (0.2,\y+0.4) {\pri\ queue};
-    \foreach \x in {1.4,2.2,3.0} {
-      \draw[fill=white] (\x,\y+0.15) rectangle (\x+0.55,\y+0.65); }
+  \foreach \y/\pri/\fill in {3.4/{high (slice 10)}/accentsoft,
+                             2.2/{mid (slice 20)}/amberbg,
+                             1.0/{low (slice 40)}/goodbg} {
+    \draw[thick,fill=\fill] (0,\y) rectangle (7.2,\y+0.8);
+    \node[anchor=west] at (0.15,\y+0.4) {\pri};
+    \foreach \x in {3.9,4.9,5.9} {
+      \draw[fill=white] (\x,\y+0.15) rectangle (\x+0.7,\y+0.65); }
   }
-  \draw[->,thick] (4.6,3.8) -- (4.6,1.2) node[midway,right]
-    {\scriptsize demote on slice expiry};
-  \node[anchor=west] at (5.4,3.8) {\scriptsize rule: run the highest};
-  \node[anchor=west] at (5.4,3.0) {\scriptsize full slice $\Rightarrow$ drop a level};
-  \node[anchor=west] at (5.4,2.2) {\scriptsize periodic boost: all $\to$ top};
+  \draw[->,thick] (7.5,3.8) -- (7.5,1.2);
+  \node[anchor=west,align=left] at (7.7,2.6) {\scriptsize demote on\\[-2pt]\scriptsize slice expiry};
+  \node[anchor=west] at (0,0.45) {\scriptsize rule: always run a job from the highest non-empty queue};
+  \node[anchor=west] at (0,0.0) {\scriptsize periodic boost: move every job back to the top queue};
 \end{tikzpicture}
-\caption{MLFQ without code: short jobs naturally fall to the bottom
-(they finish before being demoted); long jobs sink and get long
-slices; a periodic priority boost stops starvation. The policy
-approximates STCF without knowing job lengths.}
+\caption{MLFQ without code: short jobs finish while still at the top
+(they end before using a full slice, so they are never demoted); long
+jobs use full slices, sink and get long slices; a periodic priority
+boost stops starvation. The policy approximates STCF without knowing
+job lengths. Slices shown (10, 20, 40) are those used by the
+simulator.}
 \label{fig:mlfq12}
 \end{figure}

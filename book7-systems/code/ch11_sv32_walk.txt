@@ -1,0 +1,18 @@
+walk 1: VA 0x00401234 (r) -> PA = 0x09ABC234
+  level 1: PTE at 0x01000004 = 0x00800001
+  level 0: PTE at 0x02000004 = 0x026AF017
+walk 2: VA 0x00401FFC (r) -> PA = 0x09ABCFFC
+  level 1: PTE at 0x01000004 = 0x00800001
+  level 0: PTE at 0x02000004 = 0x026AF017
+walk 3: VA 0x00402010 (w) -> PAGE FAULT (permission: page lacks W)
+  level 1: PTE at 0x01000004 = 0x00800001
+  level 0: PTE at 0x02000008 = 0x026AF413
+walk 4: VA 0x00402010 (r) -> PA = 0x09ABD010
+  level 1: PTE at 0x01000004 = 0x00800001
+  level 0: PTE at 0x02000008 = 0x026AF413
+walk 5: VA 0x00801000 (r) -> PAGE FAULT (invalid PTE at level 1 (V=0))
+  level 1: PTE at 0x01000008 = 0x00000000
+walk 6: VA 0x00C02ABC (r) -> PA = 0x00777ABC
+  level 1: PTE at 0x0400000C = 0x01400001
+  level 0: PTE at 0x05000008 = 0x001DDC1F
+ch11 sv32 model: self-check ok

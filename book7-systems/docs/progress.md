@@ -23,8 +23,10 @@
 | ch11 | Virtual memory | elec session | complete | 2026-10-11 | 6 figs, 11 ex, real 7x fault cost |
 | ch12 | Processes & scheduling | elec session | complete | 2026-10-11 | 6 figs, 15 ex, real 3us ctx-switch + sched sim |
 | ch13 | Concurrency & sync | elec session | complete | 2026-10-11 | 6 figs, 15 ex, real 83pct lost + lockscale |
-| ch14 | File systems & persistence | elec session | complete | 2026-10-11 | 6 figs, 15 ex, real 17GB/s-cache + fsync tax |
+| ch14 | File systems & persistence | elec session | complete | 2026-10-11 | 6 figs, 14 ex (now 15 after 2026-10-12 pass), real 17GB/s-cache + fsync tax |
 | ch15 | Measuring performance | elec session | complete | 2026-10-11 | 6 figs, 15 ex, folklore audit table |
 | ch16 | Vectorisation | elec session | complete | 2026-10-11 | 6 figs, 15 ex, real 4x NEON + 1.00x autovec |
 | ch17 | Low-latency patterns | elec session | complete | 2026-10-11 | 6 figs, 15 ex, folklore audit real |
 | ch18 | Interpreter & compiler | elec session | complete | 2026-10-11 | 6 figs, 15 ex, real 9-op VM + emitter |
+
+- 2026-10-12 — floors pass (4 parallel authors, merged): ch05-18 each >=5 WE (5..11), >=6 figs, >=15 ex, >=3 listings with captured output, test_chNN.sh for ch01-18 all PASS in a Linux x86_64 container. ch01-smoke removed (it shifted printed chapter numbers by one). Cover/title set. 216pp. Warm beginner voice + Before-you-start/After-this-chapter boxes added to ch05-18. Several pre-existing errors fixed (see review-log).

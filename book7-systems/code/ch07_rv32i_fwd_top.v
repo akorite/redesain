@@ -81,6 +81,7 @@ module rv32i_fwd_top(
       idex_regwrite<=regwrite; idex_memread<=memread;
       idex_memwrite<=memwrite; idex_branch<=branch; idex_jump<=jump;
       idex_lui<=lui_imm; idex_wbsel<=wbsel;
+      idex_f30<=ifid_insn[12];   // funct3 bit 0: 0=beq, 1=bne
     end
   end
   // ---- EX/MEM and MEM/WB declarations needed by forwarding ----
@@ -94,8 +95,11 @@ module rv32i_fwd_top(
   reg [1:0]  memwb_wbsel;
   // ---- FORWARDING ----
   // newest first: EX/MEM beats MEM/WB
-  wire [31:0] exmem_wb = (exmem_wbsel==2'd2) ? exmem_pc4 :
-                         (exmem_wbsel==2'd1) ? dmem_rdata : exmem_y;
+  // A load in MEM is NOT forwarded: real data memory returns its word at
+  // the END of the MEM cycle, too late for the next instruction's ALU in
+  // the same cycle. (exmem_y of a load is just its address.) The hazard
+  // unit stalls the consumer one cycle instead.
+  wire [31:0] exmem_wb = (exmem_wbsel==2'd2) ? exmem_pc4 : exmem_y;
   wire [31:0] fwdA = (exmem_regwrite && exmem_rd!=0 && exmem_rd==idex_rs1)
                      ? exmem_wb :
                      (memwb_regwrite && memwb_rd!=0 && memwb_rd==idex_rs1)

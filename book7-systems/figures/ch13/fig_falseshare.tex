@@ -1,0 +1,20 @@
+\begin{figure}[htbp]
+\centering
+\begin{tabular}{rrrr}
+\toprule
+threads & adjacent (ms) & padded (ms) & slowdown \\
+\midrule
+1 & 176.0 & 166.9 & 1.05$\times$ \\
+2 & 310.2 & 173.9 & 1.78$\times$ \\
+4 & 388.3 & 179.6 & 2.16$\times$ \\
+\bottomrule
+\end{tabular}
+\caption{Real \texttt{ch13\_partition.c} output (Linux x86\_64
+container): each thread does 100\,M increments of its \emph{own}
+volatile counter. In the \emph{padded} layout every counter sits on
+its own 64-byte line and the time stays flat. In the \emph{adjacent}
+layout several counters share a line, the cores fight over it, and
+the same work takes up to $2.2\times$ longer. Slowdown is
+adjacent\,/\,padded.}
+\label{fig:falseshare13}
+\end{figure}

@@ -1,6 +1,6 @@
 x cfg misses
-1 naive 76459
-2 block4 32777
-3 block8 28118
-4 block16 79179
-5 block32 77819
+1 naive 69632
+2 block4 20480
+3 block8 12512
+4 block16 10064
+5 block32 69632

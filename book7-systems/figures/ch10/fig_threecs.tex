@@ -9,9 +9,9 @@ capacity   & working set $>$ $C$ & shrink the set (tile), bigger cache \\
 conflict   & too many lines to one set & associativity, layout/padding \\
 \bottomrule
 \end{tabular}
-\caption{The three Cs. Classify the miss before fixing it: the
-chapter's E-sweep shows capacity dominating (assoc barely helps);
-the block-16 regression shows capacity's other face --- a tile
-bigger than the cache behaves worse than no tile.}
+\caption{The three Cs. Classify the miss before fixing it. In the
+chapter's simulator the naive transpose is 88\% capacity misses and the
+block-32 cliff is 88\% conflict misses (section~\ref{sec:sim10}), and the
+two call for different cures.}
 \label{fig:threecs10}
 \end{figure}

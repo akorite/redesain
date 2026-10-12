@@ -5,22 +5,79 @@
 
 Every address this book has used so far has been a polite fiction.
 The pointer in your C program is not a DRAM address; it is a name in
-a private namespace the OS maintains per process, translated on
+a private namespace the operating system maintains per process, translated on
 every single load and store by hardware you never see. This chapter
 opens that machinery: pages, the sv32 two-level walk, the TLB that
 makes translation affordable, the page fault that makes demand
 paging possible, and the protection bits that make processes safe
-from each other --- all measured on the machine in front of you.
+from each other. We run real programs that count page faults, watch a
+\texttt{fork} copy memory only when someone writes, and walk a page
+table with a 40-line model we check against hand calculations.
+
+\begin{rulebox}[After this chapter you can]
+You will be able to split a 32-bit virtual address into its page
+numbers and offset, walk a two-level page table by hand and find the
+physical address (or the page fault), read a page-table entry's flag
+bits, and run a small C program that counts the page faults your own
+code causes. You will be able to explain why \texttt{fork} is cheap,
+why a TLB is needed, and what it means that ``the address is a lie''.
+\end{rulebox}
+
+\begin{rulebox}[Before you start]
+\emph{Hexadecimal and bits.} A hex digit is four bits, so
+\texttt{0x234} is the 12 bits \texttt{0010 0011 0100} (Book~5 chapter~8,
+numbers, bits and Boolean algebra). Cutting an address into fields means
+shifting and masking: \texttt{(x >> 12) \& 0x3FF} drops the low 12 bits
+and keeps the next 10.
+
+\emph{Caches (chapters~9 and 10).} A cache keeps recently used data close
+and fast, found by splitting an address into tag, index and offset. A
+\emph{TLB} (below) is a cache of the same kind, for a different job.
+
+\emph{Traps (chapter~8).} A trap is the hardware's way of stopping the
+running program, jumping to operating-system code and later resuming. A
+\emph{page fault} is one kind of trap.
+
+\emph{A short C refresher.} \texttt{char *p} is the address of a byte and
+\texttt{p[i]} the byte \(i\) places after it. \texttt{mmap} asks the
+operating system for a block of address space; it hands back a pointer.
+\texttt{fork()} creates a second copy of the running program: it returns
+0 in the new \emph{child} and the child's process number in the original
+\emph{parent}, so an \texttt{if} on its result lets the two do different
+things. \texttt{getrusage} reads the system's own counters about your
+program, such as how many page faults it has caused.
+\end{rulebox}
+
+\begin{rulebox}[Think like this]
+When two things share one resource, ask what each one believes it owns
+and what the system actually gives it. Virtual memory is the answer for
+memory: each program believes it owns a huge, private, contiguous
+address space; the system gives it scattered frames of RAM, and only the
+ones it has actually used.
+\end{rulebox}
 
 \section{Why virtualize}
 \label{sec:why11}
 
-Three problems one mechanism. \emph{Isolation}: process A cannot
-scribble on process B because B's pages are simply absent from A's
-map. \emph{Relocation}: every program may believe it owns address
-\texttt{0x100000}; the OS places it anywhere. \emph{Sparse use}: a
-program may reserve a gigabyte and touch a megabyte --- the rest
-never needs to exist.
+Imagine a hotel in which every guest is told ``you are in room 101''.
+Guests never collide, because the front desk keeps a private table for
+each guest saying which real room ``101'' means for them. Nobody needs
+to know the real numbering, rooms can be reassigned without the guest
+noticing, and a guest who asks for room 9\,999 gets one only if and when
+they actually unpack a bag there. That is virtual memory.
+
+Why does a computer need this? Suppose we skip it and let every program
+use real RAM addresses. Two programs compiled to start at
+\texttt{0x100000} would overwrite each other, so each must be compiled
+for a different, agreed place. A bug in one could scribble over the
+other, or over the operating system. And a program asking for 1\,GB
+would need 1\,GB of contiguous, installed RAM even if it touches one
+megabyte. One mechanism solves all three problems: \emph{isolation}
+(process A cannot scribble on process B because B's pages are simply
+absent from A's map), \emph{relocation} (every program may believe it
+owns address \texttt{0x100000}; the OS places it anywhere), and
+\emph{sparse use} (reserve a gigabyte, touch a megabyte; the rest never
+needs to exist).
 
 \input{figures/ch11/fig_vapa.tex}
 
@@ -31,39 +88,163 @@ the walk, the TLB, the fault path --- is machinery around that one
 arrow.
 \end{example}
 
+\begin{example}[Splitting an address into page number and offset]
+Memory is divided into \emph{pages} of 4\,KB \(=2^{12}\) bytes (the size
+sv32 uses). Take the virtual address \texttt{0x00401234}. The low 12
+bits, \texttt{0x234} (564), say where inside the page the byte is. What
+remains, \texttt{0x00401234} \(\gg 12 =\) \texttt{0x401} (1025), is the
+\emph{virtual page number}, VPN. A naive plan stores one table entry
+per virtual page: a 32-bit space has \(2^{20}=1\,048\,576\) pages,
+and at 4 bytes per entry that is a 4\,MiB table for \emph{every}
+process, even one that uses two pages. The two-level walk in the next
+section exists to avoid exactly that waste.
+\end{example}
+
 \section{The walk: sv32 as the concrete case}
 \label{sec:sv32_11}
 \index{sv32}
 
-RISC-V's 32-bit mode splits the VA into VPN[1] (10 bits), VPN[0]
-(10 bits), offset (12 bits). VPN[1] indexes the level-1 page table
-for the physical address of a level-0 table; VPN[0] indexes that for
-the PPN. Two memory reads per translation.
+RISC-V's 32-bit mode, \emph{sv32}, splits the 32-bit virtual address (VA)
+into VPN[1] (10 bits), VPN[0] (10 bits) and the offset (12 bits). The
+processor register \texttt{satp} holds the physical page number (PPN) of
+the top table. A \emph{page table} is an array of 1\,024 four-byte
+\emph{page-table entries} (PTEs), exactly one 4\,KB page. VPN[1]
+selects an entry in the top table, whose PPN points to a second-level
+table; VPN[0] selects an entry in that table, whose PPN is the data
+page. Two memory reads per translation. The big saving: a second-level
+table exists only for the 4\,MiB regions the program really uses.
+
+A PTE packs the PPN into bits 31--10 and eight flag bits into bits 7--0,
+in the order \texttt{D A G U X W R V}. The ones we need: \texttt{V}
+valid, \texttt{R}/\texttt{W}/\texttt{X} read, write, execute allowed,
+\texttt{U} user-mode allowed. A valid PTE with \texttt{R=W=X=0} is a
+\emph{pointer} to the next table; otherwise it is a \emph{leaf}.
 
 \input{figures/ch11/fig_sv32.tex}
 
-\begin{example}[A walk by hand]
-VA \texttt{0x00401234}, satp pointing at a level-1 table at PPN
-\texttt{0x1000}: VPN[1] = \texttt{0x001} $\to$ PTE at
-\texttt{0x1000+1} gives level-0 table PPN \texttt{0x2000}; VPN[0] =
-\texttt{0x001} $\to$ PTE at \texttt{0x2000+1} gives PPN
-\texttt{0x9ABC}; PA = \texttt{0x9ABC} $|$ \texttt{0x234} =
-\texttt{0x9ABC234}. Two lookups, one address.
+\begin{example}[A walk by hand --- corrected]
+VA \texttt{0x00401234}, \texttt{satp} pointing at a level-1 table at PPN
+\texttt{0x1000}. First, where do page tables live in physical memory?
+PPN \texttt{0x1000} means byte address \(\texttt{0x1000}\times4096=
+\texttt{0x01000000}\). The fields: VPN[1] \(=\) \texttt{0x00401234}
+\(\gg22 = 1\); VPN[0] \(= (\texttt{0x00401234}\gg12)\,\&\,\texttt{0x3FF} =
+\texttt{0x401}\,\&\,\texttt{0x3FF}=1\); offset \texttt{0x234}.
+\begin{enumerate}
+\item Read the PTE at \texttt{0x01000000} \(+\,1\times4=\) \texttt{0x01000004}.
+      Suppose it holds a pointer to the level-0 table at PPN
+      \texttt{0x2000}.
+\item That table is at \texttt{0x2000}\(\times4096=\) \texttt{0x02000000}; read the
+      PTE at \texttt{0x02000000} \(+\,1\times4=\) \texttt{0x02000004}. Suppose
+      it holds the leaf PPN \texttt{0x9ABC}.
+\item The physical address is the PPN followed by the offset:
+      \texttt{0x9ABC}\(\times4096+\texttt{0x234}=\) \texttt{0x09ABC234}.
+\end{enumerate}
+Two lookups, one address. (An earlier edition wrote the PTE locations as
+``\texttt{0x1000+1}'', adding an index to a page number; a PTE address
+is the table's byte address plus 4 times the index.)
+\end{example}
+
+\begin{example}[Let a program do the walk, and check it against the hand result]
+The model \texttt{ch11\_sv32\_walk.py} keeps physical memory in a Python
+dictionary and implements exactly the steps above, plus the permission
+checks. We load it with the page tables of the example (plus a read-only
+page and an unmapped region) and ask for six translations:
+
+\begin{lstlisting}[language={},label={lst:walk11},caption={\texttt{python3 ch11\_sv32\_walk.py}. Walk 1 reproduces the hand
+calculation (PTE \texttt{0x026AF017} is PPN \texttt{0x9ABC} shifted left 10 plus flags V,R,W,U). Walk 3 stores to a read-only page; walk 5 reaches an empty top-level entry.}]
+walk 1: VA 0x00401234 (r) -> PA = 0x09ABC234
+  level 1: PTE at 0x01000004 = 0x00800001
+  level 0: PTE at 0x02000004 = 0x026AF017
+walk 2: VA 0x00401FFC (r) -> PA = 0x09ABCFFC
+  level 1: PTE at 0x01000004 = 0x00800001
+  level 0: PTE at 0x02000004 = 0x026AF017
+walk 3: VA 0x00402010 (w) -> PAGE FAULT (permission: page lacks W)
+  level 1: PTE at 0x01000004 = 0x00800001
+  level 0: PTE at 0x02000008 = 0x026AF413
+walk 4: VA 0x00402010 (r) -> PA = 0x09ABD010
+  level 1: PTE at 0x01000004 = 0x00800001
+  level 0: PTE at 0x02000008 = 0x026AF413
+walk 5: VA 0x00801000 (r) -> PAGE FAULT (invalid PTE at level 1 (V=0))
+  level 1: PTE at 0x01000008 = 0x00000000
+walk 6: VA 0x00C02ABC (r) -> PA = 0x00777ABC
+  level 1: PTE at 0x0400000C = 0x01400001
+  level 0: PTE at 0x05000008 = 0x001DDC1F
+ch11 sv32 model: self-check ok
+\end{lstlisting}
+
+Read walks 1 and 2: both addresses are in the same page, so they use the
+same two PTEs and the offsets (\texttt{0x234} and \texttt{0xFFC}) pass through
+untouched. Walks 3 and 4 use the same VA; the \emph{only} difference is
+read versus write, and the hardware's answer flips between a physical
+address and a fault. That is the protection fence of
+section~\ref{sec:cow11} in four lines of output. Walk 6 is the address of the
+hand-walk exercise: VPN[1]\(=3\), VPN[0]\(=2\), so the PTEs sit at
+\texttt{0x4000}\(\times4096+3\times4=\) \texttt{0x0400000C} and
+\texttt{0x05000008}.
 \end{example}
 
 \section{The TLB: caching the answer}
 \label{sec:tlb11}
 
-Two extra memory reads per load would be fatal. The TLB caches
-VPN$\to$PPN results so that most accesses skip the walk entirely ---
-it is a cache, exactly like ch10's, just for translations.
+Two extra memory reads per load would be fatal: a program doing a load
+every few instructions would run at a third of its speed. The
+\emph{translation lookaside buffer} (TLB) caches recent
+VPN\(\to\)PPN results so that most accesses skip the walk entirely. It is a cache, exactly like
+chapter~10's, just for translations: small (tens to a few thousand
+entries), fully or highly associative, one entry per page.
 
 \input{figures/ch11/fig_tlbchain.tex}
 
 \begin{example}[TLB reach]
-A 64-entry TLB on 4\,KB pages covers 256\,KB of address space
-before evictions start; on 2\,MB huge pages, 128\,MB. TLB reach is
-why giant pages exist --- same hardware, 512$\times$ more coverage.
+A 64-entry TLB on 4\,KB pages covers \(64\times4\) KB \(=256\) KB of address space
+before evictions start; on 2\,MB huge pages, 128\,MB. TLB \emph{reach} is
+why giant pages exist --- same hardware, 512\(\times\) more coverage.
+\end{example}
+
+\begin{example}[Seeing the TLB with a stopwatch]
+Design the experiment before running it. We want the cost of a hop
+that needs a translation not in the TLB. Naive attempt: chase a pointer
+chain through a big array and watch the time. But a big array also
+misses the \emph{cache}, so the two effects mix. The cleaner design uses
+\emph{one cache line per page}: visit \(P\) lines, one in each of \(P\)
+different pages, in random order. For \(P\) up to a few hundred the data
+is tiny (a few KB of cache lines) but spans \(P\) pages. As a control, we
+repeat with the \emph{same number of lines packed together} in
+\(P/64\) pages. If a slowdown appears only in the spread version, it
+is the TLB.
+
+\begin{lstlisting}[language={},label={lst:tlb11},caption={Linux x86\_64 container. Upper block: \texttt{./ch11\_tlb\_reach n} (normal pages, one line per page; rows 8 to 2\,048 pages of the 14 printed). Lower block: the control \texttt{./ch11\_tlb\_control}, the same number of lines packed into few pages (first three rows). Captured in \texttt{code/ch11\_tlb\_linux.txt} and \texttt{code/ch11\_tlb\_control\_linux.txt}.}]
+   pages     region       ns/hop        (one line per page)
+       8      32 KiB         1.22
+      16      64 KiB         1.21
+      32     128 KiB         1.22
+      64     256 KiB         1.21
+     128     512 KiB         3.95
+     256    1024 KiB         3.97
+     512    2048 KiB         3.98
+    1024    4096 KiB         7.13
+    2048    8192 KiB        20.47
+
+  64 lines in  1 page(s): 1.33 ns/hop     (control: same lines, packed)
+ 128 lines in  2 page(s): 1.33 ns/hop
+ 256 lines in  4 page(s): 1.35 ns/hop
+\end{lstlisting}
+
+Up to 64 pages a hop costs 1.2\,ns, an L1 hit. At 128 pages it jumps to
+3.95\,ns, and the control with 128 \emph{lines} in 2 pages stays at
+1.33\,ns. So the 2.6\,ns surcharge is the price of finding a translation
+outside the first-level TLB, and the step sits exactly at the 64
+entries that this class of Intel core is commonly documented to have (a figure
+from the vendor manuals, not something we measured directly). The
+next steps (7\,ns at 1\,024 pages, 20\,ns at 2\,048) are partly a second
+TLB level and partly the cache, which we cannot separate with this
+experiment. Honest gap: when we asked the kernel for huge pages
+(\texttt{./ch11\_tlb\_reach h}, and \texttt{AnonHugePages} confirmed
+256\,MiB were huge-page-backed) the step at 64--128 pages \emph{did not
+disappear} (3.15\,ns at 64 pages, 4.27 at 128), which a pure TLB
+story would not predict. We did not isolate why. A measurement that
+agrees with the theory in one setting and not in another is worth
+reporting, not hiding.
 \end{example}
 
 \section{Demand paging and the fault, measured}
@@ -71,26 +252,103 @@ why giant pages exist --- same hardware, 512$\times$ more coverage.
 
 A page that is mapped but never touched may never exist. The first
 touch raises a page fault; the OS allocates a frame, fills the PTE,
-and retries the instruction. \texttt{ch11\_fault\_cost.c} mmaps
-512\,MB and times the first walk vs.\ the second:
+and retries the instruction. The idea is the same as ``look it up when
+asked'': do the work lazily, because most of what you might need you
+will never need. It is also the reason \texttt{malloc(1\,GB)} returns
+instantly.
 
-\begin{example}[The 7$\times$ first-touch tax, real]
+\begin{example}[Counting the faults instead of guessing]
+The operating system keeps a counter of \emph{minor} page faults (faults that
+need no disk read) per process, and \texttt{getrusage} reads it. The
+program \texttt{ch11\_minflt.c} maps 64\,MiB (16\,384 pages of 4\,KB), then
+touches one byte per page in four passes. Before running, predict: a
+first pass should fault once per page, a second pass should not fault.
+Then run:
+
+\begin{lstlisting}[language={},label={lst:minflt11},caption={Linux x86\_64 container, \texttt{./ch11\_minflt} (captured in \texttt{code/ch11\_minflt\_linux.txt}). Page faults counted by the kernel, not estimated.}]
+page size 4096 bytes, region 16384 pages (64 MiB)
+after mmap, before any touch: faults=107  rss=402 pages
+read pass 1   : +16384 faults   rss=432 pages
+read pass 2   : +0 faults
+write pass 1  : +16384 faults   rss=16816 pages
+write pass 2  : +0 faults
+child  reads 256 shared pages: +0 faults; then writes them: +256 faults
+parent still sees p[0]=42 (child wrote 99 into its own copy)
+parent writes the same 256 pages after the child exited: +256 faults
+\end{lstlisting}
+
+Three things confirm and one surprises. Confirmed: the first pass costs
+exactly one fault per page (16\,384), and the second costs none, so
+demand paging works as described. The \texttt{rss} (resident set size,
+the pages of the process actually in RAM) is 402 pages before and
+\emph{only 432 after reading all 16\,384 pages}: Linux maps every
+never-written page to one shared page of zeros, so reading allocates no
+memory at all. The surprise: the first \emph{write} pass faults a second
+time on every page, because the shared zero page has to be replaced by a
+private frame; only then does \texttt{rss} jump by 16\,384 pages. Running
+the walk in the naive way, reading to ``warm up'' the memory, therefore
+leaves the expensive faults for later. (This is Linux behaviour on this
+kernel; other systems differ.)
+\end{example}
+
+\begin{example}[The fault cost, on two machines]
+\texttt{ch11\_fault\_cost.c} maps 512\,MB and times the first touch of
+each page against a second pass. First the author's Mac (16\,KB pages),
+verbatim:
+
 \begin{verbatim}
 pages=32768
 first-touch 744 ns/page
 resident    107.6 ns/page
 fault cost 7x
 \end{verbatim}
-Verbatim: on 16\,KB pages, the fault costs 7$\times$ a resident
-touch --- cheap enough that demand paging is the right lazy design,
-expensive enough that when \emph{every} access faults (thrashing),
-throughput collapses to disk speed.
+\noindent and the Linux x86\_64 container (the program now reads the page
+size from the OS instead of assuming 16\,KB):
+
+\begin{lstlisting}[language={},caption={Linux x86\_64 container, \texttt{./ch11\_fault\_cost}, one run (three runs gave 1\,001--1\,197\,ns first touch, 7--9\,ns resident, 125--159$\times$). Captured in \texttt{code/ch11\_fault\_cost\_linux.txt}.}]
+page size=4096 bytes
+pages=131072
+first-touch 1101 ns/page
+resident    8.8 ns/page
+fault cost 125x
+\end{lstlisting}
+
+A fault costs about a microsecond on both machines (744 versus
+1\,101\,ns), which at 3\,GHz is thousands of instructions: cheap enough
+that demand paging is the right lazy design, expensive enough that when
+\emph{every} access faults (thrashing) throughput collapses. The
+\emph{ratios} are 7 versus 125 only because the denominators are so
+different: the Mac's ``resident'' hop costs 107\,ns (its 16\,KB stride
+also misses the cache), the container's costs 9\,ns. Never compare
+ratios across machines; compare the quantity you care about.
 \end{example}
 
 \input{figures/ch11/fig_faultcurve.tex}
 
 \section{fork + copy-on-write, and the fence}
 \label{sec:cow11}
+
+Why is \texttt{fork} cheap? A naive \texttt{fork} would copy all of the
+parent's memory, which for a 4\,GB program takes seconds. Copy-on-write
+(COW) instead copies the page \emph{tables} and marks every shared page
+read-only; the first time either process writes a shared page, the
+hardware raises a protection fault, the kernel copies just that page,
+and the writer continues on its private copy. Pages nobody writes are
+never copied.
+
+\begin{example}[Fork and COW, counted]
+The second half of listing~\ref{lst:minflt11} runs it. After the parent has
+written 256 pages, it forks. The child \emph{reads} all 256 pages:
+0 faults, because the shared mappings are already valid for reading.
+The child then \emph{writes} them: 256 faults, one copy each, and
+the parent still sees its own value (\texttt{p[0]=42}), not the child's 99:
+the copies are private. Last, the parent writes the same pages: 256
+faults again. No page needed copying this time because the child had
+exited (the frames were no longer shared), but the pages were still marked
+read-only, so each write still took the fault to find that out. The
+accounting for a spawn-heavy workload is therefore ``the pages that
+get written pay one fault each'', not ``the whole process is copied''.
+\end{example}
 
 \input{figures/ch11/fig_cow.tex}
 \input{figures/ch11/fig_protect.tex}
@@ -127,8 +385,8 @@ memory is the shared resource; virtual memory is the private view.
 pages     & VPN$\to$PPN, offset untouched \\
 sv32 walk & 10+10+12 bits; two reads per miss \\
 TLB       & translation cache; reach = entries $\times$ page size \\
-fault     & 744\,ns vs 108\,ns resident on this machine (7$\times$) \\
-COW       & fork = O(1); the first write pays \\
+fault     & about 1\,$\mu$s (744\,ns Mac, 1\,101\,ns Linux); ratios differ with the baseline \\
+COW       & fork copies tables, not pages; the first write pays one fault (256 pages, 256 faults) \\
 PTE bits  & V/R/W/X/U --- hardware-enforced fence \\
 \bottomrule
 \end{tabularx}
@@ -161,8 +419,10 @@ PTE bits  & V/R/W/X/U --- hardware-enforced fence \\
 \item Fault/resident numbers are verbatim
       \texttt{ch11\_fault\_cost.c} on Apple Silicon (16\,KB pages);
       repeat on Linux to compare 4\,KB-page numbers.
-\item COW is described, not run --- the chapter's trace table is a
-      teaching aid; xv6 ch3 shows the real implementation.
+\item The Linux x86\_64 container numbers are new runs (Intel Xeon
+      2.8\,GHz, KVM guest, 4\,KB pages, kernel 6.18). The copy-on-write
+      counts, the page-table walk and the TLB steps are all produced by
+      the programs in \texttt{code/}, checked by \texttt{code/test\_ch11.sh}.
 \end{itemize}
 
 \section*{Exercises}
@@ -198,7 +458,7 @@ Walk VA \texttt{0x00C02ABC} on sv32 by hand (level-1 table PPN
 \texttt{0x4000}). Show both PTE indices.
 \end{exercise}
 \begin{solution}[hint]
-VPN[1]=\texttt{0x003}, VPN[0]=\texttt{0x002}, off=\texttt{0xABC}.
+VPN[1]=\texttt{0x003}, VPN[0]=\texttt{0x002}, off=\texttt{0xABC}. The PTEs are at $\texttt{0x4000}\cdot4096+3\cdot4=\texttt{0x0400000C}$ and, from the level-0 table's address, index 2 times 4.
 \end{solution}
 
 \begin{exercise}[medium]
@@ -265,4 +525,66 @@ legitimate way JIT compilers still make code.
 \begin{solution}[hint]
 The fence is in the MMU, not the compiler; JITs map pages W first,
 then \texttt{mprotect} to X --- never both.
+\end{solution}
+
+\begin{exercise}[easy]
+Split the virtual address \texttt{0x7FFFF123} into VPN[1], VPN[0] and
+offset. Which table entry of the top-level table does it use?
+\end{exercise}
+\begin{solution}[hint]
+VPN[1] $=\texttt{0x7FFFF123}\gg22=\texttt{0x1FF}$ (511), VPN[0]
+$=(\texttt{0x7FFFF123}\gg12)\,\&\,\texttt{0x3FF}=\texttt{0x7FFFF}\,\&\,\texttt{0x3FF}=\texttt{0x3FF}$ (1023),
+offset $=\texttt{0x123}$. It uses entry 511 of the top-level table, whose
+address is the table's byte address plus $511\times4$.
+\end{solution}
+
+\begin{exercise}[medium]
+Decode the PTE \texttt{0x026AF413} from listing~\ref{lst:walk11}: its PPN,
+which of V, R, W, X, U are set, and the physical address of a read of
+VA \texttt{0x00402010}.
+\end{exercise}
+\begin{solution}[hint]
+PPN $=\texttt{0x026AF413}\gg10=\texttt{0x9ABD}$. The low byte is
+\texttt{0x13} $=0001\,0011_2$: bits V (bit 0), R (bit 1) and U (bit 4)
+are set; W and X are not. A read gives $\texttt{0x9ABD}\cdot4096+\texttt{0x010}=\texttt{0x09ABD010}$;
+a write faults.
+\end{solution}
+
+\begin{exercise}[medium]
+Memory for page tables. In sv32, how many bytes of page tables does a
+process need if it uses exactly one page? And if it touches one page in
+each of 1\,024 different 4\,MiB regions?
+\end{exercise}
+\begin{solution}[hint]
+One page: one top-level table plus one level-0 table, $2\times4096=8192$
+bytes. 1\,024 regions: one top-level table plus 1\,024 level-0 tables,
+$1025\times4096=4\,198\,400$ bytes, about 4.0\,MiB. (A flat single-level
+table would have cost 4\,MiB in both cases.)
+\end{solution}
+
+\begin{exercise}[medium]
+Using listing~\ref{lst:minflt11}: how many page faults would a program
+incur if it \emph{read} and then \emph{wrote} every page of a fresh 1\,GiB
+anonymous mapping, with 4\,KB pages, on this kernel? How many if it only
+wrote?
+\end{exercise}
+\begin{solution}[hint]
+$1\text{ GiB}/4\text{ KiB}=262\,144$ pages. Read then write: the read
+pass faults once per page (262\,144, zero page), and the write pass
+faults again per page (262\,144), total 524\,288. Writing only: 262\,144.
+\end{solution}
+
+\begin{exercise}[hard]
+The Mac's fault ratio was 7$\times$ and the container's about 125$\times$,
+yet the faults themselves cost 744\,ns and about 1\,100\,ns. Explain the
+discrepancy, then say which number you would use to estimate the cost of
+a program that faults in 1\,GB of fresh memory.
+\end{exercise}
+\begin{solution}[hint]
+The ratio divides by the resident-touch time, which differs: 107.6\,ns on
+the Mac (its 16\,KB stride misses the cache) versus about 9\,ns here. Use
+the absolute first-touch time per page times the number of pages: 1\,GiB
+is 262\,144 pages of 4\,KB, so roughly $262\,144\times1.1\,\mu\text{s}
+\approx 0.29$\,s on the container (zero-page read faults; write faults
+add the copy and are slower).
 \end{solution}

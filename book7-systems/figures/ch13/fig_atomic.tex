@@ -4,7 +4,7 @@
 \toprule
 mechanism & the atomic unit it gives you \\
 \midrule
-\texttt{lr.d}/\texttt{sc.d} (RISC-V A) & load-reserved + store-conditional retry loop \\
+\texttt{lr.w}/\texttt{sc.w} (RISC-V A) & load-reserved + store-conditional retry loop \\
 \texttt{amoadd} (RISC-V A) & atomic memory op, no retry \\
 C11 \texttt{atomic\_fetch\_add} & portable; compiles to the above \\
 \texttt{pthread\_mutex} & sleep-lock over the same primitives \\
