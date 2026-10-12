@@ -10,6 +10,51 @@ the same expression (the compiler). Both are real, both run, and
 the interpreter ships with a real off-by-one kept where you can
 see it.
 
+\begin{wins}[After this chapter you can]
+Write a small compiler yourself: take a line such as
+\texttt{2+3*4}, turn it into a tree, turn the tree into code for a
+stack machine \emph{and} into RISC-V instructions, and run both to
+check you get the same answer as a real C compiler. You can also read
+a trace of a virtual machine, say exactly what each step did to the
+stack, and put a measured number on what interpreting costs.
+\end{wins}
+
+\begin{rulebox}[Before you start]
+\textbf{Recap in plain words.} A \emph{program} is a list of
+instructions. The CPU you built in ch.\,5--8 (and, in miniature, the
+8-bit CPU of Book~5 ch.\,16) runs such a list by repeating three
+steps: \emph{fetch} the next instruction, \emph{decode} what it
+means, \emph{execute} it. Ch.\,3 showed the RV32I instructions and ch.\,4
+showed how functions use a stack. This chapter notices something
+simple: nothing says the fetch-decode-execute loop has to be made of
+silicon. A few lines of C can do the same job, and then we call it a
+\emph{virtual machine} (VM) or \emph{interpreter}. A \emph{compiler}
+is the other choice: instead of doing what the program says, it
+translates the program into instructions for a real CPU once, and
+then gets out of the way. Think of an interpreter as a translator who
+sits beside you and repeats every sentence aloud, and a compiler as a
+translator who hands you a finished book in your language.
+
+\textbf{C in ten lines.} \texttt{int st[256]} is an array of 256 integers; here we use
+it as a stack with an integer \texttt{sp} (the stack pointer) that
+says how many items are on it. \texttt{st[sp++] = v} pushes
+\texttt{v}; \texttt{st[--sp]} pops. \texttt{switch (x) \{ case 1: \dots; break; \}}
+jumps to the \texttt{case} whose number equals \texttt{x}.
+An \texttt{enum} gives names to small numbers. \texttt{while (1)} loops until a
+\texttt{return}. \texttt{p[ip++]} reads the element at index
+\texttt{ip}, then adds one to \texttt{ip}. Compile and run with
+\texttt{gcc -O2 file.c \&\& ./a.out}.
+\end{rulebox}
+
+\begin{principle}[Think like this]
+When a problem feels big, ask ``what is the smallest machine that
+still shows the whole idea?'' A 9-instruction VM is not a toy to be
+outgrown; it contains the same loop, the same stack and the same
+decisions as the Java or Python machines that run most of the
+world's software. Learn the small one completely and the big ones stop
+being magic.
+\end{principle}
+
 \section{The divide}
 \input{figures/ch18/fig_loop}
 
@@ -19,16 +64,94 @@ see it.
 \texttt{ch18\_vm.c} implements 9 opcodes --- PUSH, ADD, SUB, MUL,
 DIV, DUP, OUT, JNZ, HALT --- in one dispatch loop. The program
 computes $(6{\times}7)+8$, prints 50, then counts down via a JNZ
-loop. 28 dispatched instructions for 14 abstract operations: the
-2$\times$ overhead is the interpreter's tax made visible.
+loop. The VM dispatches 28 instructions to do it (verified by running it,
+and again by counting by hand below). Of those 28, 13 do real work
+(5 arithmetic, 5 \texttt{OUT}, 3 \texttt{JNZ}) and 15 are stack
+bookkeeping (7 \texttt{PUSH}, 7 \texttt{DUP}, 1 \texttt{HALT}): about
+$28/13\approx 2.2$ dispatches for each useful operation. That ratio is
+the interpreter's tax made visible, and it is a count of instructions,
+not of time (the time cost is measured later in the chapter).
 
 \input{figures/ch18/fig_vmrun}
 
 \begin{example}[The stray zero]
-The countdown prints \texttt{3 2 1 0} --- the JNZ loop decrements
-then tests, so the final 0 slips through before exit. Kept because
-it's the class of bug (loop-boundary) that every hand-rolled VM
-and every compiled language inherits from its semantics.
+The countdown prints \texttt{3 2 1 0}, but a person reading the
+description (``count down from 3'') expects \texttt{3 2 1}. Where does
+the 0 come from? Read the program: inside the loop, each pass does
+\texttt{DUP OUT} (print the counter), then \texttt{PUSH 1 SUB} (subtract
+1), then \texttt{DUP JNZ} (jump back if the new value is not zero).
+When the counter reaches 0 the jump is not taken, the loop is left,
+and the next instruction is a final \texttt{OUT}, which prints the
+value still sitting on the stack: 0. The VM did exactly what it was told;
+the \emph{program} printed one value too many. This is the
+loop-boundary mistake (an ``off-by-one'') that every hand-written
+loop in every language can have. Keeping it in the chapter is
+deliberate, because you will meet it again.
+
+The fix is to delete that final \texttt{OUT}. The new bytecode
+\texttt{ch18\_count\_fixed.bc} is \texttt{1 3 6 7 1 1 3 6 8 2 0} and
+the loader \texttt{ch18\_vmrun} (below) prints, verbatim,
+\begin{verbatim}
+3
+2
+1
+instructions executed: 20
+\end{verbatim}
+The count falls from 28 to 20 because the first part (the $6\times7+8$ arithmetic,
+7 dispatches) and the final \texttt{OUT} (1) are gone.
+\end{example}
+
+\section{Watching the stack: a trace}
+\input{figures/ch18/fig_trace}
+
+A stack machine is easiest to understand by watching it. The
+loader \texttt{ch18\_vmrun.c} reads bytecode (a list of integers)
+from standard input and, with \texttt{-t}, prints one line per
+dispatched instruction showing the stack \emph{before} that step.
+Unlike the first VM it also checks every push and pop, so a faulty
+program stops with a message instead of silently overwriting memory.
+
+\lstinputlisting[language=C,firstline=29,lastline=38,
+caption={The dispatch loop of \texttt{ch18\_vmrun.c}: one \texttt{case}
+per opcode, every pop and push checked.}]{code/ch18_vmrun.c}
+
+\begin{example}[A real trace of $6\times7+8$]
+Feeding it the bytecode \texttt{1 6 1 7 4 1 8 2 0} (PUSH 6, PUSH 7,
+MUL, PUSH 8, ADD, HALT) with \texttt{-t} gives, verbatim:
+\begin{verbatim}
+  1  ip=0   PUSH 6    stack before:
+  2  ip=2   PUSH 7    stack before: 6
+  3  ip=4   MUL       stack before: 6 7
+  4  ip=5   PUSH 8    stack before: 42
+  5  ip=7   ADD       stack before: 42 8
+  6  ip=8   HALT      stack before: 50
+instructions executed: 6
+\end{verbatim}
+Read it line by line. Step 3: the stack is \texttt{6 7}; \texttt{MUL}
+pops the two top values, multiplies, pushes 42. Step 5: the stack is
+\texttt{42 8}; \texttt{ADD} leaves 50. Notice that no instruction
+says \emph{which} registers to use. That is why stack code is so
+compact: the operands are always ``the top two things''.
+\end{example}
+
+\begin{example}[When a program is wrong, the VM says so]
+A VM that trusts its input is a security hole (the first VM, with
+no checks, would let a long enough program write past
+its 256-entry stack). The checked loader turns three classic
+mistakes into messages. Verbatim:
+
+{\scriptsize
+\begin{verbatim}
+PUSH 1, PUSH 0, DIV      ->  VM error at ip=5: divide by zero
+(program: 6 6 6)          ->  VM error at ip=1: stack underflow
+(300 times PUSH 1)       ->  VM error at ip=514: stack overflow
+\end{verbatim}
+}
+The second program is \texttt{DUP DUP DUP}: the first \texttt{DUP}
+tries to pop from an empty stack. The third pushes 300 values onto
+a 256-entry stack and is stopped at the 257th push. The habit of mind: whenever a machine has a
+fixed-size resource, ask ``what happens at the edge?'' and make the
+answer a deliberate error, not an accident.
 \end{example}
 
 \section{The compiler: emit once}
@@ -39,6 +162,132 @@ instructions --- no dispatch loop, no stack discipline at runtime.
 The constant operands are baked in at compile time
 (\texttt{\# eval at compile time: 104}); the interpreter can never
 do that, because it reads the program \emph{as data} every step.
+
+
+\section{A compiler you can read in one sitting}
+
+So far the ``compiler'' only printed lines it already knew. A real
+one has three jobs: \emph{parse} the text (find its structure), maybe
+\emph{optimise} it, and \emph{generate} code. \texttt{ch18\_expr.py}
+(about 120 lines of Python) does all three for integer expressions with
+\texttt{+ - * /} and parentheses, and can aim at two targets: our stack
+VM, or RISC-V assembly.
+
+\paragraph{Why a tree?} The text \texttt{2+3*4} is a flat line of
+characters, but its meaning has shape: the multiplication must happen
+first, so \texttt{3*4} is a unit and the addition combines \texttt{2}
+with that unit. A tree captures this: each node is an operator whose
+children are its operands. The compiler's first job is to build the tree.
+
+\begin{example}[The naive parser gets $2+3\times4$ wrong]
+The simplest idea is to read left to right and apply each operator as
+you meet it. Our \texttt{--naive} flag does exactly that, treating every operator as equal.
+Its tree for \texttt{2+3*4} is $((2+3)\times 4)$ and its value is
+$20$. The correct tree is $(2+(3\times4))$ with value $14$. Real output:
+\begin{verbatim}
+$ python3 ch18_expr.py --naive --target ast "2+3*4"
+((2 + 3) * 4)
+value: 20
+$ python3 ch18_expr.py --target ast "2+3*4"
+(2 + (3 * 4))
+value: 14
+\end{verbatim}
+The cure is to give the grammar one level per precedence: an
+\emph{expression} is terms joined by \texttt{+}/\texttt{-}; a
+\emph{term} is factors joined by \texttt{*}/\texttt{/}; a \emph{factor}
+is a number or a parenthesised expression. Because \texttt{expr} calls
+\texttt{term}, which calls \texttt{factor}, the multiplication gets
+grouped before the addition ever sees it.
+\end{example}
+
+\lstinputlisting[language=Python,firstline=42,lastline=56,
+caption={The parser of \texttt{ch18\_expr.py}: a single helper
+\texttt{binary} builds left-leaning trees for any level of operators.}]{code/ch18_expr.py}
+
+\lstinputlisting[language=Python,firstline=81,lastline=92,
+caption={Code generation. For the stack VM, walk the tree children-first
+(``postorder'') and emit the operator last. For RISC-V, the same walk
+hands out temporary registers.}]{code/ch18_expr.py}
+
+\begin{example}[One expression, three kinds of code]
+Compile $(6+7)\times 8$. Walking the tree children first gives the VM
+bytecode, the register walk gives RISC-V, and with \texttt{--fold}
+the compiler evaluates constants itself. Real outputs:
+
+{\scriptsize
+\begin{verbatim}
+--target vmlist          --target rv32            --fold --target rv32
+  0  PUSH 6                li   t0, 6               li   t0, 104
+  2  PUSH 7                li   t1, 7               addi a0, t0, 0
+  4  ADD                   add  t0, t0, t1
+  5  PUSH 8                li   t1, 8
+  7  MUL                   mul  t0, t0, t1
+  8  OUT                   addi a0, t0, 0
+  9  HALT
+\end{verbatim}
+}
+Running the bytecode in \texttt{ch18\_vmrun} prints 104 after 7
+dispatches. The RISC-V version needs no dispatch at all: 6
+instructions, the last one just moving the answer into \texttt{a0},
+the register that holds a function's result (ch.\,4). Assembled with
+\texttt{clang --target=riscv32 -march=rv32im} and disassembled with
+\texttt{llvm-objdump}, the multiply is the machine word
+\texttt{b3 82 62 02}, which is \texttt{mul t0, t0, t1} (this needs the
+M extension; RV32I alone has no multiply, as ch.\,3 noted). With
+folding the whole program collapses to one \texttt{li}, which is
+what \texttt{\# eval at compile time: 104} meant earlier in the chapter.
+\end{example}
+
+\begin{example}[The compiler agrees with a real C compiler]
+Correctness is checked, not assumed. \texttt{test\_ch18.sh} compiles
+seven expressions, runs each on the VM, and compares with what gcc
+computes for the same C expression (including C's rule that
+integer division truncates). All seven match:
+\texttt{104, 50, 5, 14, 7, 1, -3} for
+\texttt{(6+7)*8, 6*7+8, 10-3-2, 2+3*4, 100/7/2, ((1+2)*(3+4))-5*(6-2), 7-10}.
+Check one by hand: $100/7=14$ (truncated), $14/2=7$; and
+$21-5\cdot4=1$. Programs using only \texttt{+} and \texttt{-}
+also run on this book's own RV32I simulator from ch.\,3: the code for
+$(9-4)+(7-5)$ leaves 7 in \texttt{a0} after 8 retired instructions.
+\end{example}
+
+\section{What does interpreting cost? Measure it}
+
+Folklore says ``interpreters are 10 to 100 times slower''. Let us
+see what our own VM does. \texttt{ch18\_vm\_bench.c} runs the same
+countdown loop from 100 million, natively and as bytecode
+(\texttt{PUSH N; L: PUSH 1, SUB, DUP, JNZ L; HALT}), four dispatches per iteration.
+
+\lstinputlisting[language=C,firstline=13,lastline=21,
+caption={The VM side of \texttt{ch18\_vm\_bench.c}: the same switch
+dispatch as before, with no checks and no printing.}]{code/ch18_vm_bench.c}
+
+\begin{example}[A fair baseline, then an unfair one]
+Verbatim output (Linux x86\_64 container, \texttt{gcc -O2}):
+
+{\scriptsize
+\begin{verbatim}
+iterations: 100000000
+native, register counter:    72.3 ms  (0.72 ns/iter)
+native, memory counter  :   168.5 ms  (1.69 ns/iter)
+stack VM                :   716.6 ms  (7.17 ns/iter, 400000002
+    dispatches, 1.79 ns/dispatch)
+VM / native(register) = 9.9x    VM / native(memory) = 4.3x
+\end{verbatim}
+}
+Two native baselines appear because the first one we tried, a
+counter declared \texttt{volatile} so that the compiler could not delete the loop,
+forces a store and reload on every pass and is itself slow
+(1.69\,ns). Comparing against that flatters the VM ($4.3\times$). The honest baseline keeps the counter in a register,
+which gives $9.9\times$. Over several runs the register-baseline ratio
+ranged from 8 to 16$\times$ on this shared container, so quote it as ``about
+10$\times$'', not as a precise figure. Each dispatch costs about 1.8\,ns, roughly 5
+cycles: that is the price of loading the opcode, jumping to its
+\texttt{case}, and touching the stack in memory. Folklore's 10--100$\times$ is therefore a
+fair description of a naive interpreter on a loop with almost no real work in
+it; real programs do more work per dispatch, which is why the figure
+shrinks for them.
+\end{example}
 
 \section{The JIT compromise}
 \input{figures/ch18/fig_jit}
@@ -55,12 +304,16 @@ this book spent 18 chapters building.
 
 \section{Common mistakes}
 \begin{itemize}
-\item \textbf{``Interpreted = slow'' without a number.} Ours was
-      2$\times$ dispatch overhead on a compute loop --- real, and
-      smaller than folklore suggests.
+\item \textbf{``Interpreted = slow'' without a number.} Ours
+      measured about 10$\times$ native on a bare countdown loop
+      (4$\times$ against a deliberately slow native baseline) and 2.2
+      dispatches per useful operation --- real, and dependent on how
+      much work each dispatch does.
 \item \textbf{The off-by-one at the loop boundary.} The printed
-      trailing 0 is the canonical VM bug; JNZ-after-decrement is
-      where it lives.
+      trailing 0 is the \texttt{OUT} after the loop: test the exit
+      condition and ask what is still on the stack when you leave.
+\item \textbf{A parser that ignores precedence.} \texttt{2+3*4}
+      came out as 20; one grammar level per precedence level fixes it.
 \item \textbf{Thinking the compiler is magic.} Ours is 20 lines ---
       the hard parts (regalloc, optimisation) are real but the
       \emph{idea} fits on a page.
@@ -77,9 +330,9 @@ this book spent 18 chapters building.
 \toprule
 \textbf{Piece} & \textbf{Verified version} \\
 \midrule
-VM       & 9 opcodes, real run: 50 + countdown 3..0 \\
-overhead & 28 dispatch steps for 14 ops = 2$\times$ \\
-compiler & same expr $\to$ 5 arm64 lines, no dispatch \\
+VM       & 9 opcodes, real run: 50 + countdown 3..0 (the 0 is the program's, fixed version 3..1) \\
+overhead & 28 dispatches, 13 of them useful work; $\approx$10$\times$ native on a bare loop (x86\_64) \\
+compiler & same expr $\to$ 5 arm64 lines, no dispatch; \texttt{ch18\_expr.py}: parse, fold, emit VM or RV32 code \\
 JIT      & interpret cold, compile hot, speculate \\
 closure  & VM = ch8 SoC abstracted; book's loop closed \\
 \bottomrule
@@ -103,8 +356,15 @@ closure  & VM = ch8 SoC abstracted; book's loop closed \\
 
 \section*{Notes}
 \begin{itemize}
-\item Both programs run verbatim on this machine; the trailing 0 in
-      the countdown is the real JNZ-boundary bug, kept as a receipt.
+\item The original programs run verbatim on this machine; the trailing 0 in
+      the countdown comes from the program's final \texttt{OUT}, kept as
+      a receipt. The new programs (\texttt{ch18\_vmrun.c},
+      \texttt{ch18\_expr.py}, and \texttt{ch18\_vm\_bench.c}) are run and
+      checked by \texttt{code/test\_ch18.sh}; timings are from a shared
+      Linux x86\_64 container and vary by tens of percent between runs.
+\item The earlier text spoke of ``14 abstract operations''; that figure
+      cannot be derived from the program and was replaced by the counted
+      13 useful and 15 bookkeeping dispatches.
 \item The compiler's output is arm64 text emitted by the program ---
       the book ends where ch1 began, one level up.
 \end{itemize}
@@ -136,7 +396,8 @@ All of them --- operands are implicit on the stack.
 Fix the countdown's trailing 0. One-line change?
 \end{exercise}
 \begin{solution}[hint]
-Test before decrement (or JNZ on the pre-sub value).
+Delete the final \texttt{OUT}: bytecode \texttt{1 3 6 7 1 1 3 6 8 2 0}
+prints 3 2 1 in 20 dispatches (verified).
 \end{solution}
 \begin{exercise}[medium]
 Add a CALL/RET pair to the VM. What stack discipline do the
@@ -171,13 +432,17 @@ A guard + deopt path back to the interpreter --- correctness
 before speed.
 \end{solution}
 \begin{exercise}[hard]
-Prove or refute: the stack VM's 2$\times$ dispatch overhead grows
-with expression complexity. Run the counterexample (a longer
-straight-line program) and explain the scaling.
+Prove or refute: the stack VM's dispatch count per useful
+operation grows with expression complexity. Count dispatches for an
+expression with $n$ binary operators (compiled by \texttt{ch18\_expr.py})
+and explain the scaling.
 \end{exercise}
 \begin{solution}[hint]
-Overhead is per-op constant --- a longer program scales
-linearly, not worse; dispatch per step is the flat tax.
+An expression with $n$ binary operators has $n+1$ numbers, so
+$n+1$ \texttt{PUSH}es, $n$ operator instructions, one \texttt{OUT}
+and one \texttt{HALT}: $2n+3$ dispatches (check: $(6+7)\times8$ has
+$n=2$ and 7 dispatches). That is linear in $n$; per operator it tends to 2, so
+the overhead does not grow.
 \end{solution}
 \begin{exercise}[hard]
 Write the register-based VM version of this machine (reg[16]
@@ -226,4 +491,29 @@ semantic gaps (calls, locals, branches, memory).
 \begin{solution}[hint]
 CALL/RET, local load/store, structured branches, linear memory
 --- the four gaps between a toy and a module.
+\end{solution}
+\begin{exercise}[easy]
+Evaluate the bytecode \texttt{PUSH 2, PUSH 3, ADD, PUSH 4, MUL, OUT, HALT}
+by hand, writing the stack after each step. What does it print, and
+what infix expression is it?
+\end{exercise}
+\begin{solution}[hint]
+Stacks: $[2]$, $[2,3]$, $[5]$, $[5,4]$, $[20]$; \texttt{OUT} prints 20.
+It is $(2+3)\times4$, which is also what the naive parser computes for \texttt{2+3*4}.
+\end{solution}
+\begin{exercise}[medium]
+Using the measured 7.17\,ns per iteration and 4 dispatches per
+iteration, compute ns per dispatch, and convert to cycles at 2.8\,GHz.
+\end{exercise}
+\begin{solution}[hint]
+$7.17/4=1.79$\,ns per dispatch; $1.79\times2.8\approx5.0$ cycles.
+\end{solution}
+\begin{exercise}[medium]
+Compile \texttt{(1+2)*(3+4)} to RISC-V with the register scheme of
+\texttt{gen\_rv}. How many temporary registers are live at the
+busiest moment, and which?
+\end{exercise}
+\begin{solution}[hint]
+The code is \texttt{li t0,1}, \texttt{li t1,2}, \texttt{add t0,t0,t1}, \texttt{li t1,3}, \texttt{li t2,4}, \texttt{add t1,t1,t2}, \texttt{mul t0,t0,t1}.
+At the busiest point \texttt{t0}, \texttt{t1}, \texttt{t2} are live: three.
 \end{solution}

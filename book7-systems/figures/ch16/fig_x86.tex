@@ -1,0 +1,32 @@
+\begin{figure}[htbp]
+\centering
+\begin{tikzpicture}
+\begin{axis}[width=11.5cm, height=6.4cm,
+  xlabel={array length $n$ (floats), $\log_2 n$},
+  ylabel={speedup over scalar},
+  xmin=9, xmax=26, ymin=0, ymax=7, xtick={10,13,16,19,22,25},
+  grid=major, grid style={gray!20},
+  legend pos=north east, legend style={font=\scriptsize},
+  tick label style={font=\scriptsize}, label style={font=\small}]
+\addplot[thick, mark=square*, mark size=1.5pt, color=accent]
+  coordinates {(10,3.95) (13,2.81) (16,3.25) (19,2.23) (22,1.21) (25,1.21)};
+\addlegendentry{SSE2, 4 lanes}
+\addplot[thick, mark=*, mark size=1.5pt, color=good]
+  coordinates {(10,6.27) (13,4.18) (16,5.16) (19,2.24) (22,1.32) (25,1.27)};
+\addlegendentry{AVX2, 8 lanes}
+\draw[dashed, gray] (axis cs:9,1) -- (axis cs:26,1);
+\draw[dotted, gray] (axis cs:20.2,0) -- (axis cs:20.2,7);
+\draw[dotted, gray] (axis cs:22.5,0) -- (axis cs:22.5,7);
+\node[font=\scriptsize, anchor=south west, text=slate] at (axis cs:15,0.08) {in L1/L2};
+\node[font=\scriptsize, anchor=south, text=slate, rotate=90] at (axis cs:21.5,2.6) {L3};
+\node[font=\scriptsize, anchor=south, text=slate] at (axis cs:24.2,2.2) {DRAM};
+\end{axis}
+\end{tikzpicture}
+\caption{Linux x86\_64 container (4-core Xeon, 2.8\,GHz; \texttt{ch16\_saxpy\_x86}
+built with \texttt{-O3 -fno-tree-vectorize}). The 8-lane kernel gives
+4--6$\times$ while the arrays sit in L1/L2, and both curves fall to
+about 1.2--1.3$\times$ once $8n$ bytes exceeds the 33\,MiB L3 and every
+pass streams from DRAM. One run; repeat runs move the small-$n$
+points by $\pm$30\%. The dashed line is ``no gain''.}
+\label{fig:x86saxpy16}
+\end{figure}

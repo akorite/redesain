@@ -9,6 +9,68 @@ has built, and the cheapest: change nothing about the algorithm,
 get 4 items per issue. The catch is in the chapter's second
 measurement --- the compiler may already have taken the win.
 
+\begin{wins}[After this chapter you can]
+Take a plain C loop, say whether the compiler already turned it into
+vector instructions (by reading the disassembly, not by guessing),
+write the SSE2 or AVX2 version yourself including the ragged end
+that beginners get wrong, time it honestly against a scalar baseline,
+and predict from the array size whether the speedup will be 6$\times$
+or 1.2$\times$.
+\end{wins}
+
+\begin{rulebox}[Before you start]
+\textbf{Recap, from a picture.} Imagine a shop with one cashier who
+scans one item at a time. Now give the cashier a wide scanner that
+reads four barcodes in a single pass. The cashier is no faster, but
+four items go through per pass. That is \emph{SIMD} (single
+instruction, multiple data): one instruction works on several values
+at once, and each value sits in a \emph{lane} of a wide \emph{vector
+register}. It exists because the expensive part of running an
+instruction (fetching it, decoding it, scheduling it) is the same
+whether it handles one number or four, so handling four per
+instruction is nearly free. You already know the pieces: a register
+file holds words (ch.\,3 here, and Book~5 ch.\,15 built one for the
+8-bit CPU); an instruction does one operation on them (ch.\,5); and
+the memory hierarchy (ch.\,9) decides how fast data can be brought to
+the registers. Book~1 ch.\,1 introduced the idea that a program's
+cost is the number of elementary steps it performs; SIMD lowers that
+count by a constant factor, and ch.\,15 taught how to measure the
+result without fooling yourself.
+
+\textbf{C in ten lines.} An array \texttt{float x[n]} is $n$
+consecutive 4-byte values; \texttt{x+i} is the address of element
+\texttt{i}, and \texttt{x[i]} reads it. A function receives arrays as
+pointers (\texttt{const float *x}); \texttt{const} promises not to
+write through it. \texttt{for (long i = 0; i < n; i++)} is the
+counting loop. \texttt{y[i] += a*x[i]} means
+\texttt{y[i] = y[i] + a*x[i]}. Reading or writing outside
+$0\dots n{-}1$ is \emph{undefined behaviour}: the program may crash,
+or silently corrupt a neighbour. An \emph{intrinsic} such as
+\texttt{\_mm\_add\_ps} is a C function that the compiler replaces by
+exactly one machine instruction. Compile with \texttt{gcc -O3 file.c}.
+\end{rulebox}
+
+\paragraph{Which numbers are which.}
+The sweeps in the first half of the chapter (NEON, 4 lanes) were
+measured on the author's Apple-Silicon Mac and cannot be reproduced
+on an x86 machine, because NEON does not exist there. They are kept
+and labelled \emph{Mac/NEON}. The sections headed \emph{x86\_64}
+were measured here, on a Linux x86\_64 container (4-core Intel Xeon
+at 2.8\,GHz, 32\,KiB L1d and 1\,MiB L2 per core, 33\,MiB shared L3,
+with SSE2, AVX2 and AVX-512F available) and are a separate
+experiment, not a replication.
+
+\begin{principle}[Think like this]
+Before you optimise, ask three questions in order. (1) \emph{Is it
+already done?} The compiler may have vectorised the loop for you;
+read the machine code. (2) \emph{What is the limit?} If the loop is
+waiting for memory, wider arithmetic cannot help. (3) \emph{Did I
+measure it fairly?} A baseline that is secretly vectorised, or a
+benchmark that includes page faults, gives a number that means
+nothing. This chapter walks through all three, using a loop small
+enough to see completely.
+\end{principle}
+
 \section{Data-level parallelism}
 \input{figures/ch16/fig_dlp}
 
@@ -18,7 +80,7 @@ measurement --- the compiler may already have taken the win.
 \section{SAXPY, measured}
 \input{figures/ch16/fig_saxpy}
 
-\begin{example}[3--4$\times$ real]
+\begin{example}[3--4$\times$ real (Mac/NEON)]
 \texttt{-fno-vectorize} scalar vs NEON intrinsics across
 $n=2^{10}\dots2^{25}$: speedup tracks the 4-lane ideal (3.5$\times$
 at $2^{16}$, 4.2$\times$ at $2^{22}$), sagging to 3.0$\times$ at
@@ -26,10 +88,97 @@ $2^{25}$ where memory bandwidth, not issue width, is the limit ---
 ch9's roofline arriving on schedule.
 \end{example}
 
+\section{SAXPY on x86\_64: SSE2 and AVX2}
+\input{figures/ch16/fig_x86}
+
+x86 has the same idea under other names. SSE2 gives 128-bit registers
+(4 floats per instruction, the counterpart of NEON), and AVX2 gives
+256-bit registers (8 floats). \texttt{ch16\_saxpy\_x86.c} writes the
+SAXPY loop once in scalar C and twice with intrinsics. The scalar
+version is built with \texttt{-fno-tree-vectorize}, so the baseline
+is guaranteed to be scalar (confirmed below by reading its machine
+code).
+
+\lstinputlisting[language=C,firstline=15,lastline=33,
+caption={The three SAXPY kernels of \texttt{ch16\_saxpy\_x86.c}. The
+\texttt{i+4<=n} test and the trailing scalar loop handle lengths that
+are not a multiple of the lane count.}]{code/ch16_saxpy_x86.c}
+
+\begin{example}[Verbatim sweep, Linux x86\_64 container]
+Built with gcc at level \texttt{-O3}, the vectoriser switched off
+(\texttt{-fno-tree-vectorize}) and AVX2 enabled (\texttt{-mavx2}).
+Each cell is the best of five batches, in milliseconds per call:
+
+{\scriptsize
+\begin{verbatim}
+correctness (n=1003, ragged tail): ok
+n       scalar_ms    sse2_ms    avx2_ms   sse2_x   avx2_x
+2^10      0.00065    0.00016    0.00010    3.95x    6.27x
+2^13      0.00505    0.00180    0.00121    2.81x    4.18x
+2^16      0.04105    0.01262    0.00796    3.25x    5.16x
+2^19      0.35083    0.15713    0.15627    2.23x    2.24x
+2^22      4.48498    3.71751    3.40031    1.21x    1.32x
+2^25     35.52053   29.43226   27.96404    1.21x    1.27x
+\end{verbatim}
+}
+Read it against the cache sizes. The two arrays together occupy
+$8n$ bytes: 8\,KiB at $2^{10}$ (L1), 512\,KiB at $2^{16}$ (L2),
+4\,MiB at $2^{19}$ (L3), 32\,MiB at $2^{22}$ (the edge of the 33\,MiB
+L3) and 256\,MiB at $2^{25}$ (DRAM). Inside L1/L2 the speedups
+(3--4$\times$ for 4 lanes, 4--6$\times$ for 8) are close to the lane
+counts. At $2^{25}$ the loop moves $3\cdot 128$\,MiB (read \texttt{x},
+read and write \texttt{y}) $=402.7$\,MB in 27.96\,ms with AVX2, i.e.
+$\approx 14.4$\,GB/s, and in 35.52\,ms scalar, $\approx 11.3$\,GB/s.
+Eight times the lanes bought $1.27\times$ because the loop is limited
+by how fast bytes arrive, not by how many floats one instruction
+adds. That is ch.\,9's roofline again. Repeat runs on this shared
+container moved the small-$n$ speedups by roughly $\pm$30\%; the
+shape (large in cache, collapsing at DRAM) did not move.
+\end{example}
+
+\section{The ragged end: what a vector loop does when $n$ is not a multiple of 4}
+\input{figures/ch16/fig_tail}
+
+\lstinputlisting[language=C,firstline=9,lastline=17,
+caption={Naive and fixed 4-lane SAXPY from \texttt{ch16\_tail.c}.}]{code/ch16_tail.c}
+
+\begin{example}[Naive 4-lane loop over 10 floats, then the fix]
+Take $x_i=i$, $y_i=1$ for $i=0\dots9$ and $a=2$; the answer is
+$y_i=2i+1$, i.e.\ $1,3,5,\dots,19$. The first attempt that comes to
+mind is to take the scalar loop and change the step from 1 to 4:
+\texttt{for (i=0; i<n; i+=4)} with one 4-lane load, multiply-add and
+store inside. For $n=10$ the passes start at $i=0,4,8$. The third
+pass touches elements $8,9,10,11$, and elements 10 and 11 do not
+exist. Under AddressSanitizer (\texttt{gcc -g -fsanitize=address})
+the naive build stops at once (abridged: addresses and the call chain shortened):
+
+{\scriptsize
+\begin{verbatim}
+ERROR: AddressSanitizer: heap-buffer-overflow on address 0x504000000030
+READ of size 16 at 0x504000000030 thread T0
+    #1 0x56524400a3c6 in sax_naive .../ch16_tail.c:12
+0x504000000038 is located 0 bytes after 40-byte region
+\end{verbatim}
+}
+Without the sanitizer nothing necessarily stops the program: the
+third pass reads, and then writes, 8 bytes that belong to whatever
+the allocator placed after the buffer. The fix
+is to run the vector loop only while a full group remains
+(\texttt{i+4<=n}: passes at $i=0,4$) and finish elements 8 and 9 in a
+scalar \emph{tail} loop. The fixed build prints, verbatim,
+\begin{verbatim}
+1 3 5 7 9 11 13 15 17 19
+\end{verbatim}
+matching the hand calculation. For general $n$ the vector loop runs
+$\lfloor n/4\rfloor$ times and the tail $n \bmod 4$ times; for the
+$n=1003$ used in the program's correctness check that is $250$ vector
+passes and $3$ scalar steps.
+\end{example}
+
 \section{The folklore item that fails}
 \input{figures/ch16/fig_autovec}
 
-\begin{example}[Intrinsics $=$ compiler, measured]
+\begin{example}[Intrinsics $=$ compiler, measured (Mac/NEON)]
 At \texttt{-O3} clang auto-vectorises the scalar SAXPY: 2.891\,ms
 vs the hand-written intrinsics' 2.885\,ms --- $1.00\times$. The
 ``intrinsics beat the compiler'' claim dies on this machine.
@@ -38,14 +187,120 @@ won't, or for ops the compiler can't express --- not for raw speed
 it already finds.
 \end{example}
 
+\begin{example}[Intrinsics vs compiler on x86\_64: reading the machine code]
+Rebuild the same file with the vectoriser allowed (\texttt{gcc -O3
+-mavx2}). Before looking at times, look at what the compiler produced
+for the plain scalar C function \texttt{sax\_scalar}, using
+\texttt{objdump -d}:
+
+{\scriptsize
+\begin{verbatim}
+ 30: vmulps (%rdi,%rax,1),%ymm2,%ymm1     ; 8 floats: a * x[i..i+7]
+ 35: vaddps (%rcx,%rax,1),%ymm1,%ymm1     ; + y[i..i+7]
+ 3a: vmovups %ymm1,(%rcx,%rax,1)          ; store 8 floats
+ 3f: add    $0x20,%rax                    ; 32 bytes = 8 floats
+\end{verbatim}
+}
+That is an AVX2 loop nobody wrote: the compiler vectorised the
+scalar source and added its own scalar tail. With
+\texttt{-fno-tree-vectorize} the loop body is instead
+\texttt{vmulss}, \texttt{vaddss} and \texttt{vmovss} on one float, which is
+how we know the baseline above is honest. The verbatim sweep with
+the vectoriser on:
+
+{\scriptsize
+\begin{verbatim}
+n       scalar_ms    sse2_ms    avx2_ms   sse2_x   avx2_x
+2^10      0.00010    0.00026    0.00018    0.39x    0.59x
+2^13      0.00152    0.00287    0.00145    0.53x    1.05x
+2^16      0.00852    0.01582    0.00806    0.54x    1.06x
+2^19      0.19261    0.22102    0.17673    0.87x    1.09x
+2^22      3.76549    3.81055    3.31809    0.99x    1.13x
+2^25     29.92364   30.12058   31.23453    0.99x    0.96x
+\end{verbatim}
+}
+The ``scalar'' column is now the compiler's 8-lane code, so the
+8-lane intrinsics tie it ($0.96$--$1.13\times$), and our hand-written
+4-lane SSE2 version is up to $1.8\times$ \emph{slower} than the
+compiler's (the $0.54\times$ row). The Mac result reproduces in
+spirit: when the loop is simple, intrinsics do not beat the compiler,
+and an intrinsic version written for a narrower register can lose.
+\end{example}
+
+\begin{example}[Where intrinsics do win: saturating add]
+Brightening an 8-bit image adds two bytes and clamps at 255. In C:
+\texttt{s = a[i]+b[i]; o[i] = s>255 ? 255 : s;}. SSE2 has one
+instruction for it, \texttt{\_mm\_adds\_epu8}, on 16 bytes at once.
+\texttt{ch16\_satadd.c} checks that both give identical output on
+65\,536 random bytes and times them (\texttt{gcc -O3}, vectoriser on):
+
+{\scriptsize
+\begin{verbatim}
+outputs identical: yes
+scalar clamp: 0.0133 ms   _mm_adds_epu8: 0.0042 ms   speedup 3.1x
+    (n=65536 bytes)
+\end{verbatim}
+}
+Here the compiler does find some vector code (with
+\texttt{-fno-tree-vectorize} the gap was $11.5\times$ in one earlier
+run, and clang -O3 gave $5.1\times$ in one run), but the intrinsic
+still wins by about $3\times$ with gcc. The rule of thumb that
+survives: intrinsics pay when a single machine instruction does what
+takes the compiler a compare-and-select sequence.
+\end{example}
+
 \section{SoA vs AoS: the layout is the vector}
 \input{figures/ch16/fig_soa.tex}
 
 A struct-of-arrays update reads only the fields used; array-of-
-structs drags the whole record through every cache line. Measured:
+structs drags the whole record through every cache line. Measured on the Mac:
 2.0\,ms vs 4.7\,ms on 16M particles --- $2.35\times$ for a pure
 layout change, no SIMD written. The vector unit loves SoA because
 the memory system already does.
+
+\lstinputlisting[language=C,firstline=12,lastline=16,
+caption={The two kernels of \texttt{ch16\_soa\_x86.c}: the same
+arithmetic, different layouts.}]{code/ch16_soa_x86.c}
+
+\begin{example}[SoA vs AoS on x86\_64, with the benchmark fixed]
+The Mac program \texttt{ch16\_soa.c} has two flaws that the Mac run
+hid: its SoA arrays \texttt{x}, \texttt{y}, \texttt{z} are never
+written before timing, so the timed region contains first-touch page
+faults on Linux, and the ten repeats sit in a loop the compiler is
+free to interchange with the element loop. Run unchanged here it
+printed AoS 5.2\,ms against SoA 95.2\,ms, which is an artefact of
+those two flaws and not a measurement of layout. The x86 rewrite
+\texttt{ch16\_soa\_x86.c} initialises every array and times each pass
+as a separate call:
+\begin{verbatim}
+AoS x+=m: 34.94 ms/pass  (touches 256 MB)
+SoA x+=m: 14.16 ms/pass  (touches 128 MB)
+ratio AoS/SoA = 2.47x   (checksum 33554.5)
+\end{verbatim}
+$2.47\times$ agrees with a traffic count. AoS pulls every 64-byte
+line of the 256\,MiB struct array in and writes it back (512\,MiB
+moved); SoA reads two 64\,MiB arrays and writes one back
+($64+64+64=192$\,MiB), a ratio of $512/192=2.67$. Built with
+\texttt{-fno-tree-vectorize} the same program gave $1.70\times$ in
+one run, so on this machine roughly $1.7\times$ comes from layout
+alone and the rest from letting the vectoriser use the contiguous arrays.
+\end{example}
+
+\section{The way of thinking: compute-bound or memory-bound?}
+
+Every loop is limited by one of two things: how fast the CPU can do the
+arithmetic (\emph{compute-bound}), or how fast bytes can be delivered
+to it (\emph{memory-bound}). The cooking analogy: a chef who chops
+faster is useless if vegetables arrive from the market one crate an
+hour. A quick way to tell is to count. SAXPY does 2 floating-point
+operations (a multiply and an add) per element, while moving 12 bytes
+(read \texttt{x}, read \texttt{y}, write \texttt{y}: $3\times4$).
+That is 1/6 of an operation per byte, a very low ratio, and loops with
+a low ratio sit on the memory side of the roofline from ch.\,9
+as soon as the data no longer fits in cache. Our x86 numbers are the
+evidence: in cache, wider lanes help (4--6$\times$); in DRAM they
+barely do (1.27$\times$). The habit to keep is: compute the
+operations-per-byte of a loop \emph{before} reaching for intrinsics.
 
 \section{The three vector ISAs}
 \input{figures/ch16/fig_rvv}
@@ -73,9 +328,11 @@ the memory system already does.
 \textbf{Piece} & \textbf{Verified version} \\
 \midrule
 lanes    & 4 floats per issue --- the cheap parallelism \\
-saxpy    & scalar$\to$NEON = 3--4$\times$ real, BW-capped \\
+saxpy    & Mac: scalar$\to$NEON = 3--4$\times$ real, BW-capped \\
+x86\_64  & AVX2 4--6$\times$ in cache, 1.27$\times$ at $2^{25}$ (DRAM) \\
+ragged $n$ & vector loop while \texttt{i+4<=n}, then a scalar tail \\
 auto-vec & compiler = intrinsics ($1.00\times$) at -O3 \\
-SoA      & 2.35$\times$ for a pure layout change \\
+SoA      & Mac 2.35$\times$; x86\_64 2.47$\times$ (traffic ratio 2.67) \\
 RVV      & vector-length-agnostic --- the portable SIMD \\
 \bottomrule
 \end{tabularx}
@@ -98,8 +355,12 @@ RVV      & vector-length-agnostic --- the portable SIMD \\
 
 \section*{Notes}
 \begin{itemize}
-\item All numbers verbatim from the chapter's two C programs on
-      Apple Silicon; the $1.00\times$ auto-vec result is the
+\item The Mac/NEON numbers are verbatim from the chapter's two original C programs on
+      Apple Silicon (\texttt{ch16\_saxpy.c}, \texttt{ch16\_soa.c});
+      the x86\_64 numbers come from \texttt{ch16\_saxpy\_x86.c},
+      \texttt{ch16\_tail.c}, \texttt{ch16\_soa\_x86.c} and
+      \texttt{ch16\_satadd.c}, run in a Linux container and checked by
+      \texttt{code/test\_ch16.sh}; the $1.00\times$ auto-vec result is the
       chapter's second honest surprise after ch15's audit.
 \item \texttt{rvv\_sum.S} from the outline is a read-along
       (RISC-V V encoding shown, not run --- no RVV hardware here).
@@ -229,4 +490,36 @@ helping?
 \begin{solution}[hint]
 When the vector unit saturates memory BW --- on this class of
 machine, above $\sim$256 bits.
+\end{solution}
+
+\begin{exercise}[easy]
+A vector loop uses 8 lanes. How many vector passes and how many scalar
+tail steps does it run for $n=1003$? For $n=1024$?
+\end{exercise}
+\begin{solution}[hint]
+$1003=8\cdot125+3$: 125 vector passes and 3 tail steps. $1024=8\cdot128$:
+128 passes, 0 tail steps.
+\end{solution}
+\begin{exercise}[medium]
+At $n=2^{25}$ the x86 AVX2 SAXPY took 27.96\,ms. Recompute the memory
+bandwidth it achieved, counting one read of \texttt{x} and a read plus
+a write of \texttt{y}, and say what fraction of that the scalar
+version (35.52\,ms) reached.
+\end{exercise}
+\begin{solution}[hint]
+Bytes moved $=3\cdot 2^{25}\cdot 4=402\,653\,184$. At 27.96\,ms that is
+$14.4$\,GB/s; at 35.52\,ms it is $11.3$\,GB/s, so the scalar loop
+already reaches $11.3/14.4\approx 79\%$ of what AVX2 achieves,
+which is why 8 lanes gave only $1.27\times$.
+\end{solution}
+\begin{exercise}[medium]
+Using the cache sizes in this chapter (32\,KiB L1d, 1\,MiB L2, 33\,MiB L3),
+for which swept sizes do \texttt{x} and \texttt{y} together fit in L2,
+and why does the AVX2 speedup drop from $5.2\times$ at $2^{16}$ to
+$2.2\times$ at $2^{19}$?
+\end{exercise}
+\begin{solution}[hint]
+The working set is $8n$ bytes: $2^{13}\to 64$\,KiB and $2^{16}\to 512$\,KiB
+fit in the 1\,MiB L2; $2^{19}\to 4$\,MiB does not, so the loop is
+fed from the slower L3, whose bandwidth, not the ALU, now limits it.
 \end{solution}

@@ -1,0 +1,23 @@
+\begin{figure}[htbp]
+\centering
+\begin{tikzpicture}
+\begin{axis}[ybar, width=11.5cm, height=6.4cm, bar width=11pt,
+  symbolic x coords={mean, p50, p99, p99.9}, xtick=data, ymode=log,
+  ymin=10, ymax=1500, log origin=infty,
+  ylabel={nanoseconds per call}, enlarge x limits=0.2,
+  legend style={font=\scriptsize, at={(0.03,0.97)}, anchor=north west},
+  tick label style={font=\scriptsize}, label style={font=\small}]
+\addplot[fill=gray!40, draw=gray] coordinates {(mean,23.9) (p50,21) (p99,28) (p99.9,53)};
+\addplot[fill=accent!70, draw=accent] coordinates {(mean,85.0) (p50,67) (p99,270) (p99.9,630)};
+\addplot[fill=good!70, draw=good] coordinates {(mean,23.1) (p50,21) (p99,57) (p99.9,132)};
+\legend{empty timer, \texttt{malloc}, fixed pool}
+\end{axis}
+\end{tikzpicture}
+\caption{Linux x86\_64 container, \texttt{ch17\_tail}: 2\,000\,000 calls
+timed one by one (log scale). The timer alone costs about 21\,ns, so
+the pool is at the measurement floor. \texttt{malloc} has a mean of
+85\,ns but a p99.9 of 630\,ns, nine times its median; the mean hides
+the tail. (The worst single call, hundreds of microseconds, is the
+operating system, not the allocator: the empty timer saw 600\,\textmu s too.)}
+\label{fig:tailx8617}
+\end{figure}

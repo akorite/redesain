@@ -1,0 +1,24 @@
+\begin{figure}[htbp]
+\centering
+\begin{tikzpicture}[x=0.62cm,y=0.62cm,font=\scriptsize]
+\foreach \i in {0,...,9}{
+  \draw[fill=accentsoft,draw=accent] (\i,0) rectangle (\i+1,1);
+  \node at (\i+0.5,0.5) {\i};}
+\foreach \i in {10,11}{
+  \draw[fill=amberbg,draw=amber,dashed] (\i,0) rectangle (\i+1,1);
+  \node[text=amber] at (\i+0.5,0.5) {\i};}
+\draw[thick,accent] (0,-0.25) -- (0,-0.6) -- (4,-0.6) -- (4,-0.25);
+\node[accent] at (2,-1.0) {pass 1: i=0..3};
+\draw[thick,accent] (4,-1.55) -- (4,-1.9) -- (8,-1.9) -- (8,-1.55);
+\node[accent] at (6,-2.3) {pass 2: i=4..7};
+\draw[thick,amber] (8,-0.25) -- (8,-0.6) -- (12,-0.6) -- (12,-0.25);
+\node[amber,anchor=west] at (12.2,-0.6) {naive pass 3: i=8..11 (10, 11 do not exist)};
+\draw[thick,good] (8,-1.55) -- (8,-1.9) -- (10,-1.9) -- (10,-1.55);
+\node[good,anchor=west] at (10.2,-1.9) {fixed: scalar tail, i=8, 9};
+\end{tikzpicture}
+\caption{A 4-lane loop over $n=10$ floats. Two full vector passes cover
+elements 0--7. The naive third pass reads and writes elements 10 and
+11, which lie past the allocation (dashed); the fix stops the vector
+loop when fewer than 4 elements remain and finishes with a scalar tail.}
+\label{fig:tail16}
+\end{figure}

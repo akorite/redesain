@@ -1,0 +1,21 @@
+\begin{figure}[htbp]
+\centering
+\begin{tikzpicture}
+\begin{axis}[ybar=14pt, width=10.5cm, height=7cm, bar width=16pt,
+  symbolic x coords={random order, sorted order}, xtick=data,
+  ylabel={ms per pass over $2^{20}$ ints}, ymin=0, ymax=6.6,
+  enlarge x limits=0.35, nodes near coords, every node near coord/.style={font=\scriptsize},
+  legend style={font=\scriptsize, at={(0.97,0.95)}, anchor=north east},
+  tick label style={font=\scriptsize}, label style={font=\small}]
+\addplot[fill=accent!70, draw=accent] coordinates {(random order,5.48) (sorted order,1.21)};
+\addplot[fill=good!70, draw=good] coordinates {(random order,0.60) (sorted order,0.81)};
+\legend{branchy (real \texttt{jle}), branchless (mask)}
+\end{axis}
+\end{tikzpicture}
+\caption{Linux x86\_64 container, \texttt{ch17\_branch\_x86}: summing the
+elements $\ge 128$ of random bytes versus the same bytes sorted. Random
+data makes the branch unpredictable and the branchy loop 9$\times$ slower;
+on sorted data the gap shrinks to 1.5$\times$ (this run). The branchless
+loop does not care about order.}
+\label{fig:branchx8617}
+\end{figure}

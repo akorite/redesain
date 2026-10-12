@@ -10,11 +10,70 @@ sometimes walks its free list, a branch that sometimes misses.
 The chapter runs the standard claims on real hardware first,
 because two of the four come out backwards.
 
+\begin{wins}[After this chapter you can]
+Measure a latency distribution (median, p99, p99.9) instead of a
+mean; tell from the disassembly whether your ``branchy'' code is
+really a branch; write a single-producer single-consumer (SPSC) ring
+buffer with correct C11 acquire/release ordering and test it with two
+real threads; and say, with a number, when each of these tricks helps
+and when it only adds complexity.
+\end{wins}
+
+\begin{rulebox}[Before you start]
+\textbf{Recap, from a picture.} Think of a lunch queue. The
+\emph{latency} of one student is how long they wait; the
+\emph{throughput} is how many students are served per minute. The
+average wait can look fine while a few unlucky students wait ten times
+longer, and those are the ones who complain. The \emph{p99} is the
+wait that 99\% of students beat, so it describes that unlucky 1\%
+which an average hides. Low-latency engineering is about shrinking
+the unlucky 1\%. You have already met their causes. A mispredicted
+branch costs a pipeline flush (ch.\,6 and 7); a load that misses the
+cache costs a trip to a slower level (ch.\,9 and 10); a lock makes
+threads wait for each other (ch.\,13); and ch.\,15 taught timing with
+a monotonic clock, many repeats and percentile summaries. Book~1
+ch.\,4 showed that binary search needs about $\log_2 n$ probes where
+a linear scan needs up to $n$; this chapter checks that on real
+hardware.
+
+\textbf{C in ten lines.} \texttt{malloc(n)} asks the allocator for
+\texttt{n} bytes of heap and returns a pointer; \texttt{free(p)} gives
+it back. A \texttt{struct} groups fields. \texttt{x \& 255} keeps the
+low 8 bits, so \texttt{(i+1) \& 255} counts $0,1,\dots,255,0,\dots$
+(wrap-around, valid because 256 is a power of two). \texttt{volatile}
+tells the compiler that a variable may change behind its back, but it
+says nothing about the order in which \emph{other} CPUs see
+different variables change. \texttt{\_Atomic} variables, with
+\texttt{memory\_order\_release} and \texttt{memory\_order\_acquire},
+are the C11 tools that do give that ordering. Compile with
+\texttt{gcc -O2 -pthread file.c}.
+\end{rulebox}
+
+\paragraph{Which numbers are which.}
+The numbers in the folklore audit (23.3 vs 25.1\,ms, 11\,ns per
+malloc pair, and so on) were measured on the author's Apple-Silicon
+Mac and are kept, labelled \emph{Mac}. Numbers labelled
+\emph{Linux x86\_64 container} (4-core Intel Xeon at 2.8\,GHz, gcc
+13.3) were measured for this edition and are a separate experiment.
+Where the two disagree the text says so; a folklore claim that holds
+on one compiler and CPU and fails on the other is itself the
+chapter's lesson.
+
+\begin{principle}[Think like this]
+A rule of thumb is a claim \emph{with hidden conditions}. ``Branchless
+is faster'' is true when the data is unpredictable and false when it
+is not. ``malloc is slow'' is false for the average and true for the
+tail. The skilled habit is to restate each rule with its condition,
+then run the one experiment that could prove it wrong. Where a
+measurement disagrees with a rule you trusted, you have learned
+something; do not argue with the measurement, find the condition.
+\end{principle}
+
 \section{The folklore audit}
 \input{figures/ch17/fig_audit.tex}
 
-\begin{example}[Branchless loses on predictable data]
-\texttt{ch17\_folklore.c}: a branchy \texttt{min} over predictable
+\begin{example}[Branchless loses on predictable data (Mac)]
+On the Mac, \texttt{ch17\_folklore.c}: a branchy \texttt{min} over predictable
 inputs runs 23.3\,ms; the bit-trick branchless version runs
 25.1\,ms --- 7\% \emph{slower}, because the predictor made the
 branch free and the ALU work isn't. Branchless only pays where
@@ -23,8 +82,101 @@ the data defeats the predictor; the claim fails by inversion.
 
 \input{figures/ch17/fig_branch.tex}
 
+\section{The same audit on x86\_64, and what the compiler did to it}
+
+Running \texttt{ch17\_folklore.c} unchanged on the Linux x86\_64
+container (\texttt{gcc -O2}) gives a different verdict on the first
+claim. Verbatim, from \texttt{code/test\_ch17.sh}:
+\begin{verbatim}
+min branchy:  83.8ms
+min branchless: 95.8ms
+linear n=64:  0.031us
+binary n=64:  0.007us
+linear n=16M: 8.5ms
+binary n=16M: 0.083us
+malloc/free: 0.023us each
+pool reuse:  0.001us each
+\end{verbatim}
+
+\begin{example}[The branch that was never there]
+Here the ``branchy'' \texttt{min} ran in 83.8\,ms and the
+``branchless'' one in 95.8\,ms. An earlier run of the same source gave
+105.7\,ms branchy against 87.2\,ms branchless, the opposite order,
+and other runs at \texttt{-O2} and \texttt{-O3} moved the gap by
+tens of percent in either direction. So the difference is noise, and
+a naive reading (``branchy wins by 14\%'') would be wrong. The reason is in the assembly. Compiling with
+\texttt{gcc -O2 -S} the hot loop for \texttt{x<y?x:y} is
+
+{\scriptsize
+\begin{verbatim}
+        movzwl  %dx, %eax        ; x = i & 0xffff
+        movl    $12345, %ecx     ; y
+        cmpl    %ecx, %eax
+        cmovg   %ecx, %eax       ; conditional MOVE, no jump
+\end{verbatim}
+}
+\texttt{cmovg} is a conditional move: it computes both outcomes
+and selects one, with no jump for the predictor to guess. gcc
+had already made our ``branchy'' code branchless. We were timing two
+branchless loops against each other. Lesson: before you attribute a
+timing difference to branches, check that the compiled code contains
+a branch.
+\end{example}
+
+\lstinputlisting[language=C,firstline=14,lastline=17,
+caption={The two loops of \texttt{ch17\_branch\_x86.c}. The empty
+\texttt{asm volatile} inside the \texttt{if} is a compiler barrier
+that prevents gcc from turning the branch into a \texttt{cmov}; the
+build is checked with \texttt{objdump} to contain a \texttt{jle}.}]{code/ch17_branch_x86.c}
+
+\begin{example}[When does branchless pay? Random against sorted]
+To test the claim fairly we need a branch the compiler cannot remove.
+\texttt{ch17\_branch\_x86.c} sums the elements $\ge 128$ of $2^{20}$
+bytes in the range $0\dots255$. In the branchy loop an empty
+\texttt{asm} statement stops gcc from converting it, and
+\texttt{objdump} confirms the loop contains \texttt{cmp \$0x7f}
+followed by \texttt{jle}. The branchless loop adds
+\texttt{v \& -(v>=128)}: the comparison gives 1 or 0, the negation turns it
+into all ones or all zeros, and the \texttt{\&} keeps \texttt{v} or
+discards it. Same data, two orders (best of 20 passes):
+
+{\scriptsize
+\begin{verbatim}
+random: branchy 5.477 ms  branchless 0.603 ms  (sums 100248393
+    100248393)
+sorted: branchy 1.205 ms  branchless 0.806 ms  (sums 100248393
+    100248393)
+\end{verbatim}
+}
+Both loops return the same sum. On random data, whether an element is
+$\ge 128$ is a coin flip, no predictor can do better than guess, and
+the branchy loop is $5.477/0.603=9.1\times$ slower. On sorted data
+the branch goes the same way for long stretches, the predictor is
+nearly always right, and the gap falls to $1.205/0.806=1.5\times$.
+If half of the $2^{20}$ branches mispredict, the extra time is
+$(5.477-1.205)\,\mathrm{ms}/524\,288\approx 8.1$\,ns per mispredict,
+about 23 cycles at 2.8\,GHz (an estimate: the true miss rate and
+clock are not measured). This is the missing half of the Mac
+result: branchless pays exactly when the data defeats the predictor.
+\end{example}
+\input{figures/ch17/fig_branchx86}
+
 \section{Search at both scales}
 \input{figures/ch17/fig_search.tex}
+
+\begin{example}[Counting probes for the two sizes]
+A linear scan that finds nothing reads all $n$ elements; binary
+search halves the range each probe, so it needs at most
+$\lfloor\log_2 n\rfloor+1$ probes. For $n=64$ that is $6+1=7$ probes
+against up to 64; for $n=2^{24}$ (16M) it is $24+1=25$ probes against
+$16\,777\,216$. The probe ratio is $64/7\approx 9$ at the small size
+and $\approx 6.7\times 10^{5}$ at the large size. The measured ratios
+are smaller than the probe ratios in both cases, most likely because the linear
+scan is a tight sequential loop that the hardware prefetcher
+streams, while each binary probe is a dependent load: on x86\_64,
+$0.031/0.007\approx 4.4\times$ at $n=64$ and
+$8.5\,\mathrm{ms}/0.083\,\mu\mathrm{s}\approx 10^{5}\times$ at 16M.
+\end{example}
 
 Binary search wins at n=64 too --- but $4\times$, not the
 20\,000$\times$ it wins at 16M. ``Linear is fine for small n'' is
@@ -32,12 +184,61 @@ true in ratio and false in direction; the honest version is
 ``linear's disadvantage is small at small n.''
 
 \section{The allocation myth, priced}
-Malloc on a thread-cached allocator costs 11\,ns/pair --- the
+On the Mac, malloc on a thread-cached allocator costs 11\,ns/pair --- the
 ``malloc is slow'' scare is mostly myth at this granularity. But
 pool reuse still wins (0.011 vs 0.000\,\textmu s) and, more
 importantly, removes the allocator's tail: the reason low-latency
 code pre-allocates isn't steady-state cost, it's the rare
 free-list walk the p99 sees.
+
+\begin{example}[Mean against tail, measured one call at a time]
+A mean hides the rare slow call, so time each call separately.
+\texttt{ch17\_tail.c} keeps 4096 live blocks of random size
+(16--2048 bytes), and each step frees a random one and allocates a new
+one of random size, timing only the \texttt{malloc} call with
+\texttt{clock\_gettime}. For comparison it times taking a slot from a
+fixed pool (a stack of free indices), and an ``empty'' row that reads
+the clock twice in a row and so measures the timer itself. Verbatim,
+2\,000\,000 calls each, Linux x86\_64 container:
+
+{\scriptsize
+\begin{verbatim}
+empty timer  mean    23.9  p50    21  p99     28  p99.9      53  max
+    602797  (ns)
+malloc       mean    85.0  p50    67  p99    270  p99.9     630  max
+    673088  (ns)
+pool         mean    23.1  p50    21  p99     57  p99.9     132  max
+    53496  (ns)
+\end{verbatim}
+}
+A naive reading of the means (85 against 23\,ns, a 62\,ns saving) says
+the pool is a small win. Subtract the timer's 21\,ns and the pool call
+is about 2\,ns, below what this timer can resolve. The tail is where
+\texttt{malloc} hurts: its p99.9 of 630\,ns is $630/67\approx 9\times$
+its own median, and its p99 is 270\,ns, ten times the timer's p99
+of 28\,ns. The largest values (hundreds of microseconds) appear in all
+three rows including the empty timer, so they are the operating
+system interrupting the process, not the allocator. Those you
+cannot remove with a pool; you remove them by pinning, isolating
+cores and so on, which is beyond this chapter. Note too that the
+Mac's 11\,ns pair and this container's 23\,ns pair in
+\texttt{ch17\_folklore} (64-byte blocks, no fragmentation) are both small: a
+steady-state loop that never fragments the heap shows none of this.
+\end{example}
+\input{figures/ch17/fig_tailx86}
+
+\section{The way of thinking: who owns each variable?}
+
+Concurrency bugs come from two threads writing the same place. The
+cleanest way to avoid them is not a lock but an \emph{ownership
+rule}: every variable has exactly one writer. Picture a shared
+whiteboard with two columns, one that only you may write on and one
+that only your partner may write on; you can both read both columns
+freely and never need to take turns. The ring below does exactly this:
+\texttt{head} belongs to the producer, \texttt{tail} to the consumer.
+What is left to get right is \emph{order}: your partner must not see
+the tick next to an item before the item itself has been written. That
+is what the acquire/release annotations in the code say.
 
 \section{The SPSC ring}
 \input{figures/ch17/fig_ring.tex}
@@ -48,6 +249,75 @@ The real \texttt{ch17\_ringbuf.c}: 1M push/pop pairs, 0
 mismatches. It's the workhorse of audio pipelines and network
 drivers precisely because it trades capacity headroom (a fixed
 256 slots) for zero synchronisation.
+
+\begin{example}[Why the 256-slot ring holds 255 items]
+The code distinguishes ``full'' from ``empty'' by comparing indices:
+empty is \texttt{tail == head}, full is \texttt{((head+1)\&255) == tail}.
+If all 256 slots could be filled, full would also look like
+\texttt{head == tail}, indistinguishable from empty. So one slot is
+sacrificed. \texttt{ch17\_ringfull.c} confirms it and shows the
+wrap-around arithmetic (verbatim):
+
+{\scriptsize
+\begin{verbatim}
+pushes accepted before full: 255  (head=255 tail=0)
+after 10 pops: head=255 tail=10
+after 10 more pushes: head=9 tail=10 (head wrapped past 255)
+drained 255 items, last value 1009
+\end{verbatim}
+}
+Check by hand: 255 pushes leave \texttt{head}=255; the 256th would make
+\texttt{head}$=(255+1)\&255=0=\texttt{tail}$, so it is rejected. After 10
+pops \texttt{tail}=10, freeing 10 slots; ten pushes move
+\texttt{head} $255\to0\to1\to\dots\to9$, which is
+$(255+10)\bmod 256=9$. The ring then holds $255$ items again, the
+last of which is the value 1009 pushed last.
+\end{example}
+
+\lstinputlisting[language=C,firstline=27,lastline=37,
+caption={The push and pop of the threaded ring in \texttt{ch17\_spsc.c}
+(a macro, so the packed and padded layouts run identical code).}]{code/ch17_spsc.c}
+
+\begin{example}[Two real threads, naive reasoning first]
+The single-threaded test proves the index arithmetic, not the
+concurrency. A first attempt is to run two threads on the
+\texttt{volatile} version of the ring and see whether the test
+passes. On x86 it very likely will, because x86 stores become visible
+to other cores in program order (the \emph{TSO} memory model), and
+that is exactly the trap: the same source on a weakly ordered CPU such
+as Arm or RISC-V can let the consumer see the new \texttt{head} before
+the new slot contents. A passing run on x86 therefore does not prove
+the code correct. The C11 version states the requirement in the
+code: the producer writes the slot, then stores \texttt{head} with
+\texttt{memory\_order\_release}; the consumer loads \texttt{head} with
+\texttt{memory\_order\_acquire}, so if it sees the new \texttt{head}
+it is guaranteed to see the slot. Each index is also read
+\texttt{relaxed} by the thread that owns it, because no one else writes it.
+\texttt{ch17\_spsc.c} passes 20 million integers through the ring
+from a producer pinned to CPU 0 to a consumer pinned to CPU 1 and
+checks that every value arrives in order:
+
+{\scriptsize
+\begin{verbatim}
+packed: 20000000 items, 0 out of order, 1036.2 ms, 19.3 M items/s
+padded: 20000000 items, 0 out of order, 715.9 ms, 27.9 M items/s
+sizeof packed=1032 padded=1152
+\end{verbatim}
+}
+``Packed'' keeps \texttt{head} and \texttt{tail} adjacent in one
+64-byte cache line; ``padded'' aligns each to its own line. The idea
+(false sharing, ch.\,13) is that the producer's writes to
+\texttt{head} should invalidate the consumer's copy of \texttt{tail}
+for no reason. Here the effect is not reproducible: four runs gave
+26.3, 22.0, 39.3, 19.3 M items/s packed and 23.9, 26.7, 26.1, 27.9 padded (this
+container, shared, 4 vCPUs). Padding did not help consistently,
+probably because both indices and the slot data must move between the two
+cores for every item anyway; the honest conclusion is that on this
+machine the experiment cannot resolve a false-sharing penalty, and
+that the throughput of about 19--39 M items/s is most
+likely bound by cache-line transfers between the cores, not by computation
+(we did not measure that directly).
+\end{example}
 
 \section{The cost sheet}
 \input{figures/ch17/fig_cost.tex}
@@ -76,10 +346,10 @@ drivers precisely because it trades capacity headroom (a fixed
 \textbf{Piece} & \textbf{Verified version} \\
 \midrule
 jitter   & the real target --- p99 not mean \\
-branchless & loses 7\% on predictable data (real) \\
+branchless & Mac: loses 7\% on predictable data; x86: gcc made the branch a \texttt{cmov}; real branch: 9$\times$ on random, 1.5$\times$ sorted \\
 search   & binary wins even at n=64 ($4\times$) \\
-malloc   & 11\,ns/pair --- myth-busted, pool still wins \\
-ring     & 1M pairs, 0 mismatches, no lock \\
+malloc   & 11\,ns/pair (Mac) --- myth-busted, but p99.9 is 9$\times$ the median (x86) \\
+ring     & 1M pairs, 0 mismatches; 20M items across 2 threads in order; holds 255 of 256 slots \\
 \bottomrule
 \end{tabularx}
 
@@ -100,12 +370,14 @@ ring     & 1M pairs, 0 mismatches, no lock \\
 
 \section*{Notes}
 \begin{itemize}
-\item All numbers verbatim \texttt{ch17\_folklore.c} on Apple
-      Silicon; the branchless loss and malloc-myth rows are the
+\item The Mac numbers are verbatim \texttt{ch17\_folklore.c} on Apple
+      Silicon; the x86\_64 numbers come from the programs in
+      \texttt{code/ch17\_*.c}, checked by \texttt{code/test\_ch17.sh}; the branchless loss and malloc-myth rows are the
       chapter's honest surprises.
-\item Ring buffer verified single-threaded; SPSC correctness under
-      real concurrency needs the memory-ordering argument of the
-      [hard] exercise.
+\item The original \texttt{ch17\_ringbuf.c} is single-threaded; the
+      two-thread C11 version is \texttt{ch17\_spsc.c}. A passing test on
+      x86 (TSO) is weak evidence for a memory-ordering argument; the
+      acquire/release reasoning in the text is the real justification.
 \end{itemize}
 
 \section*{Exercises}
@@ -142,8 +414,9 @@ Binary beat linear at n=64 by only $4\times$. Explain why the
 ratio is small there and huge at 16M, in memory terms.
 \end{exercise}
 \begin{solution}[hint]
-n=64 fits cache/branch-predictor; at 16M each linear probe is a
-cache miss vs binary's 24.
+The work ratio is $n$ against about $\log_2 n+1$ probes: 64 against 7
+at $n=64$, and 16M against 25 at $n=2^{24}$. The measured ratio is smaller than the
+work ratio at $n=64$ because fixed per-call costs dominate a 7-probe search.
 \end{solution}
 \begin{exercise}[medium]
 A teammate removes all mallocs from a hot loop and sees no
@@ -220,8 +493,10 @@ Estimate the cache-line cost of head and tail sharing one line
 (false sharing) on our ring, and name the fix.
 \end{exercise}
 \begin{solution}[hint]
-Each push and pop bounce the line between cores --- pad head and
-tail to separate lines.
+In theory each push and pop bounce the line between cores, and the
+fix is to pad head and tail to separate lines. In this chapter's
+own measurement (four runs of \texttt{ch17\_spsc}) the padding gave
+no consistent gain, so measure before paying 120 bytes of padding.
 \end{solution}
 \begin{exercise}[hard]
 Design a low-latency request path with a 1\,ms p99 budget, from
@@ -231,4 +506,35 @@ and defend the two hardest trade-offs.
 \begin{solution}[hint]
 Pools + SPSC rings + pre-allocated reply buffers; the hard
 trades are capacity vs latency and batching vs immediacy.
+\end{solution}
+
+\begin{exercise}[easy]
+The ring has \texttt{head}=250 and \texttt{tail}=3. How many items does
+it hold, and how many more pushes succeed before one is rejected?
+\end{exercise}
+\begin{solution}[hint]
+It holds $(250-3)\bmod 256=247$ items. Capacity is 255, so $255-247=8$
+pushes succeed (head goes $251,252,253,254,255,0,1,2$); at head=2 the next
+index would equal the tail 3, so the ninth is rejected.
+\end{solution}
+\begin{exercise}[medium]
+You time 1000 calls: 985 take 20\,ns, 14 take 100\,ns, one takes
+10\,000\,ns. Compute the mean, the median, the p99 (the 991st value in sorted order) and the max, and say which
+one a user waiting on the slowest 1\% would feel.
+\end{exercise}
+\begin{solution}[hint]
+Mean $=(985\cdot20+14\cdot100+10000)/1000=(19700+1400+10000)/1000=31.1$\,ns.
+Median 20\,ns. In sorted order positions 1--985 are 20\,ns, 986--999 are
+100\,ns and 1000 is 10\,000\,ns, so the 991st value (p99) is 100\,ns, and
+the max is 10\,000\,ns. The mean (31.1) and median (20) hide the
+100\,ns that the slowest 1\% see.
+\end{solution}
+\begin{exercise}[medium]
+A branchy loop over $10^{6}$ random bits runs 4\,ms slower than the
+branchless loop. Assuming the predictor is right half the time, what
+does one mispredict cost in nanoseconds, and in cycles at 3\,GHz?
+\end{exercise}
+\begin{solution}[hint]
+$5\times10^{5}$ mispredicts account for 4\,ms: $4\times10^{-3}/(5\times10^{5})=8$\,ns,
+and $8\,\mathrm{ns}\times3\,\mathrm{GHz}=24$ cycles.
 \end{solution}
