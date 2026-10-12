@@ -9,6 +9,23 @@ whole graphs from living in the plane. After this chapter you can model
 a problem as a graph, run degree-parity arguments, and use Euler's
 formula as a non-planarity weapon.
 
+% from-zero:begin
+\begin{rulebox}[Before you start]
+Chapters~2--4 (proofs and sets). \emph{Recap:} a \emph{graph} is a set of vertices and a set of edges, each edge a pair of vertices. \textbf{Book~1, Chapter~7} implements the same objects in code.
+\end{rulebox}
+\begin{wins}[After this chapter you can]
+\begin{itemize}
+\item prove the handshake lemma and use degree counting in a proof;
+\item characterise bipartite graphs and trees and prove the equivalent definitions;
+\item decide whether a graph has an Eulerian trail;
+\item use Euler's formula to prove that a graph cannot be drawn without crossings.
+\end{itemize}
+\end{wins}
+\begin{principle}[How to think about this]
+A graph strips a situation down to dots and lines, and the theorems here are about what that skeleton forces. Handshake counting shows how much a single trick (count the same thing two ways) can do. When you meet a graph proof, ask what is being counted, and whether you can count it once from each side.
+\end{principle}
+% from-zero:end
+
 \section{Graphs and the handshake lemma}\label{sec:handshake}
 \index{degree}\index{handshake lemma}
 \begin{definition}

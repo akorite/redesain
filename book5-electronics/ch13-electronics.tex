@@ -13,6 +13,23 @@ example. Every simulation and synthesis step is run for real below; the
 physical board steps are marked honestly because there is no board attached to
 the machine writing this.
 
+% from-zero:begin
+\begin{rulebox}[Before you start]
+Chapters~10--12. \emph{Recap:} an FPGA is a chip full of tiny programmable logic blocks and wires. ``Programming'' it means loading a configuration, not running code.
+\end{rulebox}
+\begin{wins}[After this chapter you can]
+\begin{itemize}
+\item explain the five stages from Verilog to a bitstream;
+\item blink an LED and build a counter on real hardware, or on the simulator if you have no board;
+\item send characters over a UART;
+\item write constraints that tell the tools the truth about timing and pins.
+\end{itemize}
+\end{wins}
+\begin{principle}[How to think about this]
+An FPGA flow turns text into wires through a chain of automatic steps, and each step can fail in its own way. Learn the chain so that when something goes wrong you know which stage to blame. Constraints are a promise to the tools about the real world; if the promise is wrong, the hardware will be too.
+\end{principle}
+% from-zero:end
+
 \section{What an FPGA is}
 
 \index{FPGA}\index{LUT}\index{BRAM}\index{IOB}

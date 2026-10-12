@@ -5,6 +5,23 @@ the equity curve have looked like?'' It is also the most lied-with tool in the f
 lies are usually in the harness, not the strategy. This chapter builds a minimal honest
 harness, tests the harness itself, and shows the canonical failure: lookahead bias.
 
+% from-zero:begin
+\begin{rulebox}[Before you start]
+Chapters~1, 2 and~7. \emph{Recap:} a backtest replays history to see how a rule would have done. A backtest is only as honest as the code that runs it.
+\end{rulebox}
+\begin{wins}[After this chapter you can]
+\begin{itemize}
+\item say what a backtester must do and test it;
+\item run a real strategy on real data;
+\item find lookahead bias;
+\item include fees and slippage.
+\end{itemize}
+\end{wins}
+\begin{principle}[How to think about this]
+A backtest is a story about the past, and it is only as trustworthy as the code that runs it. Test the harness on cases where you know the answer. The most dangerous bug is the one that lets the strategy peek at tomorrow.
+\end{principle}
+% from-zero:end
+
 \section{What a backtester must do}\label{sec:harness}
 
 The honest event loop is four steps per bar: read bar $i$, compute the signal using

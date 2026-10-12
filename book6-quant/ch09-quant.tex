@@ -5,6 +5,23 @@ fees---and a conclusion manufactured by trying enough things. This chapter is ab
 statistical traps: overfitting, the garden of forking paths, and the multiple-testing
 correction that almost nobody applies.
 
+% from-zero:begin
+\begin{rulebox}[Before you start]
+Chapters~1, 2 and~8, and \textbf{Book~3, Chapter~13} (hypothesis testing). \emph{Recap:} if you try enough strategies, some look good by luck alone.
+\end{rulebox}
+\begin{wins}[After this chapter you can]
+\begin{itemize}
+\item separate in-sample from out-of-sample;
+\item correct for multiple testing;
+\item explain the garden of forking paths;
+\item say how large a result must be to survive.
+\end{itemize}
+\end{wins}
+\begin{principle}[How to think about this]
+If you try a hundred ideas, a few will look brilliant by chance. Honest research is the habit of counting every attempt and asking how impressive the best one would be if all of them were random. Be most suspicious when the result is best.
+\end{principle}
+% from-zero:end
+
 \section{In-sample vs out-of-sample}\label{sec:isoos}
 
 \texttt{fit\_grid.py} searches a 2{,}262-point grid of SMA pairs on synthetic flat-ish daily

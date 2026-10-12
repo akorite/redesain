@@ -10,6 +10,23 @@ be able to read a voltage-transfer curve for noise margins, explain why CMOS
 logic draws almost no power at rest, and decide whether a given MOSFET can
 really drive a given load from a \qty{3.3}{\volt} pin.
 
+% from-zero:begin
+\begin{rulebox}[Before you start]
+Chapters~2 and~5. \emph{Recap:} a transistor is a switch that another voltage or current controls. Everything digital in this book is made of them.
+\end{rulebox}
+\begin{wins}[After this chapter you can]
+\begin{itemize}
+\item explain how a MOSFET works as a voltage-controlled switch;
+\item build an inverter and explain why CMOS draws almost no power at rest;
+\item read a logic level as ``1'' or ``0'' with noise margins;
+\item drive a real load such as a motor or LED with a transistor.
+\end{itemize}
+\end{wins}
+\begin{principle}[How to think about this]
+A transistor is a valve: a small signal at the control terminal opens or closes a large path. Use it as a switch and you get digital logic; use it in between and you get amplification. CMOS pairs two complementary valves so that one is always closed, which is why idle chips use almost no power.
+\end{principle}
+% from-zero:end
+
 \section{The MOSFET: a voltage-controlled switch}
 \label{sec:mosfet}
 

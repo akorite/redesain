@@ -15,6 +15,23 @@ power most of the tabular machine learning actually deployed. Below we
 grow a tree by hand, measure a single tree's variance over 20 bootstraps,
 and watch boosting fit residuals stage by stage.
 
+% from-zero:begin
+\begin{rulebox}[Before you start]
+Chapter~3 (splits, overfitting). \emph{Recap:} a decision tree is a flowchart of yes/no questions learned from data. A single tree overfits; averaging many trees fixes that.
+\end{rulebox}
+\begin{wins}[After this chapter you can]
+\begin{itemize}
+\item grow a decision tree by hand using Gini impurity or information gain;
+\item control depth to avoid overfitting;
+\item build a random forest and gradient-boosted trees and explain the difference;
+\item say when feature importances can mislead.
+\end{itemize}
+\end{wins}
+\begin{principle}[How to think about this]
+A tree plays twenty questions with your data, choosing at each step the question that best separates the answers. One tree memorises; many trees that disagree, averaged together, generalise. Boosting takes a different route: fix the previous model's mistakes one small tree at a time.
+\end{principle}
+% from-zero:end
+
 \section{Trees as axis-aligned partitions}\label{sec:treedef}
 
 A tree carves feature space into rectangles\index{partition}: each

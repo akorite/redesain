@@ -12,6 +12,23 @@ by the weights and the question, write all four from memory, detect
 and reconstruct negative cycles, and fold conditions like ``one
 coupon'' into the graph itself.
 
+% from-zero:begin
+\begin{rulebox}[Before you start]
+Chapter~7 (graph storage, BFS). \emph{Recap:} BFS finds the fewest-\emph{edges} path. Once edges carry costs (kilometres, minutes, fees) the fewest-edges path is no longer the cheapest path, and we need new tools.
+\end{rulebox}
+\begin{wins}[After this chapter you can]
+\begin{itemize}
+\item choose between BFS, Dijkstra, Bellman--Ford and Floyd--Warshall from the graph's size and edge weights;
+\item write Dijkstra with a priority queue in under three minutes;
+\item detect a negative cycle;
+\item model a ``shortest path with extra rules'' problem by adding the rule to the vertex (state expansion).
+\end{itemize}
+\end{wins}
+\begin{principle}[How to think about this]
+A shortest path is built from small improvements: if going through $u$ makes $v$ closer, update $v$. All the algorithms here are different orders for doing the same ``relaxation,'' and the order is chosen to match what the edge weights allow. Match the tool to the graph: no weights, use BFS; non-negative weights, use Dijkstra; negative weights, use Bellman--Ford.
+\end{principle}
+% from-zero:end
+
 \section{Relaxation}\label{sec:relax}\index{relaxation}
 The atomic move: $d[v] \leftarrow \min(d[v],\, d[u] + w(u,v))$. Every
 algorithm here is a different strategy for \emph{ordering} and

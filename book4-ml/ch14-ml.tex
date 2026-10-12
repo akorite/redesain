@@ -15,6 +15,23 @@ halves a perfect model, a drift injector whose alarm fires on time,
 and a canary whose statistics tell you exactly how much traffic a
 verdict costs.
 
+% from-zero:begin
+\begin{rulebox}[Before you start]
+Chapters~3 and~7. \emph{Recap:} a model that scores well on a notebook is not yet a product. This chapter is about what happens after training: serving, monitoring and change over time.
+\end{rulebox}
+\begin{wins}[After this chapter you can]
+\begin{itemize}
+\item explain training/serving skew and how to catch it;
+\item evaluate a model online with shadow and canary deployments;
+\item name the three kinds of distribution shift;
+\item decide what to log, what to alert on and when to retrain.
+\end{itemize}
+\end{wins}
+\begin{principle}[How to think about this]
+A model in production is a living system: its data change, its users change, and silent failures are common. Treat deployment as a measurement problem. Decide in advance what you will log, what counts as drift, and what you will do when an alarm fires.
+\end{principle}
+% from-zero:end
+
 \section{The ML system $\neq$ the model}
 \label{sec:system}
 

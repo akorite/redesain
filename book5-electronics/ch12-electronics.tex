@@ -12,6 +12,23 @@ one, each caught on tape by a real run. By the end you can write a
 bench that prints a verdict, and read any of the classic failures
 straight off the monitor rows.
 
+% from-zero:begin
+\begin{rulebox}[Before you start]
+Chapter~11. \emph{Recap:} a testbench is a Verilog module that drives inputs and checks outputs. Simulation passing is not hardware working --- the bugs here are the ones that pass anyway.
+\end{rulebox}
+\begin{wins}[After this chapter you can]
+\begin{itemize}
+\item write a self-checking testbench with a golden model;
+\item recognise unknown (\texttt{x}) values and latch-inferring code;
+\item find a race between simulation events;
+\item report failures with the right severity.
+\end{itemize}
+\end{wins}
+\begin{principle}[How to think about this]
+Passing simulation does not mean the design is right, so build tests that check themselves. Compare against a golden model you trust, watch for unknown values, and treat every warning as a possible bug. The bugs here are classic, and seeing them once saves hours later.
+\end{principle}
+% from-zero:end
+
 \section{The anatomy of a clocked testbench}\label{sec:anatomy}
 
 \index{testbench}\index{DUT|see{design under test}} A clocked

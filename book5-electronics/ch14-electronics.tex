@@ -16,6 +16,23 @@ self-checking benches (one directed, one exhaustive over
 131{,}072 cases), and map it onto the Tang Nano 9K's switches and
 LEDs. By the end you own the first real organ of the C1 capstone.
 
+% from-zero:begin
+\begin{rulebox}[Before you start]
+Chapters~8--9 and~11--12. \emph{Recap:} an ALU is the part of a CPU that adds, subtracts and compares. It is the combinational block of Chapter~9 with a control input.
+\end{rulebox}
+\begin{wins}[After this chapter you can]
+\begin{itemize}
+\item specify an ALU's operations and flags before writing code;
+\item implement an 8-bit ALU in Verilog;
+\item test it with vectors that check the flags as well as the result;
+\item run it on a board.
+\end{itemize}
+\end{wins}
+\begin{principle}[How to think about this]
+An ALU is a box that computes every operation at once and then picks the one you asked for. Decide the contract first, including what each flag means, then write the code. Testing the flags as carefully as the result is where most ALU bugs are caught.
+\end{principle}
+% from-zero:end
+
 \section{What an ALU is, and the contract}\label{sec:contract}
 
 \index{ALU|see{arithmetic-logic unit}}\index{arithmetic-logic unit}

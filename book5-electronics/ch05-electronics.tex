@@ -12,6 +12,23 @@ design a half-wave rectifier and estimate its ripple, add the flyback
 diode that should have been next to ch.~4's relay all along, build a
 zener shunt regulator and --- just as important --- know when not to.
 
+% from-zero:begin
+\begin{rulebox}[Before you start]
+Chapters~2--4. \emph{Recap:} a diode is a one-way valve for current. It is the first part you meet that does not obey a straight-line $V$--$I$ rule.
+\end{rulebox}
+\begin{wins}[After this chapter you can]
+\begin{itemize}
+\item use the three diode models and choose the one that fits the question;
+\item pick a resistor for an LED;
+\item build a rectifier and estimate its ripple;
+\item protect a circuit from reversed polarity, ESD and inductive kick-back.
+\end{itemize}
+\end{wins}
+\begin{principle}[How to think about this]
+A diode is a gate that opens only one way, and after it opens it holds the voltage almost constant. That single idea gives LEDs, rectifiers and protection circuits. Choose the simplest model that answers your question: an ideal switch for quick estimates, a fixed drop for design.
+\end{principle}
+% from-zero:end
+
 \section{The junction diode: one curve, three models}\label{sec:diode-iv}
 
 A diode is a $p$--$n$ junction: silicon doped positive on one side,

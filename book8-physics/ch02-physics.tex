@@ -7,6 +7,23 @@ but the engineering content is in the method that wraps them: the free-body
 diagram, the constraint bookkeeping of strings and surfaces, and the
 differential equations that friction and drag leave behind.
 
+% from-zero:begin
+\begin{rulebox}[Before you start]
+Chapter~1: position, velocity, acceleration. \emph{Recap:} acceleration is the rate of change of velocity. Newton's laws say what causes acceleration.
+\end{rulebox}
+\begin{wins}[After this chapter you can]
+\begin{itemize}
+\item state the three laws and the frame in which they hold;
+\item draw a free-body diagram for any situation;
+\item solve inclines, pulleys and circular motion;
+\item handle friction and drag.
+\end{itemize}
+\end{wins}
+\begin{principle}[How to think about this]
+Newton's second law is a recipe: find every force on one object, add them as vectors, and divide by the mass. The free-body diagram is how you keep the list honest. If you draw it every time, even hard problems become the same routine.
+\end{principle}
+% from-zero:end
+
 \section{The three laws, and the frame assumption}\label{sec:new-laws}
 
 \textbf{First law.} A body with no net force moves at constant velocity ---
@@ -187,6 +204,18 @@ The design window $14.5$--$24.2$\,m/s is what the bank buys. \checkmark
 job is to lend a horizontal component to $N$ so friction has less to do.}
 \label{fig:banked}
 \end{figure}
+
+% from-zero:naive-net:begin
+\begin{example}[First attempt: using the push instead of the net force]\label{ex:naive-net}
+A $10\,\mathrm{kg}$ crate is pushed across a floor with a horizontal force of $30\,\mathrm{N}$; sliding friction
+is $20\,\mathrm{N}$. A tempting calculation: $a=F/m=30/10=3\,\mathrm{m/s^2}$.
+\par\smallskip
+\textbf{What goes wrong.} Newton's second law uses the \emph{net} force, the vector sum of every force on the crate.
+Friction opposes the motion, so the net force along the floor is $30-20=10\,\mathrm{N}$ and
+$a=10/10=1\,\mathrm{m/s^2}$. The tempting answer was three times too large. This is why the free-body diagram
+comes first: list every force, then add.
+\end{example}
+% from-zero:naive-net:end
 
 \section{Friction: the force that adapts}\label{sec:new-friction}
 

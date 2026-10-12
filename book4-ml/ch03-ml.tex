@@ -13,6 +13,23 @@ under a protocol that never let the model peek, is the only currency this
 book trades in. By the end you will have a harness --- split, fit, predict,
 score --- that every later chapter reuses unchanged.
 
+% from-zero:begin
+\begin{rulebox}[Before you start]
+Chapters~1--2. For the probability used here (independence, conditional probability), see \textbf{Book~3, Chapter~12}; each idea is restated where it is first used. \emph{Recap:} supervised learning means learning a rule $x\mapsto y$ from examples where the answer $y$ is known.
+\end{rulebox}
+\begin{wins}[After this chapter you can]
+\begin{itemize}
+\item split data into train, validation and test sets and explain why the test set is touched once;
+\item run $k$-fold cross-validation;
+\item choose a metric that fits the problem (accuracy, precision, recall, MSE) and read a confusion matrix;
+\item recognise the five common ways information leaks from the test set into training.
+\end{itemize}
+\end{wins}
+\begin{principle}[How to think about this]
+The one question machine learning must answer is ``will this work on data it has not seen?'' To estimate that honestly you hide some data from the model, as a teacher hides the exam questions. Every trick of the chapter (splits, cross-validation, metrics) protects that hidden exam from leaking into practice.
+\end{principle}
+% from-zero:end
+
 \section{The supervised problem}\label{sec:supervised}
 
 \begin{definition}[Supervised dataset]\label{def:supervised}

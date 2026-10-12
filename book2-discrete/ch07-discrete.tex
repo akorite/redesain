@@ -11,6 +11,23 @@ After this chapter you will be able to solve CRT systems by construction,
 reduce exponents by the right period ($\varphi$, not $m$), and recognise
 when a congruence problem is really asking for an order.
 
+% from-zero:begin
+\begin{rulebox}[Before you start]
+Chapters~5--6. \emph{Recap:} modulo $m$, every integer is equivalent to one of the $m$ residues $0,1,\dots,m-1$, and $a$ has an inverse exactly when $\gcd(a,m)=1$.
+\end{rulebox}
+\begin{wins}[After this chapter you can]
+\begin{itemize}
+\item solve a system of congruences with coprime moduli by the Chinese remainder theorem;
+\item reduce huge powers using Fermat's little theorem and Euler's theorem;
+\item compute $\varphi(n)$ and the order of an element;
+\item build a check-digit scheme and prove what errors it catches.
+\end{itemize}
+\end{wins}
+\begin{principle}[How to think about this]
+The Chinese remainder theorem says that knowing a number's remainders modulo several coprime numbers is the same as knowing it modulo their product. Think of it as describing a place by two separate coordinates. Fermat and Euler say that powers eventually repeat in a regular way, which is why enormous exponents can be shrunk before you compute anything.
+\end{principle}
+% from-zero:end
+
 \section{The Chinese remainder theorem}\label{sec:crt}
 \index{CRT|see{Chinese remainder theorem}}
 

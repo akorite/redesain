@@ -5,6 +5,23 @@ two are the same trade: a strategy that needs to lift 10\% of ADV in an hour is 
 different product than its backtest said. This chapter is the mechanics: order types,
 the square-root impact law, and the scheduling problem.
 
+% from-zero:begin
+\begin{rulebox}[Before you start]
+Chapters~3 and~8. \emph{Recap:} knowing what to trade is half the work; the other half is getting in and out without paying away the edge.
+\end{rulebox}
+\begin{wins}[After this chapter you can]
+\begin{itemize}
+\item choose an order type;
+\item estimate market impact with the square-root law;
+\item compare TWAP and VWAP slicing;
+\item compute implementation shortfall.
+\end{itemize}
+\end{wins}
+\begin{principle}[How to think about this]
+A good idea can be ruined by poor execution. Large orders move the market against you, so cost grows with size. Ask of every strategy, ``at what size does this stop working?''
+\end{principle}
+% from-zero:end
+
 \section{Order types}\label{sec:ordtypes}
 
 Three primitives cover the menu: \emph{market} (fill now, pay spread plus impact),

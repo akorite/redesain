@@ -8,6 +8,23 @@ pattern in $O(n+m)$ two different ways, mine borders and periods
 out of the prefix function, and walk a trie for anything that is
 ``a dictionary of prefixes'' in disguise.
 
+% from-zero:begin
+\begin{rulebox}[Before you start]
+Chapters~1 and~14 (modular arithmetic). \emph{Recap:} a \emph{string} is an array of characters; a \emph{substring} is a contiguous piece; a \emph{prefix} is a substring that starts at position 0. Most string tools below answer ``does pattern $P$ occur in text $T$?'' in $O(|P|+|T|)$ instead of $O(|P||T|)$.
+\end{rulebox}
+\begin{wins}[After this chapter you can]
+\begin{itemize}
+\item compare two substrings in $O(1)$ with a rolling hash and say how likely a collision is;
+\item find all occurrences of a pattern with KMP or the Z-function;
+\item build a trie and use it to answer prefix questions;
+\item decide between hashing, KMP, Z and a trie from the problem statement.
+\end{itemize}
+\end{wins}
+\begin{principle}[How to think about this]
+Comparing two strings character by character is slow if you do it many times. The ideas here all squeeze a string into something smaller that you can compare quickly: a hash is a fingerprint, the prefix function remembers how much of the pattern you have already matched, and a trie shares common beginnings. Always ask what information about the pattern you can reuse instead of throwing it away.
+\end{principle}
+% from-zero:end
+
 \section{Terminology}\label{sec:strterm}
 \index{substring}\index{subsequence}\index{prefix}\index{suffix}
 A \emph{substring} is a contiguous block; a \emph{subsequence}

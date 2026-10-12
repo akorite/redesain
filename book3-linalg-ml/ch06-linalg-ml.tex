@@ -13,6 +13,23 @@ start: determinants are \emph{theoretical} heavyweights and
 \emph{computational} lightweights --- you almost never need one in code,
 and this chapter explains why.
 
+% from-zero:begin
+\begin{rulebox}[Before you start]
+Chapters~1--5. \emph{Recap:} a square matrix either squeezes space flat (not invertible) or it does not. The determinant is the single number that tells you which, and by how much it scales volume.
+\end{rulebox}
+\begin{wins}[After this chapter you can]
+\begin{itemize}
+\item compute a $2\times2$ or $3\times3$ determinant, and larger ones by elimination;
+\item use $\det A=0$ to test for singularity;
+\item interpret the determinant as signed volume;
+\item explain why Cramer's rule is a curiosity and not an algorithm.
+\end{itemize}
+\end{wins}
+\begin{principle}[How to think about this]
+A determinant is one number that answers a yes/no question: does this machine squash space flat? Its size tells you how much volume is scaled, its sign whether orientation flips. Do not memorise the cofactor formula; remember the geometry and compute by elimination.
+\end{principle}
+% from-zero:end
+
 \section{Three definitions that agree}\label{sec:det-defs}
 
 \begin{definition}[Determinant by cofactors]\index{determinant}\index{cofactor expansion}

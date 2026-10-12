@@ -1,0 +1,79 @@
+\chapter*{Start here: from zero}
+\addcontentsline{toc}{chapter}{Start here: from zero}
+\markboth{Start here}{Start here}
+
+Physics is the study of how things move and interact, written in mathematics.
+This book covers the physics an engineer uses: motion, forces, energy,
+rotation, electricity, magnetism, waves and heat. You need algebra, a little
+trigonometry (sine and cosine of an angle), and three tools that this chapter
+teaches from scratch: units, a first look at calculus, and vectors.
+
+\section*{Units: the first check on every answer}
+
+Every physical quantity has a unit, and a formula must balance in units. A
+distance is in metres (m), a time in seconds (s), a speed in m/s, an acceleration
+in m/s$^2$, a force in newtons (N, where $1\,\mathrm{N}=1\,\mathrm{kg\,m/s^2}$).
+Check a formula by its units: the distance travelled from rest with acceleration
+$a$ is $x=\tfrac12at^2$. In units, $(\mathrm{m/s^2})\cdot\mathrm{s^2}=\mathrm{m}$, which is a distance, so the formula is
+at least plausible; a claimed $x=at$ would give m/s, a speed, so it cannot be right.
+This habit catches more errors than any other, and every chapter uses it.
+
+\section*{Calculus in two ideas}
+
+\textbf{The derivative is a slope.} If a car's position is $x(t)=5t^{2}$ metres at
+time $t$ seconds, its position at $t=2$ is $20$ m and at $t=2.01$ is $20.2005$ m.
+Over that $0.01$ s it moved $0.2005$ m, a speed of about $20.05$ m/s. Shrink the
+interval to nothing and you get exactly $20$ m/s. The rule that produces it is the
+\emph{derivative}: for $x(t)=5t^{2}$, the velocity is $v(t)=\mathrm{d}x/\mathrm{d}t=10t$, and $v(2)=20$ m/s.
+The derivative of $t^{n}$ is $nt^{n-1}$; that is the only rule Chapters~1--4 need.
+
+\textbf{The integral is an accumulated total.} If the acceleration is a constant
+$3\,\mathrm{m/s^2}$ for $4$ s, the velocity gained is $3\times4=12$ m/s: the area of
+a rectangle of height $3$ and width $4$ on an acceleration--time graph. If the acceleration
+varies, you add up many thin rectangles; that sum is the \emph{integral},
+$\Delta v=\int a\,\mathrm{d}t$. The integral is the derivative run backwards:
+since $v=10t$ is the derivative of $5t^{2}$, the integral of $10t$ from $0$ to $2$
+is $5\cdot2^{2}-0=20$.
+
+Chapter~1 uses both ideas to derive the constant-acceleration formulas from
+definitions, so you do not memorise them.
+
+\section*{Vectors: quantities with a direction}
+
+A \emph{scalar} has size only (a mass, a time). A \emph{vector} has size and
+direction (a velocity, a force). In a plane we write a vector with
+\emph{components}: $\mathbf v=(3,4)$ means $3$ along $x$ and $4$ along $y$. Its
+length is $|\mathbf v|=\sqrt{3^{2}+4^{2}}=5$. Adding vectors adds components:
+$(3,4)+(1,-2)=(4,2)$.
+
+Two ways of multiplying vectors appear later in the book:
+\begin{description}
+\item[Dot product] $\mathbf a\cdot\mathbf b=a_xb_x+a_yb_y+a_zb_z$, a number. It
+      is $|\mathbf a||\mathbf b|\cos\theta$, so it is zero when the vectors are
+      perpendicular. Work is a dot product (Chapter~4): $(1,2)\cdot(3,4)=3+8=11$.
+\item[Cross product] $\mathbf a\times\mathbf b$, a vector perpendicular to both,
+      with components $(a_yb_z-a_zb_y,\ a_zb_x-a_xb_z,\ a_xb_y-a_yb_x)$. Torque and
+      the magnetic force are cross products (Chapters~5, 6 and~13). For
+      $(1,2,3)\times(4,5,6)=(-3,\,6,\,-3)$, and $\hat{\mathbf x}\times\hat{\mathbf y}=\hat{\mathbf z}$.
+\end{description}
+You can check the cross-product example: $2\cdot6-3\cdot5=-3$, $3\cdot4-1\cdot6=6$, $1\cdot5-2\cdot4=-3$.
+
+\section*{How the books of this series fit together}
+
+\begin{center}
+\begin{tabular}{P{2.4cm}P{9.0cm}}
+\toprule
+\thead{Book} & \thead{Connection}\\
+\midrule
+5 Electronics & Applies the circuit and field ideas of Chapters~9--14 here in its capacitor, inductor and power chapters. Each chapter here ends with an ``In engineering practice'' section that points to Book~5.\\
+3 Linear algebra & Gives the vector and matrix machinery in greater depth; Chapters~1--5 there are a natural companion to the vector work here.\\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\section*{How to use the boxes in each chapter}
+
+Each chapter opens with \emph{After this chapter you can}. From Chapter~2, a
+\emph{Before you start} box lists what the chapter relies on, with a recap.
+Always sanity-check your answer with units and with an extreme case (what if the
+mass is zero, or the angle is $90^\circ$?) before you trust it.

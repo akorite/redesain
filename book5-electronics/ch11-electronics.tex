@@ -10,6 +10,23 @@ testbench that is itself just a module. After this chapter you can write
 a legal module three different ways, spot the two classic wrong ways,
 run it under Icarus Verilog, and read the waveform it produces.
 
+% from-zero:begin
+\begin{rulebox}[Before you start]
+Chapters~8--10. \emph{Recap:} Verilog describes hardware that exists all at once, not instructions that run in order. If you know a programming language, forget the habit of reading top to bottom.
+\end{rulebox}
+\begin{wins}[After this chapter you can]
+\begin{itemize}
+\item describe a combinational and a sequential block in Verilog;
+\item explain blocking versus non-blocking assignment and use each correctly;
+\item write a testbench and read the waveform in GTKWave;
+\item avoid the classic synthesis mistakes.
+\end{itemize}
+\end{wins}
+\begin{principle}[How to think about this]
+Hardware description is a different way of thinking from programming: everything you write exists at once and works in parallel. Ask of every line, ``what wires and gates is this?'' not ``what runs next?'' A testbench is your lab bench, so write it before you trust the design.
+\end{principle}
+% from-zero:end
+
 \section{HDL is not a program}\label{sec:hdlmind}
 
 \index{hardware description language}\index{HDL|see{hardware description

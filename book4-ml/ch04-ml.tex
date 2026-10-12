@@ -14,6 +14,23 @@ purpose, in exchange for a lot less variance.\index{regularisation} Below we
 derive every model used, implement two of them from scratch, and read
 coefficient paths the way a senior engineer reads a flame graph.
 
+% from-zero:begin
+\begin{rulebox}[Before you start]
+Chapter~3 and \textbf{Book~3, Chapter~8} (least squares). \emph{Recap:} the best-fit line minimises the sum of squared errors, and the normal equations $X^{\mathsf T}X\mathbf w=X^{\mathsf T}\mathbf y$ give the answer in one step.
+\end{rulebox}
+\begin{wins}[After this chapter you can]
+\begin{itemize}
+\item fit linear regression and read its coefficients;
+\item use ridge and lasso to fight overfitting and say how they differ;
+\item fit logistic regression and softmax for classification;
+\item bend a linear model with a feature map, and explain the kernel trick in one paragraph.
+\end{itemize}
+\end{wins}
+\begin{principle}[How to think about this]
+A linear model is the simplest honest guess: the output is a weighted sum of the inputs. Training chooses the weights; regularisation says ``prefer small weights unless the data insist,'' which fights overfitting. If a straight line is not enough, bend the inputs (feature maps) instead of abandoning the line.
+\end{principle}
+% from-zero:end
+
 \section{Least squares: the normal equations}\label{sec:ols}
 
 \begin{definition}[Ordinary least squares]\index{least squares}

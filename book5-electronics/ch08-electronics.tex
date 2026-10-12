@@ -12,6 +12,23 @@ ways, and turn an English sentence like ``the alarm sounds when the
 ignition is on and the door is open or the belt is off'' into a minimal
 gate network.
 
+% from-zero:begin
+\begin{rulebox}[Before you start]
+Nothing from Chapters~1--7 is required except the idea of a logic level from Chapter~6; this is the first chapter of the digital half. \emph{Recap:} a wire is either high (1) or low (0), and a bit is the value on it.
+\end{rulebox}
+\begin{wins}[After this chapter you can]
+\begin{itemize}
+\item convert between binary, hex and decimal and write negative numbers in two's complement;
+\item build and read a truth table;
+\item simplify a Boolean expression with De Morgan's laws and check the result two ways;
+\item turn an expression into a gate network.
+\end{itemize}
+\end{wins}
+\begin{principle}[How to think about this]
+A digital circuit throws away detail on purpose: only ``high'' and ``low'' matter, so noise cannot accumulate. Once everything is zeros and ones, design becomes logic, and logic can be written, simplified and proved like algebra. Always check a simplification twice, once with algebra and once with a truth table.
+\end{principle}
+% from-zero:end
+
 \section{Why two levels?}
 \label{sec:twolevels}
 

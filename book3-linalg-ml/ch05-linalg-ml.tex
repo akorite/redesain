@@ -12,6 +12,23 @@ subspaces, run Gram--Schmidt by hand and in code, factor $A=QR$, and see
 why classical Gram--Schmidt loses orthogonality while the modified version
 does not.
 
+% from-zero:begin
+\begin{rulebox}[Before you start]
+Chapters~2--4. \emph{Recap:} the dot product $\mathbf u\cdot\mathbf v=\sum u_iv_i$ measures how much two vectors point the same way; it is zero exactly when they are perpendicular.
+\end{rulebox}
+\begin{wins}[After this chapter you can]
+\begin{itemize}
+\item compute lengths, angles and projections of vectors;
+\item build an orthonormal basis from any basis by Gram--Schmidt;
+\item factor $A=QR$ and say what each factor means;
+\item explain how the four fundamental subspaces pair up at right angles.
+\end{itemize}
+\end{wins}
+\begin{principle}[How to think about this]
+Orthogonality is the best kind of independence: perpendicular directions do not interfere, so you can handle them one at a time. Projection answers ``what part of $\mathbf b$ lies along this direction?'' and Gram--Schmidt manufactures perpendicular directions from any set. Whenever a problem is messy, ask if a perpendicular basis would make it simple.
+\end{principle}
+% from-zero:end
+
 \section{Inner product, norm, angle}\label{sec:orth-inner}
 
 Coordinates tell you where a vector sits relative to axes. They do not, by

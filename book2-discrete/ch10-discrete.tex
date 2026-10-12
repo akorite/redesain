@@ -9,6 +9,23 @@ chapter you can set up a recurrence from a problem's own structure,
 solve the linear homogeneous ones, and predict how fast the answer
 grows.
 
+% from-zero:begin
+\begin{rulebox}[Before you start]
+Chapters~3 (induction) and~8--9 (counting, generating functions). \emph{Recap:} a recurrence defines each term from earlier ones, like $F_n=F_{n-1}+F_{n-2}$; a closed form gives $F_n$ directly.
+\end{rulebox}
+\begin{wins}[After this chapter you can]
+\begin{itemize}
+\item guess a closed form from the first few terms and prove it by induction;
+\item solve linear recurrences with the characteristic equation;
+\item set up a recurrence for a tiling or counting problem;
+\item estimate how fast a sequence grows.
+\end{itemize}
+\end{wins}
+\begin{principle}[How to think about this]
+A recurrence tells you how to get the next term from earlier ones, which is exactly how you would explain the pattern to a friend. The goal is to turn that step-by-step description into a direct formula. Guess from small cases, then \emph{prove} the guess by induction; do not trust a pattern until it is proved.
+\end{principle}
+% from-zero:end
+
 \section{Recurrence vs closed form}\label{sec:recvs}
 \index{closed form}
 A \emph{recurrence relation} gives $a_n$ in terms of earlier terms plus

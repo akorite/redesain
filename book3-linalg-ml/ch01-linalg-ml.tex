@@ -2,6 +2,31 @@
 
 Nearly every computation in this book — least squares, eigenvalue computations, and the neural-network training of part~IV — ends with a system of linear equations. This chapter builds the one algorithm that solves them honestly: Gaussian elimination. After it you will be able to (a) read a linear system two ways, as intersecting hyperplanes and as a combination of columns; (b) reduce any system to echelon form and read off whether it has zero, one, or infinitely many solutions; (c) package the work of elimination as the factorization $PA=LU$; and (d) say why elimination costs about $n^3$ operations and why a naive computer must swap rows to stay accurate.
 
+% from-zero:why:begin
+\paragraph{Why this exists.} Whenever several unknown quantities are tied together by
+several equations --- the prices of three goods from three receipts, the weights in a model from many
+examples --- you have a linear system. Solving one with $2$ unknowns is school algebra; solving one with $2000$
+is a computation that needs a method that is systematic, fast and numerically safe. That method is Gaussian
+elimination, and almost everything else in this book is built on understanding what it does.
+% from-zero:why:end
+
+% from-zero:begin
+\begin{rulebox}[Before you start]
+School algebra only: you can solve two equations in two unknowns by substitution. The \emph{Start here} chapter reviews the symbols used in this book (sums, sets, vectors) in a few pages.
+\end{rulebox}
+\begin{wins}[After this chapter you can]
+\begin{itemize}
+\item write a system of equations as $A\mathbf x=\mathbf b$ and read it as lines meeting, and as a recipe of columns;
+\item reduce any system to echelon form by hand and say whether it has no, one, or infinitely many solutions;
+\item factor a matrix as $PA=LU$ and use it to solve many right-hand sides cheaply;
+\item explain why elimination takes about $n^3$ operations and why a computer swaps rows.
+\end{itemize}
+\end{wins}
+\begin{principle}[How to think about this]
+Elimination is just the school method of subtracting one equation from another, done in an organised order so that it never gets lost. Each step makes the system simpler while keeping the same solutions. Hold two pictures in your head: lines crossing at a point, and a recipe that mixes columns to hit a target. Switching between them is half of linear algebra.
+\end{principle}
+% from-zero:end
+
 \section{Two ways to see \texorpdfstring{$A\mathbf{x}=\mathbf{b}$}{Ax = b}}\label{sec:rowcol}
 
 A \emph{linear system}\index{linear system} is a set of equations

@@ -14,6 +14,26 @@ ahead''), and the discipline of hunting counter-examples before trusting
 a greedy rule. After it, you will sort fluently, compress fluently, and
 --- more importantly --- know which greedy ideas deserve your trust.
 
+% from-zero:begin
+\begin{rulebox}[Before you start]
+Chapters~1--2. From \textbf{Book~2, Chapter~3} (induction) we borrow one idea: ``assume it works for smaller cases, show it works for the next.'' You do not need to have read that book.
+\begin{itemize}
+\item \emph{Recap:} to \emph{prove} a greedy rule correct you must show that your first choice can be extended to an optimal answer. Arguing ``it feels right'' is how Wrong Answer is born.
+\end{itemize}
+\end{rulebox}
+\begin{wins}[After this chapter you can]
+\begin{itemize}
+\item sort with a custom comparator and use sorting to turn a messy problem into a scan;
+\item design a greedy rule and defend it with an exchange argument;
+\item find a counterexample that kills a plausible-looking greedy in under five minutes;
+\item use \texttt{set} and \texttt{map} to keep a changing collection ordered while you scan.
+\end{itemize}
+\end{wins}
+\begin{principle}[How to think about this]
+A greedy algorithm is a bet that the locally best choice is also globally safe. Bets can be wrong, so never ask ``does this feel right?'' Ask ``if some perfect answer exists, can I swap my choice into it without making it worse?'' If yes, the bet is safe. If you cannot find that swap, look for a tiny counterexample instead; one is usually enough.
+\end{principle}
+% from-zero:end
+
 \section{Sorting as a tool}
 \label{sec:sorting}
 \index{sorting!std::sort@\texttt{std::sort}}

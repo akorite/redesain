@@ -12,6 +12,23 @@ can compute entropies and divergences by hand, read a Huffman code's
 lengths as approximate $-\log_2 p$, and explain what the CE number in a
 training log means --- not just that it went down.
 
+% from-zero:begin
+\begin{rulebox}[Before you start]
+Chapters~12--13 (probability, likelihood). \emph{Recap:} a logarithm turns multiplication into addition, which is why information, measured in bits, adds up for independent events.
+\end{rulebox}
+\begin{wins}[After this chapter you can]
+\begin{itemize}
+\item compute the entropy of a distribution and say what it measures;
+\item compute cross-entropy and KL divergence, and say which is zero when;
+\item explain why the cross-entropy loss is maximum likelihood in disguise;
+\item compute mutual information of a small table.
+\end{itemize}
+\end{wins}
+\begin{principle}[How to think about this]
+Information is surprise: a rare event tells you more than a common one. Entropy is the average surprise, cross-entropy is the surprise you suffer when you believe the wrong distribution, and KL divergence is the extra cost of being wrong. Seeing the log in the loss function as ``measure surprise'' makes it feel natural rather than arbitrary.
+\end{principle}
+% from-zero:end
+
 \section{Surprise and information}\label{sec:info-surprise}
 
 An event that happens every time carries no news; an event that almost

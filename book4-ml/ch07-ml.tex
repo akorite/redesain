@@ -17,6 +17,23 @@ autograd library do the same derivation for free. By the end the phrase
 ``train a neural network'' will mean a loop you could write on a
 whiteboard, not a service you call.
 
+% from-zero:begin
+\begin{rulebox}[Before you start]
+Chapter~4 (linear and logistic models) and \textbf{Book~3, Chapter~11} (the chain rule in matrix form). \emph{Recap:} a neural network is a linear model, followed by a bend, followed by another linear model, and so on. Training adjusts all the weights by following the gradient of the loss.
+\end{rulebox}
+\begin{wins}[After this chapter you can]
+\begin{itemize}
+\item write the forward pass and backpropagation of a small network by hand, every number;
+\item implement the network in about sixty lines of NumPy;
+\item check your gradients numerically;
+\item use an automatic-differentiation library and compare with your own code.
+\end{itemize}
+\end{wins}
+\begin{principle}[How to think about this]
+A neural network is a stack of simple steps, each a linear map followed by a bend. Training is the same downhill walk as before, and backpropagation is simply the chain rule organised so that one backward pass gives every weight's slope. Once you have done a tiny network by hand, big ones are the same idea with more bookkeeping.
+\end{principle}
+% from-zero:end
+
 \section{From linear model to stacked map}
 \label{sec:stacked}
 

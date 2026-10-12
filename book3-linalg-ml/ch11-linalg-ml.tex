@@ -11,6 +11,23 @@ you can derive $\nabla_{\mathbf x}\mathbf x^{T}A\mathbf x=(A+A^{T})\mathbf
 x$ by hand, check any gradient with finite differences in three lines of
 code, and read a Jacobian as a local grid warp.
 
+% from-zero:begin
+\begin{rulebox}[Before you start]
+Chapters~2 and~9, plus single-variable calculus: the derivative of $f(x)$ is the slope of the tangent line, and the chain rule says $(f\circ g)'=f'(g)\,g'$. A refresher is in the \emph{Start here} chapter.
+\end{rulebox}
+\begin{wins}[After this chapter you can]
+\begin{itemize}
+\item compute partial derivatives, gradients, Jacobians and Hessians;
+\item explain why the gradient is the direction of steepest ascent;
+\item write the chain rule in matrix form --- the engine of backpropagation;
+\item check a gradient numerically.
+\end{itemize}
+\end{wins}
+\begin{principle}[How to think about this]
+The derivative is the best straight-line approximation to a function near a point; the gradient and Jacobian are the same idea for many inputs. Whenever a function is complicated, zoom in until it looks linear, and then linear algebra takes over. The chain rule says that zooming composes: multiply the local linear maps.
+\end{principle}
+% from-zero:end
+
 \section{Partial derivatives}\label{sec:mvc-partials}
 
 For $f:\mathbb R^{n}\to\mathbb R$, the \emph{partial

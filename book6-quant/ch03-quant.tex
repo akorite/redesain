@@ -6,6 +6,23 @@ price, and what data the venue emits so you can replay all of it.
 Everything the harness in ch8 consumes was produced by the rules on
 these pages.
 
+% from-zero:begin
+\begin{rulebox}[Before you start]
+Chapter~1. \emph{Recap:} an exchange matches buyers and sellers in an order book: a queue of offers to buy and a queue of offers to sell, ranked by price.
+\end{rulebox}
+\begin{wins}[After this chapter you can]
+\begin{itemize}
+\item read a limit order book;
+\item compute the price you really pay when an order walks the book;
+\item explain makers, takers, fees and adverse selection;
+\item write a small exchange simulator.
+\end{itemize}
+\end{wins}
+\begin{principle}[How to think about this]
+A market is a queue, and the price you actually get depends on how much you buy and who is in line. Reading the order book is like reading the crowd at a shop counter. Knowing how matching works turns ``slippage'' from a mystery into arithmetic.
+\end{principle}
+% from-zero:end
+
 \section{Who trades and why}\label{sec:whotrades}
 \index{liquidity}\index{informed trader}\index{market maker}
 Three kinds of flow share every book, and their incentives explain

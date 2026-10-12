@@ -11,6 +11,23 @@ headline numbers on a component datasheet, write and run your first
 \emph{ngspice} netlist (the simulator every analogue chapter uses), and say
 honestly when Ohm's law applies and when it does not.
 
+% from-zero:begin
+\begin{rulebox}[Before you start]
+Chapter~1: voltage, current, resistance and how to read a schematic. \emph{Recap:} voltage is the push on charge, current is the flow of charge, and resistance is how much a part opposes that flow.
+\end{rulebox}
+\begin{wins}[After this chapter you can]
+\begin{itemize}
+\item use Ohm's law and $P=VI$ to find any one quantity from two others;
+\item pick a resistor's power rating with a safety margin;
+\item read the headline numbers on a datasheet;
+\item write and run a first ngspice netlist and check it against a hand calculation.
+\end{itemize}
+\end{wins}
+\begin{principle}[How to think about this]
+Ohm's law is a relationship between three quantities, so knowing any two gives the third. The habit worth forming is to write the formula with units and let the units check your work. A simulation is a cheap experiment: use it to test your prediction before you build.
+\end{principle}
+% from-zero:end
+
 \section{Ohm's law: a definition with a job}
 \label{sec:ohmslaw}
 
@@ -92,6 +109,20 @@ Compute: (a) $I$ for $\qty{9}{\volt}$ across $\qty{330}{\ohm}$;
 (b) $R$ needed for \qty{10}{\milli\ampere} from \qty{3.3}{\volt} (no LED);
 (c) the voltage a \qty{1}{\kilo\ohm} resistor drops at \qty{2}{\milli\ampere}.
 \end{exercise}
+
+% from-zero:naive-led:begin
+\begin{example}[First attempt: an LED straight across the supply]\label{ex:naive-led}
+You have a $5\,\mathrm{V}$ supply and a red LED rated for $20\,\mathrm{mA}$ that drops about
+$2\,\mathrm{V}$ when it conducts. The obvious circuit is: connect the LED across the supply.
+\par\smallskip
+\textbf{What goes wrong.} Nothing in that loop limits the current. The LED drops $2\,\mathrm{V}$,
+so something must absorb the remaining $3\,\mathrm{V}$; with no resistor, the only things left are the
+tiny resistance of the wires and the LED's own internal resistance. The current climbs far above
+$20\,\mathrm{mA}$ and the LED overheats. The fix is to let a resistor absorb the extra $3\,\mathrm{V}$ at the
+current you want. By Ohm's law, $R=\Delta V/I=3\,\mathrm{V}/0.020\,\mathrm{A}=150\,\Omega$, and the resistor
+dissipates $P=VI=3\times0.020=0.06\,\mathrm{W}$, well under the quarter-watt rating of a standard resistor.
+\end{example}
+% from-zero:naive-led:end
 
 \section{Power: $P=VI$ and the quarter-watt ceiling}
 \label{sec:power}

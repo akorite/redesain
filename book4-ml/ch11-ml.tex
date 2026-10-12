@@ -15,6 +15,23 @@ miniature GPT on the same corpus as the LSTM, and reads what a real
 pipeline thinks of our perplexity. By the end, ``attention is all you
 need'' will be arithmetic you have run, not a title you have heard.
 
+% from-zero:begin
+\begin{rulebox}[Before you start]
+Chapters~7--10. \emph{Recap:} attention lets every position look directly at every other position, instead of passing information along a chain as an RNN does.
+\end{rulebox}
+\begin{wins}[After this chapter you can]
+\begin{itemize}
+\item compute scaled dot-product attention by hand;
+\item explain multi-head attention, masking and positional encodings;
+\item assemble a transformer block and train a miniature GPT;
+\item estimate the compute and memory cost of a transformer.
+\end{itemize}
+\end{wins}
+\begin{principle}[How to think about this]
+Attention replaces ``pass the message along a chain'' with ``let every word look directly at every other word and decide whom to listen to.'' Query, key and value are just three roles in that lookup. Seeing it as a soft dictionary lookup makes the maths feel small.
+\end{principle}
+% from-zero:end
+
 \section{Why recurrence is a bottleneck}
 \label{sec:bottleneck}
 

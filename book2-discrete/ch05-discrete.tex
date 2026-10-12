@@ -10,6 +10,23 @@ this chapter you will be able to run Euclid by hand in seconds, extract
 B\'ezout coefficients from it, prove the digit criteria contestants quote
 without thinking, and solve any $ax + by = c$ completely.
 
+% from-zero:begin
+\begin{rulebox}[Before you start]
+Chapters~2--3 (proofs and induction). \emph{Recap:} $a\mid b$ (``$a$ divides $b$'') means $b=ak$ for some integer $k$. A prime is an integer greater than 1 whose only positive divisors are 1 and itself. \textbf{Book~1, Chapter~14} turns this chapter into fast code.
+\end{rulebox}
+\begin{wins}[After this chapter you can]
+\begin{itemize}
+\item divide with remainder and use the Euclidean algorithm to compute a gcd by hand;
+\item find integers $x,y$ with $ax+by=\gcd(a,b)$ (B\'ezout);
+\item factor into primes and use unique factorisation in a proof;
+\item solve a linear Diophantine equation or show it has no solution.
+\end{itemize}
+\end{wins}
+\begin{principle}[How to think about this]
+Numbers hide structure: every integer is built from primes, and the gcd is the shared part of two numbers. The Euclidean algorithm works because the common divisors of $a$ and $b$ do not change when you replace $a$ by its remainder; once you see \emph{why} nothing is lost, the algorithm stops being a recipe and becomes obvious.
+\end{principle}
+% from-zero:end
+
 \section{Divisibility and the division algorithm}\label{sec:div}
 \index{a|b@$a \mid b$}
 

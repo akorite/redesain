@@ -10,6 +10,31 @@ counterexample of it would have to deliver. Nothing here is deep; everything her
 used weekly. Read it once carefully and it will save you from the most common proof
 errors in the rest of the book.
 
+% from-zero:why:begin
+\paragraph{Why this exists.} Computers do exactly what they are told, so every claim about a program
+(``this sort always finishes'') needs a justification stronger than ``I tried it''. Logic is the language
+in which such claims are stated unambiguously, and proof is how they are settled. Olympiad problems ask for
+the same thing: not an answer, but an argument that holds in every case. Learn the language first; the proof
+techniques of the next chapters are written in it.
+% from-zero:why:end
+
+% from-zero:begin
+\begin{rulebox}[Before you start]
+Nothing. If you can add, multiply and tell an even number from an odd one, you can start. The \emph{Start here} chapter lists the few school-level facts we use (what an integer is, what ``divides'' means, what a prime is) and takes two minutes to skim.
+\end{rulebox}
+\begin{wins}[After this chapter you can]
+\begin{itemize}
+\item decide whether a sentence is a statement with a definite truth value;
+\item build a truth table and use it to check that two statements say the same thing;
+\item write ``every'' and ``some'' claims with quantifiers and negate them correctly;
+\item say exactly what a proof or a counterexample of a claim has to show.
+\end{itemize}
+\end{wins}
+\begin{principle}[How to think about this]
+Mathematical language is just English with the ambiguity removed. When you read a symbolic statement, say it aloud in plain words; when you meet an English claim, ask ``for \emph{every} what? for \emph{some} what?'' Almost every proof mistake starts with a quantifier that was quietly misread.
+\end{principle}
+% from-zero:end
+
 \section{Statements and connectives}\label{sec:statements}
 
 \begin{definition}[Statement]\index{statement}\index{proposition|see{statement}}
@@ -403,6 +428,21 @@ each quantifier flips exactly once, the order is untouched, and the
 negation lands on the innermost predicate.}
 \label{fig:negpush}
 \end{figure}
+
+% from-zero:naive-neg:begin
+\begin{example}[First attempt: negating by flipping every word]\label{ex:naive-negation}
+A teacher says: ``Every student passed the exam.'' You want to say this is false. The
+natural first attempt is ``Every student failed the exam.''
+\par\smallskip
+\textbf{What goes wrong.} Suppose $20$ students sat the exam and $19$ passed. The teacher's
+sentence is false (one student did not pass), yet ``every student failed'' is also false
+($19$ passed). The attempted negation is false \emph{in a case where the original is false too},
+so it cannot be the negation. In symbols, with $P(s)$ meaning ``$s$ passed'', the original is
+$\forall s\,P(s)$. The correct negation is $\exists s\,\neg P(s)$: ``there is a student who did
+not pass.'' Flipping the quantifier \emph{and} the statement inside it is the rule of
+Section~\ref{sec:negation}; flipping only the inside is the commonest error in this book.
+\end{example}
+% from-zero:naive-neg:end
 
 \section{English and symbols}\label{sec:english}
 \index{translation!English--symbols}

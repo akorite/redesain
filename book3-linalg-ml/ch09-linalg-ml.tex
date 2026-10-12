@@ -12,6 +12,23 @@ you can diagonalise any symmetric matrix with an orthogonal $Q$,
 classify definiteness three ways, use the Rayleigh quotient as a variational
 eigenvalue finder, and read a covariance matrix geometrically.
 
+% from-zero:begin
+\begin{rulebox}[Before you start]
+Chapters~5 and~7. \emph{Recap:} a matrix is \emph{symmetric} if $A=A^{\mathsf T}$. Covariance matrices, Hessians and $A^{\mathsf T}A$ are all symmetric, which is why this class matters so much.
+\end{rulebox}
+\begin{wins}[After this chapter you can]
+\begin{itemize}
+\item diagonalise a symmetric matrix with an orthonormal basis (the spectral theorem);
+\item decide whether a quadratic form is positive definite;
+\item use the Rayleigh quotient to find the largest and smallest eigenvalues;
+\item explain why every covariance matrix is positive semidefinite.
+\end{itemize}
+\end{wins}
+\begin{principle}[How to think about this]
+Symmetric matrices behave beautifully: their eigenvectors are perpendicular, so the matrix is just independent stretching along perpendicular axes. That is why they appear whenever there is a notion of energy, curvature or spread. When you meet a symmetric matrix, think ``ellipse with perpendicular axes.''
+\end{principle}
+% from-zero:end
+
 \section{Symmetric matrices and why they are special}\label{sec:sym-special}
 
 \begin{definition}[Symmetric matrix]\index{symmetric matrix}

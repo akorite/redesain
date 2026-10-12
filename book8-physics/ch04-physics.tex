@@ -6,6 +6,23 @@ $K=\tfrac12mv^{2}$ is the currency it arrives in, and potential energy is
 the bank where conservative forces store it. The chapter's payoff is the
 right to answer ``how fast'' without ever solving for the trajectory.
 
+% from-zero:begin
+\begin{rulebox}[Before you start]
+Chapters~1--3. \emph{Recap:} work is force times distance along the motion; energy is the bank account that work pays into.
+\end{rulebox}
+\begin{wins}[After this chapter you can]
+\begin{itemize}
+\item compute work for constant and varying forces;
+\item use the work--energy theorem and conservation of energy, and know when conservation fails;
+\item read motion from an energy diagram;
+\item do an energy audit of a real system.
+\end{itemize}
+\end{wins}
+\begin{principle}[How to think about this]
+Energy is bookkeeping for motion: it changes form but is never lost, and when it seems to disappear it has gone into heat or sound. Often the shortest route to a speed or height is to compare energy at two moments and skip the forces entirely.
+\end{principle}
+% from-zero:end
+
 \section{Work: force collected along a path}\label{sec:en-work}
 
 \begin{equation}
@@ -60,6 +77,18 @@ $K=E-U>0$; the turning point is where the parabola meets the line. The
 restoring force is $-dU/dx$, the slope reversed.}
 \label{fig:ux}
 \end{figure}
+
+% from-zero:naive-carry:begin
+\begin{example}[First attempt: multiplying force by distance without checking direction]\label{ex:naive-carry}
+You carry a $20\,\mathrm{kg}$ box $10\,\mathrm{m}$ across a level floor at constant speed. A quick estimate of the work you
+did: $W=mgd=20\times9.8\times10=1960\,\mathrm{J}$.
+\par\smallskip
+\textbf{What goes wrong.} Work is $W=\mathbf F\cdot\mathbf d=Fd\cos\theta$. The force you apply to hold the box up is
+vertical ($mg=196\,\mathrm{N}$, upward) and the displacement is horizontal, so $\theta=90^\circ$ and
+$\cos\theta=0$: you do \emph{no} work on the box. (Your muscles still burn energy, which is a different matter
+entirely.) The $1960\,\mathrm{J}$ answer would be right if you lifted the box $10\,\mathrm{m}$ straight up.
+\end{example}
+% from-zero:naive-carry:end
 
 \section{Conservation of mechanical energy --- and its failure modes}\label{sec:en-cons}
 

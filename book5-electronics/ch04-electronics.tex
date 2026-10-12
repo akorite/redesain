@@ -12,6 +12,23 @@ capacitor that guards every chip's supply pin. By the end you can predict a
 delay to the millisecond, size an RC for it, simulate the response, and
 explain why opening an inductor's circuit is a way to kill a transistor.
 
+% from-zero:begin
+\begin{rulebox}[Before you start]
+Chapter~3 (series/parallel, dividers). \emph{Recap:} a capacitor stores charge and an inductor stores energy in a magnetic field. Neither obeys Ohm's law --- their voltage and current are tied together by a \emph{rate of change}. Calculus is not required; the one derivative we use is explained when it appears.
+\end{rulebox}
+\begin{wins}[After this chapter you can]
+\begin{itemize}
+\item say what a capacitor and an inductor do in a circuit;
+\item compute the time constant of an RC or RL circuit and sketch the response;
+\item explain the voltage spike when an inductor's current is cut and add a part to tame it;
+\item predict when a circuit will ring.
+\end{itemize}
+\end{wins}
+\begin{principle}[How to think about this]
+A capacitor and an inductor are about \emph{change}. A capacitor resists a sudden change of voltage, an inductor a sudden change of current, and both take time to respond. The time constant tells you how long. When a circuit does something surprising, ask what is storing energy and what is being asked to change quickly.
+\end{principle}
+% from-zero:end
+
 \section{The capacitor: charge bucket, $i = C\,dv/dt$}
 \label{sec:cap}
 

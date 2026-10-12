@@ -9,6 +9,23 @@ every other combined: ordered versus unordered counting. After this
 chapter you will run the recipe end to end on coins, knapsack, LIS
 and grids, and know the two loop orders by heart.
 
+% from-zero:begin
+\begin{rulebox}[Before you start]
+Chapters~2 and~5. \emph{Recap:} complete search (Chapter~2) can recompute the same sub-problem thousands of times. Dynamic programming is complete search plus a table that remembers answers; you will see this on a problem you have already solved.
+\end{rulebox}
+\begin{wins}[After this chapter you can]
+\begin{itemize}
+\item turn a recursive brute force into a table by naming the state and writing the transition;
+\item solve coin-change, knapsack, longest-increasing-subsequence and grid-path problems;
+\item decide whether a problem wants DP or a greedy;
+\item recover the actual solution, not just its value, from a DP table.
+\end{itemize}
+\end{wins}
+\begin{principle}[How to think about this]
+Dynamic programming sounds grand but is a modest idea: write the slow recursive solution, notice that it keeps solving the same small problems, and store each answer the first time. The skill is choosing the \emph{state}: the smallest description of where you are that still tells you everything you need about the future. Always say your state and your transition in one plain sentence before you write a line of code.
+\end{principle}
+% from-zero:end
+
 \section{The same problem twice}\label{sec:memo}
 Memoization recurses and caches; tabulation fills a table in
 dependency order. They compute the \emph{same set} --- memoization

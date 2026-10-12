@@ -15,6 +15,23 @@ aggregate that reverses it. Everything runs on real data: the 1912 Titanic
 passenger manifest, the classic 1949--1960 airline-passenger series, and the
 penguins from chapter~1.
 
+% from-zero:begin
+\begin{rulebox}[Before you start]
+Chapter~1 (NumPy arrays, the dataset-as-matrix idea). \emph{Recap:} a table with named columns is a matrix with labels attached; pandas gives you those labels.
+\end{rulebox}
+\begin{wins}[After this chapter you can]
+\begin{itemize}
+\item filter, group and aggregate a table with pandas;
+\item join two tables and reshape between long and wide form;
+\item draw charts that do not mislead;
+\item explain how an average can reverse direction when groups are merged (Simpson's paradox).
+\end{itemize}
+\end{wins}
+\begin{principle}[How to think about this]
+Exploring data is a conversation: ask a small question, look at the answer, ask the next one. Charts are arguments, so make them honest (start axes sensibly, compare like with like). Whenever a summary surprises you, split the data by a hidden group and see whether the story changes.
+\end{principle}
+% from-zero:end
+
 \section{The DataFrame is a labelled matrix}\label{sec:dataframe}
 
 A \texttt{DataFrame}\index{DataFrame} is the matrix of

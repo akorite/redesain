@@ -1,0 +1,74 @@
+\chapter*{Start here: from zero}
+\addcontentsline{toc}{chapter}{Start here: from zero}
+\markboth{Start here}{Start here}
+
+You do not need to have built a circuit, studied physics, or touched a soldering
+iron. This book starts with what electricity \emph{is} and ends with a small CPU
+you design yourself. What it does use is a little arithmetic with very large and
+very small numbers, so this chapter covers that, then shows how the book is laid
+out.
+
+\section*{Powers of ten and the prefixes you will see}
+
+Electronics uses numbers from billionths to millions, so we write them with a
+prefix. Memorise this table; it appears on every page of the book.
+
+\begin{center}
+\begin{tabular}{lll}
+\toprule
+\thead{Prefix} & \thead{Symbol} & \thead{Multiply by}\\
+\midrule
+mega  & M     & $10^{6}$ (one million)\\
+kilo  & k     & $10^{3}$ (one thousand)\\
+milli & m     & $10^{-3}$ (one thousandth)\\
+micro & $\mu$ & $10^{-6}$ (one millionth)\\
+nano  & n     & $10^{-9}$\\
+pico  & p     & $10^{-12}$\\
+\bottomrule
+\end{tabular}
+\end{center}
+
+So $4.7\,\mathrm{k}\Omega = 4700\,\Omega$, and $2.2\,\mu\mathrm{F} = 2.2\times10^{-6}\,\mathrm{F}$.
+Mixing prefixes is the commonest source of silly errors: $1\,\mathrm{mA}$ is
+$0.001\,\mathrm{A}$, not $1000\,\mathrm{A}$. Convert to base units (volts, amperes, ohms, farads) before you
+calculate, and convert back at the end.
+
+\section*{Rearranging a formula}
+
+Almost every calculation here is one formula used three ways. Take Ohm's law
+(Chapter~2), $V=IR$. If you want the current, divide both sides by $R$:
+$I=V/R$. For $V=5\,\mathrm{V}$ and $R=1\,\mathrm{k}\Omega=1000\,\Omega$ this gives
+$I=5/1000=0.005\,\mathrm{A}=5\,\mathrm{mA}$. If you want the resistance, divide by
+$I$ instead: $R=V/I$. Whatever you do to one side of an equation, do to the other,
+and keep the units attached: volts divided by ohms gives amperes.
+
+\section*{A word about safety}
+
+Everything in the first half of the book runs on batteries and USB power, and every
+chapter says clearly what it will and will not ask you to touch. Mains electricity
+(the wall socket) can kill, and nothing in this book asks you to open or modify
+anything connected to it. Chapter~1 ends with the full safety statement; read it
+before you pick up a tool.
+
+\section*{How the books of this series fit together}
+
+\begin{center}
+\begin{tabular}{P{2.4cm}P{9.0cm}}
+\toprule
+\thead{Book} & \thead{Connection}\\
+\midrule
+8 Physics for engineers & Explains the \emph{why} behind the analogue chapters (fields, capacitance, induction); its ``In engineering practice'' sections point back here.\\
+7 Systems & Picks up exactly where Chapter~16 here ends: the custom 8-bit CPU is mapped to RISC-V and extended to a pipelined core.\\
+2 Discrete maths & The logic of Chapter~8 here (Boolean algebra) is the same as the logic in Book~2, Chapter~1.\\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\section*{How to use the boxes in each chapter}
+
+Each chapter opens with \emph{After this chapter you can}, listing what you will
+be able to do. From Chapter~2, a \emph{Before you start} box lists the chapters it
+relies on with a one-sentence recap. Chapters 1--7 are analogue (voltages and
+currents that vary smoothly); from Chapter~8 on, everything is digital (ones and
+zeros). You can start at Chapter~8 if you only care about the CPU, but Chapters~1--3
+make the rest easier.

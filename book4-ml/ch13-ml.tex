@@ -16,6 +16,23 @@ grid, and finally function approximation --- where the theory cracks
 and we let it crack on camera, because a CartPole that learns and
 then unlearns is worth more than a wall of caveats.
 
+% from-zero:begin
+\begin{rulebox}[Before you start]
+Chapters~7--8 and \textbf{Book~3, Chapter~12}. \emph{Recap:} so far the data were given. In reinforcement learning an agent chooses actions, and the data it sees depend on those choices.
+\end{rulebox}
+\begin{wins}[After this chapter you can]
+\begin{itemize}
+\item formulate a problem as an MDP with states, actions, rewards and a discount;
+\item solve a bandit problem and explain exploration versus exploitation;
+\item write the Bellman equations and run Q-learning;
+\item state the policy-gradient idea in one page.
+\end{itemize}
+\end{wins}
+\begin{principle}[How to think about this]
+In reinforcement learning nobody tells you the right action; you learn from consequences, and your choices change what you see next. The central tension is exploration (try new things) against exploitation (use what works). The Bellman equation says a state's value is the reward now plus the value of where you land.
+\end{principle}
+% from-zero:end
+
 \section{From prediction to action: agent, environment, reward}
 \label{sec:loop}
 

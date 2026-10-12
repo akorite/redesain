@@ -5,6 +5,23 @@ matching buyers and sellers, a pool holds reserves of two assets and quotes pric
 curve. Understanding the curve---its price rule, its depth, and who bears what risk---is the
 entry ticket to on-chain market design.
 
+% from-zero:begin
+\begin{rulebox}[Before you start]
+Chapters~1 and~3. \emph{Recap:} an automated market maker (AMM) replaces the order book with a formula that sets the price from the amounts of two tokens held in a pool.
+\end{rulebox}
+\begin{wins}[After this chapter you can]
+\begin{itemize}
+\item apply the constant-product rule;
+\item explain why arbitrage keeps the pool price in line;
+\item compute impermanent loss;
+\item explain concentrated liquidity.
+\end{itemize}
+\end{wins}
+\begin{principle}[How to think about this]
+An AMM replaces a crowd of traders with a rule. The rule makes the pool always willing to trade, but at a price that moves as you trade. Impermanent loss is the cost of that arrangement: you would have done better just holding.
+\end{principle}
+% from-zero:end
+
 \section{The constant-product rule}\label{sec:cpmm}
 
 A constant-product pool holds reserves $(x,y)$ and enforces $x\cdot y=k$ through every trade.

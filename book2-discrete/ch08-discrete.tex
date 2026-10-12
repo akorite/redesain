@@ -9,6 +9,23 @@ read a counting problem, name the underlying set, pick the right model
 (ordered vs unordered, distinct vs repeated), and verify small cases
 against brute force before trusting a closed form.
 
+% from-zero:begin
+\begin{rulebox}[Before you start]
+Chapters~2--4. No number theory is needed here. \emph{Recap:} counting means finding the size of a finite set without listing it; $n!=1\cdot2\cdots n$ is the number of ways to order $n$ different things.
+\end{rulebox}
+\begin{wins}[After this chapter you can]
+\begin{itemize}
+\item choose between the sum and product rules and know when each applies;
+\item count arrangements, selections and distributions with factorials, binomials and stars-and-bars;
+\item prove a counting identity by a bijection or a committee argument;
+\item use the pigeonhole principle to prove that something must exist.
+\end{itemize}
+\end{wins}
+\begin{principle}[How to think about this]
+Counting is about structure, not formulas. Before reaching for $\binom{n}{k}$, ask: ``what are the choices, in what order do I make them, and do different choice-paths ever produce the same object?'' If you can describe how to \emph{build} each object exactly once, you have the count.
+\end{principle}
+% from-zero:end
+
 \section{Sum and product rules}\label{sec:rules}
 \index{sum rule}\index{product rule}
 

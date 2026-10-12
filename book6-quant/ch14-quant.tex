@@ -9,6 +9,23 @@ where each fails.}
 hierarchy is VaR (how bad is the bad day), ES (how bad, given bad), and stress (how bad
 was the named day)---each deeper than the last, each harder to game.
 
+% from-zero:begin
+\begin{rulebox}[Before you start]
+Chapters~1 and~12--13. \emph{Recap:} risk is not volatility alone; it is what a bad week looks like.
+\end{rulebox}
+\begin{wins}[After this chapter you can]
+\begin{itemize}
+\item compute VaR and expected shortfall;
+\item estimate volatility for risk;
+\item run a stress test;
+\item target volatility.
+\end{itemize}
+\end{wins}
+\begin{principle}[How to think about this]
+Risk is about the bad days you have not seen yet. Measures like VaR and expected shortfall put a number on them, and stress tests ask what happens in cases history has not offered. No single number is enough, so look at several.
+\end{principle}
+% from-zero:end
+
 \section{VaR and ES on real data}\label{sec:var}
 
 \texttt{risk\_metrics.py} computes historical VaR/ES on 720 real BTC daily log returns

@@ -17,6 +17,26 @@ generator is usually the wrong move.
 CSES ``Probability'' problem set and a small but real slice of
 Codeforces and USACO-G.}
 
+% from-zero:begin
+\begin{rulebox}[Before you start]
+Chapter~14 (modular arithmetic) and \textbf{Book~2, Chapter~12} (probability on finite spaces). \emph{Recap:} on a finite sample space with equally likely outcomes, $P(A)=|A|/|\Omega|$: probability is counting.
+\begin{itemize}
+\item The expected value of a random quantity is the average you would see over many repetitions.
+\end{itemize}
+\end{rulebox}
+\begin{wins}[After this chapter you can]
+\begin{itemize}
+\item turn a ``probability that\dots'' problem into a counting problem;
+\item compute an expected value with linearity of expectation, without listing outcomes;
+\item apply conditional probability and Bayes' rule to a short word problem;
+\item compute a probability exactly with DP and know when to settle for simulation.
+\end{itemize}
+\end{wins}
+\begin{principle}[How to think about this]
+Do not memorise probability formulas. Picture the experiment as a list of equally likely outcomes and count the ones you want. When counting directly is painful, switch viewpoints: expected values add up even when events are tangled together, so break the quantity into small indicator pieces and add their expectations.
+\end{principle}
+% from-zero:end
+
 \section{Finite probability: counting in disguise}\label{sec:finite}
 \index{sample space}\index{event}\index{complement rule}
 On a finite \emph{sample space} $\Omega$ with equally likely

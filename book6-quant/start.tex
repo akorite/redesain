@@ -1,0 +1,73 @@
+\chapter*{Start here: from zero}
+\addcontentsline{toc}{chapter}{Start here: from zero}
+\markboth{Start here}{Start here}
+
+This book is about answering one question honestly: \emph{does this trading idea
+really work, or does it only look like it does?} You do not need to know finance.
+You need comfort with percentages, a little statistics, and some Python. This
+chapter covers the finance vocabulary and the statistics you need for Chapter~1.
+
+\section*{What a market is}
+
+A \emph{market} is a place where buyers and sellers agree on prices. An
+\emph{asset} is whatever is traded: a share of a company, a currency, a
+cryptocurrency. A \emph{price} is the amount paid per unit at one moment. A
+\emph{trade} swaps cash for the asset or the other way around; a \emph{strategy}
+is a rule that says when to trade. \emph{Quantitative research} tests such rules
+on data, with statistics, before any money is risked.
+
+This book is a research-methods text. Nothing in it is financial advice, and the
+examples are about measurement, not about what to buy.
+
+\section*{Returns: the one idea you need first}
+
+If an asset costs $100$ today and $102$ tomorrow, its \emph{return} is the
+percentage change, $102/100-1=0.02$, or $2\%$. If it then falls to $99$, the next
+return is $99/102-1=-0.0294$, a fall of $2.94\%$. Two things to notice. First,
+the up-then-down does not cancel: a $+2\%$ move followed by a fall of $2.94\%$
+returns to roughly $99$, not $100$. Second, we will often use the
+\emph{logarithmic return} $\ln(P_{t}/P_{t-1})$ instead, because log returns
+\emph{add} over time. For small moves the two are nearly equal ($\ln 1.02=0.0198$
+versus $0.02$); for large moves they differ ($\ln 1.1=0.0953$ versus $0.10$).
+Chapter~1 explains exactly when the difference matters.
+
+\section*{Three statistics you will use constantly}
+
+\begin{description}
+\item[Mean] The average. For the returns $+2\%,\,-2.94\%,\,+1\%$ it is
+      $0.0196\%$ per period ($0.000196$).
+\item[Standard deviation] How far values typically sit from the mean: the
+      spread, or in finance the \emph{volatility}. For those three returns it is
+      about $2.6\%$ (sample standard deviation $0.0261$).
+\item[Correlation] A number between $-1$ and $1$ measuring whether two series move
+      together. It is used again in Chapters~14--16.
+\end{description}
+\textbf{Book~3, Chapters~12--13} derive all three carefully, and each chapter here
+recaps the idea at the point it is first used.
+
+\section*{Python}
+
+All code in this book is Python with NumPy and pandas. If you can read a loop and
+a function, that is enough; the machine-learning book (Book~4) opens with a Python
+primer you can read first.
+
+\section*{How the books of this series fit together}
+
+\begin{center}
+\begin{tabular}{P{2.4cm}P{9.0cm}}
+\toprule
+\thead{Book} & \thead{Connection}\\
+\midrule
+3 Linear algebra & Statistics (Ch.~12--13), covariance matrices (Ch.~9--10) and optimisation (Ch.~14) are the maths under Chapters~13--16 here.\\
+4 Machine learning & Shares the honest-evaluation discipline: train/test splits and leakage (Book~4, Ch.~3) are the same ideas as walk-forward validation (Chapter~11 here).\\
+1 Competitive programming & The coding fluency used for the backtest harness (Chapter~8) and the exchange simulator (Chapter~3).\\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\section*{How to use the boxes in each chapter}
+
+Each chapter opens with \emph{After this chapter you can}. From Chapter~2, a
+\emph{Before you start} box lists what the chapter relies on, with a recap. If a
+number in the book surprises you, rerun the code that produced it; every number
+is meant to be checkable.

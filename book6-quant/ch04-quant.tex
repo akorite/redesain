@@ -9,6 +9,23 @@ liquidations happen, and where the funding rate acts as a continuous toll on cro
 This chapter is about the mechanics: what a perp is, how funding replaces expiry convergence,
 how margin and liquidation actually compute, and how to read funding as data.
 
+% from-zero:begin
+\begin{rulebox}[Before you start]
+Chapters~1 and~3. \emph{Recap:} a \emph{perpetual future} is a contract that tracks an asset's price without an expiry date; a periodic payment called funding keeps it close to the spot price.
+\end{rulebox}
+\begin{wins}[After this chapter you can]
+\begin{itemize}
+\item explain how funding works and compute it;
+\item compute basis and carry;
+\item calculate margin and the price at which a position is liquidated;
+\item use funding as data.
+\end{itemize}
+\end{wins}
+\begin{principle}[How to think about this]
+A perpetual future is a bet that never expires, kept honest by a small payment between buyers and sellers. Once you see funding as a price for holding a position, the contract's behaviour follows. Always work out what you pay or earn per day.
+\end{principle}
+% from-zero:end
+
 \section{What a perp is and is not}\label{sec:whatperp}
 
 An expiring future needs no tether to spot: at expiry the contract \emph{settles} to the spot

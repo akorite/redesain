@@ -10,6 +10,23 @@ tree DP for hierarchical matching. After this chapter you will pick
 the state shape, write the canonical template for each, and know
 which optimizations wait at the horizon.
 
+% from-zero:begin
+\begin{rulebox}[Before you start]
+Chapter~11 (all of it) and Chapter~2 (bitmasks for subsets). \emph{Recap:} a DP \emph{state} is the smallest set of facts that determine the future. This chapter builds states out of bitmasks, digits, intervals and tree vertices.
+\end{rulebox}
+\begin{wins}[After this chapter you can]
+\begin{itemize}
+\item write a DP over subsets for problems with $n\le 20$;
+\item count numbers in $[1,N]$ with a digit property by digit DP;
+\item solve interval problems with range DP and tree problems with DP on a rooted tree;
+\item recognise problems that need a DP optimisation you have not yet learned, and know where to look.
+\end{itemize}
+\end{wins}
+\begin{principle}[How to think about this]
+The previous chapter's idea is the same; only the \emph{state} gets fancier. When there are few items, a state can be a set (a bitmask). When digits matter, it can be a position and a bound. When the problem is about a stretch of an array, it can be a pair of endpoints. If you are stuck, ask: \emph{what do I need to remember so that the rest of the problem does not care how I got here?}
+\end{principle}
+% from-zero:end
+
 \section{Subsets as states}\label{sec:masks}\index{bitmask}
 A subset of $\{1..n\}$ is an integer: mask DP stores one value per
 subset, $O(2^n \cdot \text{poly})$ --- viable to $n \approx 20$.

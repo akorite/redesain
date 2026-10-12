@@ -7,6 +7,23 @@ Momentum is the first \emph{conserved} quantity in the book --- the thing
 that survives collisions unchanged --- and the discipline of \emph{when}
 it survives (the system-boundary rule) is the real lesson.
 
+% from-zero:begin
+\begin{rulebox}[Before you start]
+Chapter~2 (forces, free-body diagrams). \emph{Recap:} momentum is mass times velocity; force is its rate of change.
+\end{rulebox}
+\begin{wins}[After this chapter you can]
+\begin{itemize}
+\item compute the impulse delivered by a force;
+\item decide when momentum is conserved and when it is not;
+\item solve 1-D and 2-D collisions;
+\item derive the rocket equation.
+\end{itemize}
+\end{wins}
+\begin{principle}[How to think about this]
+Momentum is the quantity that survives collisions, as long as nothing outside pushes. The skill is choosing your system so that the forces you cannot compute are internal. Then you can predict what happens after, without knowing the messy details of the crash.
+\end{principle}
+% from-zero:end
+
 \section{Momentum and impulse}\label{sec:mom-p}
 
 $\mathbf p=m\mathbf v$ is a vector. Impulse\index{impulse} is momentum's
@@ -58,6 +75,19 @@ same force is external and changes $\mathbf p$.
 cancel by the third law; external ones change the system's $\mathbf p$.}
 \label{fig:boundary}
 \end{figure}
+
+% from-zero:naive-floor:begin
+\begin{example}[First attempt: conserving the ball's own momentum]\label{ex:naive-floor}
+A $0.50\,\mathrm{kg}$ ball hits the floor moving down at $4.0\,\mathrm{m/s}$ and rebounds up at $3.0\,\mathrm{m/s}$.
+``Momentum is conserved,'' says the beginner, ``so the ball should keep moving down at $4.0\,\mathrm{m/s}$.''
+\par\smallskip
+\textbf{What goes wrong.} Momentum is conserved for a \emph{system with no net external impulse}. The ball alone is
+not such a system: the floor pushes on it. Taking up as positive, the ball's momentum changes from
+$0.50\times(-4.0)=-2.0$ to $0.50\times(+3.0)=+1.5\,\mathrm{kg\,m/s}$, a change of $+3.5\,\mathrm{kg\,m/s}$. That is the impulse
+the floor delivered. If you include the Earth in the system, the Earth gains $-3.5\,\mathrm{kg\,m/s}$ and the total is
+conserved --- the Earth's resulting velocity is far too small to see. The applicability rule is about choosing the system.
+\end{example}
+% from-zero:naive-floor:end
 
 \section{Conservation of momentum: the applicability rule}\label{sec:mom-cons}
 

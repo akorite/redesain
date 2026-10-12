@@ -1,0 +1,128 @@
+\chapter*{Start here: from zero}
+\addcontentsline{toc}{chapter}{Start here: from zero}
+\markboth{Start here}{Start here}
+
+This book teaches competitive programming to someone who may never have entered
+a contest, and possibly never written a C++ program. If you already write C++
+comfortably, skim the table near the end of this chapter and go to Chapter~1. If not, this
+short chapter gives you everything the rest of the book silently assumes, in the
+order you will need it.
+
+\section*{What you can do when you finish this book}\label{sec:start-goal}
+
+You will be able to read a contest problem, decide which of dozens of standard
+techniques fits it, write the solution in C++17, and tell, \emph{before you submit},
+whether it will be fast enough. Every chapter opens with a box that names the
+concrete things you will be able to do afterwards, and, from Chapter~2 on, a
+second box telling you what you must already know and giving a short recap of it.
+
+\section*{C++ in ten minutes}\label{sec:start-cpp}
+
+A \emph{program} is a list of instructions written in a language the compiler can
+translate into something the computer runs. Here is a complete C++ program. It
+reads a count $n$, then $n$ whole numbers, and prints their sum, smallest and
+largest.
+
+\lstinputlisting[caption={\texttt{code/start/first\_program.cpp}: read, add, sort, print.},label={lst:start-first}]
+{code/start/first_program.cpp}
+
+Read it top to bottom, one line at a time.
+
+\begin{itemize}
+\item \texttt{\#include <iostream>} and the two lines after it \emph{borrow}
+      ready-made tools: input and output, lists, and sorting.
+\item \texttt{int main() \{ \dots\ \}} is where the program starts. Everything
+      between the braces runs in order.
+\item \texttt{int n;} creates a box called \texttt{n} that holds a whole number.
+      \texttt{cin >> n;} reads the next number from the input into that box.
+\item \texttt{vector<int> a(n);} is a row of $n$ boxes, numbered $0,1,\dots,n-1$.
+      Counting from~0, not~1, is the single most common beginner surprise;
+      \texttt{a[0]} is the first element and \texttt{a[n - 1]} is the last.
+\item \texttt{for (int i = 0; i < n; i++)} repeats the next statement with
+      \texttt{i} equal to $0$, then $1$, and so on up to $n-1$.
+\item \texttt{sort(a.begin(), a.end())} rearranges the row from smallest to
+      largest, so afterwards the smallest is at position~0 and the largest at
+      position $n-1$.
+\item \texttt{cout << \dots} prints. \texttt{"\textbackslash n"} ends the line.
+\end{itemize}
+
+To run it, save it as \texttt{first\_program.cpp} and type, in a terminal:
+
+\begin{lstlisting}[numbers=none]
+$ g++ -std=c++17 -O2 -Wall -o first_program first_program.cpp
+$ echo "5
+30 10 50 20 40" | ./first_program
+sum = 150
+smallest = 10, largest = 50
+\end{lstlisting}
+
+The first command is the compiler turning your text into a program called
+\texttt{first\_program}. \texttt{-Wall} asks it to warn you about suspicious code;
+read warnings, because on a judge they are often a Wrong Answer in disguise. The
+second feeds the program five numbers, exactly as a judge would feed it a test
+file. The output matches what we can check by hand: $30+10+50+20+40=150$.
+
+\begin{tripwire}[The first trap: numbers have a size limit]
+An \texttt{int} holds a whole number only up to about $2.1\times10^{9}$. Go past that and it
+does not report an error; it silently wraps to a nonsense value. Compare:
+\begin{lstlisting}[numbers=none]
+int       b = a + a;    // a = 2000000000
+long long c = 2LL * a;
+\end{lstlisting}
+Compiled and run (\texttt{code/start/overflow.cpp}), this prints
+\texttt{-294967296 4000000000}: the \texttt{int} version is wrong and the
+\texttt{long long} version is right. (Strictly, signed overflow is undefined
+behaviour in C++; this output is what a typical unoptimised build produces. Never rely on it.)
+When an answer \emph{could} exceed two billion, use \texttt{long long}. Chapter~1
+turns this into a habit.
+\end{tripwire}
+
+\section*{The maths symbols you will meet}
+
+Four pieces of notation appear in the first few chapters. None needs more than
+school mathematics.
+\begin{description}
+\item[$\sum_{i=1}^{n} a_i$] means $a_1+a_2+\cdots+a_n$: add the terms for
+      $i=1,2,\dots,n$.
+\item[$a \bmod m$] is the remainder when $a$ is divided by $m$; $17\bmod 5=2$.
+\item[$\lfloor x\rfloor$] is $x$ rounded down; $\lfloor 3.9\rfloor=3$.
+\item[$O(\cdot)$] (``big-O'') describes how a program's running time grows with
+      the input size. Chapter~1 teaches it from scratch with a stopwatch.
+\end{description}
+
+\section*{How the books of this series fit together}\label{sec:start-map}
+
+This is Book~1 of eight. Some later books use what you learn here, and this book
+occasionally borrows from earlier mathematics; wherever it does, the text says
+\emph{Book~N, Chapter~M} and restates the idea in a short recap, so you never have
+to put the book down.
+
+\begin{center}
+\begin{tabular}{P{2.2cm}P{9.2cm}}
+\toprule
+\thead{Book} & \thead{How it connects to this one}\\
+\midrule
+2 Discrete maths & Supplies the proof habits for Chapter~3 (greedy proofs, induction), and the number theory and counting behind Chapters~14 and~17.\\
+3 Linear algebra & Vector formulas used in Chapter~16; the probability background of Chapter~17 is developed further there.\\
+6 Quant research & Uses your coding fluency from Chapters~1--5 to build backtesting code.\\
+7 Systems & Needs the C-style thinking you build here (memory, integer sizes, cost per operation).\\
+\bottomrule
+\end{tabular}
+\end{center}
+
+You can read Book~1 on its own. If you later want proofs for the algorithms, read
+Book~2 alongside Chapters~3 and~14.
+
+\section*{How to use the boxes in each chapter}
+
+\begin{rulebox}[Before you start]
+Lists what the chapter assumes. Anything not already in this book is recapped in
+a sentence or two, so check the recap and move on if it is familiar.
+\end{rulebox}
+\begin{wins}[After this chapter you can]
+Lists the concrete things you can \emph{do} afterwards. If you cannot do one,
+reread the matching section before moving on.
+\end{wins}
+
+Do not skip the worked examples that begin with a naive attempt. Seeing the obvious
+approach fail, and seeing exactly \emph{why}, is how the faster method sticks.
