@@ -5,6 +5,23 @@ answers the harder question: ``does it keep working as the world moves?'' Done n
 it leaks---the label windows at every fold boundary overlap, so the test set remembers
 the training set. This chapter is the procedure and its two failure modes.
 
+% from-zero:begin
+\begin{rulebox}[Before you start]
+Chapters~8--9. \emph{Recap:} splitting data once is not enough for time series; the future must never leak into the past.
+\end{rulebox}
+\begin{wins}[After this chapter you can]
+\begin{itemize}
+\item run walk-forward validation, anchored and rolling;
+\item purge and embargo overlapping samples;
+\item report results per fold;
+\item combine folds into one honest estimate.
+\end{itemize}
+\end{wins}
+\begin{principle}[How to think about this]
+Time series must be tested in time order: train on the past, test on what comes next. Walk-forward validation repeats this over many windows so that one lucky split cannot fool you. Leave gaps so that overlapping data cannot leak.
+\end{principle}
+% from-zero:end
+
 \section{Anchored vs rolling}\label{sec:wftypes}
 
 Two window conventions. \emph{Anchored}: train on everything up to $t$, test on the next

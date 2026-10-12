@@ -1,0 +1,71 @@
+\chapter*{Start here: from zero}
+\addcontentsline{toc}{chapter}{Start here: from zero}
+\markboth{Start here}{Start here}
+
+Machine learning means getting a computer to find a rule from examples instead
+of being told the rule. You do not need to have used it before. You do need two
+small things: the ability to read a short Python program, and a feel for vectors
+and matrices. This chapter gives both in a few pages, using programs you can run.
+
+\section*{Python in one page}
+
+\lstinputlisting[caption={\texttt{code/start/python\_primer.py}: values, a list, a function, a loop.},label={lst:start-py}]
+{code/start/python_primer.py}
+
+Running it prints:
+\begin{lstlisting}[numbers=none]
+count   = 4
+average = 116.25
+largest = 140
+squares = [14400, 9025]
+\end{lstlisting}
+(Check the average by hand: $120+95+140+110=465$, and $465/4=116.25$.)
+A \emph{list} is an ordered row of values; \texttt{def} defines a function;
+indentation, not braces, marks which lines belong to the loop or function; and
+\texttt{prices[:2]} means ``the first two elements.'' That is enough Python to
+start Chapter~1.
+
+\section*{Vectors and matrices in one page}
+
+A \emph{vector} is a list of numbers, such as the measurements of one penguin:
+$\mathbf x=(39.1,\ 18.7,\ 181)$. A \emph{matrix} is a table of numbers: stack one
+vector per row and you have a dataset $X$ with $n$ rows (samples) and $d$ columns
+(features). Multiplying a matrix by a vector of weights $\mathbf w$ gives one
+number per row, the prediction for each sample; this single operation is the
+heart of a linear model. In NumPy:
+
+\lstinputlisting[caption={\texttt{code/start/numpy\_primer.py}: a dataset as a matrix, and a prediction for each row.},label={lst:start-np}]
+{code/start/numpy_primer.py}
+
+\begin{lstlisting}[numbers=none]
+shape of X: (3, 2)
+X @ w     : [12. 34. 56.]
+column means: [3. 4.]
+\end{lstlisting}
+Check the first prediction by hand: $1\cdot10+2\cdot1=12$.
+
+This is all the linear algebra you need to \emph{start}. When the book needs more
+(least squares, SVD, gradients), the \emph{Before you start} box at the top of the
+chapter points to the exact chapter of \textbf{Book~3} and restates the idea in a
+sentence, so you can read on without it.
+
+\section*{How the books of this series fit together}
+
+\begin{center}
+\begin{tabular}{P{2.4cm}P{9.0cm}}
+\toprule
+\thead{Book} & \thead{Connection}\\
+\midrule
+3 Linear algebra & The mathematical spine of this book. We cite it by chapter: least squares (Ch.~8), PCA/SVD (Ch.~10), gradients (Ch.~11), optimisation (Ch.~14), entropy (Ch.~15).\\
+1 Competitive programming & Where to learn algorithmic thinking and cost estimation; helpful for Chapters~14 and~18 here.\\
+6 Quant research & Applies the evaluation discipline of Chapter~3 here to financial data.\\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\section*{How to use the boxes in each chapter}
+
+Each chapter opens with \emph{After this chapter you can}, naming what you can
+\emph{do}. From Chapter~2, a \emph{Before you start} box lists what the chapter
+relies on. Do the ``Drill'' and ``Exercises'' sections: reading a training curve
+is a skill, and skills need practice.

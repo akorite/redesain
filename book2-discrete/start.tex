@@ -1,0 +1,92 @@
+\chapter*{Start here: from zero}
+\addcontentsline{toc}{chapter}{Start here: from zero}
+\markboth{Start here}{Start here}
+
+You do not need to have seen a proof before. This book assumes you can add,
+multiply, and tell an even number from an odd one, and it builds everything else.
+This short chapter explains \emph{why} a mathematician is not satisfied by
+checking examples, lists the few school facts we use, and shows how the symbols
+in Chapter~1 read as ordinary English.
+
+\section*{Why prove anything?}
+
+Try this. Compute $n^2+n+41$ for $n=0,1,2,\dots$:
+\[
+n=0:\ 41,\qquad n=1:\ 43,\qquad n=2:\ 47,\qquad n=3:\ 53,\qquad n=4:\ 61,\ \dots
+\]
+Every value is a prime number. It stays prime for $n=0,1,\dots,39$, forty cases in
+a row. Surely the formula always gives a prime? It does not: at $n=40$,
+\[
+40^2+40+41 = 40(40+1)+41 = 40\cdot 41 + 41 = 41\cdot 41 = 1681,
+\]
+which is $41^2$, not prime. Forty correct examples were not a proof, and the
+forty-first case broke it. A \emph{proof} is an argument that covers \emph{every}
+case at once, so that no later case can surprise you. Contest mathematics and
+computer science run on that guarantee: an algorithm proved correct is correct on
+inputs you never tested.
+
+\section*{School facts we use}
+
+\begin{description}
+\item[Integers.] The whole numbers $\dots,-2,-1,0,1,2,\dots$; the set of all of
+      them is written $\mathbb Z$. The positive ones, $1,2,3,\dots$, are the
+      \emph{natural numbers}, $\mathbb N$.
+\item[Even and odd.] An integer is even if it can be written $2k$ for an
+      integer $k$, and odd if it can be written $2k+1$. Every integer is exactly
+      one of the two.
+\item[Divides.] $a\mid b$ means $b=ak$ for some integer $k$: $3\mid 12$ because
+      $12=3\cdot4$; $5\nmid 12$.
+\item[Prime.] An integer greater than 1 whose only positive divisors are $1$ and
+      itself: $2,3,5,7,11,\dots$. The number $1$ is not prime.
+\item[Fractions and real numbers.] $\mathbb Q$ is the set of fractions $a/b$ with
+      $a,b$ integers and $b\ne0$; $\mathbb R$ is the set of all numbers on the
+      number line.
+\end{description}
+
+\section*{Reading the symbols}
+
+Every symbol below is shorthand for an English phrase. Chapter~1 introduces them
+one by one; this table is for reference.
+
+\begin{center}
+\begin{tabular}{lP{9cm}}
+\toprule
+\thead{Symbol} & \thead{Read it as}\\
+\midrule
+$x\in S$ & ``$x$ is an element of $S$'' ($3\in\{1,2,3\}$)\\
+$\forall x$ & ``for every $x$''\\
+$\exists x$ & ``there is at least one $x$ such that''\\
+$P\Rightarrow Q$ & ``if $P$ then $Q$''\\
+$P\Leftrightarrow Q$ & ``$P$ if and only if $Q$'': each implies the other\\
+$\neg P$ & ``not $P$''\\
+$P\wedge Q$, $P\vee Q$ & ``$P$ and $Q$'', ``$P$ or $Q$ (or both)''\\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\section*{How the books of this series fit together}
+
+This is Book~2 of eight. It is the proof-and-counting spine for the others, and it
+is a good first book if you plan to continue.
+
+\begin{center}
+\begin{tabular}{P{2.4cm}P{9.0cm}}
+\toprule
+\thead{Book} & \thead{Connection}\\
+\midrule
+1 Competitive programming & Implements the number theory (Chapters~5--7 here) and counting (Chapters~8--9) as fast code, and uses induction and exchange arguments to justify greedy algorithms.\\
+3 Linear algebra & Uses the proof habits of Chapters~2--4: every theorem there is stated, then proved, in the same layout.\\
+6 Quant research & Needs the finite probability of Chapter~12.\\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\section*{How to use the boxes in each chapter}
+
+Each chapter begins with \emph{After this chapter you can}, naming what you will
+be able to \emph{do}. From Chapter~2, a \emph{Before you start} box lists what
+earlier chapters (or other books) the chapter relies on, with a one-sentence
+recap, so that you can tell whether to reread something first.
+
+Work the exercises with a pencil. A proof you only read is a proof you have
+agreed with; a proof you wrote is one you can use.

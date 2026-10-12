@@ -13,6 +13,23 @@ by hand, read singular values as the matrix's importance spectrum,
 compress data to rank $k$, run PCA end-to-end against sklearn, and use
 $A^{+}$ as the universal least-squares solver.
 
+% from-zero:begin
+\begin{rulebox}[Before you start]
+Chapters~5, 7 and~9. \emph{Recap:} eigenvalues need a square matrix; the SVD works for \emph{any} matrix by stretching along perpendicular directions chosen for the input and the output separately.
+\end{rulebox}
+\begin{wins}[After this chapter you can]
+\begin{itemize}
+\item compute the SVD of a small matrix and describe it geometrically;
+\item read rank, condition number and the pseudoinverse off the singular values;
+\item compress a matrix by truncating its SVD and state the Eckart--Young guarantee;
+\item perform PCA and explain what the principal components are.
+\end{itemize}
+\end{wins}
+\begin{principle}[How to think about this]
+The SVD says every matrix, however rectangular, is a rotation, then a stretch along perpendicular axes, then another rotation. The stretch sizes (singular values) rank the directions by importance. Keeping the big ones and dropping the small is compression; PCA is exactly that applied to centred data.
+\end{principle}
+% from-zero:end
+
 \section{Statement: \texorpdfstring{$A=U\Sigma V^{T}$}{A=USV^T}}\label{sec:svd-statement}
 
 \begin{theorem}[Singular value decomposition]\index{SVD}

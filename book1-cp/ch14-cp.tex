@@ -9,6 +9,26 @@ move safely inside a modulus, choose between stars-and-bars and
 inclusion--exclusion by the shape of the constraint, and spot the
 linear recurrences that exponentiate.
 
+% from-zero:begin
+\begin{rulebox}[Before you start]
+Chapters~1 and~11. From \textbf{Book~2, Chapters~5--7} (divisibility, modular arithmetic, Fermat) we use the facts; the facts are restated in context here, so you can read this chapter without having read Book~2.
+\begin{itemize}
+\item \emph{Recap:} $a \bmod m$ is the remainder of $a$ divided by $m$. Contest answers are often asked ``modulo $10^9+7$'' so that they fit in 64-bit integers.
+\end{itemize}
+\end{rulebox}
+\begin{wins}[After this chapter you can]
+\begin{itemize}
+\item compute gcd, a prime sieve and a prime factorisation fast enough for $10^6$--$10^7$;
+\item do addition, multiplication, power and division under a modulus without overflow;
+\item compute $\binom{n}{k}\bmod p$ for many queries;
+\item solve linear recurrences with matrix exponentiation.
+\end{itemize}
+\end{wins}
+\begin{principle}[How to think about this]
+Number theory in contests is mostly about two habits: reduce numbers early (mod $p$) so they never grow too large, and trust a few well-tested identities rather than rediscovering them. When a formula asks for division under a modulus, remember that ``divide'' really means ``multiply by an inverse,'' and the inverse exists for the reason Fermat's theorem gives.
+\end{principle}
+% from-zero:end
+
 \section{Divisibility and gcd}\label{sec:gcd}\index{Euclidean algorithm}
 The Euclidean algorithm is an invariant machine: $\gcd(a,b)$ equals
 $\gcd(b, a \bmod b)$ because common divisors of the pair are

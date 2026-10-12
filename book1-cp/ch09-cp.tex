@@ -11,6 +11,22 @@ exchange proof, and spot when an offline replay turns ``delete''
 into ``insert'' --- the trick that makes deletion queries solvable at
 all.
 
+% from-zero:begin
+\begin{rulebox}[Before you start]
+Chapters~3 and~7. \emph{Recap:} a \emph{spanning tree} connects all $n$ vertices using $n-1$ edges and no cycles; the \emph{minimum} one has the smallest total edge cost. Kruskal's algorithm is a greedy algorithm (Chapter~3) run on a sorted edge list.
+\end{rulebox}
+\begin{wins}[After this chapter you can]
+\begin{itemize}
+\item keep track of groups that merge over time with a disjoint-set union in near-constant time per operation;
+\item build a minimum spanning tree with Kruskal or Prim and explain why it is optimal;
+\item answer offline connectivity questions by processing edges in the right order.
+\end{itemize}
+\end{wins}
+\begin{principle}[How to think about this]
+Imagine people at a party forming groups: when two people discover a mutual friend, their groups merge, and you never need to split a group again. That one-way merging is what makes the disjoint-set structure so cheap. For spanning trees, the thinking is: to connect everything as cheaply as possible, keep adding the cheapest edge that does not close a loop.
+\end{principle}
+% from-zero:end
+
 \section{The connectivity problem}\label{sec:conn}\index{connectivity}
 Maintain ``are $a$ and $b$ in the same component?'' under edge
 insertions. Online algorithms must answer as each query arrives;

@@ -15,6 +15,23 @@ deep learning work on images --- and it is just another matrix
 operation underneath, which means everything from Chapters
 \ref{ch:nn}--\ref{ch:training} still applies unchanged.
 
+% from-zero:begin
+\begin{rulebox}[Before you start]
+Chapters~7--8. \emph{Recap:} a convolution slides a small set of weights over an image so that the same pattern detector is used everywhere; that weight sharing is what makes image models practical.
+\end{rulebox}
+\begin{wins}[After this chapter you can]
+\begin{itemize}
+\item treat an image as a tensor and compute a convolution by hand;
+\item explain channels, pooling and receptive fields;
+\item train a small CNN on real digits;
+\item use a residual connection and a pretrained network for transfer learning.
+\end{itemize}
+\end{wins}
+\begin{principle}[How to think about this]
+Images have a structure that a generic network ignores: nearby pixels belong together and the same pattern can appear anywhere. A convolution builds that assumption in by reusing a small detector everywhere. Good design in machine learning is often exactly this: put what you know about the problem into the shape of the model.
+\end{principle}
+% from-zero:end
+
 \section{Images are tensors, not vectors}
 \label{sec:tensors}
 

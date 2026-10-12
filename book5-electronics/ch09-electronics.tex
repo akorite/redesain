@@ -10,6 +10,23 @@ to build a mux from gates and from \texttt{assign}, explain why a
 ripple-carry adder is slow, decode a seven-segment display, and count
 the speed/area trade in gate delays.
 
+% from-zero:begin
+\begin{rulebox}[Before you start]
+Chapter~8 (Boolean algebra). \emph{Recap:} \emph{combinational} means the output depends only on the present inputs --- no memory.
+\end{rulebox}
+\begin{wins}[After this chapter you can]
+\begin{itemize}
+\item build a multiplexer and a decoder from gates;
+\item build a ripple-carry adder and count its delay;
+\item design a seven-segment decoder;
+\item explain how these blocks become an ALU.
+\end{itemize}
+\end{wins}
+\begin{principle}[How to think about this]
+Combinational design is like building with plumbing: signals flow through, and the output simply reflects the input after a delay. The delay matters: a long chain of gates is slow, which is why the structure of an adder affects how fast a computer can run.
+\end{principle}
+% from-zero:end
+
 \section{Multiplexers and decoders: the two routers}
 \label{sec:routers}
 

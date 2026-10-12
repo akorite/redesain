@@ -9,6 +9,31 @@ of how fast a given algorithm is before you write it, and a routine for going
 from a problem statement to an accepted submission without flailing. Everything
 else in the book assumes this chapter's machinery.
 
+% from-zero:why:begin
+\paragraph{Why this exists.} Programming contests exist because they measure, quickly and fairly, one
+skill: turning a precisely stated problem into a correct and fast program without help. A judge
+removes all argument: the program either passes the hidden tests in the time allowed or it does not.
+That skill carries over to technical interviews, to olympiads in informatics, and to any job where code
+must handle large inputs. The rest of this chapter explains the rules of that game before any algorithm.
+% from-zero:why:end
+
+% from-zero:begin
+\begin{rulebox}[Before you start]
+Nothing beyond the \emph{Start here} chapter at the front of this book. If you have never compiled a C++ program, read its ``C++ in ten minutes'' section first; this chapter then treats the judge as a black box and teaches you to reason about it.
+\end{rulebox}
+\begin{wins}[After this chapter you can]
+\begin{itemize}
+\item explain what a judge does with your program and which of the six verdicts you earned, from the verdict alone;
+\item submit a correct solution to a simple problem using the starter file, with fast input and 64-bit integers;
+\item look at a problem's limits and say, before writing code, whether an $O(n^2)$ idea can pass;
+\item run the read--test--submit loop and the first-Wrong-Answer checklist when a submission fails.
+\end{itemize}
+\end{wins}
+\begin{principle}[How to think about this]
+Think of a judge as a very strict, very fast friend who only ever says ``yes'' or ``no.'' It cannot see your effort, only your output. So the real skill is not typing quickly; it is predicting, before you write anything, whether your idea will be fast enough and right enough. Ask two questions every time: \emph{How big can the input get?} and \emph{How many steps does my idea take on that input?} If the second number is much bigger than a hundred million, change the idea, not the code.
+\end{principle}
+% from-zero:end
+
 \section{How a judge sees your program}\label{sec:judge}
 
 Forget the IDE, the debugger, the terminal prompt. To the judge\index{judge}

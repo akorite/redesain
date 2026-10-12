@@ -14,6 +14,23 @@ your code gets accepted.
 foundation for USACO-G geometry and a handful of CF
 1600--2100 problems.}
 
+% from-zero:begin
+\begin{rulebox}[Before you start]
+Chapters~1 and~3 (sorting with comparators). \textbf{Book~3, Chapters~1 and~5} (vectors, dot products) is the same maths, with proofs; this chapter restates the two formulas you need, the dot and cross product.
+\end{rulebox}
+\begin{wins}[After this chapter you can]
+\begin{itemize}
+\item represent points as exact integers, so that no floating-point error can change an answer;
+\item tell whether three points turn left, right, or are collinear with one cross product;
+\item test whether two segments intersect and build a convex hull;
+\item compute polygon area and decide whether a point is inside a polygon.
+\end{itemize}
+\end{wins}
+\begin{principle}[How to think about this]
+Geometry looks messy because of decimals. The way of thinking here is to avoid them: express every question as the sign of a whole-number expression, such as ``does this turn left?''. Then the computer never has to decide whether $0.1+0.2$ equals $0.3$. If you do all your tests with exact integers, the answers are exactly right.
+\end{principle}
+% from-zero:end
+
 \section{The integer-only rule}\label{sec:intonly}
 \index{integer geometry}\index{floating point!avoiding}
 Input coordinates are integers, and nearly every geometric

@@ -14,6 +14,23 @@ projection that invents separation is worse. The through-line from
 Chapter 3 survives intact --- there is always a baseline, and there is
 always a way the number can lie.\index{unsupervised learning}
 
+% from-zero:begin
+\begin{rulebox}[Before you start]
+Chapter~4 and \textbf{Book~3, Chapter~10} (SVD). \emph{Recap:} in unsupervised learning there is no answer column. We look for structure in $X$ alone: groups of similar rows, or fewer columns that carry most of the information.
+\end{rulebox}
+\begin{wins}[After this chapter you can]
+\begin{itemize}
+\item run $k$-means and explain why it can get stuck;
+\item cluster hierarchically and read a dendrogram;
+\item reduce dimension with PCA and decide how many components to keep;
+\item avoid the traps of unscaled features and clusters found in pure noise.
+\end{itemize}
+\end{wins}
+\begin{principle}[How to think about this]
+With no answers to learn from, we look for shape: which points sit close together, and which directions carry the most variation. The danger is finding patterns that are not there, so always ask whether the structure survives rescaling, a different seed, and a comparison with random noise.
+\end{principle}
+% from-zero:end
+
 \section{Unsupervised $\neq$ evaluation-free}\label{sec:unsupeval}
 
 With no $\mathbf{y}$, metrics come in two species. \emph{External}

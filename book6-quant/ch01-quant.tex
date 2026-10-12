@@ -11,6 +11,31 @@ planted, and ends by turning ``risk'' into numbers you can compute.
 Nothing here is advice about any real trade --- it is the measurement
 toolkit the rest of the book uses.
 
+% from-zero:why:begin
+\paragraph{Why this exists.} Prices cannot be compared directly: a $\$1$ move means
+something different for a $\$10$ stock and a $\$1000$ stock. \emph{Returns} (the percentage change) put
+every asset on the same scale, and \emph{volatility} measures how much they bounce. Every later statistical test
+in this book is applied to returns, not prices, so we start by defining them carefully and measuring risk
+honestly.
+% from-zero:why:end
+
+% from-zero:begin
+\begin{rulebox}[Before you start]
+Percentages and averages, and a little Python. The \emph{Start here} chapter explains what a market is, what ``return'' means in one paragraph, and the statistics ideas (mean, spread, correlation) that you need first. \textbf{Book~3, Chapters~12--13} treats them in full.
+\end{rulebox}
+\begin{wins}[After this chapter you can]
+\begin{itemize}
+\item turn a list of prices into returns, simple and logarithmic, and say when the difference matters;
+\item estimate volatility three ways and compare them on data where the true answer is known;
+\item describe the shape of return data, including its fat tails;
+\item put a number on risk.
+\end{itemize}
+\end{wins}
+\begin{principle}[How to think about this]
+Always ask what a number means before using it. A price tells you little, but a return says how much you gained for each unit invested, and volatility says how bumpy the ride was. Being clear about these two ideas prevents the commonest beginner mistakes.
+\end{principle}
+% from-zero:end
+
 \section{What a price series is}\label{sec:prices}
 \index{price series}\index{bar}\index{candle}
 A venue emits \emph{ticks}: individual quotes or trades, stamped in
@@ -184,6 +209,22 @@ return, more variance means less compounded growth. This is why
 Kelly-style sizing (ch13) maximises expected \emph{log} growth,
 never expected return.
 \end{example}
+
+% from-zero:naive-ret:begin
+\begin{example}[First attempt: averaging percentage changes]\label{ex:naive-avg-ret}
+A stock starts at $100$. In year one it rises $50\%$, to $150$. In year two it falls
+$50\%$, to $75$. The average of $+50\%$ and $-50\%$ is $0\%$, so a beginner concludes
+that nothing was lost. But the investor is down $25$: $75$ instead of $100$.
+\par\smallskip
+\textbf{What went wrong.} A percentage change is measured against a \emph{different
+base} each year ($100$, then $150$), so the changes cannot be averaged as plain numbers.
+The growth factors multiply: $1.5\times0.5=0.75$, a $25\%$ loss. Log returns repair this:
+$\ln1.5=0.4055$ and $\ln0.5=-0.6931$ sum to $-0.2877=\ln0.75$. Their average over two
+years, $-0.1438$ per year, is a growth rate that really does compound back to $0.75$ since
+$e^{2\times(-0.1438)}=0.75$. This is the reason the book prefers log returns for averaging
+and for the statistics that follow.
+\end{example}
+% from-zero:naive-ret:end
 
 \section{Volatility and its estimators}\label{sec:estimators}
 \index{volatility!estimators}\index{Parkinson estimator}\index{EWMA}

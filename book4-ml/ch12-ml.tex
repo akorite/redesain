@@ -18,6 +18,23 @@ Each section ends the same way: \emph{sample, then interrogate} ---
 because the whole discipline of generative modelling is that a pretty
 sample proves almost nothing.
 
+% from-zero:begin
+\begin{rulebox}[Before you start]
+Chapters~7--11 and \textbf{Book~3, Chapters~12 and~15} (probability, KL divergence). \emph{Recap:} a generative model learns $p(\mathbf x)$, the distribution of the data itself, so that it can produce new samples.
+\end{rulebox}
+\begin{wins}[After this chapter you can]
+\begin{itemize}
+\item say how generative and discriminative models differ;
+\item factor a distribution autoregressively;
+\item explain the VAE objective, GAN training, and diffusion at the level of one equation each;
+\item say why evaluating generative models is hard.
+\end{itemize}
+\end{wins}
+\begin{principle}[How to think about this]
+Instead of predicting a label, a generative model learns to create. Each family (autoregressive, VAE, GAN, diffusion) is a different answer to one question: how do I turn simple randomness into realistic data? Judge a model by what it makes, and be sceptical of any single number that claims to measure quality.
+\end{principle}
+% from-zero:end
+
 \section{Generative vs discriminative: $p(\mathbf x)$ vs $p(y\mid\mathbf x)$}
 \label{sec:gvd}
 

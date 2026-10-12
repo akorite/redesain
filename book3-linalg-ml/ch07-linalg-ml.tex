@@ -12,6 +12,23 @@ eigenvalues and eigenvectors by hand for small matrices, diagonalise when
 diagonalisation exists, say precisely when it fails, and use all of it on a
 Fibonacci-style recurrence and a Markov chain.
 
+% from-zero:begin
+\begin{rulebox}[Before you start]
+Chapters~1--4 and~6. \emph{Recap:} usually a matrix rotates and stretches vectors at once. An \emph{eigenvector} is a direction the matrix only stretches, and the stretch factor is its \emph{eigenvalue}.
+\end{rulebox}
+\begin{wins}[After this chapter you can]
+\begin{itemize}
+\item find eigenvalues and eigenvectors of a small matrix by hand;
+\item diagonalise a matrix and use it to compute $A^{k}$ for large $k$;
+\item recognise a matrix that cannot be diagonalised;
+\item solve a linear recurrence or a Markov-chain steady state with eigenvalues.
+\end{itemize}
+\end{wins}
+\begin{principle}[How to think about this]
+Most vectors get turned and stretched by a matrix, but a few special directions are only stretched. Those are the eigenvectors, and in their directions the machine becomes simple multiplication. If you can break a vector into eigenvector pieces, repeating the machine a hundred times is easy: each piece is just scaled a hundred times.
+\end{principle}
+% from-zero:end
+
 \section{The eigen equation}\label{sec:eig-eq}
 
 \begin{definition}[Eigenvector, eigenvalue]\index{eigenvector}\index{eigenvalue}

@@ -15,6 +15,23 @@ agent that works on camera and then fails on camera --- and the eval
 harness that scores the trajectories, because an agent without a
 trajectory eval is a demo, not a system.
 
+% from-zero:begin
+\begin{rulebox}[Before you start]
+Chapters~11 and~15. \emph{Recap:} a large language model predicts text. An \emph{agent} wraps it in a loop in which it can call tools and observe results.
+\end{rulebox}
+\begin{wins}[After this chapter you can]
+\begin{itemize}
+\item tell a fixed workflow from an agent and choose between them;
+\item design the plan--act--observe loop with tools and memory;
+\item evaluate an agent by its trajectory, not just its final answer;
+\item decide when not to build an agent.
+\end{itemize}
+\end{wins}
+\begin{principle}[How to think about this]
+An agent is a language model in a loop with tools. More autonomy means more power and more ways to fail, so use the simplest design that works: a fixed workflow when the steps are known, an agent only when the path really is uncertain. Judge it by what it did, step by step, not just the final sentence.
+\end{principle}
+% from-zero:end
+
 \section{Workflows vs agents: who controls the path}
 \label{sec:wva}
 

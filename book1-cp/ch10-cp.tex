@@ -11,6 +11,23 @@ and binary lifting for ancestors and LCA. After it you will compute
 per-vertex farthest distances, answer distance queries in
 $O(\log n)$, and see every ``tree problem'' as pick-a-pattern.
 
+% from-zero:begin
+\begin{rulebox}[Before you start]
+Chapter~7 (DFS) and Chapter~9 (a tree is a connected graph with no cycle). \emph{Recap:} in a tree there is exactly one simple path between any two vertices, which is why tree problems are easier than general graph problems.
+\end{rulebox}
+\begin{wins}[After this chapter you can]
+\begin{itemize}
+\item root a tree and compute subtree sizes, depths and sums with one DFS;
+\item find a tree's diameter with two DFS passes;
+\item flatten a tree into an array with an Euler tour so range tools apply;
+\item answer lowest-common-ancestor and path-distance queries with binary lifting.
+\end{itemize}
+\end{wins}
+\begin{principle}[How to think about this]
+A tree is a graph with no loops, so there is exactly one way to get anywhere. That removes most of the difficulty: you can solve a problem for a small subtree and combine the answers upward. The habit to build is ``solve my children first, then combine,'' which is a recursive way of thinking that returns again in dynamic programming.
+\end{principle}
+% from-zero:end
+
 \section{The shape of a tree}\label{sec:tshape}
 $n$ vertices, $n{-}1$ edges, connected, acyclic: any two properties
 imply the third. Rooting is a \emph{design choice} --- most

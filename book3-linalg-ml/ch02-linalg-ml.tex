@@ -2,6 +2,23 @@
 
 Chapter 1 used a matrix as a box of coefficients feeding an algorithm. This chapter treats the matrix as an object in its own right — something you can multiply, transpose, invert and factor — and builds the small algebra that every later chapter uses without comment. After it you will be able to (a) read $A\mathbf{x}$ as a weighted combination of $A$'s columns; (b) read $AB$ both as composition of two actions and as a grid of inner products; (c) decide when $A^{-1}$ exists and compute it by Gauss--Jordan; and (d) recognize the four special matrix shapes that make algebra cheap: diagonal, triangular, permutation, block.
 
+% from-zero:begin
+\begin{rulebox}[Before you start]
+Chapter~1: elimination and the picture of $A\mathbf x=\mathbf b$. \emph{Recap:} a matrix is a rectangular table of numbers; multiplying it by a column vector $\mathbf x$ forms the combination of the matrix's columns with weights taken from $\mathbf x$.
+\end{rulebox}
+\begin{wins}[After this chapter you can]
+\begin{itemize}
+\item multiply matrices four different ways and know which one a given question wants;
+\item read a matrix as a function that moves vectors around, and a product as doing one move after another;
+\item decide whether a matrix has an inverse and compute it by elimination;
+\item use triangular, diagonal, permutation and block matrices to simplify a computation.
+\end{itemize}
+\end{wins}
+\begin{principle}[How to think about this]
+A matrix is not a table to be memorised but a machine: feed it a vector, it returns another. Multiplying two matrices means running one machine after another, which is why the order matters (putting on socks then shoes is not shoes then socks). When a product confuses you, ask what each machine does to a single vector.
+\end{principle}
+% from-zero:end
+
 \section{A matrix is a box of coefficients --- and a recipe}\label{sec:matdef}
 
 An $m\times n$ \emph{matrix}\index{matrix} $A$ is a rectangular array of numbers with $m$ rows and $n$ columns; we write $a_{ij}$ or $A_{ij}$ for the entry in row $i$, column $j$. That is the storage view. The operational view — the one worth tattooing — is that $A$ is a \emph{recipe}\index{matrix!as transformation}: feed it a vector $\mathbf{x}\in\mathbb{R}^n$ and it produces a vector $A\mathbf{x}\in\mathbb{R}^m$. A $3\times3$ matrix is a machine $\mathbb{R}^3\to\mathbb{R}^3$; a $2\times3$ matrix maps $\mathbb{R}^3\to\mathbb{R}^2$. Nothing about a matrix is mysterious once you hold both views: the box \emph{is} the recipe, written out entry by entry.

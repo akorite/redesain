@@ -11,6 +11,23 @@ when an amplifier will clip instead of amplify, and choose a sensible
 power source for a project — including knowing exactly which power source
 you must never build yourself.
 
+% from-zero:begin
+\begin{rulebox}[Before you start]
+Chapters~2--3 (dividers) and~6. \emph{Recap:} an op-amp is a high-gain amplifier; with negative feedback its behaviour is fixed by two resistors, not by the op-amp itself.
+\end{rulebox}
+\begin{wins}[After this chapter you can]
+\begin{itemize}
+\item design inverting and non-inverting amplifiers and a buffer;
+\item use a comparator, including one with hysteresis;
+\item choose between a linear regulator and a switching supply;
+\item explain why mains power stays in a closed enclosure in this book.
+\end{itemize}
+\end{wins}
+\begin{principle}[How to think about this]
+An op-amp is a tool for making a circuit obey a simple rule. With feedback it adjusts its output until its two inputs are equal, so the gain depends only on resistors you choose. Think ``the op-amp will do whatever it takes to make the inputs match'' and most circuits become easy to read.
+\end{principle}
+% from-zero:end
+
 \section{The op-amp contract}
 \label{sec:opamp}
 

@@ -12,6 +12,23 @@ the Lagrange condition geometrically, explain why the logistic NLL is
 safe for gradient descent, and write the backprop pass of a small
 network with a gradient check to prove it.
 
+% from-zero:begin
+\begin{rulebox}[Before you start]
+Chapters~8, 9 and~11. \emph{Recap:} to minimise a function you move against its gradient; gradient descent is that sentence turned into a loop.
+\end{rulebox}
+\begin{wins}[After this chapter you can]
+\begin{itemize}
+\item decide whether a function is convex and why that guarantees one global minimum;
+\item run gradient descent and diagnose a step size that is too large or too small;
+\item solve constrained problems with Lagrange multipliers;
+\item derive backpropagation as the chain rule applied layer by layer.
+\end{itemize}
+\end{wins}
+\begin{principle}[How to think about this]
+Optimisation is walking downhill with your eyes closed, feeling the slope with your feet: the gradient tells you which way is up, so you step the other way. Convexity is the promise that there is one valley, so any downhill walk finds the bottom. Constraints are fences, and Lagrange multipliers are the force with which the fence pushes back.
+\end{principle}
+% from-zero:end
+
 \section{Optimization problems in ML}\label{sec:opt-ml}
 
 The shape is always $\min_\theta L(\theta)$: $L$ a loss composed of a

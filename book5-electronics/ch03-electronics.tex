@@ -13,6 +13,23 @@ network into one source and one resistor. By the end you can take any
 resistor circuit this book will build, write its equations by hand in a few
 lines, and check the answer in the simulator before reaching for a wire.
 
+% from-zero:begin
+\begin{rulebox}[Before you start]
+Chapter~2: Ohm's law and power. \emph{Recap:} $V=IR$. Two parts are in \emph{series} when the same current must pass through both; in \emph{parallel} when they share the same two ends and so the same voltage.
+\end{rulebox}
+\begin{wins}[After this chapter you can]
+\begin{itemize}
+\item find the equivalent resistance of series and parallel networks;
+\item design a voltage divider and know what loading does to it;
+\item apply Kirchhoff's current and voltage laws to a circuit with several loops;
+\item compress a network to a Th\'evenin equivalent.
+\end{itemize}
+\end{wins}
+\begin{principle}[How to think about this]
+Every complicated network is built from two arrangements: parts sharing the same current (series) and parts sharing the same voltage (parallel). The two conservation laws say what flows into a junction flows out, and what rises around a loop falls back. If you can account for current and voltage like money in a ledger, any circuit becomes solvable.
+\end{principle}
+% from-zero:end
+
 \section{Series and parallel are about nodes}
 \label{sec:seriesparallel}
 

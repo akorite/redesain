@@ -5,6 +5,23 @@ Voltage was bookkeeping; circuits spend it. This chapter turns
 two conservation laws as the solver, and the RC transient as the first
 differential equation the circuit pays for.
 
+% from-zero:begin
+\begin{rulebox}[Before you start]
+Chapter~11. \emph{Recap:} current is charge in motion. \textbf{Book~5, Chapters~1--3} treats the same circuits from the engineering side; this chapter derives them from the field picture.
+\end{rulebox}
+\begin{wins}[After this chapter you can]
+\begin{itemize}
+\item relate current to drift velocity;
+\item use Ohm's law and Kirchhoff's rules;
+\item solve resistor networks and compute power;
+\item solve the RC circuit differential equation.
+\end{itemize}
+\end{wins}
+\begin{principle}[How to think about this]
+A circuit is a conservation law with wires: charge is not lost at junctions, and energy is not created around a loop. These two rules solve every network. Time dependence appears when a capacitor charges, and then the answer is an exponential.
+\end{principle}
+% from-zero:end
+
 \section{Current, density and drift}\label{sec:cir-current}
 
 $I=dq/dt$ is the charge flux through a surface; $j=I/A$ the density.

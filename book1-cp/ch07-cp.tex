@@ -13,6 +13,23 @@ adjacency-list idiom without thinking, and reconstruct answers ---
 paths, components, orders --- from the arrays the search leaves
 behind.
 
+% from-zero:begin
+\begin{rulebox}[Before you start]
+Chapters~1 and~2. \emph{Recap:} a \emph{graph} is just a list of things (vertices) and a list of pairs that are connected (edges). A road map, a friendship network and the moves in a puzzle are all graphs. \textbf{Book~2, Chapter~11} studies graphs as mathematics; this chapter treats them as input to programs.
+\end{rulebox}
+\begin{wins}[After this chapter you can]
+\begin{itemize}
+\item store any graph as adjacency lists and read it from the standard input format;
+\item traverse it with DFS and BFS and say which one a problem needs;
+\item count connected components, flood-fill a grid and test for bipartiteness;
+\item order a dependency graph with topological sort and detect a cycle.
+\end{itemize}
+\end{wins}
+\begin{principle}[How to think about this]
+A graph is simply a way to draw ``who is connected to whom.'' Many problems that do not mention graphs at all (a puzzle, a maze, a set of prerequisites) become easy once you decide what the dots and the lines are. The first question to ask is always: \emph{what is a vertex, and what is an edge?} Everything else is a walk through the picture.
+\end{principle}
+% from-zero:end
+
 \section{Vocabulary}\label{sec:vocab}\index{graph!vocabulary}
 A graph $G = (V,E)$ is vertices plus edges: undirected pairs
 $\{u,v\}$, or directed arcs $(u,v)$, possibly weighted. Degree counts

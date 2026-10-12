@@ -15,6 +15,23 @@ split and watches the numbers, then builds the checklist you actually
 run at 2~a.m.\ when a loss curve misbehaves. The mathematics is light;
 the empirical discipline is the point.
 
+% from-zero:begin
+\begin{rulebox}[Before you start]
+Chapter~7 and \textbf{Book~3, Chapter~14} (gradient descent, convexity). \emph{Recap:} neural-network training is gradient descent on a loss surface that is not convex; the tricks here make it work in practice.
+\end{rulebox}
+\begin{wins}[After this chapter you can]
+\begin{itemize}
+\item choose between SGD, momentum and Adam, and explain what each adds;
+\item set a learning rate and a schedule, including warmup;
+\item initialise weights at a sensible scale;
+\item use batch norm and dropout, and run a checklist when training misbehaves.
+\end{itemize}
+\end{wins}
+\begin{principle}[How to think about this]
+Training a large network is less about clever mathematics than about keeping the downhill walk stable: steps neither too large nor too small, a sensible starting point, and ways to stop the signal from exploding or fading. When training misbehaves, change one thing at a time and watch the loss curve like a doctor watches a pulse.
+\end{principle}
+% from-zero:end
+
 \section{GD \texorpdfstring{$\to$}{->} SGD \texorpdfstring{$\to$}{->} minibatch}
 \label{sec:gdsgd}
 

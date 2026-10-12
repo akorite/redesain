@@ -10,6 +10,23 @@ will pick the right structure off the update/query shape, write
 each template, and know the two subtle failure modes that corrupt
 silent answers.
 
+% from-zero:begin
+\begin{rulebox}[Before you start]
+Chapters~5 (prefix sums) and~6 (sparse tables). \emph{Recap:} prefix sums answer range sums but break when the array changes. Here the array \emph{changes} between queries, so we need a structure that supports update and query together in $O(\log n)$.
+\end{rulebox}
+\begin{wins}[After this chapter you can]
+\begin{itemize}
+\item build a Fenwick tree for point update, range sum;
+\item build a segment tree for any associative combine (sum, min, max, gcd);
+\item add lazy propagation for range updates;
+\item pick the right structure for a given mix of updates and queries.
+\end{itemize}
+\end{wins}
+\begin{principle}[How to think about this]
+If the data never changes, a prefix sum is enough. When it does change, you need a structure that updates and answers quickly, and the trick is to store summaries of \emph{blocks of sizes that are powers of two}, so that any range is a few blocks and any update touches a few blocks. Think of it as an index at the back of a book that has to be re-written cheaply when a page changes.
+\end{principle}
+% from-zero:end
+
 \section{The range-query family}\label{sec:family}\index{range query}
 Four shapes appear: point-update/range-query (the classic),
 range-update/point-query (the difference trick), and

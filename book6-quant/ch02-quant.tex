@@ -8,6 +8,23 @@ fails it, the differencing fix you already used in ch1, and the ADF
 test that tells you whether the fix was needed --- including the one
 thing ADF cannot tell you.
 
+% from-zero:begin
+\begin{rulebox}[Before you start]
+Chapter~1. \emph{Recap:} a time series is a list of numbers indexed by time. It is \emph{stationary} if its average and spread do not drift --- a property most statistical tools quietly assume. \textbf{Book~3, Chapter~13} gives the estimation background.
+\end{rulebox}
+\begin{wins}[After this chapter you can]
+\begin{itemize}
+\item explain stationarity and test it;
+\item read an autocorrelation plot;
+\item tell a trend from a unit root;
+\item transform prices to something stationary, and say what the ADF test can and cannot show.
+\end{itemize}
+\end{wins}
+\begin{principle}[How to think about this]
+Most statistical tools assume that the world does not change its rules while you watch. Stationarity is the check that this assumption is reasonable. If a series fails it, transform it (usually by taking changes) before testing anything.
+\end{principle}
+% from-zero:end
+
 \section{Stationarity, weak and strong}\label{sec:stat}
 \index{stationarity}\index{weak stationarity}
 A process is \emph{strongly} (strictly) stationary if the joint
@@ -138,6 +155,25 @@ root leaves a non-stationary remainder (the line you removed was
 never the real level); differencing a trend-stationary series
 \emph{over-differences} --- you manufactured an MA unit root of the
 opposite sign. Most financial prices look like the second case.
+
+% from-zero:naive-spurious:begin
+\begin{example}[First attempt: regressing one price series on another]\label{ex:spurious}
+Take two series that have \emph{nothing to do with each other}: two independent random
+walks of 500 steps. Regress one on the other and record $R^2$, the fraction of variance the
+regression ``explains.'' If the regression meant anything, $R^2$ would be near zero.
+\lstinputlisting[numbers=none]{code/spurious_regression.py}
+Real output (2000 independent pairs, seed 7):
+\begin{lstlisting}[numbers=none]
+levels : median R^2 = 0.165, share with R^2 > 0.3 = 0.346
+changes: median R^2 = 0.0010, share with R^2 > 0.3 = 0.000
+\end{lstlisting}
+\textbf{What went wrong.} In about a third of the pairs the levels of two unrelated
+series appear to explain more than $30\%$ of each other. A random walk wanders, and any two
+wanderings share an accidental trend. Regressing the \emph{changes} instead gives a median
+$R^2$ of $0.001$, as it should for unrelated data. The cure is exactly this section:
+difference (or take log returns) before you test for any relationship.
+\end{example}
+% from-zero:naive-spurious:end
 
 \section{Differencing and logs: the price\texorpdfstring{$\to$}{->}returns fix}\label{sec:diff}
 \index{differencing}

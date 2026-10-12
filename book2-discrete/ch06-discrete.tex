@@ -10,6 +10,23 @@ this chapter you will be able to compute powers by cycle, solve linear
 congruences by the gcd-gate you already own, and read every AMC ``last
 digit'' item as a period-hunting problem.
 
+% from-zero:begin
+\begin{rulebox}[Before you start]
+Chapter~5: divisibility, gcd, B\'ezout. \emph{Recap:} two numbers are \emph{congruent mod $m$} when they leave the same remainder after dividing by $m$ --- the clock-face arithmetic where 13 o'clock is 1 o'clock.
+\end{rulebox}
+\begin{wins}[After this chapter you can]
+\begin{itemize}
+\item add, subtract and multiply congruences correctly and know why division needs care;
+\item find a multiplicative inverse mod $m$ and know when it does not exist;
+\item solve $ax\equiv b \pmod m$ completely;
+\item find last digits and divisibility tests with congruences.
+\end{itemize}
+\end{wins}
+\begin{principle}[How to think about this]
+Modular arithmetic means we only care about the remainder, like reading a clock. That is a huge simplification: infinitely many numbers collapse to $m$ classes. The way of thinking is to ask, for any problem about divisibility or last digits, ``can I replace each number by its remainder and work in the small world instead?''
+\end{principle}
+% from-zero:end
+
 \section{Congruence as an equivalence}\label{sec:cong}
 \index{congruence}
 

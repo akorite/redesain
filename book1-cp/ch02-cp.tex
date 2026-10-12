@@ -11,6 +11,26 @@ chapter you will be able to look at a constraint like $n \le 20$, recognise it
 as an invitation rather than a warning, and enumerate correctly the first
 time.
 
+% from-zero:begin
+\begin{rulebox}[Before you start]
+Chapter~1: the starter file, \texttt{vector}, and the habit of checking the constraints before coding.
+\begin{itemize}
+\item \emph{Recap:} a loop that tries every candidate costs (number of candidates)\,$\times$\,(cost per check). If that product is under about $10^8$, brute force is a legitimate answer, not a failure.
+\end{itemize}
+\end{rulebox}
+\begin{wins}[After this chapter you can]
+\begin{itemize}
+\item write a complete-search solution for any problem whose answer space you can list, and estimate its size first;
+\item enumerate all subsets with a bitmask and all orderings with \texttt{next\_permutation};
+\item write a backtracking search and add the single prune that turns it from hopeless to fast;
+\item tell, from the constraints, when brute force is the intended solution.
+\end{itemize}
+\end{wins}
+\begin{principle}[How to think about this]
+When you do not know a clever method, there is always a humble one: try everything. Complete search is the safety net under every other technique in this book, and often it is already fast enough. The way of thinking is: first picture \emph{all} the possibilities as a tree of choices, then ask which branches you can cut off early because they cannot possibly lead to an answer.
+\end{principle}
+% from-zero:end
+
 \section{The exhaustive idea}\label{sec:exhaustive}
 \index{brute force|see{complete search}}
 

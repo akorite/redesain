@@ -12,6 +12,23 @@ a ch1--ch2 equation with the entries swapped.}
 \label{fig:dict}
 \end{figure}
 
+% from-zero:begin
+\begin{rulebox}[Before you start]
+Chapters~1--4. \emph{Recap:} rotation has its own versions of position, velocity, force and mass: angle, angular velocity, torque and moment of inertia.
+\end{rulebox}
+\begin{wins}[After this chapter you can]
+\begin{itemize}
+\item describe rotation with angle, angular velocity and acceleration;
+\item apply the no-slip rolling condition;
+\item compute torque and moments of inertia;
+\item solve statics problems with two balance conditions.
+\end{itemize}
+\end{wins}
+\begin{principle}[How to think about this]
+Rotation has the same story as straight-line motion, with new names: angle for position, torque for force, moment of inertia for mass. What is new is that where you push matters as much as how hard. Keep the translation table in mind and the chapter feels familiar.
+\end{principle}
+% from-zero:end
+
 \section{Angular variables}\label{sec:rot-kin}
 
 $\theta$ in radians, $\omega=\dot\theta$, $\alpha=\dot\omega$ --- and the
@@ -55,6 +72,18 @@ lever arm $\ell$. Notice only the perpendicular component of $\mathbf F$
 pays.}
 \label{fig:torque}
 \end{figure}
+
+% from-zero:naive-wrench:begin
+\begin{example}[First attempt: torque as force times length]\label{ex:naive-wrench}
+You pull on a $0.30\,\mathrm{m}$ wrench with a $50\,\mathrm{N}$ force, but your hand is at an angle of $30^\circ$ to the
+handle, not at right angles. A first estimate: $\tau=rF=0.30\times50=15\,\mathrm{N\,m}$.
+\par\smallskip
+\textbf{What goes wrong.} Only the component of the force perpendicular to the handle turns the bolt:
+$\tau=rF\sin\theta=0.30\times50\times\sin30^\circ=0.30\times50\times0.5=7.5\,\mathrm{N\,m}$, half the naive
+estimate. Pulling at a right angle ($\sin90^\circ=1$) gives the full $15\,\mathrm{N\,m}$, which is why a wrench works best
+when you push at a right angle to the handle.
+\end{example}
+% from-zero:naive-wrench:end
 
 \section{Moment of inertia: mass with an $r^{2}$ tax}\label{sec:rot-i}
 

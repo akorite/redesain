@@ -12,6 +12,23 @@ serial line. This chapter builds the C1 machine's last block, then
 steps back to ask what we actually made --- and what we skipped on
 the way to RISC-V.
 
+% from-zero:begin
+\begin{rulebox}[Before you start]
+Chapters~14--15. \emph{Recap:} an instruction set architecture (ISA) is the contract between hardware and software: the list of instructions the CPU understands and what each one does.
+\end{rulebox}
+\begin{wins}[After this chapter you can]
+\begin{itemize}
+\item read a frozen ISA specification;
+\item implement fetch, decode and execute for it in Verilog;
+\item write a small assembler;
+\item run a real program on your CPU. \textbf{Book~7} starts from this CPU and maps it to RISC-V.
+\end{itemize}
+\end{wins}
+\begin{principle}[How to think about this]
+A CPU is a loop: fetch an instruction, work out what it means, do it, repeat. The instruction set is the contract between the programmer and the machine, so freeze it before writing the hardware. Once your own CPU runs a program, you understand what every computer is doing underneath.
+\end{principle}
+% from-zero:end
+
 \section{The ISA, frozen}\label{sec:isa16}
 
 \index{instruction set architecture}\index{ISA}

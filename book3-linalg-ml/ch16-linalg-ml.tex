@@ -12,6 +12,23 @@ you have already done. By the end you will have a file you can
 showing it agreeing with scikit-learn to three decimal places on a
 real pipeline.
 
+% from-zero:begin
+\begin{rulebox}[Before you start]
+Chapters~1--15, all as reference. \emph{Recap:} this chapter assembles linear algebra, probability and optimisation into one small machine-learning library that you write from scratch.
+\end{rulebox}
+\begin{wins}[After this chapter you can]
+\begin{itemize}
+\item write a learning algorithm behind one consistent \texttt{fit}/\texttt{predict} interface;
+\item test a from-scratch implementation without a framework;
+\item build a pipeline of PCA followed by logistic regression;
+\item tune the bias--variance dial and read the result.
+\end{itemize}
+\end{wins}
+\begin{principle}[How to think about this]
+By now each idea has a simple job: linear algebra to represent, probability to model uncertainty, optimisation to learn. Building them into one small library shows that a learning algorithm is a loop around the same few moves: predict, measure the error, adjust. Writing it yourself removes the mystery.
+\end{principle}
+% from-zero:end
+
 \section{The shape of a learning problem}\label{sec:shape}
 
 Every method in this book reduces to the same two moves: \emph{fit}

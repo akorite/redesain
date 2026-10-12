@@ -9,6 +9,23 @@ milestones, Cauchy's equation done honestly, and the feedback step most
 solutions skip --- verifying the answer. After it you can carry a
 functional equation from first plug-in to a verified closed form.
 
+% from-zero:begin
+\begin{rulebox}[Before you start]
+Chapters~2--4 (proofs, functions). \emph{Recap:} a functional equation asks for \emph{all functions} satisfying a rule, like $f(x+y)=f(x)+f(y)$. Your job is to find them all and prove there are no others.
+\end{rulebox}
+\begin{wins}[After this chapter you can]
+\begin{itemize}
+\item substitute special values to extract information from a functional equation;
+\item prove injectivity or surjectivity of an unknown function;
+\item verify that a candidate solution actually works;
+\item find a family of solutions by brute-force search and then prove it.
+\end{itemize}
+\end{wins}
+\begin{principle}[How to think about this]
+A functional equation is a puzzle in which the unknown is an entire function. Start by playing: plug in $0$, $1$, equal values, and see what the equation \emph{forces}. Then decide what kind of function it must be and finally check that your candidate truly works; many attempts lose points by skipping that last check.
+\end{principle}
+% from-zero:end
+
 \section{What ``solve over $K$'' means}\index{solve over}
 ``Solve $f(x+y)=f(x)+f(y)$ over $\mathbb Q$'' means: determine
 \emph{all} $f:\mathbb Q\to\mathbb Q$ satisfying it, and verify each

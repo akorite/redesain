@@ -12,6 +12,30 @@ problems, and builds the centripetal-acceleration formula from a picture of
 velocity differences. Engineering practice shows up at the end: inertial
 navigation is this chapter run continuously.
 
+% from-zero:why:begin
+\paragraph{Why this exists.} Before you can design a bridge, a robot arm or a rocket you need a
+precise description of motion: where something is, how fast it is going, and how quickly its speed is changing.
+Kinematics provides that vocabulary without asking yet what causes the motion. It is the easiest chapter of
+mechanics and the one every later chapter silently uses, so it is worth getting thoroughly right.
+% from-zero:why:end
+
+% from-zero:begin
+\begin{rulebox}[Before you start]
+Algebra, and the idea of a slope. This book uses a little calculus (the derivative as a rate of change, the integral as an accumulated total); the \emph{Start here} chapter explains both in about four pages, with pictures, before the first derivative appears.
+\end{rulebox}
+\begin{wins}[After this chapter you can]
+\begin{itemize}
+\item describe motion in a straight line with position, velocity and acceleration, and read all three from a graph;
+\item derive the constant-acceleration formulas rather than memorise them;
+\item solve a projectile problem as two independent one-dimensional problems;
+\item simulate motion on a computer and explain why the step size matters.
+\end{itemize}
+\end{wins}
+\begin{principle}[How to think about this]
+Physics starts by describing, not explaining. Pick a direction as positive, name a starting point, and let velocity and acceleration be how position and velocity change. When you derive a formula from these definitions instead of memorising it, you can rebuild it whenever you forget.
+\end{principle}
+% from-zero:end
+
 \section{Position, displacement, and velocity}\label{sec:kin-pos}
 
 Fix a line and an origin. A point particle's \emph{position}\index{position}
@@ -44,6 +68,19 @@ and that is all it means; what happens next depends on the acceleration.
 A particle sits at $x(t)=3t^{2}-12t$. Find its average velocity over
 $[0,4]$ and its instantaneous velocity at $t=2$. (AP-C)
 \end{exercise}
+
+% from-zero:naive-avgspeed:begin
+\begin{example}[First attempt: averaging two speeds]\label{ex:naive-avg-speed}
+A car drives $60\,\mathrm{km}$ out at $60\,\mathrm{km/h}$ and returns the same $60\,\mathrm{km}$ at
+$30\,\mathrm{km/h}$. What was its average speed over the whole trip? The first guess is the average of the
+two speeds, $(60+30)/2=45\,\mathrm{km/h}$.
+\par\smallskip
+\textbf{What goes wrong.} Average speed is defined as total distance over total time, not as an average of
+speeds. The outward leg takes $60/60=1\,\mathrm{h}$, the return $60/30=2\,\mathrm{h}$. The total distance is
+$120\,\mathrm{km}$ in $3\,\mathrm{h}$: $40\,\mathrm{km/h}$. The slow leg takes more time, so it counts for more.
+(The average \emph{velocity} for the round trip is zero, since the displacement is zero.)
+\end{example}
+% from-zero:naive-avgspeed:end
 
 \section{Acceleration and the calculus loop}\label{sec:kin-acc}
 

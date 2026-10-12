@@ -13,6 +13,23 @@ the Gaussian MLE by hand, run a Beta--binomial update, explain the
 $n$ vs.\ $n-1$ divide, and set up logistic regression's objective for
 chapter 14.
 
+% from-zero:begin
+\begin{rulebox}[Before you start]
+Chapters~8 and~12. \emph{Recap:} a \emph{statistic} is a number computed from data; an \emph{estimator} is a statistic used to guess an unknown quantity. Because data are random, so is the estimator.
+\end{rulebox}
+\begin{wins}[After this chapter you can]
+\begin{itemize}
+\item say what bias and variance of an estimator mean and compute them;
+\item derive a maximum-likelihood estimate;
+\item update a prior to a posterior with Bayes' rule;
+\item explain why least squares is maximum likelihood under Gaussian noise.
+\end{itemize}
+\end{wins}
+\begin{principle}[How to think about this]
+Data are one random draw from what could have happened, so anything computed from data wobbles. Statistics measures that wobble and asks which method wobbles least, or points to the truth on average. Maximum likelihood asks, ``which setting of the world makes what I saw least surprising?''
+\end{principle}
+% from-zero:end
+
 \section{Samples, statistics, estimators}\label{sec:stats-samples}
 
 Data arrives as a sample $x_1,\dots,x_n$ modeled as iid draws from an

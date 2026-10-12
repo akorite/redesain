@@ -2,6 +2,23 @@
 
 Chapters 1--2 worked inside $\mathbb{R}^n$ without ever saying what $\mathbb{R}^n$ \emph{is}. This chapter names the game: a vector space is a place where linear algebra works, a subspace is a smaller place inside it that still plays by the same rules, and every matrix quietly cuts its input space and output space into four pieces that explain exactly what the matrix can and cannot do. After this chapter you will be able to test whether a set is a subspace, extract a basis by elimination, count dimensions without computing anything, and draw the four fundamental subspaces of any matrix — the single most reused picture in applied linear algebra.
 
+% from-zero:begin
+\begin{rulebox}[Before you start]
+Chapters~1--2. \emph{Recap:} the columns of $A$ are vectors; $A\mathbf x$ is a combination of them. The question ``which right-hand sides $\mathbf b$ can we reach?'' is the question this chapter answers in full.
+\end{rulebox}
+\begin{wins}[After this chapter you can]
+\begin{itemize}
+\item decide whether a set of vectors is a subspace and whether vectors are linearly independent;
+\item find a basis and the dimension of a subspace;
+\item compute bases for the column space, row space, null space and left null space of a matrix;
+\item use rank--nullity to count solutions without solving.
+\end{itemize}
+\end{wins}
+\begin{principle}[How to think about this]
+A subspace is a flat sheet through the origin that is closed under adding and scaling, the natural home of solutions. The four fundamental subspaces answer four questions about a matrix: what can it reach, what does it destroy, and the same for its transpose. Try to see them as the answers to ``which $\mathbf b$ are reachable?'' and ``which $\mathbf x$ vanish?''
+\end{principle}
+% from-zero:end
+
 \section{Vector spaces: axioms with motivation, not ceremony}\label{sec:axioms}
 
 A \emph{vector space}\index{vector space} over $\mathbb{R}$ is a set $V$ together with two operations — addition $\mathbf{u}+\mathbf{v}$ and scalar multiplication $c\mathbf{v}$ — that stay inside $V$ and obey the rules you already use on arrows: commutativity and associativity of $+$, a zero vector, additive inverses, $1\mathbf{v}=\mathbf{v}$, and the two distributive laws. That is the complete list, and the honest reason for the list is parsimony, not piety: everything we prove about $\mathbb{R}^n$ uses only these properties, so it automatically holds anywhere they hold. Write them once, then forget them — you will never again verify an axiom in this book, but every theorem will quietly depend on them.

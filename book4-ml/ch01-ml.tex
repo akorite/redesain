@@ -14,6 +14,31 @@ you will learn where it goes wrong: the missing cells, the impossible values,
 and the duplicated rows that quietly inflate your results. Nothing here is
 glamorous. All of it is load-bearing.
 
+% from-zero:why:begin
+\paragraph{Why this exists.} Some rules are impossible to write down by hand: what
+makes an email spam, or a photo a cat. Machine learning replaces the hand-written rule with examples and a method
+that finds the rule for you. Every such method needs the examples in the same form, a table of numbers, and
+the first job of a practitioner is getting data into that form and checking that it is sound. A model built
+on a badly loaded table is wrong in ways no later technique can repair.
+% from-zero:why:end
+
+% from-zero:begin
+\begin{rulebox}[Before you start]
+Basic Python: variables, lists, loops and functions. The \emph{Start here} chapter has a short Python primer, plus a one-page recap of the vectors and matrices this book calls on (from \textbf{Book~3, Chapter~2}). You do not need to have read Book~3 first.
+\end{rulebox}
+\begin{wins}[After this chapter you can]
+\begin{itemize}
+\item load a CSV file into memory and describe it as a matrix of samples by features;
+\item use NumPy to compute with whole arrays at once, and explain broadcasting;
+\item encode categories as numbers without inventing a fake order;
+\item find duplicated, missing and impossible values before they quietly ruin a result.
+\end{itemize}
+\end{wins}
+\begin{principle}[How to think about this]
+Before any clever model, remember that a computer sees only numbers, so your first task is translation: rows are things, columns are measurements. Time spent checking the table (missing values, odd units, duplicates) is the best investment in machine learning, because a model will happily learn from mistakes.
+\end{principle}
+% from-zero:end
+
 \section{Why datasets are matrices (and when they are not)}\label{sec:matrices}
 
 A \emph{dataset}\index{dataset} is a collection of $n$ samples, each described

@@ -14,6 +14,23 @@ is on the page, ch16 only has to add the control unit that drives its
 program execute, one control word at a time, on hardware you can
 synthesise.
 
+% from-zero:begin
+\begin{rulebox}[Before you start]
+Chapters~10 and~14. \emph{Recap:} a CPU is an ALU, some registers, a memory, and a controller that sequences them each clock cycle.
+\end{rulebox}
+\begin{wins}[After this chapter you can]
+\begin{itemize}
+\item build a register file and a memory;
+\item explain who is allowed to drive a shared bus and when;
+\item separate the datapath from the control logic;
+\item trace one instruction through fetch, execute and write-back.
+\end{itemize}
+\end{wins}
+\begin{principle}[How to think about this]
+A processor is surprisingly few parts: storage, a computing block, buses to move data, and a controller. The controller is the conductor, and the datapath is the orchestra. Separate the two in your mind, and the design stops looking like a tangle.
+\end{principle}
+% from-zero:end
+
 \section{The register file}\label{sec:regfile15}
 
 \index{register file}\index{register!file}

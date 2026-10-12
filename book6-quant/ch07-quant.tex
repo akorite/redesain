@@ -6,6 +6,23 @@ yourself, and how to store it so that every number you later print can be reprod
 byte. The dataset of record here is a real one: 1006 BTC/USD trade prints pulled from
 Kraken's public Trades endpoint and pinned to \texttt{data/btc\_trades.csv}.
 
+% from-zero:begin
+\begin{rulebox}[Before you start]
+Chapter~1 and \textbf{Book~1, Chapter~1} (writing reliable code). \emph{Recap:} garbage data produces garbage results; the cleaning steps are boring and decisive.
+\end{rulebox}
+\begin{wins}[After this chapter you can]
+\begin{itemize}
+\item describe what raw market data looks like;
+\item build a cleaning pipeline;
+\item resample data without peeking into the future;
+\item handle gaps, time zones and bad ticks.
+\end{itemize}
+\end{wins}
+\begin{principle}[How to think about this]
+Data work is unglamorous and it decides everything. Treat every cleaning step as a decision you can explain, and keep the raw data untouched. Time is the trap: clocks, time zones and calendars all hide ways to leak the future into the past.
+\end{principle}
+% from-zero:end
+
 \section{What market data looks like}\label{sec:marketdata}
 
 Market data arrives at three granularities. \emph{Trades} are the ground truth---one row per

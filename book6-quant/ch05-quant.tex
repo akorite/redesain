@@ -6,6 +6,23 @@ a researcher the venue is less important than what it produces---a large, public
 updated panel of probabilistic forecasts you can score, calibrate and cross-check. The canonical
 venue for this book is Polymarket.
 
+% from-zero:begin
+\begin{rulebox}[Before you start]
+Chapter~1 and \textbf{Book~3, Chapter~12} (probability). \emph{Recap:} a prediction market contract pays 1 if an event happens and 0 if it does not, so its price can be read as a probability.
+\end{rulebox}
+\begin{wins}[After this chapter you can]
+\begin{itemize}
+\item read a live prediction-market book;
+\item score a forecast with the Brier and log scores;
+\item measure calibration;
+\item explain LMSR.
+\end{itemize}
+\end{wins}
+\begin{principle}[How to think about this]
+A prediction market turns beliefs into prices. To tell whether forecasters are any good, score them with rules that reward honesty, and check calibration: of the events called $70\%$, did about $70\%$ happen?
+\end{principle}
+% from-zero:end
+
 \section{The contract}\label{sec:pmcontract}
 
 A YES share costs $p\in(0,1)$ and resolves to $1$ or $0$. A NO share is the complement: it costs

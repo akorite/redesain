@@ -10,6 +10,23 @@ standard gears (ordinary and strong induction), recognise its disguise
 and construct a geometric induction like the tromino tiling, not just an
 algebraic one. Chapters 5, 7 and 9 run on it constantly.
 
+% from-zero:begin
+\begin{rulebox}[Before you start]
+Chapters~1--2. \emph{Recap:} a proof is a chain of steps, each justified by a definition or an earlier result. Induction is a proof template for statements about $n=1,2,3,\dots$ that you will use constantly from here on.
+\end{rulebox}
+\begin{wins}[After this chapter you can]
+\begin{itemize}
+\item prove ``for all $n\ge n_0$'' statements by induction, writing base case, hypothesis and step explicitly;
+\item prove closed formulas for sums and inequalities by induction;
+\item choose between ordinary and strong induction;
+\item spot why a plausible-looking induction proof is wrong.
+\end{itemize}
+\end{wins}
+\begin{principle}[How to think about this]
+Induction works like a line of dominoes: if the first falls, and each one knocks over the next, they all fall. The skill is finding what ``the next one'' means. Ask: \emph{if I already knew the claim for $n$, what extra step would give me $n+1$?} If you can answer that, the proof nearly writes itself.
+\end{principle}
+% from-zero:end
+
 \section{The domino idea and the template}\label{sec:domino}
 
 Suppose $P(n)$ is a statement about an integer $n$. To establish

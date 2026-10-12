@@ -2,6 +2,23 @@
 
 Chapter 2 called a matrix ``a recipe'' without defining the recipe kind. This chapter names it: a matrix is a \emph{linear map} written in coordinates — a function between vector spaces that respects the two operations. That single definition explains why the algebra of Chapter 2 exists at all (matrix multiplication is composition), why coordinates are a design decision (Chapter 3), and why two different matrices can be \emph{the same map wearing different labels}. After it you will be able to test a map for linearity, read off its matrix, move the same map between bases, and place the four classic planar maps — rotation, reflection, projection, shear — in a permanent mental gallery.
 
+% from-zero:begin
+\begin{rulebox}[Before you start]
+Chapters~2--3 (matrices, bases). \emph{Recap:} a function $T$ is \emph{linear} if $T(a\mathbf u+b\mathbf v)=aT(\mathbf u)+bT(\mathbf v)$; every matrix gives one, and this chapter shows every linear map on finite-dimensional spaces comes from a matrix.
+\end{rulebox}
+\begin{wins}[After this chapter you can]
+\begin{itemize}
+\item test whether a function is linear;
+\item write the matrix of a map in any basis and convert between bases;
+\item find the kernel and image of a map;
+\item describe rotations, reflections, projections and shears as matrices.
+\end{itemize}
+\end{wins}
+\begin{principle}[How to think about this]
+A linear map is a rule that keeps straight lines straight and the origin fixed. The matrix is just that rule written in a chosen coordinate system, and changing the basis changes the description but not the map. Separate in your mind the thing (the map) from its description (the matrix).
+\end{principle}
+% from-zero:end
+
 \section{Linear maps: definition and examples}\label{sec:linmaps}
 
 A map $T:V\to W$ between vector spaces is \emph{linear}\index{linear map} if it respects addition and scaling:

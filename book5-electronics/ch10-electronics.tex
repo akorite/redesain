@@ -10,6 +10,23 @@ the classic latch bug that silently ships when the two are confused.
 After it, you will be able to design a small FSM end to end and know why
 every button that talks to a clock needs two flops.
 
+% from-zero:begin
+\begin{rulebox}[Before you start]
+Chapters~8--9. \emph{Recap:} to remember anything, a circuit must feed its output back to its input. Memory plus a clock gives \emph{sequential} circuits.
+\end{rulebox}
+\begin{wins}[After this chapter you can]
+\begin{itemize}
+\item explain how a latch and a flip-flop store a bit;
+\item build a counter and divide a clock to 1\,Hz;
+\item design a finite-state machine from a word description, Moore or Mealy;
+\item explain metastability and why we use two flip-flops to cross clock domains.
+\end{itemize}
+\end{wins}
+\begin{principle}[How to think about this]
+Memory comes from feeding an output back into the circuit that produced it. A clock turns this chaotic idea into an orderly one: everything updates together on a tick. To design a state machine, first draw the picture of states and arrows in words, then convert to logic, never the other way around.
+\end{principle}
+% from-zero:end
+
 \section{Feedback and memory}
 \label{sec:feedback}
 

@@ -15,6 +15,23 @@ problem that makes public benchmark numbers a negotiation rather than
 a measurement. The claim worth defending throughout: \emph{an eval is
 a measurement instrument --- audit it like one}.
 
+% from-zero:begin
+\begin{rulebox}[Before you start]
+Chapters~3 and~11. \emph{Recap:} for language models there is rarely one right answer, so ``accuracy'' has to be replaced with careful measurement of quality.
+\end{rulebox}
+\begin{wins}[After this chapter you can]
+\begin{itemize}
+\item say what BLEU and ROUGE measure and where they fail;
+\item measure agreement between human raters;
+\item use an LLM as a judge and measure its biases;
+\item build a golden set and detect test contamination.
+\end{itemize}
+\end{wins}
+\begin{principle}[How to think about this]
+When there is no single correct answer, evaluation becomes the hard part. Each method (reference metrics, human ratings, a judge model) has its own bias, so use more than one, and measure the bias. The golden question is always: could a bad system score well on this test?
+\end{principle}
+% from-zero:end
+
 \section{Why LM evaluation is hard}
 \label{sec:whyhard}
 

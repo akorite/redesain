@@ -13,6 +13,23 @@ After this chapter you will be able to answer a hundred thousand range
 queries in linear time total, batch range updates for free, and
 recognise exactly when the telescoping window is licensed.
 
+% from-zero:begin
+\begin{rulebox}[Before you start]
+Chapters~1 and~4. \emph{Recap:} an array query ``sum of $a_l\dots a_r$'' naively costs $O(r-l+1)$ per query; with $q$ queries on $n$ elements that is $O(nq)$, which fails when both are $2\cdot10^5$. This chapter removes the repeated work.
+\end{rulebox}
+\begin{wins}[After this chapter you can]
+\begin{itemize}
+\item answer any number of range-sum queries in $O(1)$ each after one $O(n)$ pass;
+\item apply many range updates at once and read the final array with a difference array;
+\item extend both ideas to a grid with inclusion--exclusion;
+\item solve ``longest/shortest subarray with property $P$'' with two pointers instead of two nested loops.
+\end{itemize}
+\end{wins}
+\begin{principle}[How to think about this]
+If you keep recomputing the same thing, store it. A prefix sum is the simplest case: spend one pass remembering running totals, and every later question becomes a subtraction. Whenever a problem repeats ``over a range'' or ``over a window,'' ask: \emph{what small summary could I build once so that each query needs only a glance?}
+\end{principle}
+% from-zero:end
+
 \section{Prefix sums: build once, query forever}\label{sec:prefix}
 \index{prefix sums!1D}
 

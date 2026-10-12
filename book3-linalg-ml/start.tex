@@ -1,0 +1,83 @@
+\chapter*{Start here: from zero}
+\addcontentsline{toc}{chapter}{Start here: from zero}
+\markboth{Start here}{Start here}
+
+This book starts at the point where school algebra ends, and ends at the
+mathematics inside a working machine-learning library. If you can solve two
+equations in two unknowns, you can begin. This chapter explains what ``linear
+algebra'' is for, fixes the notation, and gives the single-variable calculus
+needed for Chapter~11, so that nothing later arrives unannounced.
+
+\section*{Why this subject exists}
+
+A spreadsheet row of numbers is a \emph{vector}. A spreadsheet is a \emph{matrix}.
+A rule that turns one row into another by multiplying and adding --- a
+photo filter, a currency conversion, one layer of a neural network --- is a
+\emph{linear map}. Linear algebra is the study of these objects, and it is useful
+because the same few ideas (solve a system, find the best fit, find the
+important directions) show up in every field that handles data.
+
+\section*{A system of equations, from school}
+
+Solve $2x - y = 0$ and $-x + 2y = 3$ by substitution. The first equation gives
+$y=2x$. Putting that into the second: $-x+2(2x)=3$, so $3x=3$, so $x=1$ and $y=2$.
+Check: $2(1)-2=0$ and $-1+2(2)=3$. Chapter~1 solves this same system two other
+ways and then solves systems with hundreds of unknowns, where substitution would
+be hopeless.
+
+\section*{The notation, in one page}
+
+\begin{center}
+\begin{tabular}{lP{9.2cm}}
+\toprule
+\thead{Symbol} & \thead{Meaning}\\
+\midrule
+$\mathbb R$ & the real numbers, i.e.\ the number line\\
+$\mathbb R^{n}$ & lists of $n$ real numbers; $\mathbb R^{2}$ is the plane, $\mathbb R^{3}$ is space\\
+$\mathbf x$ & a vector, written as a column, such as $\begin{pmatrix}1\\2\end{pmatrix}$\\
+$A$ & a matrix, a rectangular table; $A$ is $m\times n$ if it has $m$ rows and $n$ columns\\
+$a_{ij}$ & the entry of $A$ in row $i$, column $j$\\
+$A^{\mathsf T}$ & the transpose: swap rows and columns\\
+$\sum_{i=1}^{n}a_i$ & $a_1+a_2+\dots+a_n$\\
+$\in$ & ``is an element of''; $\mathbf x\in\mathbb R^{3}$ says $\mathbf x$ is a list of three numbers\\
+$\forall$, $\exists$ & ``for every'', ``there exists''\\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\section*{A calculus primer for Chapter~11}
+
+You will not need calculus until Chapter~11, but it is better to meet it here.
+The \emph{derivative} $f'(x)$ of a function $f$ is the slope of its graph at $x$:
+how fast $f$ changes when $x$ is nudged. For example $f(x)=x^2$ has $f'(x)=2x$;
+at $x=3$ the slope is $6$, so a nudge of $0.01$ raises $f$ by about $0.06$
+(indeed $3.01^2-3^2=0.0601$). The \emph{chain rule} handles a function inside a
+function: if $f(x)=(3x+1)^2$ then $f'(x)=2(3x+1)\cdot 3=18x+6$, the derivative of
+the outside evaluated at the inside, times the derivative of the inside. You can
+confirm by expanding $(3x+1)^2=9x^2+6x+1$ and differentiating directly.
+Chapter~11 extends exactly these two ideas to functions of many variables.
+
+\section*{How the books of this series fit together}
+
+This is Book~3 of eight, and it is the mathematical spine of the data half of the
+series.
+
+\begin{center}
+\begin{tabular}{P{2.4cm}P{9.0cm}}
+\toprule
+\thead{Book} & \thead{Connection}\\
+\midrule
+2 Discrete maths & Teaches how to read and write proofs; this book states each theorem and then proves it in that style. Chapter~12 here builds on its finite probability.\\
+4 Machine learning & Cites this book by chapter: least squares (Chapter~8), PCA (Chapter~10), gradients and backpropagation (Chapters~11 and~14), losses (Chapter~15).\\
+6 Quant research & Uses the statistics of Chapter~13 and the covariance ideas of Chapters~9--10.\\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\section*{How to use the boxes in each chapter}
+
+Every chapter opens with \emph{After this chapter you can}, listing concrete
+skills. From Chapter~2, a \emph{Before you start} box names the earlier
+chapters it relies on and gives a one-sentence recap, so you can tell whether to
+reread something. Each chapter ends with a \emph{Hand derivation} section: do it
+on paper before you trust the code.

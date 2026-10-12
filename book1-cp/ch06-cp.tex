@@ -15,6 +15,23 @@ single step looks. After this chapter you will recognise the
 pop-everything-until pattern, argue its bound by counting pushes, and
 pick the right static-range structure for the operation's algebra.
 
+% from-zero:begin
+\begin{rulebox}[Before you start]
+Chapters~1, 3 and~5. \emph{Recap:} \texttt{stack} means ``last in, first out''; \texttt{deque} means ``add or remove at either end.'' Think of a stack of plates (you only touch the top one) and a queue at a shop where you may also join or leave from the front. Both are one line of C++ (\texttt{stack<int>}, \texttt{deque<int>}).
+\end{rulebox}
+\begin{wins}[After this chapter you can]
+\begin{itemize}
+\item argue that a loop with a nested loop is still $O(n)$ because each element is pushed and popped once;
+\item find the nearest smaller (or larger) element to the left of every position in one pass;
+\item compute every sliding-window minimum in $O(n)$ with a deque;
+\item build a sparse table and answer range-minimum queries in $O(1)$.
+\end{itemize}
+\end{wins}
+\begin{principle}[How to think about this]
+Some loops look slow because one loop sits inside another, but when you count the \emph{total} work across the whole run, each element is touched a fixed number of times. That is amortised thinking: judge the cost of the whole process, not of one step. The structures here all keep a tidy ``waiting list'' of candidates, and throw away anything that can never be the answer again.
+\end{principle}
+% from-zero:end
+
 \section{Amortised analysis: each element pays once}\label{sec:amort}
 \index{amortised analysis!accounting}
 

@@ -13,6 +13,23 @@ equations are the wrong way to compute, and evaluate a fit honestly.
 This is the book's first capstone: by its end you have a working
 \texttt{LinearRegression} that agrees with scikit-learn.
 
+% from-zero:begin
+\begin{rulebox}[Before you start]
+Chapters~3, 5 (projection, QR). \emph{Recap:} $A\mathbf x=\mathbf b$ usually has \emph{no} exact solution when there are more equations than unknowns; we ask instead for the $\mathbf x$ that gets closest.
+\end{rulebox}
+\begin{wins}[After this chapter you can]
+\begin{itemize}
+\item derive the normal equations by projection and by calculus;
+\item fit a line, a polynomial or a many-feature linear model to data;
+\item solve least squares with QR instead of $A^{\mathsf T}A$ and say why;
+\item read $R^2$ and the residuals, and recognise overfitting.
+\end{itemize}
+\end{wins}
+\begin{principle}[How to think about this]
+When no exact solution exists, the sensible answer is the closest point you can reach, and ``closest'' means the error is perpendicular to everything you can reach. That geometric sentence \emph{is} the normal equation. Fitting a line to data is therefore a projection, not a mysterious recipe.
+\end{principle}
+% from-zero:end
+
 \section{Overdetermined systems: the best we can do}\label{sec:lstsq-over}
 
 An $m\times n$ system with $m>n$ is \emph{overdetermined}: generically

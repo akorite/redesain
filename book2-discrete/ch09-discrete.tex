@@ -11,6 +11,23 @@ and surjection counts from one formula, extract $\varphi$ as a PIE
 special case, and turn ``how many ways to make $n$'' into a coefficient
 extraction.
 
+% from-zero:begin
+\begin{rulebox}[Before you start]
+Chapter~8 (counting rules, binomials). \emph{Recap:} to count ``A or B'' you add $|A|+|B|$ and subtract what you counted twice, $|A\cap B|$. Inclusion--exclusion is that idea for many sets at once.
+\end{rulebox}
+\begin{wins}[After this chapter you can]
+\begin{itemize}
+\item count objects with ``at least one of these bad properties'' using inclusion--exclusion;
+\item count derangements, surjections and numbers coprime to $n$;
+\item write a generating function for a counting problem and multiply two of them to combine choices;
+\item read a coefficient of a generating function as a count.
+\end{itemize}
+\end{wins}
+\begin{principle}[How to think about this]
+When you count objects with ``at least one'' of several properties, directly listing them double-counts. Inclusion--exclusion corrects this like a careful accountant: add everything, subtract overlaps, add back what was subtracted too often. A generating function is a different idea: a clothesline that carries the whole sequence of answers at once, so you can combine counting problems by multiplying.
+\end{principle}
+% from-zero:end
+
 \section{Two sets, three sets, then the formula}\label{sec:pie}
 \index{principle of inclusion--exclusion}
 

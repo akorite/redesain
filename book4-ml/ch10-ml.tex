@@ -13,6 +13,23 @@ NumPy --- including a real training instability we debug on the page ---
 and a torch LSTM. By the end, ``the model learned the data'' will mean
 a perplexity you can compute and a sample you can read.
 
+% from-zero:begin
+\begin{rulebox}[Before you start]
+Chapters~7--8. \emph{Recap:} text and time series are sequences, where order matters and the length varies. We predict the next element from the ones before it.
+\end{rulebox}
+\begin{wins}[After this chapter you can]
+\begin{itemize}
+\item build an $n$-gram baseline for sequence prediction;
+\item write the RNN recurrence and explain why gradients vanish;
+\item describe what the gates in an LSTM do;
+\item sample text with a chosen temperature.
+\end{itemize}
+\end{wins}
+\begin{principle}[How to think about this]
+For sequences, the past matters, so the model needs a memory. An RNN carries a running summary forward, but squeezing everything into one summary forgets early information. Gates in an LSTM are a learned way to decide what to keep, which is the idea attention later improves on.
+\end{principle}
+% from-zero:end
+
 \section{Sequences and the prediction task}
 \label{sec:seqtask}
 
