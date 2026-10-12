@@ -1,3 +1,5 @@
+> Status 2026-10-12: the videos in this file were checked by Keitaro (project owner) on their own machine, per their project message. This session could not open them, so no title, channel or length here was re-checked by Claude. Any row whose length is approximate (`~`) still needs exact minutes.
+
 # Watch list — Book 4 (textbook-ml)
 
 Videos verified by actually opening each page (title, channel, duration, section match).
