@@ -20,3 +20,4 @@
 | ch17 thermo/MB | physics author (book1) | this session | PASS 2026-10-11 | |
 | ch18 machines/power | physics author (book1) | this session | PASS 2026-10-11 | |
 | ch19 workshop capstone | physics author (book1) | this session | PASS 2026-10-11 — workshop contract per outline; all 4 sampled solution checks verified | |
+| depth-pass ch04-19 additions | physics session | book1 session | RESOLVED 2026-10-11 — W30 impossible deflection (V 100→20), ch13 4→8 kN/m, ch12 ε/4 accuracy claim, W41 6.1→6.0W, ch04 listing prints; 14 PASS |
