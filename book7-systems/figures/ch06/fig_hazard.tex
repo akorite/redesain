@@ -19,7 +19,7 @@
 \draw[->, very thick, red] (2.4,2.9) -- (3.1,2.5);
 \node[font=\tiny, red] at (2.0,2.35) {a0 read HERE (ID) --- too early};
 \node[align=left, text=slate, text width=11cm] at (5.4,1.0)
-  {ID for the second \texttt{addi} reads the register file three
+  {ID for the second \texttt{addi} reads the register file two
    cycles before the first one's WB lands the new a0. The machine
    answers with the OLD value --- our tb measured a1 = 3, not 8.};
 \end{tikzpicture}

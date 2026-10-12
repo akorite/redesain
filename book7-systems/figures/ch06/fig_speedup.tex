@@ -1,0 +1,15 @@
+\begin{tikzpicture}[font=\scriptsize]
+\begin{axis}[width=10cm, height=5.2cm, xmode=log, log basis x=10,
+  xlabel={instructions $I$ in the program (independent code)},
+  ylabel={speedup $5I/(I+4)$}, ymin=0, ymax=5.6, xmin=1, xmax=1000,
+  ytick={1,2,3,4,5}, grid=major, grid style={rulegray!50},
+  title={\footnotesize\bfseries model: 5-stage pipe vs single-cycle, equal stage delays}]
+\addplot[thick, accent, domain=1:1000, samples=60] {5*x/(x+4)};
+\addplot[only marks, mark=*, accent] coordinates {(5,2.78) (8,3.33) (100,4.81)};
+\node[anchor=north west] at (axis cs:5.5,2.65) {$I{=}5$: 2.78};
+\node[anchor=north west] at (axis cs:9,3.2) {$I{=}8$: 3.33};
+\node[anchor=north east] at (axis cs:90,4.6) {$I{=}100$: 4.81};
+\draw[dashed, good] (axis cs:1,5) -- (axis cs:1000,5);
+\node[good, anchor=north west] at (axis cs:1.2,4.95) {ideal limit 5};
+\end{axis}
+\end{tikzpicture}

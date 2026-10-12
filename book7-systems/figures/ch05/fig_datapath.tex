@@ -21,12 +21,12 @@
 \draw[->, very thick] (11.0,3.9) -- (11.8,3.9);
 \draw[->, very thick] (13.4,3.9) -- (13.9,3.9);
 % writeback arc
-\draw[->, dashed, accent] (13.9,3.3) .. controls (8,2.2) .. (7.8,3.35)
-  node[midway, below, font=\tiny]{wb back to regfile};
+\draw[->, dashed, accent] (13.9,3.3) .. controls (10,2.0) .. (7.8,3.35);
+\node[font=\tiny, accent, fill=white, inner sep=1pt] at (10.8,2.45) {wb back to regfile};
 % pc+4 loop
-\draw[->, dashed, slate] (13.9,3.6) .. controls (8,5.2) .. (0.8,4.45)
-  node[midway, above, font=\tiny]{pc+4 or pc+immB or pc+immJ};
-\node[align=left, text=slate, text width=11cm] at (7,1.6)
+\draw[->, dashed, slate] (13.9,3.9) .. controls (12,5.6) and (3,5.6) .. (0.8,4.45);
+\node[font=\tiny, slate, fill=white, inner sep=1pt] at (7,5.1) {pc+4 or pc+immB or pc+immJ};
+\node[align=left, text=slate, text width=11cm] at (7,0.7)
   {One instruction does the whole journey in one clock: PC $\to$
    fetch $\to$ decode+imm $\to$ read regs $\to$ ALU $\to$ (maybe)
    data mem $\to$ writeback, while the next-PC mux chooses

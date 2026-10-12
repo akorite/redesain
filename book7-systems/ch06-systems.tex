@@ -1,6 +1,7 @@
 % ch06-systems.tex -- pipelining the core, hazards shown honestly
 \chapter{Pipelining: One Per Cycle (Usually)}
 \label{ch:pipe06}
+\emergencystretch=3em
 
 The single-cycle core of ch05 was honest and slow: one instruction
 per very long clock, every instruction priced at \texttt{lw}'s
@@ -11,10 +12,66 @@ retires one instruction per cycle whether the instructions depend
 on each other or not. On independent code it is correct and fast;
 on dependent code it is fast and \emph{wrong}: our testbench shows
 \texttt{a1} come back 3 instead of 8 because the second
-\texttt{addi} reads \texttt{a0} three cycles before it is written.
+\texttt{addi} reads \texttt{a0} two cycles before it is written.
 Hazards are not an edge case --- they are the price of admission.
 This chapter builds the broken machine on purpose, measures the
 breakage, and hands the fix to ch07.
+\begin{wins}[What you will be able to do after this chapter]
+You will be able to draw the timing diagram of any short RV32I
+instruction sequence on a five-stage pipeline, say at which cycle each
+instruction reads and writes each register, and \emph{predict} which
+reads return stale values. You will be able to run the same program on
+a naive pipeline and on a reference model and point to the exact
+instruction where they disagree. And you will be able to compute how
+many cycles $I$ independent instructions take, and what speedup that
+buys.
+\end{wins}
+
+\begin{rulebox}[Before you start]
+From ch05: a \emph{single-cycle core} does fetch, decode, execute,
+memory access and writeback of one instruction inside one clock
+period, so its period is set by the slowest instruction (\texttt{lw}).
+From Book 5 ch10: a \emph{register} copies its input only on a clock
+edge, and a chain of combinational logic between two registers must
+settle before the next edge; the longest such chain sets the fastest
+clock. From Book 5 ch15--16: the cpu8 you built ran one instruction
+at a time, exactly like ch05's core. From ch03: an instruction \emph{reads}
+registers named \texttt{rs1}, \texttt{rs2} and \emph{writes} the one
+named \texttt{rd}; a \emph{dependency} exists when a later instruction
+reads a register an earlier one writes. Nothing else is assumed.
+\end{rulebox}
+
+\section{The idea from zero: an assembly line}
+\label{sec:zero06}
+\index{assembly line}
+
+Imagine washing, drying and folding laundry, three machines, one
+load takes three hours. Done one load at a time the three machines
+are mostly idle: while load 1 is in the dryer the washer sits empty.
+Start load 2 in the washer as soon as load 1 moves on, and every
+machine is busy; once the line is full, a load finishes every hour
+even though each load still takes three hours from start to end.
+Nothing got faster for the individual load. What improved is how often
+a finished load appears.
+
+\begin{principle}[Think like this: latency versus throughput]
+Always ask two different questions of a system. \emph{Latency}: how
+long does one job take from start to finish? \emph{Throughput}: how
+many jobs finish per unit time? A pipeline leaves the first almost
+unchanged and improves the second. Beginners often mistake one for the
+other, and that confusion is how you end up believing a ``five times
+faster'' claim that is really ``five times as many results per
+second, once the line is full''.
+\end{principle}
+
+A processor does the same thing with instructions. Cut the work of one
+instruction into five steps (stages) and put a register between each
+pair so each step holds its own instruction. Five different
+instructions are then in flight at once, one per stage. The catch,
+which is the subject of this whole chapter, is that instructions are
+not independent loads of laundry: one may need the \emph{result} of the
+instruction just ahead of it, which is not finished yet.
+
 
 \section{Why pipeline}
 \label{sec:why06}
@@ -82,9 +139,9 @@ $k$ needs $k$ cycles to fill; afterward, one completes per cycle
 \begin{example}[fill the diagram]\label{ex:fill06}
 For five instructions: cycle 1 has I1 in IF; cycle 2 has I1 in ID,
 I2 in IF; \ldots; cycle 5 has I1 in WB and I5 in IF --- the first
-completion; cycles 6--9 complete I2--I5. Nine cycles for five
-instructions: 5 single-cycle periods would have been $5\times
-5\tau$ worth of throughput 5$\times$ slower.
+completion; cycles 6--9 complete I2--I5. Nine cycles of length $\tau$ for five
+instructions, i.e.\ $9\tau$; the single-cycle machine of ch05 needs
+$5\times5\tau=25\tau$ for the same five.
 \end{example}
 
 \section{Where it breaks: hazards, shown}
@@ -111,7 +168,7 @@ and no warning prints, because hardware never warns.
 \centering
 \input{figures/ch06/fig_hazard}
 \caption[Data hazard timing]{Why a1 = 3: the reader's ID lands
-three cycles before the writer's WB. The register file answers
+two cycles before the writer's WB. The register file answers
 honestly --- with a stale value.}
 \label{fig:hazard06}
 \end{figure}
@@ -125,6 +182,122 @@ dependent ones. Throughput masks the bug --- that is what makes
 hazards dangerous.}
 \label{fig:cpi06}
 \end{figure}
+
+
+\begin{example}[a longer dependent chain, against the reference]\label{ex:chain06}
+One dependent pair could be a fluke. Take five instructions in which
+each one needs the one before it (\texttt{ch06\_dep.S}):
+\begin{lstlisting}
+        li   a0, 5
+        addi a1, a0, 3        # reads a0 one instruction after its writer
+        add  a2, a1, a0       # reads a1 (distance 1) and a0 (distance 2)
+        sw   a2, 0(zero)      # store data a2 at distance 1
+        lw   a3, 0(zero)
+halt:   j    halt
+\end{lstlisting}
+\emph{Predict first.} By the rule of the next example, a register read
+is stale if the reader is one or two instructions after the writer.
+So \texttt{a1} reads an old \texttt{a0} (0), giving 3; \texttt{a2} reads
+an old \texttt{a1} (0) and an old \texttt{a0} (0), giving 0; the store
+writes that 0; the load brings back 0. Now run it on the naive
+pipeline and on the reference model (ch03 simulator). Naive
+pipeline, Linux x86\_64 container, Icarus 12:
+\begin{lstlisting}
+CORE=naive-pipe F=5 stalls=0 taken=0 lastret=9
+x10=00000005
+x11=00000003
+\end{lstlisting}
+Reference model:
+\begin{lstlisting}
+I=5 HALT=20
+x10=00000005
+x11=00000008
+x12=0000000d
+x13=0000000d
+m0=0000000d
+\end{lstlisting}
+Lines that are missing from the pipeline's dump are registers that
+are still 0. Everything we predicted happened: \texttt{a1=3} (should
+be 8), \texttt{a2=0} (13), \texttt{a3=0} (13), memory word 0 stays 0
+(13). Only the first instruction is right. Note \texttt{lastret=9}: the
+fifth instruction still retires at the ninth clock edge, as fast
+as ever. The core is fast and wrong.
+\end{example}
+
+\begin{figure}[t]
+\centering
+\input{figures/ch06/fig_distance}
+\caption[Dependence distance]{Which dependent readers see a stale
+value. The register file is written in WB and, thanks to its
+write-bypass, a read in the \emph{same} cycle already sees the new
+value. Distance 1 and 2 are stale; distance 3 is fine.}
+\label{fig:distance06}
+\end{figure}
+
+\begin{example}[how many instructions apart is far enough?]\label{ex:dist06}
+Number the writer's stages in cycles: IF 1, ID 2, EX 3, MEM 4, WB 5. A
+reader $d$ instructions later is fetched in cycle $1+d$ and reads its
+registers in ID, cycle $2+d$. The new value is readable from cycle 5
+(the register file of this book forwards a same-cycle write to a read,
+see ch05's discussion of \texttt{BYPASS}). So the read is correct only
+if $2+d\ge5$, i.e.\ $d\ge3$. For $d=1,2$ the machine would need 2 or
+1 instructions of padding (\texttt{nop}s) in between. Without the
+bypass the first good distance is 4, which is why textbook diagrams
+differ by a cycle depending on the register-file design: always ask
+which one you have.
+\end{example}
+
+\begin{example}[the pipeline fill, measured]\label{ex:fillmeas06}
+The previous example predicts that $I$ independent instructions
+finish in $I+4$ cycles: four extra cycles to fill the line. Test it
+with eight instructions that never read each other
+(\texttt{ch06\_indep.S}: \texttt{li a0,1} \dots\ \texttt{li a7,8}).
+The testbench timestamps the clock edge at which the eighth
+register-writing instruction reaches WB:
+\begin{lstlisting}
+CORE=naive-pipe F=8 stalls=0 taken=0 lastret=12
+x10=00000001
+x11=00000002
+x12=00000003
+x13=00000004
+x14=00000005
+x15=00000006
+x16=00000007
+x17=00000008
+\end{lstlisting}
+\texttt{F=8}: the parking instruction was fetched after
+8 cycles, one fetch per cycle. \texttt{lastret=12}: the last write lands
+at edge 12 $=8+4$, as predicted. All eight values match the reference
+model. At this length the pipeline is $5\times8/12=3.3\times$ faster
+than a single-cycle core with a clock five times slower; the speedup
+approaches 5 only for long programs (next figure).
+\end{example}
+
+\begin{figure}[t]
+\centering
+\input{figures/ch06/fig_speedup}
+\caption[Speedup versus program length]{The model $5I/(I+4)$:
+$I$ instructions take $(I+4)\tau$ pipelined and $5I\tau$ single-cycle.
+The three marked points are computed from the formula, not measured;
+only $I=8$ was also checked in simulation (12 cycles).}
+\label{fig:speedup06}
+\end{figure}
+
+\begin{example}[a bug that is not a hazard: unreset registers]\label{ex:xprop06}
+When this chapter's testbench was first run in the Linux container
+(Icarus 12), the dependent pair printed \texttt{a1=x}, not the
+chapter's \texttt{a1=3}. An \texttt{x} is Verilog's ``unknown'' value,
+what every register holds before it is first written. The first
+instruction fetched while the clock was still in reset was
+\texttt{imem[x]}, also unknown; it flowed down the pipe and made the
+register file's bypass test (\texttt{we \&\& wa==ra1}) unknown, so
+reads came back unknown. The real hazard was hidden under a
+simulation artefact. Fix: feed a \texttt{nop} into IF/ID during reset
+and give the pipeline registers a defined power-up value. With that
+fix the output is exactly the line in the earlier listing. Think like
+this: when a result looks strange, first ask whether the machine or the
+\emph{simulator's starting state} is to blame.
+\end{example}
 
 \begin{example}[name the three hazards]\label{ex:haznames06}
 What we just measured is a \emph{data hazard}: an operand not yet
@@ -205,6 +378,15 @@ next & forwarding, stalls, branch prediction (ch07) \\
 \item The ``a1=3'' result is a real Icarus run of
       \texttt{ch06\_pipe\_tb} --- not a stylised example. Both
       streams captured verbatim.
+\item New runs in this edition (\texttt{code/test\_ch06.sh}) are
+      from the Linux x86\_64 container with Icarus 12. In that
+      simulator the original pipeline source printed \texttt{a1=x};
+      the reset fix described in the chapter (a \texttt{nop} into
+      IF/ID, defined power-up values) was added to
+      \texttt{ch06\_rv32i\_pipe\_top.v}, after which the output
+      matches the original capture.
+\item The speedup curve is a formula, not a measurement; only the
+      8-instruction point was also simulated.
 \end{itemize}
 
 \section{Exercises}
@@ -274,12 +456,19 @@ speedup is always sublinear.
 \end{solution}
 
 \begin{exercise}[hard]\label{ex:h06a}
-Derive optimal stage count minimax-style: total speedup =
-$T/((T/k)+d)$. Find $k$ that maximises it for $T$=10, $d$=0.1.
+Model: speedup over a single-cycle machine with period $T$ for a
+$k$-stage pipeline is $T/(T/k+d)$ with register overhead $d$. Take
+$T=10$\,ns, $d=0.1$\,ns. (a) Compute it for $k=5,10,20,50$. (b) Does
+it have a maximum? (c) Now add hazards: CPI $=1+h(k-1)$ with $h=0.02$.
+Find the $k$ that maximises speedup$/$CPI.
 \end{exercise}
 \begin{solution}[hint]
-Differentiate or tabulate: $k=\sqrt{T/d}\approx10$ stages; past
-that, register overhead eats the gain.
+(a) $4.76,\ 9.09,\ 16.67,\ 33.33$. (b) No: it rises forever toward
+$T/d=100$. (c) Performance $=\dfrac{T/(T/k+d)}{1+h(k-1)}$:
+$k=5$: $4.41$; $10$: $7.70$; $20$: $12.08$; $50$: $16.84$; $70$: $17.30$
+(the best integer; $\sqrt{T/(dh)}\approx70.7$); $100$: $16.78$. Hazards,
+not overhead, create the optimum. (Model values, computed, not
+measured.)
 \end{solution}
 
 \begin{exercise}[hard]\label{ex:h06b}
@@ -292,4 +481,85 @@ a0's load lands WB at c5; add reads at c3 $\to$ 2 nops. Then a1 is
 an ALU result, WB c6, read c4 $\to$ 2 more nops.
 \end{solution}
 
+
+\begin{exercise}[easy]\label{ex:e06c}
+A three-machine laundry line takes one hour per machine. How long do
+ten loads take one at a time, and with the line? What is the latency
+of one load in each case?
+\end{exercise}
+\begin{solution}[hint]
+One at a time: $10\times3=30$ h. With the line: $3+9=12$ h (three to
+fill, then one per hour). Latency of one load stays 3 h in both.
+\end{solution}
+
+\begin{exercise}[easy]\label{ex:e06d}
+In the dependent chain of the chapter, which instruction is the
+first one to read a wrong value, and what does it compute instead of
+8?
+\end{exercise}
+\begin{solution}[hint]
+\texttt{addi a1,a0,3}: it reads the old \texttt{a0}$=0$ and computes
+$0+3=3$.
+\end{solution}
+
+\begin{exercise}[medium]\label{ex:m06f}
+Predict the final \texttt{a2} of \texttt{li a0,5; li a1,7; add a2,a0,a1}
+on the naive pipeline. The tested run (\texttt{ch06\_two.S}) is in the
+code directory; explain the result from the distances.
+\end{exercise}
+\begin{solution}[hint]
+\texttt{a1} is read at distance 1 and \texttt{a0} at distance 2, both
+stale ($0$), so \texttt{a2}$=0+0=0$ (the run prints no \texttt{x12}
+line; \texttt{a0}$=5$, \texttt{a1}$=7$ are right).
+\end{solution}
+
+\begin{exercise}[medium]\label{ex:m06g}
+How many padding instructions (not counting the \texttt{halt}) make the
+chapter's dependent chain correct on the naive core, if you pad only
+where needed? Verify against \texttt{ch06\_dep\_nops.S}.
+\end{exercise}
+\begin{solution}[hint]
+Each of the three dependent hand-offs (\texttt{li}$\to$\texttt{addi},
+\texttt{addi}$\to$\texttt{add}, \texttt{add}$\to$\texttt{sw}) needs
+distance 3, i.e.\ 2 pads: 6 pads. The \texttt{add} also reads
+\texttt{a0}, now at distance 5, fine; the \texttt{lw} after the
+\texttt{sw} needs none. The padded program runs 11 instructions and
+the naive core then matches the reference: 5, 8, 13, 13, memory 13.
+\end{solution}
+
+\begin{exercise}[medium]\label{ex:m06h}
+Using $I+4$ cycles, how many cycles do 20 independent instructions
+need on the 5-stage pipe, and what is the speedup over a single-cycle
+core with a clock five times slower?
+\end{exercise}
+\begin{solution}[hint]
+$24$ cycles; $5\cdot20/24=100/24\approx4.17$.
+\end{solution}
+
+\begin{exercise}[hard]\label{ex:h06c}
+Suppose the register file had \emph{no} write-bypass (a read in the
+same cycle as the write returns the old value). From which dependence
+distance is the naive pipeline correct, and how many pads does an
+adjacent dependent pair need?
+\end{exercise}
+\begin{solution}[hint]
+The write is visible from cycle 6 (the cycle after WB). The reader
+at distance $d$ reads in cycle $2+d$, so $d\ge4$: an adjacent pair
+($d=1$) needs 3 pads.
+\end{solution}
+
+\begin{exercise}[hard]\label{ex:h06d}
+Write the timing grid (cycle by stage) for \texttt{lw a0,0(x);
+add a1,a0,a2} on a pipeline where the load data can be used only from
+the cycle \emph{after} MEM. Where would you place the forward, and why
+does one bubble remain? (Preview of ch07.)
+\end{exercise}
+\begin{solution}[hint]
+lw: IF1 ID2 EX3 MEM4 WB5. The data exists at the end of cycle 4. The
+add, fetched in cycle 2, would want it as an ALU input in its EX in
+cycle 4 --- the same cycle the data is only being read. Delay the add
+one cycle so EX is cycle 5, with a forward from MEM/WB: one bubble.
+\end{solution}
+
+\emergencystretch=0pt
 % chapter end
