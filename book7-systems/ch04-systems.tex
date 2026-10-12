@@ -18,6 +18,28 @@ calling convention lives inside every function you will ever write.
 By the end, \texttt{addi sp,sp,-16 / sw ra,12(sp) / sw s0,8(sp)} reads
 like a signature, not a spell.
 
+\begin{wins}[What you will be able to do after this chapter]
+You will be able to read a function's prologue and epilogue in real
+compiler output and name every instruction's job --- why \texttt{sp}
+moves, why \texttt{ra} and the saved registers go where they go. You
+will be able to write a recursive function in RV32I that saves and
+restores state correctly, and to reason about what a call costs, in
+instructions, compared with the work inside it.
+\end{wins}
+
+\begin{rulebox}[Before you start]
+Two things carry over; each is refreshed in a few lines.
+\emph{RV32I} (ch03 of this book): the register file, the ABI names,
+loads, stores and branches --- this chapter is written in that
+language, so keep the names \texttt{ra}, \texttt{sp}, \texttt{a0}
+and \texttt{s0}--\texttt{s11} within reach.
+\emph{A stack} (Book 1, ch04): push on top, pop from top, last in
+first out. The call stack is the same idea with a twist: each call
+pushes a \emph{frame} --- a block holding the return address, saved
+registers and locals --- and the pointer \texttt{sp} is just the
+top-of-stack marker that moves as frames come and go.
+\end{rulebox}
+
 \section{The contract in one paragraph}
 \label{sec:contract04}
 \index{calling convention}\index{psABI}\index{register!caller-saved}

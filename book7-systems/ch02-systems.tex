@@ -13,6 +13,28 @@ and run an alignment experiment whose result surprised us --- the numbers
 are real, and they disagree with the folklore. That disagreement is the
 lesson.
 
+\begin{wins}[What you will be able to do after this chapter]
+You will be able to take a raw hex dump --- a line of bytes with no
+labels --- and reconstruct what the program that wrote it meant: which
+bytes form which integers (including negatives, via two's complement),
+which byte order the machine used, where the compiler inserted padding
+inside a struct, and how to read a 32-bit pattern as a floating-point
+number. You will also be able to say what a pointer really is --- an
+address with a type --- and why an array name is almost, but not quite,
+the same thing.
+\end{wins}
+
+\begin{rulebox}[Before you start]
+One thing carries over; it is refreshed here.
+\emph{Binary and hex} (Book 5, ch01--02): a byte is eight bits; hex is
+just base-16 shorthand for four bits at a time, so \texttt{0x2F} is the
+byte \texttt{0010\,1111}. You do not need to convert fluently --- the
+chapter rebuilds the arithmetic as it goes --- only to believe that a
+hex dump is a picture of memory, not a code to be cracked.
+\emph{A compiled program} (ch01 of this book): you saw source become
+machine code. Here we look at the \emph{data} that code moves around.
+\end{rulebox}
+
 \index{endianness}\index{alignment}\index{two's complement}%
 \index{IEEE 754}\index{floating point}\index{struct padding}%
 \index{pointer}\index{array}\index{LP64}\index{type punning}

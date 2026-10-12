@@ -11,6 +11,28 @@ that run --- not from a datasheet summary. If you can write a loop in
 this chapter's notation, you can read the disassembly of any program
 your laptop runs.
 
+\begin{wins}[What you will be able to do after this chapter]
+You will be able to write short RV32I assembly programs yourself ---
+arithmetic, memory access, loops and branches --- and hand-assemble
+them into 32-bit machine words. Given any instruction word you will be
+able to split it into fields and say which of the six formats it is,
+and you will know the ABI names (\texttt{a0}--\texttt{a7}, \texttt{sp},
+\texttt{ra}, \texttt{zero}) well enough to read compiler output without
+a cheat sheet.
+\end{wins}
+
+\begin{rulebox}[Before you start]
+Two things carry over; each is refreshed in a few lines.
+\emph{Assembly language} (Book 5, ch15): you wrote programs for the
+cpu8 --- mnemonics, registers, labels, an assembler that turns text
+into bytes. RV32I is the same game with a bigger board: 32 registers
+instead of a handful, 47 instructions instead of ten.
+\emph{How the machine sees data} (ch02 of this book): a 32-bit word,
+a byte address, two's complement for negatives. When an instruction
+says ``load the word at \texttt{0x1004}'', you already know exactly
+which four bytes it means.
+\end{rulebox}
+
 \index{RV32I}\index{assembly language}\index{register file}%
 \index{ABI names}\index{instruction encoding}\index{R-type}%
 \index{I-type}\index{S-type}\index{B-type}\index{U-type}\index{J-type}%

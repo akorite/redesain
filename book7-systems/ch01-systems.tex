@@ -14,6 +14,28 @@ and where your cpu8 meets the real silicon. Along the way you will
 compile, disassemble and link \emph{real} binaries and read their real
 output --- nothing in this chapter is simulated.
 
+\begin{wins}[What you will be able to do after this chapter]
+You will be able to take a C source file and walk it through all four
+stages yourself --- preprocess, compile, assemble, link --- producing and
+inspecting each intermediate file by hand. You will be able to open a
+real ELF binary, find where the code and the entry point live, and
+disassemble it back into instructions you can read. And you will be able
+to say precisely what your Book~5 cpu8 already is --- a fetch--decode--execute
+loop --- and what a real machine adds on top of it.
+\end{wins}
+
+\begin{rulebox}[Before you start]
+Two things carry over; each is refreshed here in a few lines.
+\emph{Your cpu8} (Book 5, ch11--13): you built a small processor that
+fetches an instruction from memory, decodes it, executes it and repeats.
+Nothing in this chapter needs the details --- only the idea that a
+program is bytes in memory and a CPU is the loop that walks them.
+\emph{The shell} (Book 1, ch01): you have typed commands, redirected
+input and output, and compiled a C++ file. Here we compile C instead ---
+same idea, simpler language --- and look inside every file the toolchain
+produces instead of treating them as plumbing.
+\end{rulebox}
+
 \index{compilation pipeline}\index{ELF}\index{linker}\index{loader}%
 \index{relocation}\index{symbol table}\index{object file}%
 \index{execve@\texttt{execve}}
