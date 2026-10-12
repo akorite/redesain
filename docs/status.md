@@ -122,3 +122,9 @@ Pending a GitHub PAT: issue creation (pinned "Status" issue + `needs-user` label
 - Subagents running (cap 4): book1 agent=book7 re-review; book2 agent=real video verification all 8 books (oEmbed+lengthSeconds); book3 agent=diagram audit books 2/3/4/6/8; elec-0006=deeper from-zero + warmer-teacher voice pass on books 1/2/3/5 (more concepts + ways of thinking, toward 350 ceiling).
 - Pages now: cp ~230 · disc ~182 · linalg ~? · ml ~? · elec ~? · quant ~? · systems 216 · physics ~? (rebuild pending after all passes land).
 - Deferred until PAT: repo rename, pinned Status issue, needs-user labels, Releases w/ main.pdf.
+
+## 2026-10-12 (cont'd)
+- book6-quant fixed: removed stray nested `book6-quant/book6-quant/` duplicate tree (334 files) + corrupt committed aux; now 0/0/0 at 182pp.
+- All 8 books gate-clean on main: cp 230 · disc 189 · linalg 223 · ml 256 · elec 236 · quant 182 · systems 216 · physics 191 = 1,723pp.
+- book7 re-review resumed with package attached (reviewer can't see coordinator filesystem).
+- Voice agents got sharpened brief: concept-first (idea/mental model/motivating problem BEFORE code or formula).
