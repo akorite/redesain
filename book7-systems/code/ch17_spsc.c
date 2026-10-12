@@ -38,8 +38,14 @@ static int T##_pop(T*r){ \
 DEFINE_RING_FUNCS(ring_packed)
 DEFINE_RING_FUNCS(ring_padded)
 
-static void pin(int cpu){cpu_set_t s;CPU_ZERO(&s);CPU_SET(cpu,&s);
-  pthread_setaffinity_np(pthread_self(),sizeof s,&s);}
+static void pin(int cpu){
+#ifdef __linux__
+  cpu_set_t s;CPU_ZERO(&s);CPU_SET(cpu,&s);
+  pthread_setaffinity_np(pthread_self(),sizeof s,&s);
+#else
+  (void)cpu;
+#endif
+}
 static void*prod_packed(void*a){pin(0);for(long i=0;i<N;i++)ring_packed_push(a,(int)i);return 0;}
 static void*prod_padded(void*a){pin(0);for(long i=0;i<N;i++)ring_padded_push(a,(int)i);return 0;}
 

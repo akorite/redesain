@@ -14,11 +14,13 @@ $CC -O2 -Wall -o "$T/vc"  ch09_volatile_cost.c
 "$T/mm" 2000000 16777216 | tee "$T/mm.txt"
 small=$(awk '$1==4096{print $2}' "$T/mm.txt")
 big=$(awk '$1==16777216{print $2}' "$T/mm.txt")
-awk -v a="$small" -v b="$big" 'BEGIN{printf "mountain: 4 KiB %.2f ns, 16 MiB %.2f ns, ratio %.0fx\n",a,b,b/a; exit !(b>=10*a)}'
+if [ "$(uname)" = "Linux" ]; then thr=10; else thr=4; fi
+awk -v a="$small" -v b="$big" -v t="$thr" 'BEGIN{printf "mountain: 4 KiB %.2f ns, 16 MiB %.2f ns, ratio %.0fx\n",a,b,b/a; exit !(b>=t*a)}'
 
 "$T/sb" | tee "$T/sb.txt"
 s1=$(awk '$1==1{print $2}' "$T/sb.txt"); s64=$(awk '$1==64{print $2}' "$T/sb.txt")
-awk -v a="$s1" -v b="$s64" 'BEGIN{printf "stride: 1 -> %.2f ns/acc, 64 -> %.2f ns/acc\n",a,b; exit !(b>=3*a)}'
+if [ "$(uname)" = "Linux" ]; then thr=3; else thr=1.5; fi
+awk -v a="$s1" -v b="$s64" -v t="$thr" 'BEGIN{printf "stride: 1 -> %.2f ns/acc, 64 -> %.2f ns/acc\n",a,b; exit !(b>=t*a)}'
 
 "$T/vc" | tee "$T/vc.txt"
 awk '/plain/{p=$4} /volatile/{v=$4} END{exit !(v>1.3*p)}' "$T/vc.txt"

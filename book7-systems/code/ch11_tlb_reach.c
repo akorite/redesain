@@ -24,7 +24,11 @@ int main(int argc, char **argv) {
     char *base = mmap(NULL, nb + (2u << 20), PROT_READ | PROT_WRITE,
                       MAP_PRIVATE | MAP_ANON, -1, 0);
     base = (char *)(((uintptr_t)base + (2u << 20) - 1) & ~(uintptr_t)((2u << 20) - 1));
+#ifdef MADV_HUGEPAGE
     if (huge) madvise(base, nb, MADV_HUGEPAGE);
+#else
+    if (huge) fprintf(stderr, "MADV_HUGEPAGE unsupported on this OS; running normal\n");
+#endif
     for (size_t i = 0; i < nb; i += pg) base[i] = 1; /* make every page resident */
     long hp_kb = -1; char line[256];                 /* how much did the kernel really back with huge pages? */
     FILE *f = fopen("/proc/self/smaps_rollup", "r");

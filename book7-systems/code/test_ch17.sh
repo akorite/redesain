@@ -18,12 +18,20 @@ grep -q "drained 255 items, last value 1009" ch17_ringfull.out || fail "ring dra
 #    and that the compiler turned the 'branchy' min into a cmov)
 gcc -O2 ch17_folklore.c -o "$T/fk" 2>/dev/null; "$T/fk" | tee ch17_folklore_x86.out
 grep -q "binary n=16M" ch17_folklore_x86.out || fail "folklore output"
-gcc -O2 -S ch17_folklore.c -o - 2>/dev/null | grep -q cmovg || fail "expected cmovg for branchy min"
+if [ "$(uname -m)" = "x86_64" ]; then
+  gcc -O2 -S ch17_folklore.c -o - 2>/dev/null | grep -q "cmov" || fail "expected cmov for branchy min"
+else
+  echo "ch17 note: not x86_64, cmov mnemonic check skipped"
+fi
 
 # 3. branch experiment: real branch (jle in the branchy loop), random vs sorted
 gcc -O2 -fno-tree-vectorize ch17_branch_x86.c -o "$T/br"
 gcc -O2 -fno-tree-vectorize -c ch17_branch_x86.c -o "$T/br.o"
-objdump -d --no-show-raw-insn "$T/br.o" | awk '/<branchy>:/,/ret/' | grep -q "jle" || fail "branchy loop has no branch"
+if [ "$(uname -m)" = "x86_64" ]; then
+  objdump -d --no-show-raw-insn "$T/br.o" | awk '/<branchy>:/,/ret/' | grep -q "jle" || fail "branchy loop has no branch"
+else
+  echo "ch17 note: not x86_64, jle mnemonic check skipped"
+fi
 "$T/br" | tee ch17_branch_x86.out
 awk '/^random/{r=$3/$6; if (r>3) ok=1} END{exit !ok}' ch17_branch_x86.out || fail "random: branchy not >3x slower"
 awk '/^sorted/{r=$3/$6; if (r<3) ok=1} END{exit !ok}' ch17_branch_x86.out || fail "sorted: gap should be small"

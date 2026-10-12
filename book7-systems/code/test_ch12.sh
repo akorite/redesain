@@ -13,13 +13,17 @@ done
 grep -q "hello from exec'd child" "$T/fork.out" || fail "fork_demo exec output"
 grep -q "status=0" "$T/fork.out" || fail "fork_demo status"
 
-"$T/zombie" > "$T/z.out" || fail "zombie exit"
-grep -q "before waitpid: child state = Z" "$T/z.out" || fail "zombie state not Z"
-grep -q "exit status = 7" "$T/z.out" || fail "zombie status"
-grep -q "after  waitpid: child state = -" "$T/z.out" || fail "zombie not reaped"
+if [ -d /proc ]; then
+  "$T/zombie" > "$T/z.out" || fail "zombie exit"
+  grep -q "before waitpid: child state = Z" "$T/z.out" || fail "zombie state not Z"
+  grep -q "exit status = 7" "$T/z.out" || fail "zombie status"
+  grep -q "after  waitpid: child state = -" "$T/z.out" || fail "zombie not reaped"
+else
+  echo "ch12 note: /proc absent (macOS), zombie check skipped"
+fi
 
 "$T/pipeline" > "$T/p.out" || fail "pipeline exit"
-[ "$(head -1 "$T/p.out")" = "14" ] || fail "pipeline wc -c != 14"
+[ "$(head -1 "$T/p.out" | tr -d ' ')" = "14" ] || fail "pipeline wc -c != 14"
 grep -q "reaped 3 children" "$T/p.out" || fail "pipeline child count"
 
 gcc -O2 -w -DLEAK -o "$T/pipe_leak" ch12_pipeline.c || fail "compile pipe_leak"
@@ -28,8 +32,8 @@ timeout 2 "$T/pipe_leak" > /dev/null 2>&1; [ $? = 124 ] || fail "leaky pipeline 
 "$T/cow" > "$T/c.out" || fail "cow exit"
 grep -q "child : fork returned 0, x=101" "$T/c.out" || fail "cow child"
 grep -q "x=100" "$T/c.out" || fail "cow parent x"
-a=$(sed -n 's/.*&x=\(0x[0-9a-f]*\).*/\1/p' "$T/c.out" | sort -u | wc -l)
-[ "$a" = 1 ] || fail "cow: addresses differ"
+a=$(sed -n 's/.*&x=\(0x[0-9a-f]*\).*/\1/p' "$T/c.out" | sort -u | wc -l | tr -d ' ')
+[ "$a" = "1" ] || fail "cow: addresses differ"
 
 python3 ch12_sched_sim.py > "$T/sim.out" || fail "sim"
 grep -E '^fifo +127.5 +77.5 ' "$T/sim.out" > /dev/null || fail "fifo"

@@ -19,6 +19,7 @@ static double read_all(const char *path, int flags, void *buf) {
     return FILE_MB / dt;
 }
 int main(void) {
+#ifdef O_DIRECT
     const char *path = "/tmp/ch14_direct.bin";
     void *buf; if (posix_memalign(&buf, 4096, MB)) return 1;
     int f = open(path, O_WRONLY | O_CREAT | O_TRUNC, 0644);
@@ -30,4 +31,8 @@ int main(void) {
     printf("O_DIRECT read           : %8.0f MB/s\n", read_all(path, O_DIRECT, buf));
     unlink(path);
     return 0;
+#else
+    fprintf(stderr, "O_DIRECT not supported on this platform\n");
+    return 1;
+#endif
 }
