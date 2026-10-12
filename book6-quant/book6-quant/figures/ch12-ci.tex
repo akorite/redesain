@@ -1,9 +1,0 @@
-\begin{tikzpicture}[font=\scriptsize]
-  \draw[->,slate] (0,0)--(0,4.4);
-  \foreach \y/\t/\lo/\hi in {3.8/63d/0.70/1.30, 2.6/252d/0.85/1.15, 1.4/756d/0.91/1.09, 0.4/2520d/0.95/1.05}{
-    \node[left] at (-0.1,\y) {\t};
-    \draw[accent,thick] (\lo*3,\y)--(\hi*3,\y);
-    \fill[ink] (3,\y) circle (1.6pt);}
-  \draw[slate,dashed] (3,-0.3)--(3,4.6) node[above]{SR $=1$};
-  \node[below] at (3,-0.4) {95\% CI on measured SR (true SR $=1$, normal)};
-\end{tikzpicture}

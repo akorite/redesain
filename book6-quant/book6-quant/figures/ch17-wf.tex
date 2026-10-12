@@ -1,7 +1,0 @@
-\begin{tikzpicture}
-\begin{axis}[width=0.6\linewidth, height=4.5cm, ybar, bar width=18pt,
-  symbolic x coords={IS,OOS}, xtick=data, ymin=0, ymax=0.8,
-  ylabel={annualised Sharpe}, nodes near coords, every node near coord/.append style={font=\small}]
-\addplot table[x index=0,y=sharpe] {figures/data/ch17-wf.dat};
-\end{axis}
-\end{tikzpicture}

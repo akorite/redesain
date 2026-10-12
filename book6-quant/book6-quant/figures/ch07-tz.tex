@@ -1,8 +1,0 @@
-\begin{tikzpicture}[font=\scriptsize]
-  \draw[->,slate] (0,0)--(9.4,0) node[below left=-1pt]{hour (UTC)};
-  \foreach \x/\l in {0/0,4/4,8/8} \draw[slate] (\x*1.05,0.15)--(\x*1.05,-0.15) node[below]{\l};
-  \draw[accent,very thick] (0,0.7)--(8.4,0.7) node[right]{crypto: 24/7};
-  \draw[amber,very thick] (3.2,1.4)--(5.5,1.4) node[right]{equities RTH};
-  \draw[slate,dashed] (4.35,0)--(4.35,1.9);
-  \node[text=slate] at (4.35,2.15) {same timestamp, different sessions};
-\end{tikzpicture}

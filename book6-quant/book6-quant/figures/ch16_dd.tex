@@ -1,9 +1,0 @@
-\begin{tikzpicture}
-\begin{axis}[width=0.75\linewidth,height=0.45\linewidth,
-  xlabel={day},ylabel={drawdown (\%)},xmin=0,xmax=720,ymin=-60,ymax=2,
-  legend style={font=\scriptsize,at={(0.02,0.02)},anchor=south west}]
-\addplot[blue!60,thick] table[x index=0,y index=1] {figures/data/ch16_dd.dat};
-\addplot[red!70,thick] table[x index=0,y index=2] {figures/data/ch16_dd.dat};
-\legend{buy \& hold,drawdown budget}
-\end{axis}
-\end{tikzpicture}

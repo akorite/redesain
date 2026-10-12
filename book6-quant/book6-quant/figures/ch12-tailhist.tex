@@ -1,9 +1,0 @@
-\begin{tikzpicture}
-\begin{axis}[width=0.86\linewidth,height=0.34\linewidth,
-    xlabel={daily return},ylabel={count},
-    tick style={draw=none},axis line style={draw=slate},font=\scriptsize]
-  \addplot[fill=accent!30,draw=accent,thick] file{figures/data/TAILH.tex};
-  \addplot[red,dashed,thick] coordinates {(-0.08,0)(-0.08,60)};
-  \node[font=\scriptsize,text=red,align=left] at (axis cs:-0.16,55) {the cliff\\ (skew $-4.3$)};
-\end{axis}
-\end{tikzpicture}

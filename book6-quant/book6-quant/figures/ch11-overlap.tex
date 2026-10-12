@@ -1,8 +1,0 @@
-\begin{tikzpicture}[font=\scriptsize]
-  \draw[->,slate] (0,0)--(9.4,0) node[below left=-1pt]{bar};
-  \draw[slate] (0,2.6)--(9.2,2.6) node[right]{price};
-  \draw[accent,thick] (1.0,2.9)--(4.0,2.9) node[midway,above]{train label $i$ (30 bars)};
-  \draw[amber,thick] (4.3,2.3)--(7.3,2.3) node[midway,below]{test label $j$ (30 bars)};
-  \draw[<->,red,thick] (4.0,1.6)--(4.3,1.6) node[midway,below]{overlap};
-  \node[align=left,text=slate] at (7.6,3.3) {$\mathrm{corr}(y_i,y_{i+1})=0.983$\\ with a 30-bar label};
-\end{tikzpicture}

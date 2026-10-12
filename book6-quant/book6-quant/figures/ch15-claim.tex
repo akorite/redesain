@@ -1,7 +1,0 @@
-\begin{tikzpicture}[font=\scriptsize]
-  \foreach \x/\c/\e in {0.3/{``funding carry exists''}/{+0.113bp/h, 500h, floor 85\%}, 4.0/{``SMA works''}/{+7.9\% 721d, vs B\&H +22.7\%}, 7.7/{``edge in microstructure''}/{IS +1.04, OOS $-0.19$}}{
-    \fill[slate!15,draw=slate] (\x,0) rectangle (\x+3.0,0.8) node[midway]{\c};
-    \fill[accent!25,draw=accent] (\x,-0.9) rectangle (\x+3.0,-0.1) node[midway]{\e};
-    \draw[->,ink] (\x+1.5,0) -- (\x+1.5,-0.1);}
-  \node[below,text=slate] at (5.4,-1.0) {every claim carries its evidence or it is marketing};
-\end{tikzpicture}

@@ -1,9 +1,0 @@
-\begin{tikzpicture}[font=\scriptsize]
-  \draw[->,slate] (0,0)--(6.4,0) node[below left=-1pt]{reserve $x$};
-  \draw[->,slate] (0,0)--(0,4.6) node[above left=-1pt]{reserve $y$};
-  \draw[accent,very thick] plot[domain=1.02:6,samples=60] (\x,{6/\x});
-  \fill[ink] (2,3) circle (1.6pt) node[above right]{state $(x,y)$, price $y/x$};
-  \fill[amber] (3,2) circle (1.6pt) node[below right]{after buy of $\Delta x$};
-  \draw[->,ink] (2.15,2.75) -- (2.85,2.25);
-  \node[text=slate,align=center] at (4.9,3.4) {$x\cdot y=k$\\ slope $\approx$ price\\ curvature $=$ depth};
-\end{tikzpicture}

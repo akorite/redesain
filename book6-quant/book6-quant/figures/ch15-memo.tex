@@ -1,6 +1,0 @@
-\begin{tikzpicture}[font=\scriptsize]
-  \foreach \y/\s/\d in {4.0/1. Claim/{one line: what is true},3.3/2. Evidence/{data + code + outputs},2.6/3. Method/{what was tried, incl.\ $N$},1.9/4. Weaknesses/{what could kill it},1.2/5. Risks/{venue/regime/capacity},0.5/6. Repro/{seeds, pins, how to rerun}}{
-    \fill[accent!20,draw=accent] (0,\y) rectangle (7.2,\y+0.55);
-    \node[right] at (0.15,\y+0.27) {\textbf{\s}};
-    \node[right,text=slate] at (3.4,\y+0.27) {\d};}
-\end{tikzpicture}

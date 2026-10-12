@@ -1,8 +1,0 @@
-\begin{tikzpicture}
-\begin{axis}[width=0.82\linewidth, height=5cm, xlabel={bar}, ylabel={equity},
-  legend style={at={(0.02,0.98)},anchor=north west,font=\small}, ymin=0.8]
-\addplot[blue!60!black, thick] table[x index=0,y index=1] {figures/data/ch17-equity-corr.dat};
-\addplot[gray, dashed] table[x index=0,y index=2] {figures/data/ch17-equity-corr.dat};
-\legend{mom20 strategy (corrected data), buy \& hold}
-\end{axis}
-\end{tikzpicture}

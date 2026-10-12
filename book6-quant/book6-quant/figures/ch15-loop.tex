@@ -1,8 +1,0 @@
-\begin{tikzpicture}[font=\scriptsize]
-  \node[draw=accent,fill=accent!10,rounded corners=1pt,align=center] (w) at (0,1.5) {write};
-  \node[draw=red,fill=red!10,rounded corners=1pt,align=center] (r) at (3.4,1.5) {red-team};
-  \node[draw=slate,fill=white,rounded corners=1pt,align=center] (f) at (6.8,1.5) {fix or\\ flag};
-  \draw[->,ink,thick] (w)--(r) node[midway,above]{draft};
-  \draw[->,ink,thick] (r)--(f) node[midway,above]{attacks};
-  \draw[->,ink,dashed] (f.south) to[bend right=25] node[below]{repeat until flags are named} (w.south);
-\end{tikzpicture}

@@ -1,8 +1,0 @@
-\begin{tikzpicture}
-\begin{axis}[width=0.86\linewidth,height=0.34\linewidth,view={45}{35},
-    xlabel={fast $a$},ylabel={slow $b$},zlabel={IS Sharpe},
-    tick style={draw=none},font=\scriptsize]
-  \addplot3[surf,domain=2:60,y domain=7:200,samples=25,samples y=20]
-    {0.6-0.004*sqrt((x-46)^2+(y-56)^2)+0.15*cos(x*137)};
-\end{axis}
-\end{tikzpicture}

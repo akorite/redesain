@@ -1,8 +1,0 @@
-\begin{tikzpicture}
-\begin{axis}[width=0.6\linewidth, height=4.5cm, ybar, bar width=16pt,
-  symbolic x coords={2x,3x,5x}, xtick=data, ymin=0, ymax=60,
-  ylabel={adverse basis move to liquidation (\%)},
-  nodes near coords, every node near coord/.append style={font=\small}]
-\addplot table[x index=0,y=buf] {figures/data/ch18-liq.dat};
-\end{axis}
-\end{tikzpicture}

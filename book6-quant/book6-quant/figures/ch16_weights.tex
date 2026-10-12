@@ -1,9 +1,0 @@
-\begin{tikzpicture}
-\begin{axis}[width=0.7\linewidth,height=0.45\linewidth,ybar,bar width=8pt,
-  symbolic x coords={mom,car,mkt},ylabel={weight},ymin=0,ymax=0.8,
-  legend style={font=\scriptsize,at={(0.98,0.95)},anchor=north east}]
-\addplot+[ybar,fill=blue!55] table[x index=0,y index=1] {figures/data/ch16_weights.dat};
-\addplot+[ybar,fill=orange!70] table[x index=0,y index=2] {figures/data/ch16_weights.dat};
-\legend{equal $1/3$,$1/\sigma$}
-\end{axis}
-\end{tikzpicture}

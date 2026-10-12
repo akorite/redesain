@@ -1,9 +1,0 @@
-\begin{tikzpicture}
-\begin{axis}[width=0.86\linewidth,height=0.34\linewidth,
-    xlabel={in-sample Sharpe},ylabel={count},
-    tick style={draw=none},axis line style={draw=slate},font=\scriptsize]
-  \addplot[fill=accent!30,draw=accent,thick] file{figures/data/S_HIST.tex};
-  \addplot[red,thick,dashed] coordinates {(1.8,0)(1.8,25)};
-  \node[font=\scriptsize,text=red,align=left] at (axis cs:1.35,22) {best of 300\\(true edge 0)};
-\end{axis}
-\end{tikzpicture}

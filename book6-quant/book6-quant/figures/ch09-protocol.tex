@@ -1,8 +1,0 @@
-\begin{tikzpicture}[font=\scriptsize,every node/.style={draw=slate,fill=white,rounded corners=1pt,align=center}]
-  \node (h) {hypothesis\\ written down};
-  \node (is) [right=1.5cm of h] {fit IS\\ 60\%};
-  \node (os) [right=1.5cm of is] {test OOS\\ 40\% (once)};
-  \node (d) [right=1.5cm of os] {keep or kill\\ no third try};
-  \draw[->,ink] (h)--(is); \draw[->,ink] (is)--(os); \draw[->,ink] (os)--(d);
-  \draw[->,red,dashed] (d.south) to[bend right=25] node[below]{forbidden loop} (is.south);
-\end{tikzpicture}
